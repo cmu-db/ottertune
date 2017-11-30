@@ -18,6 +18,13 @@ from website.utils import (ConversionUtil, DataUtil, DBMSUtil, JSONUtil,
                            MediaUtil, PostgresUtilImpl)
 
 
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
+from datetime import datetime
+from celery.utils.log import get_task_logger
+
+
+
 class UpdateTask(Task):
 
     def __init__(self):
@@ -430,3 +437,20 @@ def create_workload_mapping_data():
         new_res.task_type = PipelineTaskType.WORKLOAD_MAPPING_DATA
         new_res.value = JSONUtil.dumps(value, pprint=True)
         new_res.save()
+
+
+
+
+
+## periodic task example 
+logger = get_task_logger(__name__)
+
+#every 10 seconds
+@periodic_task(run_every=10,name="periodic_task_example")
+
+#every 1 min 
+#@periodic_task(run_every=(crontab(hour=0,minute=1,day_of_week=0)),name="periodic_task_example")
+def periodic_task_example():
+    
+   logger.info("This is a periodic task example. CHANGE ME ! " )
+

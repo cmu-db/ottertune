@@ -4,12 +4,13 @@ Admin tasks
 @author: dvanaken
 '''
 
+import glob
 import os
 from collections import namedtuple
-from fabric.api import env, execute, local, quiet, settings, sudo, task
+from fabric.api import env, execute, local, quiet, settings, task
 from fabric.state import output as fabric_output
 
-from website.settings import DATABASES, LOG_DIR, PRELOAD_DIR, PROJECT_ROOT
+from website.settings import DATABASES, PRELOAD_DIR, PROJECT_ROOT
 
 
 # Fabric environment settings
@@ -130,10 +131,11 @@ def print_status(status, task_name):
 
 
 @task
-def recreate_website_dbms():
-    ## WARNING: This will delete everything in the database and Django
-    ## migrations files and recreate them
-    local('mkdir -p {}'.format(LOG_DIR))
+def reset_website():
+    # WARNING: destroys the existing website and creates a new one
+    # but does not preload any fixtures (static table data)
+
+    # Recreate the ottertune database
     user = DATABASES['default']['USER']
     passwd = DATABASES['default']['PASSWORD']
     name = DATABASES['default']['NAME']
@@ -141,17 +143,48 @@ def recreate_website_dbms():
             user, passwd, name))
     local("mysql -u {} -p{} -N -B -e \"CREATE DATABASE {}\"".format(
             user, passwd, name))
+
+    # Remove old migrations
     local('rm -rf ./website/migrations/')
+
+    # Remove old data (almost obscelete)
     local('rm -rf ./website/data/media*')
+
+    # Reinitialize the website
     local('python manage.py makemigrations website')
     local('python manage.py migrate website')
     local('python manage.py migrate')
+
+
+@task
+def reset_website_and_load_fixtures():
+    # WARNING: destroys the existing website and creates a new one with
+    # the standard fixtures
+    reset_website()
+    fixtures = [f for f in glob.glob(os.path.join(PRELOAD_DIR, "*.json"))
+                if not os.path.basename(f).startswith("test")]
+    local("python manage.py loaddata {}".format(' '.join(fixtures)))
+
+
+@task
+def create_test_website():
+    # WARNING: destroys the existing website and creates a new one. Creates
+    # a test user, test application, and loads data into it.
+    reset_website()
+    local("python manage.py loaddata {}".format(os.path.join(
+        PRELOAD_DIR, "test_website.json")))
+
+
+@task
+def add_test_user():
+    # Adds a test user to an existing website with an empty application
     local(("echo \"from django.contrib.auth.models import User; "
            "User.objects.filter(email='user@email.com').delete(); "
            "User.objects.create_superuser('user', 'user@email.com', 'abcd123')\" "
            "| python manage.py shell"))
-    local('python manage.py loaddata {}'.format(
-            os.path.join(PRELOAD_DIR, '*')))
+
+    local("python manage.py loaddata {}".format(os.path.join(
+        PRELOAD_DIR, "test_user_app.json")))
 
 
 @task

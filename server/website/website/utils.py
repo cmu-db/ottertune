@@ -59,8 +59,8 @@ class DataUtil(object):
     def aggregate_data(results):
         knob_labels = JSONUtil.loads(results[0].dbms_config.data).keys()
         metric_labels = JSONUtil.loads(results[0].dbms_metrics.data).keys()
-        X_matrix = np.empty(len(results), len(knob_labels), dtype=float)
-        y_matrix = np.empty(len(results), len(metric_labels), dtype=float)
+        X_matrix = np.empty((len(results), len(knob_labels)), dtype=float)
+        y_matrix = np.empty((len(results), len(metric_labels)), dtype=float)
         rowlabels = np.empty(len(results), dtype=int)
 
         for i, result in enumerate(results):

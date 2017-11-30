@@ -280,7 +280,6 @@ def map_workload(target_data):
 @task(name='aggregate_results')
 def aggregate_results():
     unique_workloads = Workload.objects.all()
-    unique_workloads = filter(lambda x: x.isdefault is False, unique_workloads)
     all_data = {}
     for workload in unique_workloads:
         results = Result.objects.filter(workload=workload)

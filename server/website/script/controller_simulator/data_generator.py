@@ -96,6 +96,8 @@ def main():
     os.mkdir(OUTPUT_DIR)
 
     generate_data(int(sys.argv[1]), int(sys.argv[2]))
+    print ""
+    print "Finished. Generated data written to " + OUTPUT_DIR + "."
 
 if __name__ == "__main__":
     main()

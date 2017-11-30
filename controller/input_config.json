@@ -1,5 +1,5 @@
 {
-  "database_type" : "PostgreSQL",
+  "database_type" : "postgres",
   "database_url" : "jdbc:postgresql://localhost:5432/postgres",
   "username" : "MacadamiaKitten",
   "password" : "",

@@ -8,10 +8,10 @@ register_openers()
 
 def upload(upload_code, datadir):
     params = {
-        'summary': open(os.path.join(datadir, 'summary.json'), "r"),
-        'knobs': open(os.path.join(datadir, 'knobs.json'),"r"),
-        'metrics_start':open(os.path.join(datadir, 'metrics_before.json'),'r'),
-        'metrics_end':open(os.path.join(datadir, 'metrics_after.json'),'r'),
+        'summary': open(os.path.join(datadir, 'sample-0__summary.json'), "r"),
+        'knobs': open(os.path.join(datadir, 'sample-0__knobs.json'),"r"),
+        'metrics_start':open(os.path.join(datadir, 'sample-0__metrics_start.json'),'r'),
+        'metrics_end':open(os.path.join(datadir, 'sample-0__metrics_end.json'),'r'),
         'upload_code':  upload_code,
     }
     

@@ -404,13 +404,13 @@ def handle_result_files(app, files):
     from celery import chain
 
     # Load controller's summary file and verify that we support this DBMS & version
-    workload_name = 'my_workload'  ## FIXME
     raw_summary = ''.join(files['summary'].chunks())
     summary = JSONUtil.loads(raw_summary)
     dbms_type = DBMSType.type(summary['dbms_type'])
 #     dbms_version = DBMSUtil.parse_version_string(
 #        dbms_type, summary['dbms_version'])
     dbms_version = '9.6'
+    workload_name = summary['workload_name']
     observation_time = summary['observation_time']
     start_timestamp = summary['start_time_utc']
     end_timestamp = summary['end_time_utc']

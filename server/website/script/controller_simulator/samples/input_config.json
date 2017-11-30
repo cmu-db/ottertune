@@ -1,0 +1,8 @@
+{
+  "database_type" : "PostgreSQL",
+  "database_url" : "jdbc:postgresql://localhost:5432/postgres",
+  "username" : "MacadamiaKitten",
+  "password" : "",
+  "upload_code" : "MY_UPLOAD_CODE",
+  "upload_url" : "http://localhost:8080"
+}

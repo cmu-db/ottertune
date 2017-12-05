@@ -116,16 +116,66 @@ class DBMSUtilImplTest(TestCase):
         self.assertEqual(testDBMS.convert_bool('apavlo', []), BooleanType.FALSE)
 
         # Convert Enum
-        EnumParam = VarType(5)
-        EnumParam.enumvals = ['apple', 'oranges', 'cake']
+        EnumParam = VarType()
+        EnumParam.enumvals = 'apple,oranges,cake'
+        EnumParam.name = "Test"
 
-        self.assertEqual(testDBMS.convert_enum(0, EnumParam), 'apple')
-        self.assertEqual(testDBMS.convert_enum(1, EnumParam), 'oranges')
-        self.assertEqual(testDBMS.convert_enum(2, EnumParam), 'cake')
+        self.assertEqual(testDBMS.convert_enum('apple', EnumParam), 0)
+        self.assertEqual(testDBMS.convert_enum('oranges', EnumParam), 1)
+        self.assertEqual(testDBMS.convert_enum('cake', EnumParam), 2)
 
         with self.assertRaises(Exception):
-            testDBMS.convert_enum(3, EnumParam)
+            testDBMS.convert_enum('jackyl', EnumParam)
 
+        # Convert Integer
+
+        # Convert Real
+
+        # Convert DBMS Knobs
+
+        # Convert DBMS Metrics
+
+    def testExtractValidKeys(self):
+        pass
+
+    def testParses(self):
+        # Parse Helper
+
+        # Parse DBMS Config
+
+        # Parse DBMS Metrics
+
+        pass
+
+    def testCalculateChangeInMetrics(self):
+        pass
+
+    def testCreateConfig(self):
+        pass
+
+    def testGetNondefaultSettings(self):
+        pass
+
+    def testFormats(self):
+        # Format Bool
+
+        # Format Enum
+
+        # Format Integer
+
+        # Format Real
+
+        # Format DBMS Params
+
+        # Format DBMS Metrics
+        pass
+
+    def testFilters(self):
+        # Filter Numeric Metrics
+
+        # Filter Tunable Parameters
+
+        pass
 
 
 class PostgresUtilImplTest(TestCase):
@@ -168,7 +218,7 @@ class PostgresUtilImplTest(TestCase):
         KnobUnitOther.unit = 3
 
 
-        self.assertEqual(testDBMS.convert_integer('5', K), 5)
+        self.assertEqual(testDBMS.convert_integer('5', KnobUnitOther), 5)
         self.assertEqual(testDBMS.convert_integer('0', KnobUnitOther), 0)
         self.assertEqual(testDBMS.convert_integer('0.0', KnobUnitOther), 0)
         self.assertEqual(testDBMS.convert_integer('0.5', KnobUnitOther), 0)
@@ -215,4 +265,34 @@ class PostgresUtilImplTest(TestCase):
 
 class LabelUtilTest(TestCase):
     def testStyleLabels(self):
-        pass
+        LabelStyleTitle = LabelStyleType()
+        LabelStyleCapFirst = LabelStyleType()
+        LabelStyleCapFirst.DEFAULT_STYLE = 1
+        LabelStyleLower = LabelStyleType()
+        LabelStyleLower.DEFAULT_STYLE = 2
+        LabelStyleInvalid = LabelStyleType()
+        LabelStyleInvalid.DEFAULT_STYLE = 3
+
+
+        testLabelMap = { "Version": "dbms, Dbms, dBMS, Testing, testing",
+        "Version2": "123",
+        "Version3": "blah"}
+
+        testTitle = LabelUtil.style_labels(testLabelMap, LabelStyleTitle.DEFAULT_STYLE)
+        testCapFirst = LabelUtil.style_labels(testLabelMap, LabelStyleCapFirst.DEFAULT_STYLE)
+        testLower = LabelUtil.style_labels(testLabelMap, LabelStyleLower.DEFAULT_STYLE)
+
+        self.assertEqual(testTitle["Version"], "DBMS, DBMS, DBMS, Testing, Testing")
+        self.assertEqual(testTitle["Version2"], "123")
+        self.assertEqual(testTitle["Version3"], "Blah")
+
+        self.assertEqual(testCapFirst["Version"], "DBMS, DBMS, dBMS, Testing, testing")
+        self.assertEqual(testCapFirst["Version2"], "123")
+        self.assertEqual(testCapFirst["Version3"], "Blah")
+
+        self.assertEqual(testLower["Version"], "dbms, dbms, dbms, testing, testing")
+        self.assertEqual(testLower["Version2"], "123")
+        self.assertEqual(testLower["Version3"], "blah")
+
+        with self.assertRaises(Exception):
+            LabelUtil.style_labels(testLabelMap, LabelStyleInvalid)

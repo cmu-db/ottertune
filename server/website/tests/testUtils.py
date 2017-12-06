@@ -1,7 +1,9 @@
 
 from django.test import TestCase
-from website.utils import *
-
+from .website.utils import *
+from .website.parser.DBMSUtilImpl import DBMSUtilImpl
+from .website.parser.DBMSUtil import DBMSUtil
+from .website.parser.Postgers import PostgresUtilImpl
 
 class JSONUtilTest(TestCase):
     def testUtil(self):
@@ -102,7 +104,7 @@ class ConversionUtilTest(TestCase):
         dayTestConvert = [1000, 1000, 600000, 72000000, 86400000]
         dayAns = ['1000ms', '1s', '10min', '20h', '1d']
         for i in range(5):
-            self.assertEqual(ConversionUtil.get_raw_size(dayTestConvert[i], system = testImpl.POSTGRES_TIME_SYSTEM), dayAns[i])
+            self.assertEqual(ConversionUtil.get_human_readable(dayTestConvert[i], system = testImpl.POSTGRES_TIME_SYSTEM), dayAns[i])
 
 class DBMSUtilImplTest(TestCase):
     def testConverts(self):
@@ -261,7 +263,7 @@ class PostgresUtilImplTest(TestCase):
         self.assertEqual(testDBMS.format_integer(86400000, KnobUnitTime), '1d')
         self.assertEqual(testDBMS.format_integer(72000000, KnobUnitTime), '20h')
         self.assertEqual(testDBMS.format_integer(600000, KnobUnitTime), '10min')
-        self.assertEqual(testDBMS.format_integer(1000, KnobUnitTime), '1s')
+        self.assertEqual(testDBMS.format_integer(1000, KnobUnitTime), '1000ms')
 
 class LabelUtilTest(TestCase):
     def testStyleLabels(self):

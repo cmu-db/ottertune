@@ -25,8 +25,7 @@ from .models import (Application, BackupData, DBConf, DBMSCatalog, DBMSMetrics,
 from tasks import aggregate_target_results, map_workload, configuration_recommendation
 from .types import (DBMSType, HardwareType, KnobUnitType, MetricType, PipelineTaskType,
                     TaskType, VarType)
-from .utils import JSONUtil, LabelUtil, MediaUtil
-from website.parser import DBMSUtil
+from .utils import DBMSUtil, JSONUtil, LabelUtil, MediaUtil
 
 log = logging.getLogger(__name__)
 
@@ -531,7 +530,7 @@ def db_conf_ref(request, dbms_name, version, param_name):
         if param.description is not None:
             description += param.description
         list_items[labels['summary']] = description
-
+    
     context = {
         'title': param.name,
         'dbms': param.dbms,
@@ -704,7 +703,7 @@ def get_workload_data(request):
     metrics = [m for m in metrics if m != 'none']
     if len(metrics) == 0:
         metrics = default_metrics
-
+        
     data_package = {'results': [],
                     'error': 'None',
                     'metrics': metrics}
@@ -891,7 +890,7 @@ def get_timeline_data(request):
     ]
     data_package = {
         'error': 'None',
-        'timelines': [],
+        'timelines': [], 
         'columnnames': columnnames,
     }
 
@@ -905,8 +904,8 @@ def get_timeline_data(request):
     for met in default_metrics:
         met_info = metric_meta[met]
         columnnames.append(
-            met_info.pprint + ' (' +
-            met_info.short_unit + ')')
+            met_info.pprint + ' (' + 
+            met_info.short_unit + ')') 
 
     revs = int(request.GET['revs'])
 

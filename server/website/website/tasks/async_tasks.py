@@ -14,8 +14,8 @@ from website.models import (DBConf, DBMSCatalog, Hardware, KnobCatalog, Pipeline
                             Result, Workload)
 from website.settings import PIPELINE_DIR
 from website.types import KnobUnitType, PipelineTaskType, VarType
-from website.utils import (ConversionUtil, DataUtil, DBMSUtil, JSONUtil,
-                           MediaUtil, PostgresUtilImpl)
+from website.utils import (ConversionUtil, DataUtil, JSONUtil,
+                           MediaUtil)
 from website.parser.DBMSUtil import DBMSUtil
 from website.parser.Postgres import PostgresUtilImpl
 

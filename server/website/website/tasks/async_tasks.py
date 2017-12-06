@@ -16,8 +16,8 @@ from website.settings import PIPELINE_DIR
 from website.types import KnobUnitType, PipelineTaskType, VarType
 from website.utils import (ConversionUtil, DataUtil, JSONUtil,
                            MediaUtil)
-from website.parser.DBMSUtil import DBMSUtil
-from website.parser.Postgres import PostgresUtilImpl
+
+from website.parser import DBMSUtil, PostgresUtilImpl
 
 
 

@@ -16,7 +16,8 @@ from website.settings import PIPELINE_DIR
 from website.types import KnobUnitType, PipelineTaskType, VarType
 from website.utils import (ConversionUtil, DataUtil, DBMSUtil, JSONUtil,
                            MediaUtil, PostgresUtilImpl)
-
+from website.parser.DBMSUtil import DBMSUtil
+from website.parser.Postgres import PostgresUtilImpl
 
 
 
@@ -416,8 +417,3 @@ def create_workload_mapping_data():
         new_res.task_type = PipelineTaskType.WORKLOAD_MAPPING_DATA
         new_res.value = JSONUtil.dumps(value, pprint=True)
         new_res.save()
-
-
-
-
-

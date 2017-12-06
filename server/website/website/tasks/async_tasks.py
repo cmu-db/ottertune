@@ -362,3 +362,147 @@ def map_workload(target_data):
     target_data['mapped_workload'] = (best_workload_id, best_score)
     target_data['scores'] = scores
     return target_data
+<<<<<<< HEAD
+=======
+
+
+@task(name='aggregate_results')
+def aggregate_results():
+    unique_workloads = Workload.objects.all()
+    all_data = {}
+    for workload in unique_workloads:
+        results = Result.objects.filter(workload=workload)
+        if len(results) < 2:
+            continue
+        entry = DataUtil.aggregate_data(results)
+        key = (workload.dbms.pk, workload.hardware.pk)
+        if key not in all_data:
+            all_data[key] = {}
+        all_data[key][workload.pk] = entry
+
+    ts = now()
+    tsf = ts.strftime("%Y%m%d-%H%M%S")
+    for (dbkey, hwkey), workload_data in all_data.iteritems():
+        task_name = PipelineTaskType.TYPE_NAMES[
+            PipelineTaskType.AGGREGATED_DATA].replace(' ', '').upper()
+        savepaths = {}
+        for workloadkey, entry in workload_data.iteritems():
+            fname = '{}_{}_{}_{}_{}.npz'.format(
+                task_name, dbkey, hwkey, workloadkey, tsf)
+            savepath = os.path.join(PIPELINE_DIR, fname)
+            savepaths[workloadkey] = savepath
+            np.savez_compressed(savepath, **entry)
+
+        value = {
+            'data': savepaths
+        }
+
+        new_res = PipelineResult()
+        new_res.dbms = DBMSCatalog.objects.get(pk=dbkey)
+        new_res.hardware = Hardware.objects.get(pk=hwkey)
+        new_res.creation_timestamp = ts
+        new_res.task_type = PipelineTaskType.AGGREGATED_DATA
+        new_res.value = JSONUtil.dumps(value)
+        new_res.save()
+
+
+@task(name='create_workload_mapping_data')
+def create_workload_mapping_data():
+    agg_datas = PipelineResult.objects.filter(
+        task_type=PipelineTaskType.AGGREGATED_DATA)
+    dbmss = set([ad.dbms.pk for ad in agg_datas])
+    hardwares = set([ad.hardware.pk for ad in agg_datas])
+
+    for dbms_id, hw_id in itertools.product(dbmss, hardwares):
+        data = PipelineResult.get_latest(
+            dbms_id, hw_id, PipelineTaskType.AGGREGATED_DATA)
+        file_info = JSONUtil.loads(data.value)
+        cluster_data = OrderedDict()
+        for cluster, path in file_info['data'].iteritems():
+            compressed_data = np.load(path)
+            X_matrix = compressed_data['X_matrix']
+            y_matrix = compressed_data['y_matrix']
+            X_columnlabels = compressed_data['X_columnlabels']
+            y_columnlabels = compressed_data['y_columnlabels']
+            rowlabels = compressed_data['rowlabels']
+
+            # Filter metrics and knobs
+            ranked_knobs = JSONUtil.loads(PipelineResult.get_latest(
+                dbms_id, hw_id, PipelineTaskType.RANKED_KNOBS).value)[:10]  # FIXME
+            pruned_metrics = JSONUtil.loads(PipelineResult.get_latest(
+                dbms_id, hw_id, PipelineTaskType.PRUNED_METRICS).value)
+            knob_idxs = [i for i in range(X_matrix.shape[1]) if X_columnlabels[
+                i] in ranked_knobs]
+            metric_idxs = [i for i in range(y_matrix.shape[1]) if y_columnlabels[
+                i] in pruned_metrics]
+            X_matrix = X_matrix[:, knob_idxs]
+            X_columnlabels = X_columnlabels[knob_idxs]
+            y_matrix = y_matrix[:, metric_idxs]
+            y_columnlabels = y_columnlabels[metric_idxs]
+
+            # Combine duplicate rows
+            X_matrix, y_matrix, rowlabels = DataUtil.combine_duplicate_rows(
+                X_matrix, y_matrix, rowlabels)
+            cluster_data[cluster] = {
+                'X_matrix': X_matrix,
+                'y_matrix': y_matrix,
+                'X_columnlabels': X_columnlabels,
+                'y_columnlabels': y_columnlabels,
+                'rowlabels': rowlabels,
+            }
+
+        Xs = np.vstack([entry['X_matrix'] for entry in cluster_data.values()])
+        ys = np.vstack([entry['y_matrix'] for entry in cluster_data.values()])
+
+        X_scaler = StandardScaler(copy=False)
+        X_scaler.fit(Xs)
+        y_scaler = StandardScaler(copy=False)
+        y_scaler.fit_transform(ys)
+        y_binner = Bin(bin_start=1, axis=0)
+        y_binner.fit(ys)
+        del Xs
+        del ys
+
+        task_name = PipelineTaskType.TYPE_NAMES[
+            PipelineTaskType.WORKLOAD_MAPPING_DATA].replace(' ', '').upper()
+        timestamp = data.creation_timestamp
+        tsf = timestamp.strftime("%Y%m%d-%H%M%S")
+        savepaths = {}
+        for cluster, entry in cluster_data.iteritems():
+            X_scaler.transform(entry['X_matrix'])
+            y_scaler.transform(entry['y_matrix'])
+            fname = '{}_{}_{}_{}_{}.npz'.format(
+                task_name, dbms_id, hw_id, cluster, tsf)
+            savepath = os.path.join(PIPELINE_DIR, fname)
+            savepaths[cluster] = savepath
+            np.savez_compressed(savepath, **entry)
+
+        X_scaler_path = os.path.join(
+            PIPELINE_DIR, '{}_XSCALER_{}_{}_{}.npz'.format(task_name, dbms_id, hw_id, tsf))
+        np.savez_compressed(
+            X_scaler_path, mean=X_scaler.mean_, scale=X_scaler.scale_)
+        y_scaler_path = os.path.join(
+            PIPELINE_DIR, '{}_YSCALER_{}_{}_{}.npz'.format(task_name, dbms_id, hw_id, tsf))
+        np.savez_compressed(
+            y_scaler_path, mean=y_scaler.mean_, scale=y_scaler.scale_)
+        y_deciles_path = os.path.join(
+            PIPELINE_DIR, '{}_YDECILES_{}_{}_{}.npz'.format(task_name, dbms_id, hw_id, tsf))
+        np.savez_compressed(y_deciles_path, deciles=y_binner.deciles_)
+
+        value = {
+            'data': savepaths,
+            'X_scaler': X_scaler_path,
+            'y_scaler': y_scaler_path,
+            'y_deciles': y_deciles_path,
+            'X_columnlabels': cluster_data.values()[0]['X_columnlabels'].tolist(),
+            'y_columnlabels': cluster_data.values()[0]['y_columnlabels'].tolist(),
+        }
+
+        new_res = PipelineResult()
+        new_res.dbms = DBMSCatalog.objects.get(pk=dbms_id)
+        new_res.hardware = Hardware.objects.get(pk=hw_id)
+        new_res.creation_timestamp = timestamp
+        new_res.task_type = PipelineTaskType.WORKLOAD_MAPPING_DATA
+        new_res.value = JSONUtil.dumps(value, pprint=True)
+        new_res.save()
+>>>>>>> 1dfbe53... Fixing import statements in async_tasks

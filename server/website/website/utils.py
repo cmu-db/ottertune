@@ -82,7 +82,7 @@ class DataUtil(object):
         return {
             'X_matrix': X_matrix,
             'y_matrix': y_matrix,
-            'rowlabels': rowlabels,
+            'rowlabels': rowlabels.tolist(),
             'X_columnlabels': knob_labels,
             'y_columnlabels': metric_labels,
         }

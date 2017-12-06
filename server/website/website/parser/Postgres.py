@@ -15,12 +15,12 @@ from collections import OrderedDict
 from random import choice
 from django.utils.text import capfirst
 
-from ..models import DBMSCatalog, KnobCatalog, MetricCatalog
-from ..settings import CONFIG_DIR
-from ..types import (BooleanType, DBMSType, LabelStyleType, MetricType,
+from website.models import DBMSCatalog, KnobCatalog, MetricCatalog
+from website.settings import CONFIG_DIR
+from website.types import (BooleanType, DBMSType, LabelStyleType, MetricType,
                     VarType, KnobUnitType)
 
-from .utils import ConversionUtil
+from website.utils import ConversionUtil
 from .DBMSUtilImpl import DBMSUtilImpl
 
 

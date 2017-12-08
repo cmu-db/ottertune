@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<div id="proj_info" class="container">
+<div id="task_status" class="container">
 <table class="table table-striped table-bordered table-condensed table-hover">
     <caption><h4>Task Info</h4></caption>
     <tbody>
@@ -12,11 +12,11 @@
     </tr>
     <tr>
         <td><div class="text-top text-right">Project:</div></td>
-        <td>{{ result.application.project.name|linebreaks }}</td>
+        <td>{{ result.session.project.name|linebreaks }}</td>
     </tr>
     <tr>
-        <td><div class="text-right">Application:</div></td>
-        <td><div id="apps">{{result.application.name}}</div></td>
+        <td><div class="text-right">Session:</div></td>
+        <td><div id="sessions">{{result.session.name}}</div></td>
     </tr>
     <tr>
         <td><div class="text-right">Overall status:</div></td>
@@ -59,11 +59,6 @@
 	        <td><div class="text-right">Result:</div></td>
 	        <td>{{ task.result|linebreaks }} </td>
 	    </tr>
-
-<!--     <tr> -->
-<!--         <td><div class="text-right">Result:</div></td> -->
-<!--         <td><a href="/get_result_data_file/?id={{ result.pk }}&type=new_conf">Download </td> -->
-<!--     </tr> -->
     </tbody>
 </table>
 {% endfor %}

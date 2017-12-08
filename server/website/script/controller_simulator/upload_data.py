@@ -15,7 +15,7 @@ import urllib2
 register_openers()
 
 def upload(basedir, upload_code):
-    for wkld_dir in glob.glob(os.path.join(basedir, '*')):
+    for wkld_dir in sorted(glob.glob(os.path.join(basedir, '*'))):
         print wkld_dir
         sample_idx = 0
         while True:
@@ -31,7 +31,7 @@ def upload(basedir, upload_code):
                 'metrics_after':open(basename + '__metrics_end.json','r'),
                 'upload_code':  upload_code,
             }
-    
+
             datagen, headers = multipart_encode(params)
             request = urllib2.Request("http://0.0.0.0:8000/new_result/", datagen, headers)
             print urllib2.urlopen(request).read()

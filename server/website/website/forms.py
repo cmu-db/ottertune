@@ -6,7 +6,7 @@ Created on Jul 25, 2017
 
 from django import forms
 
-from .models import Application, Project
+from .models import Session, Project
 
 class NewResultForm(forms.Form):
     upload_code = forms.CharField(max_length=30)
@@ -30,7 +30,7 @@ class ProjectForm(forms.ModelForm):
         }
 
 
-class ApplicationForm(forms.ModelForm):
+class SessionForm(forms.ModelForm):
 
     gen_upload_code = forms.BooleanField(widget=forms.CheckboxInput,
                                          initial=False,
@@ -38,12 +38,12 @@ class ApplicationForm(forms.ModelForm):
                                          label='Get new upload code')
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationForm, self).__init__(*args, **kwargs)
+        super(SessionForm, self).__init__(*args, **kwargs)
         self.fields['description'].required = False
         self.fields['target_objective'].required = False
 
     class Meta:
-        model = Application
+        model = Session
 
         fields = ('name', 'description', 'tuning_session', 'dbms', 'hardware', 'target_objective')
 

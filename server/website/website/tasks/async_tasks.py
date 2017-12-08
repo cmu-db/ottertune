@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 from analysis.gp_tf import GPR, GPR_GD
 from analysis.preprocessing import bin_by_decile, Bin
-from website.models import (DBConf, DBMSCatalog, Hardware, KnobCatalog, PipelineResult,
+from website.models import (DBMSCatalog, Hardware, PipelineResult,
                             Result, Workload)
 from website.settings import PIPELINE_DIR
 from website.types import KnobUnitType, PipelineTaskType, VarType
@@ -18,7 +18,6 @@ from website.utils import (ConversionUtil, DataUtil, JSONUtil,
                            MediaUtil)
 
 from website.parser import DBMSUtil, PostgresUtilImpl
-
 
 
 
@@ -73,22 +72,21 @@ class ConfigurationRecommendation(UpdateTask):
 
         # Create next configuration to try
         nondefault_params = JSONUtil.loads(
-            result.application.nondefault_settings)
+            result.session.nondefault_settings)
         config = DBMSUtil.create_configuration(
             result.dbms.pk, formatted_params, nondefault_params)
-        path_prefix = MediaUtil.get_result_data_path(result.pk)
-        path = '{}.next_conf'.format(path_prefix)
-        with open(path, 'w') as f:
-            f.write(config)
+        result.next_configuration = config
+        result.save()
+
 
 @task(base=AggregateTargetResults, name='aggregate_target_results')
 def aggregate_target_results(result_id):
     newest_result = Result.objects.get(pk=result_id)
     target_results = Result.objects.filter(
-        application=newest_result.application, dbms=newest_result.dbms)
+        session=newest_result.session, dbms=newest_result.dbms)
     if len(target_results) == 0:
-        raise Exception('Cannot find any results for app_id={}, dbms_id={}'
-                        .format(newest_result.application, newest_result.dbms))
+        raise Exception('Cannot find any results for session_id={}, dbms_id={}'
+                        .format(newest_result.session, newest_result.dbms))
     agg_data = DataUtil.aggregate_data(target_results)
 
     agg_data['newest_result_id'] = result_id
@@ -103,9 +101,9 @@ def configuration_recommendation(target_data):
 
     # Load specific workload data
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
-    target_obj = newest_result.application.target_objective
+    target_obj = newest_result.session.target_objective
     dbms_id = newest_result.dbms.pk
-    hw_id = newest_result.application.hardware.pk
+    hw_id = newest_result.session.hardware.pk
     agg_data = PipelineResult.get_latest(
         dbms_id, hw_id, PipelineTaskType.AGGREGATED_DATA)
     if agg_data is None:
@@ -225,7 +223,7 @@ def configuration_recommendation(target_data):
 def map_workload(target_data):
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     dbms = newest_result.dbms.pk
-    hardware = newest_result.application.hardware.pk
+    hardware = newest_result.session.hardware.pk
     workload_data = PipelineResult.get_latest(
         dbms, hardware, PipelineTaskType.WORKLOAD_MAPPING_DATA)
     if workload_data is None:

@@ -4,48 +4,48 @@
 
 {% block body %}
 
-<div id="proj_info" class="container">
+<div id="session" class="container">
 <table class="table table-striped table-bordered table-condensed table-hover">
-    <caption><h4>{{ labels.title }} (<a href="{% url 'edit_application' project.pk application.pk %}">edit</a>)</h4></caption>
+    <caption><h4>{{ labels.title }} (<a href="{% url 'edit_session' project.pk session.pk %}">edit</a>)</h4></caption>
     <tbody>
     <tr>
         <td><div class="text-right">{{ labels.name }}</div></td>
-        <td>{{ application.name }}</td>
+        <td>{{ session.name }}</td>
     </tr>
-    {% if application.description %}
+    {% if session.description %}
     <tr>
         <td><div class="text-top text-right">{{ labels.description }}</div></td>
-        <td>{{ application.description|linebreaks }}</td>
+        <td>{{ session.description|linebreaks }}</td>
     </tr>
     {% endif %}
     <tr>
         <td><div class="text-right">{{ labels.upload_code }}</div></td>
-        <td>{{ application.upload_code }}</td>
+        <td>{{ session.upload_code }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.dbms }}</div></td>
-        <td>{{ application.dbms }}</td>
+        <td>{{ session.dbms }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.hardware }}</div></td>
-        <td>{{ application.hardware.name }}</td>
+        <td>{{ session.hardware.name }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.creation_time }}</div></td>
-        <td>{{ application.creation_time }}</td>
+        <td>{{ session.creation_time }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.last_update }}</div></td>
-        <td>{{ application.last_update }}</td>
+        <td>{{ session.last_update }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.tuning_session }}</div></td>
-        <td>{{ application.tuning_session }}</td>
+        <td>{{ session.tuning_session }}</td>
     </tr>
-    {% if application.tuning_session %}
+    {% if session.tuning_session %}
     <tr>
         <td><div class="text-right">{{ labels.target_objective }}</div></td>
-        <td>{{ metric_meta|get_item:application.target_objective|get_attr:"pprint" }}</td>
+        <td>{{ metric_meta|get_item:session.target_objective|get_attr:"pprint" }}</td>
     </tr>
     {% endif %}
     </tbody>
@@ -58,12 +58,12 @@
 <div class="row">
 
 <div id="sidebar" class="col-md-3">
-<div id="dbs">
+<div id="dbmss">
     <div><h4>DBMS</h4></div>
     <div class="boxbody checkbox">
         <ul>
-        {% for dbkey, dbms in dbmss.items %}
-        <li><label><input type="checkbox" name="db" value="{{ dbkey }}"/> {{ dbms.full_name }}</label></li>
+        {% for dbms_key, dbms in dbmss.items %}
+        <li><label><input type="checkbox" name="dbms" value="{{ dbms_key }}"/> {{ dbms.full_name }}</label></li>
         {% endfor %}
         </ul>
     </div>
@@ -121,9 +121,9 @@
 <div id="configbar" class="row">
     <div class="col-sm-10">
     Show the last
-    <select id="revisions" class="selectpicker show-tick" data-width="fit" data-style="btn-default">
-        {% for rev in lastrevisions %}
-        <option value="{{ rev }}">{{ rev }}</option>
+    <select id="results_per_page" class="selectpicker show-tick" data-width="fit" data-style="btn-default">
+        {% for n_res in results_per_page %}
+        <option value="{{ n_res }}">{{ n_res }}</option>
         {% endfor %}
     </select> results
     </div>
@@ -195,16 +195,15 @@ $(function() {
     $("[id^=div_specific]").hide();
 
    Timeline.init({
-        proj : {{application.project.pk}},
-        app: {{application.pk}},
-        db: "{{ defaultdbms }}",
-        revisions: {{ defaultlast }},
-        workload: "{{ defaultworkload }}",
+        project : {{session.project.pk}},
+        session: {{session.pk}},
+        dbms: "{{ default_dbms }}",
+        results_per_page: {{ default_results_per_page }},
+        workload: "{{ default_workload }}",
         workloads: "{{ defaultspe }}",
-        equidistant: "{{ defaultequid }}",
+        equidistant: "{{ default_equidistant }}",
         additional: [{% for filter in filters %} "{{ filter.field }}", {% endfor %}],
-        metrics: [{% for metric in defaultmetrics %}"{{ metric }}", {% endfor %}],
-        columnnames: [{% for cname in columnnames %}"{{ cname }}", {% endfor %}],
+        metrics: [{% for metric in default_metrics %}"{{ metric }}", {% endfor %}]
     });
 });
 

@@ -12,7 +12,4 @@ For more information, see our [paper](http://db.cs.cmu.edu/papers/2017/p1009-van
 
 ### Contributors
 
-* [Dana Van Aken](http://www.cs.cmu.edu/~dvanaken/)
-* [Andy Pavlo](http://www.cs.cmu.edu/~pavlo/)
-* [Geoff Gordon](http://www.cs.cmu.edu/~ggordon/)
-* [Bohan Zhang](https://bohanjason.github.io/bohan/)
+See the [people page](https://github.com/cmu-db/ottertune/graphs/contributors) for the full list of contributors.

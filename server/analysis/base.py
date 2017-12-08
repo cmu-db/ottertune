@@ -1,0 +1,16 @@
+'''
+Created on Oct 25, 2017
+
+@author: dva
+'''
+
+from abc import ABCMeta, abstractmethod
+
+
+class ModelBase(object):
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def _reset(self):
+        pass

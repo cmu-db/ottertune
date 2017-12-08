@@ -26,7 +26,7 @@ fi
 # Install Ubuntu packages
 echo -e "\n--- Installing Ubuntu packages ---\n"
 apt-get -qq update
-apt-get -y install python-pip python-dev python-mysqldb rabbitmq-server >> $LOG 2>&1
+apt-get -y install python-pip python-dev python-mysqldb rabbitmq-server gradle default-jdk >> $LOG 2>&1
 
 # Install Python packages
 echo -e "\n--- Installing Python packages ---\n"

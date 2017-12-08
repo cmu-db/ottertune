@@ -10,7 +10,7 @@ from collections import namedtuple
 from fabric.api import env, execute, local, quiet, settings, task
 from fabric.state import output as fabric_output
 
-from website.settings import DATABASES, PIPELINE_DIR, PRELOAD_DIR, PROJECT_ROOT
+from website.settings import DATABASES, PIPELINE_DIR, PROJECT_ROOT
 
 
 # Fabric environment settings
@@ -103,10 +103,10 @@ def status_celery():
 
 
 @task
-def start_debug_server():
+def start_debug_server(host="0.0.0.0", port=8000):
     if status_celery() == STATUS.STOPPED:
         start_celery()
-    local('python manage.py runserver 0.0.0.0:8000')
+    local('python manage.py runserver {}:{}'.format(host, port))
 
 
 @task
@@ -132,8 +132,8 @@ def print_status(status, task_name):
 
 @task
 def reset_website():
-    # WARNING: destroys the existing website and creates a new one
-    # but does not preload any fixtures (static table data)
+    # WARNING: destroys the existing website and creates with all
+    # of the required inital data loaded (e.g., the KnobCatalog)
 
     # Recreate the ottertune database
     user = DATABASES['default']['USER']
@@ -144,47 +144,33 @@ def reset_website():
     local("mysql -u {} -p{} -N -B -e \"CREATE DATABASE {}\"".format(
             user, passwd, name))
 
-    # Remove old migrations
-    local('rm -rf ./website/migrations/')
-
     # Remove old data (almost obscelete)
-    local('rm -rf ./website/data/media*')
+    local('rm -rf ' + PIPELINE_DIR)
 
     # Reinitialize the website
-    local('python manage.py makemigrations website')
     local('python manage.py migrate website')
     local('python manage.py migrate')
 
 
 @task
-def reset_website_and_load_fixtures():
-    # WARNING: destroys the existing website and creates a new one with
-    # the standard fixtures
-    reset_website()
-    fixtures = [f for f in glob.glob(os.path.join(PRELOAD_DIR, "*.json"))
-                if not os.path.basename(f).startswith("test")]
-    local("python manage.py loaddata {}".format(' '.join(fixtures)))
-
-
-@task
 def create_test_website():
     # WARNING: destroys the existing website and creates a new one. Creates
-    # a test user, test application, and loads data into it.
+    # a test user and two test sessions: a basic session and a tuning session.
+    # The tuning session has knob/metric data preloaded (5 workloads, 20
+    # samples each).
     reset_website()
-    local("python manage.py loaddata {}".format(os.path.join(
-        PRELOAD_DIR, "test_website.json")))
+    local("python manage.py loaddata test_website.json")
 
 
 @task
-def add_test_user():
-    # Adds a test user to an existing website with an empty application
+def setup_test_user():
+    # Adds a test user to an existing website with an two empty sessions
     local(("echo \"from django.contrib.auth.models import User; "
            "User.objects.filter(email='user@email.com').delete(); "
            "User.objects.create_superuser('user', 'user@email.com', 'abcd123')\" "
            "| python manage.py shell"))
 
-    local("python manage.py loaddata {}".format(os.path.join(
-        PRELOAD_DIR, "test_user_app.json")))
+    local("python manage.py loaddata test_user_sessions.json")
 
 
 @task
@@ -199,6 +185,8 @@ def aggregate_results():
 
 @task
 def create_workload_mapping_data():
+    if not os.path.exists(PIPELINE_DIR):
+        local ('mkdir -p ' + PIPELINE_DIR)
     cmd = ('from website.tasks import create_workload_mapping_data; '
            'create_workload_mapping_data()')
     local(('export PYTHONPATH={}\:$PYTHONPATH; '

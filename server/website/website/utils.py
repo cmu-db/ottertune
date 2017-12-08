@@ -43,6 +43,7 @@ class JSONUtil(object):
 
 
 class MediaUtil(object):
+
     @staticmethod
     def upload_code_generator(size=20,
                               chars=string.ascii_uppercase + string.digits):
@@ -50,24 +51,45 @@ class MediaUtil(object):
         return new_upload_code
 
 
+class TaskUtil(object):
+
+    @staticmethod
+    def get_task_status(tasks):
+        if len(tasks) == 0:
+            return None, 0
+        overall_status = 'SUCCESS'
+        num_completed = 0
+        for task in tasks:
+            status = task.status
+            if status == "SUCCESS":
+                num_completed += 1
+            elif status in ['FAILURE', 'REVOKED', 'RETRY']:
+                overall_status = status
+                break
+            else:
+                assert status in ['PENDING', 'RECEIVED', 'STARTED']
+                overall_status = status
+        return overall_status, num_completed
+
+
 class DataUtil(object):
 
     @staticmethod
     def aggregate_data(results):
-        knob_labels = JSONUtil.loads(results[0].dbms_config.data).keys()
-        metric_labels = JSONUtil.loads(results[0].dbms_metrics.data).keys()
+        knob_labels = JSONUtil.loads(results[0].knob_data.data).keys()
+        metric_labels = JSONUtil.loads(results[0].metric_data.data).keys()
         X_matrix = np.empty((len(results), len(knob_labels)), dtype=float)
         y_matrix = np.empty((len(results), len(metric_labels)), dtype=float)
         rowlabels = np.empty(len(results), dtype=int)
 
         for i, result in enumerate(results):
-            param_data = JSONUtil.loads(result.dbms_config.data)
+            param_data = JSONUtil.loads(result.knob_data.data)
             if len(param_data) != len(knob_labels):
                 raise Exception(
                     ("Incorrect number of knobs "
                      "(expected={}, actual={})").format(len(knob_labels),
                                                         len(param_data)))
-            metric_data = JSONUtil.loads(result.dbms_metrics.data)
+            metric_data = JSONUtil.loads(result.metric_data.data)
             if len(metric_data) != len(metric_labels):
                 raise Exception(
                     ("Incorrect number of metrics "
@@ -79,7 +101,7 @@ class DataUtil(object):
         return {
             'X_matrix': X_matrix,
             'y_matrix': y_matrix,
-            'rowlabels': rowlabels,
+            'rowlabels': rowlabels.tolist(),
             'X_columnlabels': knob_labels,
             'y_columnlabels': metric_labels,
         }

@@ -18,8 +18,10 @@ function renderPlot(data, div_id) {
             },
             xaxis:{
                 renderer: $.jqplot.CategoryAxisRenderer,
-                label: 'DBMS Configuration',
+                label: 'DBMS Knob Configurations',
                 labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions:{angle:-20},
                 ticks: data.tick,
                 pad: 1.01,
                 autoscale:true,
@@ -64,10 +66,12 @@ function render(data) {
         var h = $("#content").height();
         $("#plotgrid").html(getLoadText("No data available", h, false));
     } else {
+    	var met_idx = 0;
         for (var metric in data.results) {
-            var plotid = "plot_" + metric;
+            var plotid = "plot_" + met_idx;
             $("#plotgrid").append('<div id="' + plotid + '" class="plotcontainer"></div>');
             renderPlot(data.results[metric], plotid);
+            met_idx += 1;
         }
     }
 }
@@ -75,15 +79,15 @@ function render(data) {
 function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
     if (neighbor) {
         result_id = neighbor.data[2];
-        window.location = '/projects/' + defaults.proj + '/apps/' + defaults.app + '/results/' + result_id;
+        window.location = '/projects/' + defaults.proj + '/sessions/' + defaults.session + '/results/' + result_id;
     }
 }
 
 function getConfiguration() {
     var config = {
         id: defaults.workload,
-        app_id: defaults.app_id,
-        db: readCheckbox("input[name^='db_']:checked"),
+        session_id: defaults.session_id,
+        conf: readCheckbox("input[name^='db_']:checked"),
         met: readCheckbox("input[name='metric']:checked"),
     };
     return config;
@@ -115,8 +119,6 @@ function updateSub(event) {
 
 function initializeSite(event) {
     setValuesOfInputFields(event);
-    $("input[name='db']"          ).bind('click', updateUrl);
-    $("input[name='db']"          ).on('change', updateSub);
     $("input[name^='db_']"        ).on('click', updateUrl);
     $("input[name='metric']"      ).on('click', updateUrl);
 }
@@ -138,18 +140,12 @@ function setValuesOfInputFields(event) {
         }
     });
 
-    // Set default selected db
+    // Set default selected knob configurations
     $("input:checkbox[name^='db_']").removeAttr('checked');
-    var dbs = event.parameters.db ? event.parameters.db.split(',') : defaults.db_confs;
+    var dbs = event.parameters.db ? event.parameters.db.split(',') : defaults.default_knob_confs;
     var sel = $("input[name^='db_']");
     $.each(dbs, function(i, db) {
         sel.filter("[value='" + db + "']").prop('checked', true);
-    });
-
-    // Set selected db type
-    $("input:checkbox[name='db']").removeAttr('checked');
-    $("input[name='db']").each(function() {
-        $(this).prop('checked', allChecked("input[name='db_" + $(this).val() + "']"));
     });
 }
 

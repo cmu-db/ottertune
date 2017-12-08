@@ -16,10 +16,6 @@
         <td><div class="text-right">{{ labels.name }}</div></td>
         <td>{{ workload.name }}</td>
     </tr>
-    <!-- <tr>
-        <td><div class="text-right">{{ labels.creation_time }}</div></td>
-        <td>{{ benchmark.creation_time }}</td>
-    </tr> -->
     </tbody>
 </table>
 </div>
@@ -31,17 +27,11 @@
 
 <div id="sidebar" class="col-md-3">
 <div id="dbs">
-    <div><h4>DBMS Configs</h4></div>
+    <div><h4>DBMS Knob Configs</h4></div>
     <div class="boxbody checkbox">
         <ul>
-        {% for db_name, confs in dbs.items %}
-        <li><label><input type="checkbox" name="db" value="{{ db_name }}"/> {{ db_name }}</label>
-            <ul>
-            {% for conf_name, data in confs.items %}
-            <li><label><input type="checkbox" name="db_{{ db_name }}" value="{{ data.0.pk }}"/>{{ conf_name }}</label></li>
-            {% endfor %}
-            </ul>
-        </li>
+        {% for conf_name, data in knob_confs.items %}
+        <li><label><input type="checkbox" name="db_{{ data.0.pk }}" value="{{ data.0.pk }}"/>{{ conf_name }}</label></li>
         {% endfor %}
         </ul>
     </div>
@@ -86,10 +76,9 @@ $(function() {
     $('.selectpicker').selectpicker();
     BenchmarkBar.init({
         workload: {{ workload.pk }},
-        db_confs: [{% for db in default_dbconf %}"{{ db }}", {% endfor %}],
+        default_knob_confs: [{% for kd in knob_data %}"{{ kd.pk }}", {% endfor %}],
         metrics: [{% for metric in default_metrics %}"{{ metric }}", {% endfor %}],
-        proj_id: {{proj_id}},
-        app_id: {{ app_id }},
+        session_id: {{ session_id }},
     });
 });
 </script>

@@ -9,7 +9,13 @@ from .types import (DBMSType, LabelStyleType, MetricType, HardwareType,
                     KnobUnitType, PipelineTaskType, VarType)
 
 
-class BaseModel(object):
+class BaseModel(models.Model):
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.name
 
     @classmethod
     def get_labels(cls, style=LabelStyleType.DEFAULT_STYLE):
@@ -31,8 +37,11 @@ class BaseModel(object):
     def _model_name(cls):
         return cls.__name__
 
+    class Meta:
+        abstract=True
 
-class DBMSCatalog(models.Model):
+
+class DBMSCatalog(BaseModel):
     type = models.IntegerField(choices=DBMSType.choices())
     version = models.CharField(max_length=16)
 
@@ -52,7 +61,7 @@ class DBMSCatalog(models.Model):
         return self.full_name
 
 
-class KnobCatalog(models.Model, BaseModel):
+class KnobCatalog(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
     name = models.CharField(max_length=64)
     vartype = models.IntegerField(choices=VarType.choices(), verbose_name="variable type")
@@ -113,7 +122,7 @@ class MetricManager(models.Manager):
         return OrderedDict(sorted_metrics)
 
 
-class MetricCatalog(models.Model, BaseModel):
+class MetricCatalog(BaseModel):
     objects = MetricManager()
 
     dbms = models.ForeignKey(DBMSCatalog)
@@ -124,7 +133,7 @@ class MetricCatalog(models.Model, BaseModel):
     metric_type = models.IntegerField(choices=MetricType.choices())
 
 
-class Project(models.Model, BaseModel):
+class Project(BaseModel):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=64, verbose_name="project name")
     description = models.TextField(null=True, blank=True)
@@ -132,16 +141,13 @@ class Project(models.Model, BaseModel):
     last_update = models.DateTimeField()
 
     def delete(self, using=None):
-        apps = Application.objects.filter(project=self)
-        for x in apps:
+        sessions = Session.objects.filter(project=self)
+        for x in sessions:
             x.delete()
         super(Project, self).delete(using)
 
-    def __unicode__(self):
-        return self.name
 
-
-class Hardware(models.Model):
+class Hardware(BaseModel):
     type = models.IntegerField(choices=HardwareType.choices())
     name = models.CharField(max_length=32)
     cpu = models.IntegerField()
@@ -155,9 +161,9 @@ class Hardware(models.Model):
         return HardwareType.TYPE_NAMES[self.type]
 
 
-class Application(models.Model, BaseModel):
+class Session(BaseModel):
     user = models.ForeignKey(User)
-    name = models.CharField(max_length=64, verbose_name="application name")
+    name = models.CharField(max_length=64, verbose_name="session name")
     description = models.TextField(null=True, blank=True)
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
@@ -179,79 +185,73 @@ class Application(models.Model, BaseModel):
             self.target_objective = None
 
     def delete(self, using=None):
-        targets = DBConf.objects.filter(application=self)
-        results = Result.objects.filter(application=self)
+        targets = KnobData.objects.filter(session=self)
+        results = Result.objects.filter(session=self)
         for t in targets:
             t.delete()
         for r in results:
             r.delete()
-        super(Application, self).delete(using)
-
-    def __unicode__(self):
-        return self.name 
+        super(Session, self).delete(using) 
 
 
-class ExpManager(models.Manager):
-
-    def create_name(self, config, key):
-        ts = config.creation_time.strftime("%m-%d-%y")
-        return (key + '@' + ts + '#' + str(config.pk))
-
-
-class ExpModel(models.Model, BaseModel):
-    application = models.ForeignKey(Application)
-    name = models.CharField(max_length=50, verbose_name="configuration name")
-    description = models.CharField(max_length=512, null=True, blank=True)
+class DataModel(BaseModel):
+    session = models.ForeignKey(Session)
+    name = models.CharField(max_length=50)
     creation_time = models.DateTimeField()
-    configuration = models.TextField()
     data = models.TextField()
+    dbms = models.ForeignKey(DBMSCatalog)
 
-    def __unicode__(self):
-        return self.name
-
-
-class DBModel(ExpModel):
-    dbms = models.ForeignKey(DBMSCatalog, verbose_name="dbms")
+    class Meta:
+        abstract = True
 
 
-class DBConfManager(ExpManager):
+class DataManager(models.Manager):
 
-    def create_dbconf(self, app, config, data, dbms, desc=None):
+    def create_name(self, data_obj, key):
+        ts = data_obj.creation_time.strftime("%m-%d-%y")
+        return (key + '@' + ts + '#' + str(data_obj.pk))
+
+
+class KnobDataManager(DataManager):
+
+    def create_knob_data(self, session, knobs, data, dbms):
         try:
-            return DBConf.objects.get(application=app,
-                                      configuration=config)
-        except DBConf.DoesNotExist:
-            conf = self.create(application=app,
-                               configuration=config,
-                               data=data,
-                               dbms=dbms,
-                               description=desc,
-                               creation_time=now())
-            conf.name = self.create_name(conf, dbms.key)
-            conf.save()
-            return conf
+            return KnobData.objects.get(session=session,
+                                        knobs=knobs)
+        except KnobData.DoesNotExist:
+            knob_data = self.create(session=session,
+                                    knobs=knobs,
+                                    data=data,
+                                    dbms=dbms,
+                                    creation_time=now())
+            knob_data.name = self.create_name(knob_data, dbms.key)
+            knob_data.save()
+            return knob_data
 
 
-class DBConf(DBModel):
-    objects = DBConfManager()
+class KnobData(DataModel):
+    objects = KnobDataManager()
+
+    knobs = models.TextField()
 
 
-class DBMSMetricsManager(ExpManager):
+class MetricDataManager(DataManager):
 
-    def create_dbms_metrics(self, app, config, data, dbms, desc=None):
-        metrics = self.create(application=app,
-                              configuration=config,
-                              data=data,
-                              dbms=dbms,
-                              description=desc,
-                              creation_time=now())
-        metrics.name = self.create_name(metrics, dbms.key)
-        metrics.save()
-        return metrics
+    def create_metric_data(self, session, metrics, data, dbms):
+        metric_data = self.create(session=session,
+                                  metrics=metrics,
+                                  data=data,
+                                  dbms=dbms,
+                                  creation_time=now())
+        metric_data.name = self.create_name(metric_data, dbms.key)
+        metric_data.save()
+        return metric_data
 
 
-class DBMSMetrics(DBModel):
-    objects = DBMSMetricsManager()
+class MetricData(DataModel):
+    objects = MetricDataManager()
+
+    metrics = models.TextField()
 
 
 class WorkloadManager(models.Manager):
@@ -265,14 +265,15 @@ class WorkloadManager(models.Manager):
                                name=name)
 
 
-class Workload(models.Model, BaseModel):
+class Workload(BaseModel):
 #     __DEFAULT_FMT = '{db}_{hw}_UNASSIGNED'.format
 
     objects = WorkloadManager()
 
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
-    name = models.CharField(max_length=128, unique=True, verbose_name='workload name')
+    name = models.CharField(max_length=128, unique=True,
+                            verbose_name='workload name')
 
 #     @property
 #     def isdefault(self):
@@ -288,52 +289,52 @@ class Workload(models.Model, BaseModel):
 #         return Workload.__DEFAULT_FMT(db=dbms_id,
 #                                       hw=hw_id)
 
-    def __unicode__(self):
-        return self.name
-
 
 class ResultManager(models.Manager):
 
-    def create_result(self, app, dbms, workload,
-                      dbms_config, dbms_metrics,
-                      start_timestamp, end_timestamp,
-                      observation_time, task_ids=None,
-                      most_similar=None):
-        return self.create(application=app,
-                           dbms=dbms,
-                           workload=workload,
-                           dbms_config=dbms_config,
-                           dbms_metrics=dbms_metrics,
-                           start_timestamp=start_timestamp,
-                           end_timestamp=end_timestamp,
-                           observation_time=observation_time,
-                           task_ids=task_ids,
-                           most_similar=most_similar,
-                           creation_time=now())
+    def create_result(self, session, dbms, workload,
+                      knob_data, metric_data,
+                      observation_start_time,
+                      observation_end_time,
+                      observation_time,
+                      task_ids=None,
+                      next_config=None):
+        return self.create(
+            session=session,
+            dbms=dbms,
+            workload=workload,
+            knob_data=knob_data,
+            metric_data=metric_data,
+            observation_start_time=observation_start_time,
+            observation_end_time=observation_end_time,
+            observation_time=observation_time,
+            task_ids=task_ids,
+            next_configuration=next_config,
+            creation_time=now())
 
 
-class Result(models.Model, BaseModel):
+class Result(BaseModel):
     objects = ResultManager()
 
-    application = models.ForeignKey(Application, verbose_name='application name')
+    session = models.ForeignKey(Session, verbose_name='session name')
     dbms = models.ForeignKey(DBMSCatalog)
     workload = models.ForeignKey(Workload)
-    dbms_config = models.ForeignKey(DBConf)
-    dbms_metrics = models.ForeignKey(DBMSMetrics)
+    knob_data = models.ForeignKey(KnobData)
+    metric_data = models.ForeignKey(MetricData)
 
     creation_time = models.DateTimeField()
-    start_timestamp = models.DateTimeField()
-    end_timestamp = models.DateTimeField()
+    observation_start_time = models.DateTimeField()
+    observation_end_time = models.DateTimeField()
     observation_time = models.FloatField()
     task_ids = models.CharField(max_length=180, null=True)
-    most_similar = models.CharField(max_length=100, validators=[
-                                    validate_comma_separated_integer_list],
-                                    null=True)
+    next_configuration = models.TextField(null=True)
 
     def __unicode__(self):
         return unicode(self.pk)
 
 
+# Note (dva): this model will be deleted as soon as the
+# background tasks are working
 class PipelineResult(models.Model):
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
@@ -353,11 +354,11 @@ class PipelineResult(models.Model):
         get_latest_by = ('creation_timestamp')
 
 
-class BackupData(models.Model):
+class BackupData(BaseModel):
     result = models.ForeignKey(Result)
-    original_knobs = models.TextField()
-    original_metrics_start = models.TextField()
-    original_metrics_end = models.TextField()
-    original_summary = models.TextField()
-    knob_diffs = models.TextField()
-    metric_diffs = models.TextField()
+    raw_knobs = models.TextField()
+    raw_initial_metrics = models.TextField()
+    raw_final_metrics = models.TextField()
+    raw_summary = models.TextField()
+    knob_log = models.TextField()
+    metric_log = models.TextField()

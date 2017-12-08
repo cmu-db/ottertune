@@ -2,10 +2,10 @@
 
 {% block body %}
 <div class="container">
-{% if application %}
-<form action="{% url 'edit_application' project.pk application.pk %}" method="POST">
+{% if session %}
+<form action="{% url 'edit_session' project.pk session.pk %}" method="POST">
 {% else %}
-<form action="{% url 'new_application' project.pk %}" method="POST">
+<form action="{% url 'new_session' project.pk %}" method="POST">
 {% endif %}
 {% csrf_token %}
     <table class="table table-striped table-bordered table-hover table-nonfluid">
@@ -38,12 +38,11 @@
             <td>{{ form.gen_upload_code }}</td>
         </tr>
     </table>
-<!--     <button class="btn btn-default" type="submit" name="id" value="{{ application.pk }}&{{ project.pk }}">Submit</button> -->
     <button class="btn btn-default" type="submit" name="id">Submit</button>
-    {% if application %}
-    <a class="btn btn-default" href="{% url 'application' project.pk application.pk %}">Cancel</a>
+    {% if session %}
+    <a class="btn btn-default" href="{% url 'session' project.pk session.pk %}">Cancel</a>
     {% else %}
-    <a class="btn btn-default" href="{% url 'project' project.pk %}">Cancel</a>
+    <a class="btn btn-default" href="{% url 'project_sessions' project.pk %}">Cancel</a>
     {% endif %}
 </form>
 </div>
@@ -55,7 +54,7 @@ function show_content() {
 }
 
 $(function() {
-	if ("{{ application }}" != "None") {
+	if ("{{ session }}" != "None") {
 	    $("#dbms_row").hide();
 	    $("#hardware_row").hide();
 	} else {

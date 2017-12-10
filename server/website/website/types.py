@@ -122,15 +122,6 @@ class PipelineTaskType(BaseType):
         WORKLOAD_MAPPING_DATA: "Workload Mapping Data",
     }
 
-class StatsType(BaseType):
-    SUMMARY = 0
-    SAMPLES = 1
-
-    TYPE_NAMES = {
-        SUMMARY: 'summary',
-        SAMPLES: 'samples',
-    }
-
 
 class LabelStyleType(BaseType):
     TITLE = 0

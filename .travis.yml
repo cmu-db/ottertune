@@ -1,0 +1,43 @@
+dist: trusty
+sudo: required
+
+language: python
+python:
+  - "2.7"
+
+services:
+  - rabbitmq
+  - mysql
+
+env:
+  global:
+    - DBNAME=ottertune
+    - DBUSER=root
+    - WEBSITE_ROOT=server/website
+    - COLON=":"
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python-pip python-dev python-mysqldb
+  - mysql -e "CREATE DATABASE IF NOT EXISTS ${DBNAME};"
+  - mysql -e "CREATE DATABASE IF NOT EXISTS test_${DBNAME};"
+
+install:
+  - pip install -r ${WEBSITE_ROOT}/requirements.txt
+  - pip install MySQL-python
+
+before_script:
+  - cp ${WEBSITE_ROOT}/website/settings/credentials_TEMPLATE.py
+       ${WEBSITE_ROOT}/website/settings/credentials.py
+  - sed -i
+        -e "s/^DEBUG.*/DEBUG = True/"
+        -e "s/'USER'${COLON} 'ADD ME\!\!'/'USER'${COLON} '${DBUSER}'/"
+        -e "s/'PASSWORD'${COLON} 'ADD ME\!\!'/'PASSWORD'${COLON} ''/"
+        ${WEBSITE_ROOT}/website/settings/credentials.py
+  - cat ${WEBSITE_ROOT}/website/settings/credentials.py
+  - python ${WEBSITE_ROOT}/manage.py makemigrations website
+  - python ${WEBSITE_ROOT}/manage.py migrate website
+  - python ${WEBSITE_ROOT}/manage.py migrate
+
+script:
+  - python ${WEBSITE_ROOT}/manage.py test --noinput

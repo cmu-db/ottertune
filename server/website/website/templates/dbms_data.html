@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% load util_functions %}
+
+{% block body %}
+<div class="container">
+    <div class="container" style="overflow: auto;">
+    <table class="table table-striped table-bordered table-condensed table-hover">
+        <caption><h4>{{ labels.title }}</h4></caption>
+        <tbody>
+        <tr>
+            <td><div class="text-right">{{ labels.name }}</div></td>
+            <td>{{ dbms_data.name }}</td>
+        </tr>
+        <tr>
+            <td><div class="text-right">{{ labels.dbms }}</div></td>
+            <td>{{ dbms_data.dbms.full_name }}</td>
+        </tr>
+        <tr>
+            <td><div class="text-right">{{ labels.creation_time }}</div></td>
+            <td>{{ dbms_data.creation_time }}</td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+
+    <hr>
+    <div class="container">Compare with
+        <select class="selectpicker" id="compare" onchange="compare_dbms_data()">
+            <option value="none">None</option>
+            {% for peer in peer_data %}
+            <option value="{{ peer.pk }}">{{ peer.name }}</option>
+            {% endfor %}
+            
+        </select>
+    </div>
+
+    <div id="featured">
+        <h4>{{ labels.featured_data }} | <a onclick="switch_content()">Show {{ labels.all_data }}</a></h4>
+        <table class="table table-striped table-bordered table-condensed table-hover" style="table-layout: fixed;">
+        <caption></caption>
+        <tr>
+            <td><h5><strong>Name</strong><h5></td>
+            <td><h5><strong>Value</strong></h5></td>
+            {% if compare != "none" %}
+                <td><h5><strong>Comparing Value</strong></h5></td>
+            {% endif %}
+        </tr>
+        {% for pair in featured_data %}
+            {% if pair.2 and pair.2 != pair.1 %}
+            <tr class="danger">
+            {% else %}
+            <tr>
+            {% endif %}
+                {% if data_type == "knobs" %}
+                <td style="word-wrap:break-word;"><a href="{% url 'dbms_knobs_ref' dbms_data.dbms.name dbms_data.dbms.version pair.0 %}">{{ pair.0 }}</a></td>
+                {% else %}
+                <td style="word-wrap:break-word;"><a href="{% url 'dbms_metrics_ref' dbms_data.dbms.name dbms_data.dbms.version pair.0 %}">{{ pair.0 }}</a></td>
+                {% endif %}
+                <td style="word-wrap:break-word;">{{ pair.1|safe_floatformat }}</td>
+                {% if compare != "none" %}
+                <td style="word-wrap:break-word;">{{ pair.2|safe_floatformat }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+    <div id="para_table">
+        <h4>{{ labels.all_data }} | <a onclick="switch_content()">Show {{ labels.featured_data }}</a></h4>
+        <table class="table table-striped table-bordered table-condensed table-hover" style="table-layout: fixed;">
+        <caption></caption>
+        <tr>
+            <td><h5><strong>Name</strong><h5></td>
+            <td><h5><strong>Value</strong></h5></td>
+            {% if compare != "none" %}
+                <td><h5><strong>Comparing Value</strong></h5></td>
+            {% endif %}
+        </tr>
+        {% for pair in all_data %}
+            {% if pair.2 and pair.2 != pair.1 %}
+            <tr class="danger">
+            {% else %}
+            <tr>
+            {% endif %}
+                {% if data_type == "knobs" %}
+                <td style="word-wrap:break-word;"><a href="{% url 'dbms_knobs_ref' dbms_data.dbms.name dbms_data.dbms.version pair.0 %}">{{ pair.0 }}</a></td>
+                {% else %}
+                <td style="word-wrap:break-word;"><a href="{% url 'dbms_metrics_ref' dbms_data.dbms.name dbms_data.dbms.version pair.0 %}">{{ pair.0 }}</a></td>
+                {% endif %}
+                <td style="word-wrap:break-word;">{{ pair.1|safe_floatformat }}</td>
+                {% if compare != "none" %}
+                <td style="word-wrap:break-word;">{{ pair.2|safe_floatformat }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+</div>
+
+
+<script language="javascript">
+$(function() {
+    $("#para_table").hide();
+    $('.selectpicker').selectpicker();
+    $("select[id='compare']").val('{{ compare }}');
+    $('.selectpicker').selectpicker('refresh');
+});
+
+function switch_content() {
+    $("#featured").toggle();
+    $("#para_table").toggle();
+}
+
+function compare_dbms_data() {
+	url = "/projects/{{ dbms_data.session.project.pk }}/sessions/{{ dbms_data.session.pk }}/{{ data_type }}/{{dbms_data.pk}}/?compare=" + $("select[id='compare']").val();
+    window.location = url;
+}
+</script>
+{% endblock body %}

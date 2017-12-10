@@ -1,0 +1,4961 @@
+[
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.DateStyle", 
+            "minval": null, 
+            "default": "ISO, MDY", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the display format for date and time values.", 
+            "unit": "3", 
+            "description": "Also controls interpretation of ambiguous date inputs."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.IntervalStyle", 
+            "minval": null, 
+            "default": "postgres", 
+            "tunable": false, 
+            "enumvals": "postgres,postgres_verbose,sql_standard,iso_8601", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the display format for interval values.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.TimeZone", 
+            "minval": null, 
+            "default": "GMT", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the time zone for displaying and interpreting time stamps.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.allow_system_table_mods", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Allows modifications of the structure of system tables.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.application_name", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the application name to be reported in statistics and logs.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.archive_command", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the shell command that will be called to archive a WAL file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.archive_mode", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": "always,on,off", 
+            "vartype": "5", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Allows archiving of WAL files using archive_command.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving", 
+            "maxval": "1073741823000", 
+            "dbms": 1, 
+            "name": "global.archive_timeout", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Forces a switch to the next xlog file if a new file has not been started within N seconds.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.array_nulls", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enable input of NULL elements in arrays.", 
+            "unit": "3", 
+            "description": "When turned on, unquoted NULL in an array input value means a null value; otherwise it is taken literally."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": "600000", 
+            "dbms": 1, 
+            "name": "global.authentication_timeout", 
+            "minval": "1000", 
+            "default": "60000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum allowed time to complete client authentication.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.autovacuum", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Starts the autovacuum subprocess.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "100.0", 
+            "dbms": 1, 
+            "name": "global.autovacuum_analyze_scale_factor", 
+            "minval": "0.0", 
+            "default": "0.1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of tuple inserts, updates, or deletes prior to analyze as a fraction of reltuples.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.autovacuum_analyze_threshold", 
+            "minval": "0", 
+            "default": "50", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Minimum number of tuple inserts, updates, or deletes prior to analyze.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "2000000000", 
+            "dbms": 1, 
+            "name": "global.autovacuum_freeze_max_age", 
+            "minval": "100000", 
+            "default": "200000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Age at which to autovacuum a table to prevent transaction ID wraparound.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.autovacuum_max_workers", 
+            "minval": "1", 
+            "default": "3", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of simultaneously running autovacuum worker processes.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "2000000000", 
+            "dbms": 1, 
+            "name": "global.autovacuum_multixact_freeze_max_age", 
+            "minval": "10000", 
+            "default": "400000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Multixact age at which to autovacuum a table to prevent multixact wraparound.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "2147483000", 
+            "dbms": 1, 
+            "name": "global.autovacuum_naptime", 
+            "minval": "1000", 
+            "default": "60000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Time to sleep between autovacuum runs.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "100", 
+            "dbms": 1, 
+            "name": "global.autovacuum_vacuum_cost_delay", 
+            "minval": "-1", 
+            "default": "20", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Vacuum cost delay in milliseconds, for autovacuum.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.autovacuum_vacuum_cost_limit", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Vacuum cost amount available before napping, for autovacuum.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "100.0", 
+            "dbms": 1, 
+            "name": "global.autovacuum_vacuum_scale_factor", 
+            "minval": "0.0", 
+            "default": "0.2", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of tuple updates or deletes prior to vacuum as a fraction of reltuples.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Autovacuum", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.autovacuum_vacuum_threshold", 
+            "minval": "0", 
+            "default": "50", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Minimum number of tuple updates or deletes prior to vacuum.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.autovacuum_work_mem", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum memory to be used by each autovacuum worker process.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior", 
+            "maxval": "2097152", 
+            "dbms": 1, 
+            "name": "global.backend_flush_after", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Number of pages after which previously performed writes are flushed to disk.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.backslash_quote", 
+            "minval": null, 
+            "default": "safe_encoding", 
+            "tunable": false, 
+            "enumvals": "safe_encoding,on,off", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets whether \"\\'\" is allowed in string literals.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.bgwriter_delay", 
+            "minval": "10", 
+            "default": "200", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Background writer sleep time between rounds.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer", 
+            "maxval": "2097152", 
+            "dbms": 1, 
+            "name": "global.bgwriter_flush_after", 
+            "minval": "0", 
+            "default": "524288", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of pages after which previously performed writes are flushed to disk.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer", 
+            "maxval": "1000", 
+            "dbms": 1, 
+            "name": "global.bgwriter_lru_maxpages", 
+            "minval": "0", 
+            "default": "100", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Background writer maximum number of LRU pages to flush per round.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer", 
+            "maxval": "10.0", 
+            "dbms": 1, 
+            "name": "global.bgwriter_lru_multiplier", 
+            "minval": "0.0", 
+            "default": "2.0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Multiple of the average buffer usage to free per round.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "8192", 
+            "dbms": 1, 
+            "name": "global.block_size", 
+            "minval": "8192", 
+            "default": "8192", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the size of a disk block.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.bonjour", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Enables advertising the server via Bonjour.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.bonjour_name", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the Bonjour service name.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.bytea_output", 
+            "minval": null, 
+            "default": "hex", 
+            "tunable": false, 
+            "enumvals": "escape,hex", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the output format for bytea.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.check_function_bodies", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Check function bodies during CREATE FUNCTION.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "1.0", 
+            "dbms": 1, 
+            "name": "global.checkpoint_completion_target", 
+            "minval": "0.0", 
+            "default": "0.5", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Time spent flushing dirty buffers during checkpoint, as fraction of checkpoint interval.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "2097152", 
+            "dbms": 1, 
+            "name": "global.checkpoint_flush_after", 
+            "minval": "0", 
+            "default": "262144", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of pages after which previously performed writes are flushed to disk.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "86400000", 
+            "dbms": 1, 
+            "name": "global.checkpoint_timeout", 
+            "minval": "30000", 
+            "default": "300000", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum time between automatic WAL checkpoints.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "2147483647000", 
+            "dbms": 1, 
+            "name": "global.checkpoint_warning", 
+            "minval": "0", 
+            "default": "30000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Enables warnings if checkpoint segments are filled more frequently than this.", 
+            "unit": "2", 
+            "description": "Write a message to the server log if checkpoints caused by the filling of checkpoint segment files happens more frequently than this number of seconds. Zero turns off the warning."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.client_encoding", 
+            "minval": null, 
+            "default": "SQL_ASCII", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the client's character set encoding.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.client_min_messages", 
+            "minval": null, 
+            "default": "notice", 
+            "tunable": false, 
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,log,notice,warning,error", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the message levels that are sent to the client.", 
+            "unit": "3", 
+            "description": "Each level includes all the levels that follow it. The later the level, the fewer messages are sent."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Process Title", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.cluster_name", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the name of the cluster, which is included in the process title.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": "100000", 
+            "dbms": 1, 
+            "name": "global.commit_delay", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the delay in microseconds between transaction commit and flushing WAL to disk.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": "1000", 
+            "dbms": 1, 
+            "name": "global.commit_siblings", 
+            "minval": "0", 
+            "default": "5", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the minimum concurrent open transactions before performing commit_delay.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "File Locations", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.config_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the server's main configuration file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.constraint_exclusion", 
+            "minval": null, 
+            "default": "partition", 
+            "tunable": false, 
+            "enumvals": "partition,on,off", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner to use constraints to optimize queries.", 
+            "unit": "3", 
+            "description": "Table scans will be skipped if their constraints guarantee that no rows match the query."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.cpu_index_tuple_cost", 
+            "minval": "0.0", 
+            "default": "0.005", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of processing each index entry during an index scan.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.cpu_operator_cost", 
+            "minval": "0.0", 
+            "default": "0.0025", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of processing each operator or function call.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.cpu_tuple_cost", 
+            "minval": "0.0", 
+            "default": "0.01", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of processing each tuple (row).", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": "1.0", 
+            "dbms": 1, 
+            "name": "global.cursor_tuple_fraction", 
+            "minval": "0.0", 
+            "default": "0.1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the fraction of a cursor's rows that will be retrieved.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.data_checksums", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows whether data checksums are turned on for this cluster.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "File Locations", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.data_directory", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the server's data directory.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.db_user_namespace", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Enables per-database user names.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Lock Management", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.deadlock_timeout", 
+            "minval": "1", 
+            "default": "1000", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the time to wait on a lock before checking for deadlock.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.debug_assertions", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows whether the running server has assertion checks enabled.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.debug_pretty_print", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Indents parse and plan tree displays.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.debug_print_parse", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Logs each query's parse tree.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.debug_print_plan", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Logs each query's execution plan.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.debug_print_rewritten", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Logs each query's rewritten parse tree.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.default_statistics_target", 
+            "minval": "1", 
+            "default": "100", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the default statistics target.", 
+            "unit": "3", 
+            "description": "This applies to table columns that have not had a column-specific target set via ALTER TABLE SET STATISTICS."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_tablespace", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the default tablespace to create tables and indexes in.", 
+            "unit": "3", 
+            "description": "An empty string selects the database's default tablespace."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_text_search_config", 
+            "minval": null, 
+            "default": "pg_catalog.simple", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets default text search configuration.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_transaction_deferrable", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the default deferrable status of new transactions.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_transaction_isolation", 
+            "minval": null, 
+            "default": "read committed", 
+            "tunable": false, 
+            "enumvals": "serializable,repeatable read,read committed,read uncommitted", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the transaction isolation level of each new transaction.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_transaction_read_only", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the default read-only status of new transactions.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.default_with_oids", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Create new tables with OIDs by default.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.dynamic_library_path", 
+            "minval": null, 
+            "default": "$libdir", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the path for dynamically loadable modules.", 
+            "unit": "3", 
+            "description": "If a dynamically loadable module needs to be opened and the specified name does not have a directory component (i.e., the name does not contain a slash), the system will search this path for the specified file."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.dynamic_shared_memory_type", 
+            "minval": null, 
+            "default": "posix", 
+            "tunable": false, 
+            "enumvals": "posix,sysv,mmap,none", 
+            "vartype": "5", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Selects the dynamic shared memory implementation used.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "17592186036224", 
+            "dbms": 1, 
+            "name": "global.effective_cache_size", 
+            "minval": "8192", 
+            "default": "4294967296", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's assumption about the size of the disk cache.", 
+            "unit": "1", 
+            "description": "That is, the portion of the kernel's disk cache that will be used for PostgreSQL data files. This is measured in disk pages, which are normally 8 kB each."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior", 
+            "maxval": "1000", 
+            "dbms": 1, 
+            "name": "global.effective_io_concurrency", 
+            "minval": "0", 
+            "default": "1", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Number of simultaneous requests that can be handled efficiently by the disk subsystem.", 
+            "unit": "3", 
+            "description": "For RAID arrays, this should be approximately the number of drive spindles in the array."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_bitmapscan", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of bitmap-scan plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_hashagg", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of hashed aggregation plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_hashjoin", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of hash join plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_indexonlyscan", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of index-only-scan plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_indexscan", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of index-scan plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_material", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of materialization.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_mergejoin", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of merge join plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_nestloop", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of nested-loop join plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_seqscan", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of sequential-scan plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_sort", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of explicit sort steps.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.enable_tidscan", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables the planner's use of TID scan plans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.escape_string_warning", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Warn about backslash escapes in ordinary string literals.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.event_source", 
+            "minval": null, 
+            "default": "PostgreSQL", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the application name used to identify PostgreSQL messages in the event log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Error Handling", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.exit_on_error", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Terminate session on any error.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "File Locations", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.external_pid_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Writes the postmaster PID to the specified file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": "3", 
+            "dbms": 1, 
+            "name": "global.extra_float_digits", 
+            "minval": "-15", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the number of digits displayed for floating-point values.", 
+            "unit": "3", 
+            "description": "This affects real, double precision, and geometric data types. The parameter value is added to the standard number of digits (FLT_DIG or DBL_DIG as appropriate)."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.force_parallel_mode", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": "off,on,regress", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Forces use of parallel query facilities.", 
+            "unit": "3", 
+            "description": "If possible, run query using a parallel worker and with parallel restrictions."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.from_collapse_limit", 
+            "minval": "1", 
+            "default": "8", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the FROM-list size beyond which subqueries are not collapsed.", 
+            "unit": "3", 
+            "description": "The planner will merge subqueries into upper queries if the resulting FROM list would have no more than this many items."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.fsync", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Forces synchronization of updates to disk.", 
+            "unit": "3", 
+            "description": "The server will use the fsync() system call in several places to make sure that updates are physically written to disk. This insures that a database cluster will recover to a consistent state after an operating system or hardware crash."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.full_page_writes", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Writes full pages to WAL when first modified after a checkpoint.", 
+            "unit": "3", 
+            "description": "A page write in process during an operating system crash might be only partially written to disk.  During recovery, the row changes stored in WAL are not enough to recover.  This option writes pages when first modified after a checkpoint to WAL so full recovery is possible."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.geqo", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enables genetic query optimization.", 
+            "unit": "3", 
+            "description": "This algorithm attempts to do planning without exhaustive searching."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "10", 
+            "dbms": 1, 
+            "name": "global.geqo_effort", 
+            "minval": "1", 
+            "default": "5", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "GEQO: effort is used to set the default for other GEQO parameters.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.geqo_generations", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "GEQO: number of iterations of the algorithm.", 
+            "unit": "3", 
+            "description": "Zero selects a suitable default value."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.geqo_pool_size", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "GEQO: number of individuals in the population.", 
+            "unit": "3", 
+            "description": "Zero selects a suitable default value."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "1.0", 
+            "dbms": 1, 
+            "name": "global.geqo_seed", 
+            "minval": "0.0", 
+            "default": "0.0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "GEQO: seed for random path selection.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "2.0", 
+            "dbms": 1, 
+            "name": "global.geqo_selection_bias", 
+            "minval": "1.5", 
+            "default": "2.0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "GEQO: selective pressure within the population.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.geqo_threshold", 
+            "minval": "2", 
+            "default": "12", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the threshold of FROM items beyond which GEQO is used.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.gin_fuzzy_search_limit", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum allowed result for exact search by GIN.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.gin_pending_list_limit", 
+            "minval": "65536", 
+            "default": "4194304", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum size of the pending list for GIN index.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "File Locations", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.hba_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the server's \"hba\" configuration file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.hot_standby", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Allows connections and queries during recovery.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.hot_standby_feedback", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Allows feedback from a hot standby to the primary that will avoid query conflicts.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.huge_pages", 
+            "minval": null, 
+            "default": "try", 
+            "tunable": false, 
+            "enumvals": "off,on,try", 
+            "vartype": "5", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Use of huge pages on Linux.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "File Locations", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ident_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the server's \"ident\" configuration file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.idle_in_transaction_session_timeout", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum allowed duration of any idling transaction.", 
+            "unit": "2", 
+            "description": "A value of 0 turns off the timeout."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ignore_checksum_failure", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Continues processing after a checksum failure.", 
+            "unit": "3", 
+            "description": "Detection of a checksum failure normally causes PostgreSQL to report an error, aborting the current transaction. Setting ignore_checksum_failure to true causes the system to ignore the failure (but still report a warning), and continue processing. This behavior could cause crashes or other serious problems. Only has an effect if checksums are enabled."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ignore_system_indexes", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "backend", 
+            "scope": "global", 
+            "summary": "Disables reading from system indexes.", 
+            "unit": "3", 
+            "description": "It does not prevent updating the indexes, so it is safe to use.  The worst consequence is slowness."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.integer_datetimes", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Datetimes are integer based.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.join_collapse_limit", 
+            "minval": "1", 
+            "default": "8", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the FROM-list size beyond which JOIN constructs are not flattened.", 
+            "unit": "3", 
+            "description": "The planner will flatten explicit JOIN constructs into lists of FROM items whenever a list of no more than this many items would result."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.krb_caseins_users", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets whether Kerberos and GSSAPI user names should be treated as case-insensitive.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.krb_server_keyfile", 
+            "minval": null, 
+            "default": "FILE:/etc/postgresql-common/krb5.keytab", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the location of the Kerberos server key file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_collate", 
+            "minval": null, 
+            "default": "C", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the collation order locale.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_ctype", 
+            "minval": null, 
+            "default": "C", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the character classification and case conversion locale.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_messages", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the language in which messages are displayed.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_monetary", 
+            "minval": null, 
+            "default": "C", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the locale for formatting monetary amounts.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_numeric", 
+            "minval": null, 
+            "default": "C", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the locale for formatting numbers.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lc_time", 
+            "minval": null, 
+            "default": "C", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the locale for formatting date and time values.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.listen_addresses", 
+            "minval": null, 
+            "default": "localhost", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the host name or IP address(es) to listen to.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.lo_compat_privileges", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Enables backward compatibility mode for privilege checks on large objects.", 
+            "unit": "3", 
+            "description": "Skips privilege checks when reading or modifying large objects, for compatibility with PostgreSQL releases prior to 9.0."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Shared Library Preloading", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.local_preload_libraries", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Lists unprivileged shared libraries to preload into each backend.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.lock_timeout", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum allowed duration of any wait for a lock.", 
+            "unit": "2", 
+            "description": "A value of 0 turns off the timeout."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.log_autovacuum_min_duration", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the minimum execution time above which autovacuum actions will be logged.", 
+            "unit": "2", 
+            "description": "Zero prints all actions. -1 turns autovacuum logging off."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_checkpoints", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Logs each checkpoint.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_connections", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser-backend", 
+            "scope": "global", 
+            "summary": "Logs each successful connection.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_destination", 
+            "minval": null, 
+            "default": "stderr", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the destination for server log output.", 
+            "unit": "3", 
+            "description": "Valid values are combinations of \"stderr\", \"syslog\", \"csvlog\", and \"eventlog\", depending on the platform."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_directory", 
+            "minval": null, 
+            "default": "pg_log", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the destination directory for log files.", 
+            "unit": "3", 
+            "description": "Can be specified as relative to the data directory or as absolute path."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_disconnections", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser-backend", 
+            "scope": "global", 
+            "summary": "Logs end of a session, including duration.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_duration", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Logs the duration of each completed SQL statement.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_error_verbosity", 
+            "minval": null, 
+            "default": "default", 
+            "tunable": false, 
+            "enumvals": "terse,default,verbose", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the verbosity of logged messages.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Monitoring", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_executor_stats", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Writes executor performance statistics to the server log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": "511", 
+            "dbms": 1, 
+            "name": "global.log_file_mode", 
+            "minval": "0", 
+            "default": "384", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the file permissions for log files.", 
+            "unit": "3", 
+            "description": "The parameter value is expected to be a numeric mode specification in the form accepted by the chmod and umask system calls. (To use the customary octal format the number must start with a 0 (zero).)"
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_filename", 
+            "minval": null, 
+            "default": "postgresql-%Y-%m-%d_%H%M%S.log", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the file name pattern for log files.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_hostname", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Logs the host name in the connection logs.", 
+            "unit": "3", 
+            "description": "By default, connection logs only show the IP address of the connecting host. If you want them to show the host name you can turn this on, but depending on your host name resolution setup it might impose a non-negligible performance penalty."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_line_prefix", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Controls information prefixed to each log line.", 
+            "unit": "3", 
+            "description": "If blank, no prefix is used."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_lock_waits", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Logs long lock waits.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.log_min_duration_statement", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the minimum execution time above which statements will be logged.", 
+            "unit": "2", 
+            "description": "Zero prints all queries. -1 turns this feature off."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_min_error_statement", 
+            "minval": null, 
+            "default": "error", 
+            "tunable": false, 
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Causes all statements generating error at or above this level to be logged.", 
+            "unit": "3", 
+            "description": "Each level includes all the levels that follow it. The later the level, the fewer messages are sent."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_min_messages", 
+            "minval": null, 
+            "default": "warning", 
+            "tunable": false, 
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the message levels that are logged.", 
+            "unit": "3", 
+            "description": "Each level includes all the levels that follow it. The later the level, the fewer messages are sent."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Monitoring", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_parser_stats", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Writes parser performance statistics to the server log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Monitoring", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_planner_stats", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Writes planner performance statistics to the server log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_replication_commands", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Logs each replication command.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": "2147483640000", 
+            "dbms": 1, 
+            "name": "global.log_rotation_age", 
+            "minval": "0", 
+            "default": "86400000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Automatic log file rotation will occur after N minutes.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": "2147482624", 
+            "dbms": 1, 
+            "name": "global.log_rotation_size", 
+            "minval": "0", 
+            "default": "10485760", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Automatic log file rotation will occur after N kilobytes.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_statement", 
+            "minval": null, 
+            "default": "none", 
+            "tunable": false, 
+            "enumvals": "none,ddl,mod,all", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the type of statements logged.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Monitoring", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_statement_stats", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Writes cumulative performance statistics to the server log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.log_temp_files", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Log the use of temporary files larger than this number of kilobytes.", 
+            "unit": "1", 
+            "description": "Zero logs all files. The default is -1 (turning this feature off)."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_timezone", 
+            "minval": null, 
+            "default": "GMT", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the time zone to use in log messages.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.log_truncate_on_rotation", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Truncate existing log files of same name during log rotation.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.logging_collector", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Start a subprocess to capture stderr output and/or csvlogs into log files.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.maintenance_work_mem", 
+            "minval": "1048576", 
+            "default": "67108864", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum memory to be used for maintenance operations.", 
+            "unit": "1", 
+            "description": "This includes operations such as VACUUM and CREATE INDEX."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.max_connections", 
+            "minval": "1", 
+            "default": "100", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of concurrent connections.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Kernel Resources", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.max_files_per_process", 
+            "minval": "25", 
+            "default": "1000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of simultaneously open files for each server process.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "100", 
+            "dbms": 1, 
+            "name": "global.max_function_args", 
+            "minval": "100", 
+            "default": "100", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the maximum number of function arguments.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "63", 
+            "dbms": 1, 
+            "name": "global.max_identifier_length", 
+            "minval": "63", 
+            "default": "63", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the maximum identifier length.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "32", 
+            "dbms": 1, 
+            "name": "global.max_index_keys", 
+            "minval": "32", 
+            "default": "32", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the maximum number of index keys.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Lock Management", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.max_locks_per_transaction", 
+            "minval": "10", 
+            "default": "64", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of locks per transaction.", 
+            "unit": "3", 
+            "description": "The shared lock table is sized on the assumption that at most max_locks_per_transaction * max_connections distinct objects will need to be locked at any one time."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior", 
+            "maxval": "1024", 
+            "dbms": 1, 
+            "name": "global.max_parallel_workers_per_gather", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of parallel processes per executor node.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Lock Management", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.max_pred_locks_per_transaction", 
+            "minval": "10", 
+            "default": "64", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of predicate locks per transaction.", 
+            "unit": "3", 
+            "description": "The shared predicate lock table is sized on the assumption that at most max_pred_locks_per_transaction * max_connections distinct objects will need to be locked at any one time."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.max_prepared_transactions", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of simultaneously prepared transactions.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Sending Servers", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.max_replication_slots", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of simultaneously defined replication slots.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.max_stack_depth", 
+            "minval": "102400", 
+            "default": "102400", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the maximum stack depth, in kilobytes.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.max_standby_archive_delay", 
+            "minval": "-1", 
+            "default": "30000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum delay before canceling queries when a hot standby server is processing archived WAL data.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.max_standby_streaming_delay", 
+            "minval": "-1", 
+            "default": "30000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum delay before canceling queries when a hot standby server is processing streamed WAL data.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Sending Servers", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.max_wal_senders", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of simultaneously running WAL sender processes.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "36028797002186752", 
+            "dbms": 1, 
+            "name": "global.max_wal_size", 
+            "minval": "33554432", 
+            "default": "1073741824", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the WAL size that triggers a checkpoint.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.max_worker_processes", 
+            "minval": "0", 
+            "default": "8", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Maximum number of concurrent worker processes.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "5864062009344", 
+            "dbms": 1, 
+            "name": "global.min_parallel_relation_size", 
+            "minval": "0", 
+            "default": "8388608", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the minimum size of relations to be considered for parallel scan.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints", 
+            "maxval": "36028797002186752", 
+            "dbms": 1, 
+            "name": "global.min_wal_size", 
+            "minval": "33554432", 
+            "default": "83886080", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the minimum size to shrink the WAL to.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior", 
+            "maxval": "5184000000", 
+            "dbms": 1, 
+            "name": "global.old_snapshot_threshold", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Time before a snapshot is too old to read pages changed after the snapshot was taken.", 
+            "unit": "2", 
+            "description": "A value of -1 disables this feature."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.operator_precedence_warning", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Emit a warning for constructs that changed meaning since PostgreSQL 9.4.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.parallel_setup_cost", 
+            "minval": "0.0", 
+            "default": "1000.0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of starting up worker processes for parallel query.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.parallel_tuple_cost", 
+            "minval": "0.0", 
+            "default": "0.1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of passing each tuple (row) from worker to master backend.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.password_encryption", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Encrypt passwords.", 
+            "unit": "3", 
+            "description": "When a password is specified in CREATE USER or ALTER USER without writing either ENCRYPTED or UNENCRYPTED, this parameter determines whether the password is to be encrypted."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": "65535", 
+            "dbms": 1, 
+            "name": "global.port", 
+            "minval": "1", 
+            "default": "5432", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the TCP port the server listens on.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": "2147000", 
+            "dbms": 1, 
+            "name": "global.post_auth_delay", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "backend", 
+            "scope": "global", 
+            "summary": "Waits N seconds on connection startup after authentication.", 
+            "unit": "2", 
+            "description": "This allows attaching a debugger to the process."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": "60000", 
+            "dbms": 1, 
+            "name": "global.pre_auth_delay", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Waits N seconds on connection startup before authentication.", 
+            "unit": "2", 
+            "description": "This allows attaching a debugger to the process."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.quote_all_identifiers", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "When generating SQL fragments, quote all identifiers.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.random_page_cost", 
+            "minval": "0.0", 
+            "default": "4.0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of a nonsequentially fetched disk page.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.replacement_sort_tuples", 
+            "minval": "0", 
+            "default": "150000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of tuples to be sorted using replacement selection.", 
+            "unit": "3", 
+            "description": "When more tuples than this are present, quicksort will be used."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Error Handling", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.restart_after_crash", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Reinitialize server after backend crash.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.row_security", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enable row security.", 
+            "unit": "3", 
+            "description": "When enabled, row security will be applied to all users."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.search_path", 
+            "minval": null, 
+            "default": "\"$user\", public", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the schema search order for names that are not schema-qualified.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "1073741824", 
+            "dbms": 1, 
+            "name": "global.segment_size", 
+            "minval": "1073741824", 
+            "default": "1073741824", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the number of pages per disk file.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants", 
+            "maxval": "1.79769e+308", 
+            "dbms": 1, 
+            "name": "global.seq_page_cost", 
+            "minval": "0.0", 
+            "default": "1.0", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "3", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the planner's estimate of the cost of a sequentially fetched disk page.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.server_encoding", 
+            "minval": null, 
+            "default": "SQL_ASCII", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Sets the server (database) character set encoding.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.server_version", 
+            "minval": null, 
+            "default": "9.6.3", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the server version.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "90603", 
+            "dbms": 1, 
+            "name": "global.server_version_num", 
+            "minval": "90603", 
+            "default": "90603", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the server version as an integer.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Shared Library Preloading", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.session_preload_libraries", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Lists shared libraries to preload into each backend.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.session_replication_role", 
+            "minval": null, 
+            "default": "origin", 
+            "tunable": false, 
+            "enumvals": "origin,replica,local", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Sets the session's behavior for triggers and rewrite rules.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "8796093014016", 
+            "dbms": 1, 
+            "name": "global.shared_buffers", 
+            "minval": "131072", 
+            "default": "8388608", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the number of shared memory buffers used by the server.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Shared Library Preloading", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.shared_preload_libraries", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Lists shared libraries to preload into server.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.sql_inheritance", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Causes subtables to be included by default in various commands.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Enables SSL connections.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_ca_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Location of the SSL certificate authority file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_cert_file", 
+            "minval": null, 
+            "default": "server.crt", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Location of the SSL server certificate file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_ciphers", 
+            "minval": null, 
+            "default": "HIGH:MEDIUM:+3DES:!aNULL", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the list of allowed SSL ciphers.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_crl_file", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Location of the SSL certificate revocation list file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_ecdh_curve", 
+            "minval": null, 
+            "default": "prime256v1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the curve to use for ECDH.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_key_file", 
+            "minval": null, 
+            "default": "server.key", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Location of the SSL server private key file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.ssl_prefer_server_ciphers", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Give priority to server ciphersuite order.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.standard_conforming_strings", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Causes '...' strings to treat backslashes literally.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.statement_timeout", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum allowed duration of any statement.", 
+            "unit": "2", 
+            "description": "A value of 0 turns off the timeout."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.stats_temp_directory", 
+            "minval": null, 
+            "default": "pg_stat_tmp", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Writes temporary statistics files to the specified directory.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": "262143", 
+            "dbms": 1, 
+            "name": "global.superuser_reserved_connections", 
+            "minval": "0", 
+            "default": "3", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the number of connection slots reserved for superusers.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.synchronize_seqscans", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Enable synchronized sequential scans.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.synchronous_commit", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": "local,remote_write,remote_apply,on,off", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the current transaction's synchronization level.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Master Server", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.synchronous_standby_names", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of synchronous standbys and list of names of potential synchronous ones.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.syslog_facility", 
+            "minval": null, 
+            "default": "local0", 
+            "tunable": false, 
+            "enumvals": "local0,local1,local2,local3,local4,local5,local6,local7", 
+            "vartype": "5", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the syslog \"facility\" to be used when syslog enabled.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.syslog_ident", 
+            "minval": null, 
+            "default": "postgres", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the program name used to identify PostgreSQL messages in syslog.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.syslog_sequence_numbers", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Add sequence number to syslog messages to avoid duplicate suppression.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.syslog_split_messages", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Split messages sent to syslog by lines and to fit into 1024 bytes.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.tcp_keepalives_count", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Maximum number of TCP keepalive retransmits.", 
+            "unit": "3", 
+            "description": "This controls the number of consecutive keepalive retransmits that can be lost before a connection is considered dead. A value of 0 uses the system default."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults", 
+            "maxval": "2147483647000", 
+            "dbms": 1, 
+            "name": "global.tcp_keepalives_idle", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Time between issuing TCP keepalives.", 
+            "unit": "2", 
+            "description": "A value of 0 uses the system default."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults", 
+            "maxval": "2147483647000", 
+            "dbms": 1, 
+            "name": "global.tcp_keepalives_interval", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Time between TCP keepalive retransmits.", 
+            "unit": "2", 
+            "description": "A value of 0 uses the system default."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "8796093014016", 
+            "dbms": 1, 
+            "name": "global.temp_buffers", 
+            "minval": "819200", 
+            "default": "8388608", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum number of temporary buffers used by each session.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Disk", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.temp_file_limit", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Limits the total size of all temporary files used by each process.", 
+            "unit": "1", 
+            "description": "-1 means no limit."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.temp_tablespaces", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the tablespace(s) to use for temporary tables and sort files.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.timezone_abbreviations", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Selects a file of time zone abbreviations.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.trace_notify", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Generates debugging output for LISTEN and NOTIFY.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.trace_recovery_messages", 
+            "minval": null, 
+            "default": "log", 
+            "tunable": false, 
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,log,notice,warning,error", 
+            "vartype": "5", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Enables logging of recovery-related debugging information.", 
+            "unit": "3", 
+            "description": "Each level includes all the levels that follow it. The later the level, the fewer messages are sent."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.trace_sort", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Emit information about resource usage in sorting.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.track_activities", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Collects information about executing commands.", 
+            "unit": "3", 
+            "description": "Enables the collection of information on the currently executing command of each session, along with the time at which that command began execution."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "102400", 
+            "dbms": 1, 
+            "name": "global.track_activity_query_size", 
+            "minval": "100", 
+            "default": "1024", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the size reserved for pg_stat_activity.query, in bytes.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.track_commit_timestamp", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Collects transaction commit time.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.track_counts", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Collects statistics on database activity.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.track_functions", 
+            "minval": null, 
+            "default": "none", 
+            "tunable": false, 
+            "enumvals": "none,pl,all", 
+            "vartype": "5", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Collects function-level statistics on database activity.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.track_io_timing", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Collects timing statistics for database I/O activity.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.transaction_deferrable", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Whether to defer a read-only serializable transaction until it can be executed with no possible serialization failures.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.transaction_isolation", 
+            "minval": null, 
+            "default": "default", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the current transaction's isolation level.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.transaction_read_only", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the current transaction's read-only status.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Other Platforms and Clients", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.transform_null_equals", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Treats \"expr=NULL\" as \"expr IS NULL\".", 
+            "unit": "3", 
+            "description": "When turned on, expressions of the form expr = NULL (or NULL = expr) are treated as expr IS NULL, that is, they return true if expr evaluates to the null value, and false otherwise. The correct behavior of expr = NULL is to always return null (unknown)."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.unix_socket_directories", 
+            "minval": null, 
+            "default": "/var/run/postgresql", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the directories where Unix-domain sockets will be created.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.unix_socket_group", 
+            "minval": null, 
+            "default": "", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "1", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the owning group of the Unix-domain socket.", 
+            "unit": "3", 
+            "description": "The owning user of the socket is always the user that starts the server."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings", 
+            "maxval": "511", 
+            "dbms": 1, 
+            "name": "global.unix_socket_permissions", 
+            "minval": "0", 
+            "default": "511", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the access permissions of the Unix-domain socket.", 
+            "unit": "3", 
+            "description": "Unix-domain sockets use the usual Unix file system permission set. The parameter value is expected to be a numeric mode specification in the form accepted by the chmod and umask system calls. (To use the customary octal format the number must start with a 0 (zero).)"
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Process Title", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.update_process_title", 
+            "minval": null, 
+            "default": "on", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Updates the process title to show the active SQL command.", 
+            "unit": "3", 
+            "description": "Enables updating of the process title every time a new SQL command is received by the server."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay", 
+            "maxval": "100", 
+            "dbms": 1, 
+            "name": "global.vacuum_cost_delay", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Vacuum cost delay in milliseconds.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.vacuum_cost_limit", 
+            "minval": "1", 
+            "default": "200", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Vacuum cost amount available before napping.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.vacuum_cost_page_dirty", 
+            "minval": "0", 
+            "default": "20", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Vacuum cost for a page dirtied by vacuum.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.vacuum_cost_page_hit", 
+            "minval": "0", 
+            "default": "1", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Vacuum cost for a page found in the buffer cache.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.vacuum_cost_page_miss", 
+            "minval": "0", 
+            "default": "10", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Vacuum cost for a page not found in the buffer cache.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Master Server", 
+            "maxval": "1000000", 
+            "dbms": 1, 
+            "name": "global.vacuum_defer_cleanup_age", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Number of transactions by which VACUUM and HOT cleanup should be deferred, if any.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "1000000000", 
+            "dbms": 1, 
+            "name": "global.vacuum_freeze_min_age", 
+            "minval": "0", 
+            "default": "50000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Minimum age at which VACUUM should freeze a table row.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2000000000", 
+            "dbms": 1, 
+            "name": "global.vacuum_freeze_table_age", 
+            "minval": "0", 
+            "default": "150000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Age at which VACUUM should scan whole table to freeze tuples.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "1000000000", 
+            "dbms": 1, 
+            "name": "global.vacuum_multixact_freeze_min_age", 
+            "minval": "0", 
+            "default": "5000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Minimum age at which VACUUM should freeze a MultiXactId in a table row.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": "2000000000", 
+            "dbms": 1, 
+            "name": "global.vacuum_multixact_freeze_table_age", 
+            "minval": "0", 
+            "default": "150000000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Multixact age at which VACUUM should scan whole table to freeze tuples.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "8192", 
+            "dbms": 1, 
+            "name": "global.wal_block_size", 
+            "minval": "8192", 
+            "default": "8192", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the block size in the write ahead log.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": "2147475456", 
+            "dbms": 1, 
+            "name": "global.wal_buffers", 
+            "minval": "-1", 
+            "default": "-1", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Sets the number of disk-page buffers in shared memory for WAL.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.wal_compression", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Compresses full-page writes written in WAL file.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Sending Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.wal_keep_segments", 
+            "minval": "0", 
+            "default": "0", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the number of WAL files held for standby servers.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.wal_level", 
+            "minval": null, 
+            "default": "minimal", 
+            "tunable": false, 
+            "enumvals": "minimal,replica,logical", 
+            "vartype": "5", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Set the level of information written to the WAL.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.wal_log_hints", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "postmaster", 
+            "scope": "global", 
+            "summary": "Writes full pages to WAL when first modified after a checkpoint, even for a non-critical modifications.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": "2147483000", 
+            "dbms": 1, 
+            "name": "global.wal_receiver_status_interval", 
+            "minval": "0", 
+            "default": "10000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum interval between WAL receiver status reports to the primary.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.wal_receiver_timeout", 
+            "minval": "0", 
+            "default": "60000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum wait time to receive data from the primary.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Standby Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.wal_retrieve_retry_interval", 
+            "minval": "1", 
+            "default": "5000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the time to wait before retrying to retrieve WAL after a failed attempt.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Preset Options", 
+            "maxval": "16777216", 
+            "dbms": 1, 
+            "name": "global.wal_segment_size", 
+            "minval": "16777216", 
+            "default": "16777216", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "internal", 
+            "scope": "global", 
+            "summary": "Shows the number of pages per write ahead log segment.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Replication / Sending Servers", 
+            "maxval": "2147483647", 
+            "dbms": 1, 
+            "name": "global.wal_sender_timeout", 
+            "minval": "0", 
+            "default": "60000", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Sets the maximum time to wait for WAL replication.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.wal_sync_method", 
+            "minval": null, 
+            "default": "fdatasync", 
+            "tunable": true, 
+            "enumvals": "fsync,fdatasync,open_sync,open_datasync", 
+            "vartype": "5", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Selects the method used for forcing WAL updates to disk.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": "10000", 
+            "dbms": 1, 
+            "name": "global.wal_writer_delay", 
+            "minval": "1", 
+            "default": "200", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Time between WAL flushes performed in the WAL writer.", 
+            "unit": "2", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings", 
+            "maxval": "17592186036224", 
+            "dbms": 1, 
+            "name": "global.wal_writer_flush_after", 
+            "minval": "0", 
+            "default": "1048576", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "sighup", 
+            "scope": "global", 
+            "summary": "Amount of WAL written out by WAL writer that triggers a flush.", 
+            "unit": "1", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Resource Usage / Memory", 
+            "maxval": "2199023254528", 
+            "dbms": 1, 
+            "name": "global.work_mem", 
+            "minval": "65536", 
+            "default": "4194304", 
+            "tunable": true, 
+            "enumvals": null, 
+            "vartype": "2", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets the maximum memory to be used for query workspaces.", 
+            "unit": "1", 
+            "description": "This much memory can be used by each internal sort operation and hash table before switching to temporary disk files."
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.xmlbinary", 
+            "minval": null, 
+            "default": "base64", 
+            "tunable": false, 
+            "enumvals": "base64,hex", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets how binary values are to be encoded in XML.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.xmloption", 
+            "minval": null, 
+            "default": "content", 
+            "tunable": false, 
+            "enumvals": "content,document", 
+            "vartype": "5", 
+            "context": "user", 
+            "scope": "global", 
+            "summary": "Sets whether XML data in implicit parsing and serialization operations is to be considered as documents or content fragments.", 
+            "unit": "3", 
+            "description": ""
+        }, 
+        "model": "website.KnobCatalog"
+    }, 
+    {
+        "fields": {
+            "category": "Developer Options", 
+            "maxval": null, 
+            "dbms": 1, 
+            "name": "global.zero_damaged_pages", 
+            "minval": null, 
+            "default": "off", 
+            "tunable": false, 
+            "enumvals": null, 
+            "vartype": "4", 
+            "context": "superuser", 
+            "scope": "global", 
+            "summary": "Continues processing past damaged page headers.", 
+            "unit": "3", 
+            "description": "Detection of a damaged page header normally causes PostgreSQL to report an error, aborting the current transaction. Setting zero_damaged_pages to true causes the system to instead report a warning, zero out the damaged page, and continue processing. This behavior will destroy data, namely all the rows on the damaged page."
+        }, 
+        "model": "website.KnobCatalog"
+    }
+]

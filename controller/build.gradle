@@ -1,0 +1,43 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'findbugs'
+apply plugin: 'application'
+
+mainClassName = "com.controller.Main"
+
+test.testLogging { exceptionFormat "full"; events "failed", "passed", "skipped" }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    runtime fileTree(dir: 'lib', include: '*.jar')
+    compile group: 'net.sourceforge.collections', name: 'collections-generic', version: '4.01'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+//    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.13'
+//    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.2.3'
+//    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.3'
+}
+
+findbugs {
+    ignoreFailures = true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+buildscript{
+    repositories {
+        mavenCentral()
+    }
+}

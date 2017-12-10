@@ -1,0 +1,12 @@
+[
+    {
+        "fields": {
+            "hardware": 16, 
+            "dbms": 1, 
+            "task_type": 2, 
+            "creation_timestamp": "2016-12-04 11:00", 
+            "value": "[\n    \"global.shared_buffers\", \n    \"global.effective_cache_size\", \n    \"global.bgwriter_lru_maxpages\", \n    \"global.bgwriter_delay\", \n    \"global.checkpoint_completion_target\", \n    \"global.deadlock_timeout\", \n    \"global.default_statistics_target\", \n    \"global.effective_io_concurrency\", \n    \"global.checkpoint_timeout\", \n    \"global.commit_delay\", \n    \"global.commit_siblings\", \n    \"global.wal_buffers\", \n    \"global.temp_buffers\", \n    \"global.from_collapse_limit\", \n    \"global.join_collapse_limit\", \n    \"global.bgwriter_lru_multiplier\", \n    \"global.random_page_cost\", \n    \"global.work_mem\", \n    \"global.maintenance_work_mem\", \n    \"global.min_wal_size\", \n    \"global.max_parallel_workers_per_gather\", \n    \"global.seq_page_cost\", \n    \"global.max_worker_processes\", \n    \"global.wal_sync_method\", \n    \"global.checkpoint_flush_after\", \n    \"global.wal_writer_delay\", \n    \"global.backend_flush_after\", \n    \"global.bgwriter_flush_after\", \n    \"global.min_parallel_relation_size\", \n    \"global.wal_writer_flush_after\", \n    \"global.max_wal_size\"\n]"
+        }, 
+        "model": "website.PipelineResult"
+    }
+]

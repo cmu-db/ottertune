@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div id="project_sessions" class="container">
+<form action="{% url 'delete_session' project.pk %}" method="POST"
+      onsubmit="return confirm('Are you sure you want to delete these sessions and all their results?')">
+      {% csrf_token %}
+<table style="table-layout: auto; width: 100%;" id="session_table" class="table table-bordered table-striped table-hover table-nonfluid">
+    <caption><h4>{{ labels.title }}</h4></caption>
+    <tr>
+        <th><input type="checkbox" onClick="toggle(this, 'session')" /></th>
+        <th>{{ labels.name }}</th>
+        <th>{{ labels.dbms }}</th>
+        <th>{{ labels.hardware }}</th>
+        <th>{{ labels.tuning_session }}</th>
+        <th>{{ labels.creation_time }}</th>
+        <th>{{ labels.last_update }}</th>
+    </tr>
+    {% for session in sessions %}
+        <tr>
+            <td style="vertical-align:middle"><input type="checkbox" name="sessions" value="{{ session.pk }}" /></td>
+            <td style="vertical-align:middle"><a href="{% url 'session' project.pk session.pk %}">{{ session.name }}</a></td>
+            <td style="vertical-align:middle">{{ session.dbms.full_name }}</td>
+            <td style="vertical-align:middle">{{ session.hardware.name }}</td>
+            <td style="vertical-align:middle">{{ session.tuning_session }}</td>
+            <td style="vertical-align:middle">{{ session.creation_time }}</td>
+            <td style="vertical-align:middle">{{ session.last_update }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<button class="btn btn-default" type="submit" name="id" value="{{ project.pk }}">{{ labels.button_delete }}</button>
+<a class="btn btn-default" href="{% url 'new_session' project.pk %}">{{ labels.button_create }}</a>
+</form>
+</div>
+
+<script type="text/javascript">
+function toggle(source, name) {
+    checkboxes = document.getElementsByName(name);
+    for(var i=0, n=checkboxes.length; i<n; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+
+{% endblock body %}

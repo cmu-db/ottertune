@@ -1,9 +1,10 @@
 from django.contrib import admin
 from djcelery.models import TaskMeta
 
-from .models import (Application, BenchmarkConfig, DBConf, DBMSCatalog,
-                     DBMSMetrics, KnobCatalog, MetricCatalog, PipelineResult,
-                     Project, Result, ResultData, Statistics, WorkloadCluster)
+from .models import (BackupData, DBMSCatalog, KnobCatalog,
+                     KnobData, MetricCatalog, MetricData,
+                     PipelineResult, Project, Result,
+                     Session, Workload)
 
 
 class DBMSCatalogAdmin(admin.ModelAdmin):
@@ -36,7 +37,7 @@ class ProjectAdmin(admin.ModelAdmin):
     fields = ['name', 'user', 'last_update', 'creation_time']
 
 
-class ApplicationAdmin(admin.ModelAdmin):
+class SessionAdmin(admin.ModelAdmin):
     fields = ['name', 'user', 'description',
               'creation_time', 'last_update', 'upload_code',
               'nondefault_settings']
@@ -44,41 +45,32 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 
-class BenchmarkConfigAdmin(admin.ModelAdmin):
-    list_display = ['name', 'benchmark_type', 'creation_time']
-    list_filter = ['benchmark_type']
-    fields = ['application', 'name', 'benchmark_type', 'creation_time',
-              'isolation', 'scalefactor', 'terminals', 'rate', 'time',
-              'skew', 'configuration']
-
-
-class DBConfAdmin(admin.ModelAdmin):
+class KnobDataAdmin(admin.ModelAdmin):
     list_display = ['name', 'dbms_info', 'creation_time']
-    fields = ['application', 'name', 'creation_time',
-              'configuration', 'orig_config_diffs', 'dbms']
+    fields = ['session', 'name', 'creation_time',
+              'knobs', 'data', 'dbms']
 
     def dbms_info(self, obj):
         return obj.dbms.full_name
 
 
-class DBMSMetricsAdmin(admin.ModelAdmin):
+class MetricDataAdmin(admin.ModelAdmin):
     list_display = ['name', 'dbms_info', 'creation_time']
-    fields = ['application', 'name', 'creation_time',
-              'execution_time', 'configuration', 'orig_config_diffs', 'dbms']
+    fields = ['session', 'name', 'creation_time',
+              'metrics', 'data', 'dbms']
 
     def dbms_info(self, obj):
         return obj.dbms.full_name
 
 
 class TaskMetaAdmin(admin.ModelAdmin):
-#     readonly_fields = ('result',)
     list_display = ['id', 'status', 'date_done']
 
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ['result_id', 'dbms_info', 'benchmark', 'creation_time']
-    list_filter = ['dbms__type', 'dbms__version',
-                   'benchmark_config__benchmark_type']
+    list_display = ['result_id', 'dbms_info', 'workload', 'creation_time',
+                    'observation_time']
+    list_filter = ['dbms__type', 'dbms__version']
     ordering = ['id']
 
     def result_id(self, obj):
@@ -87,18 +79,15 @@ class ResultAdmin(admin.ModelAdmin):
     def dbms_info(self, obj):
         return obj.dbms.full_name
 
-    def benchmark(self, obj):
-        return obj.benchmark_config.benchmark_type
+    def workload(self, obj):
+        return obj.workload.name
 
 
-class ResultDataAdmin(admin.ModelAdmin):
-    list_display = ['id', 'dbms_info', 'hardware_info']
+class BackupDataAdmin(admin.ModelAdmin):
+    list_display = ['id', 'result_id']
 
-    def dbms_info(self, obj):
-        return obj.cluster.dbms.full_name
-
-    def hardware_info(self, obj):
-        return obj.cluster.hardware.name
+    def result_id(self, obj):
+        return obj.id
 
 
 class PipelineResultAdmin(admin.ModelAdmin):
@@ -112,29 +101,22 @@ class PipelineResultAdmin(admin.ModelAdmin):
         return obj.hardware.name
 
 
-class StatisticsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'type', 'time']
-    list_filter = ['type']
+class WorkloadAdmin(admin.ModelAdmin):
+    list_display = ['workload_id', 'name']
 
-
-class WorkloadClusterAdmin(admin.ModelAdmin):
-    list_display = ['cluster_id', 'cluster_name']
-
-    def cluster_id(self, obj):
+    def workload_id(self, obj):
         return obj.pk
 
 
 admin.site.register(DBMSCatalog, DBMSCatalogAdmin)
 admin.site.register(KnobCatalog, KnobCatalogAdmin)
 admin.site.register(MetricCatalog, MetricCatalogAdmin)
-admin.site.register(Application, ApplicationAdmin)
+admin.site.register(Session, SessionAdmin)
 admin.site.register(Project, ProjectAdmin)
-admin.site.register(BenchmarkConfig, BenchmarkConfigAdmin)
-admin.site.register(DBConf, DBConfAdmin)
-admin.site.register(DBMSMetrics, DBMSMetricsAdmin)
+admin.site.register(KnobData, KnobDataAdmin)
+admin.site.register(MetricData, MetricDataAdmin)
 admin.site.register(TaskMeta, TaskMetaAdmin)
 admin.site.register(Result, ResultAdmin)
-admin.site.register(ResultData, ResultDataAdmin)
+admin.site.register(BackupData, BackupDataAdmin)
 admin.site.register(PipelineResult, PipelineResultAdmin)
-admin.site.register(Statistics, StatisticsAdmin)
-admin.site.register(WorkloadCluster, WorkloadClusterAdmin)
+admin.site.register(Workload, WorkloadAdmin)

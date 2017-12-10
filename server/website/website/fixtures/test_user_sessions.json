@@ -1,0 +1,49 @@
+[
+    {
+        "fields": { 
+            "user": 1, 
+            "name": "test_project", 
+            "description": "", 
+            "creation_time": "2017-11-30T02:00:49.611Z", 
+            "last_update": "2017-11-30T02:00:49.611Z"
+        }, 
+        "model": "website.Project",
+        "pk": 1
+    },
+    {
+        "fields": { 
+            "user": 1, 
+            "name": "basic_session", 
+            "description": "(no tuning)",
+            "dbms": 1,
+            "hardware": 16,
+            "project": 1,
+            "upload_code": "1234567890",
+            "tuning_session": false,
+            "target_objective": null,
+            "nondefault_settings": null,
+            "creation_time": "2017-11-30T02:00:49.611Z", 
+            "last_update": "2017-11-30T02:00:49.611Z"
+        }, 
+        "model": "website.Session",
+        "pk": 1
+    },
+    {
+        "fields": { 
+            "user": 1, 
+            "name": "tuning_session", 
+            "description": "",
+            "dbms": 1,
+            "hardware": 16,
+            "project": 1,
+            "upload_code": "0987654321",
+            "tuning_session": true,
+            "target_objective": "throughput_txn_per_sec",
+            "nondefault_settings": null,
+            "creation_time": "2017-11-30T02:00:49.611Z", 
+            "last_update": "2017-11-30T02:00:49.611Z"
+        }, 
+        "model": "website.Session",
+        "pk": 2
+    }
+]

@@ -3,8 +3,9 @@ Common Django settings for the OtterTune project.
 
 """
 
+import os
 import sys
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname, exists, join
 
 ## ==============================================
 ## PATH CONFIGURATION
@@ -22,9 +23,6 @@ UPLOAD_DIR = join(DATA_ROOT, 'media')
 # This is where intermediate results are stored in our ML pipeline
 PIPELINE_DIR = join(DATA_ROOT, 'pipeline_results')
 
-# Path to data preloaded with manage.py loaddata
-PRELOAD_DIR = join(PROJECT_ROOT, 'preload')
-
 # Path to the base DBMS configuration files
 CONFIG_DIR = join(PROJECT_ROOT, 'config')
 
@@ -36,14 +34,21 @@ FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o664
 FILE_UPLOAD_PERMISSIONS = 0o664
 
 # Path to OtterTune's ML modules
-OTTERTUNE_LIBS = dirname(PROJECT_ROOT)#join(dirname(PROJECT_ROOT), 'analysis')
+OTTERTUNE_LIBS = dirname(PROJECT_ROOT)
 
 ## ==============================================
-## Python path setup
+## Path setup
 ## ==============================================
 
 # Add OtterTune's ML modules to path
 sys.path.insert(0, OTTERTUNE_LIBS)
+
+# Try to create the log directory
+try:
+    if not exists(LOG_DIR):
+        os.mkdir(LOG_DIR)
+except Exception:
+    pass
 
 ## ==============================================
 ## DEBUG CONFIGURATION
@@ -102,7 +107,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = join(PROJECT_ROOT, 'website', 'data', 'static')
+STATIC_ROOT = join(PROJECT_ROOT, 'website', 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"

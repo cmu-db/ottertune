@@ -6,15 +6,14 @@ Created on Jul 25, 2017
 
 from django import forms
 
-from .models import Application, Project
+from .models import Session, Project
 
 class NewResultForm(forms.Form):
     upload_code = forms.CharField(max_length=30)
-    db_parameters_data = forms.FileField()
-    db_metrics_data = forms.FileField()
-    benchmark_conf_data = forms.FileField()
-    summary_data = forms.FileField()
-    cluster_name = forms.CharField(max_length=128, required=False)
+    metrics_before = forms.FileField()
+    metrics_after = forms.FileField()
+    knobs = forms.FileField()
+    summary = forms.FileField()
 
 
 class ProjectForm(forms.ModelForm):
@@ -31,7 +30,7 @@ class ProjectForm(forms.ModelForm):
         }
 
 
-class ApplicationForm(forms.ModelForm):
+class SessionForm(forms.ModelForm):
 
     gen_upload_code = forms.BooleanField(widget=forms.CheckboxInput,
                                          initial=False,
@@ -39,12 +38,12 @@ class ApplicationForm(forms.ModelForm):
                                          label='Get new upload code')
 
     def __init__(self, *args, **kwargs):
-        super(ApplicationForm, self).__init__(*args, **kwargs)
+        super(SessionForm, self).__init__(*args, **kwargs)
         self.fields['description'].required = False
         self.fields['target_objective'].required = False
 
     class Meta:
-        model = Application
+        model = Session
 
         fields = ('name', 'description', 'tuning_session', 'dbms', 'hardware', 'target_objective')
 

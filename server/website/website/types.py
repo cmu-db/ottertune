@@ -114,12 +114,16 @@ class PipelineTaskType(BaseType):
     RANKED_KNOBS          = 2
     AGGREGATED_DATA       = 3
     WORKLOAD_MAPPING_DATA = 4
+    KNOB_DATA             = 5
+    METRIC_DATA           = 6
 
     TYPE_NAMES = {
         PRUNED_METRICS:        "Pruned Metrics",
         RANKED_KNOBS:          "Ranked Knobs",
         AGGREGATED_DATA:       "Aggregated Data",
         WORKLOAD_MAPPING_DATA: "Workload Mapping Data",
+        KNOB_DATA:             "Knob Data",
+        METRIC_DATA:           "Metric Data",
     }
 
 

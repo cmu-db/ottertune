@@ -6,12 +6,15 @@ from celery.decorators import periodic_task
 from celery.utils.log import get_task_logger
 from django.utils.timezone import now
 
-from analysis.cluster import KMeansClusters, KSelection
+from analysis.cluster import KMeansClusters, KSelection,create_kselection_model
 from analysis.factor_analysis import FactorAnalysis
 from analysis.lasso import LassoPath
+from analysis.preprocessing import Bin, get_shuffle_indices
+
 from website.models import PipelineData, PipelineRun, Result, Workload
 from website.types import PipelineTaskType
 from website.utils import DataUtil, JSONUtil
+
 
 # Log debug messages 
 logger = get_task_logger(__name__)
@@ -32,9 +35,10 @@ def run_background_tasks():
     ## 1. Create a new entry in the PipelineRun table for this
     ##    background task
 
-    # Create new PipelineRun object
-    logger.info("run periodic background task !! " )
+    #LOG 
+    #logger.info("run periodic background task !! " )
 
+    # Create new PipelineRun object
     pipeline_run_obj = PipelineRun(start_time=now(), end_time=None)
 
     # Call save() to commit the transaction and so the new entry is
@@ -174,28 +178,68 @@ def run_workload_characterization(metric_data):
     ##     - 'columnlabels': a list of the metric names corresponding to
     ##                       the columns in the data matrix
 
-    data = metric_data['data']
+    matrix = metric_data['data']
     rowlabels = metric_data['rowlabels']
     columnlabels = metric_data['columnlabels']
-    #print data.shape, len(rowlabels), len(columnlabels)
-    # TODO: implement me!!
+
+    # Remove any constant columns
+    nonconst_matrix = []
+    nonconst_columnlabels = []
+    for col, cl in zip(matrix.T, columnlabels):
+        if np.any(col != col[0]):
+            nonconst_matrix.append(col.reshape(-1, 1))
+            nonconst_columnlabels.append(cl)
+    nonconst_matrix = np.hstack(nonconst_matrix)
+    n_rows, n_cols = nonconst_matrix.shape
+ 
+    # Bin each column (metric) in the matrix by its decile
+    binner = Bin(bin_start=1, axis=0)
+    binned_matrix = binner.fit_transform(nonconst_matrix)
+
+    # Shuffle the matrix rows
+    shuffle_indices = get_shuffle_indices(n_rows)
+    shuffled_matrix = binned_matrix[shuffle_indices, :]
+    shuffled_rowlabels = [rowlabels[i] for i in shuffle_indices]
+
+    # Fit factor analysis model
+    fa_model = FactorAnalysis()
+    fa_model.fit(shuffled_matrix, nonconst_columnlabels)
+
+    # Run Kmeans for # clusters k in range(2, num_instance_types - 1)
+    components = fa_model.components_.T.copy()
+
+    kmeans_models = KMeansClusters()
+    kmeans_models.fit(components, min_cluster=2,
+                         max_cluster=n_cols - 1,
+                         sample_labels=nonconst_columnlabels,
+                         estimator_params={'n_init': 50})
+
+    # Compute optimal # clusters, k, using  DetK
+    detk = create_kselection_model("det-k")
+    detk.fit(components, kmeans_models.cluster_map_)
+
+    pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()
+
+    #print pruned_metrics
+    return pruned_metrics
+
 
     # For now, return the list of pruned metrics that used to be hardcoded
     # and preloaded into the database as a fixture.
     # (see preload/postgres-96_m3xlarge_pruned_metrics.json)
-    return [
-        "throughput_txn_per_sec",
-        "pg_stat_bgwriter.buffers_alloc",
-        "pg_stat_bgwriter.buffers_checkpoint",
-        "pg_stat_bgwriter.checkpoints_req",
-        "pg_stat_bgwriter.maxwritten_clean",
-        "pg_stat_database.blks_hit",
-        "pg_stat_database.tup_deleted",
-        "pg_stat_database.tup_inserted",
-        "pg_stat_database.tup_returned",
-        "pg_stat_database.tup_updated",
-        "pg_stat_user_tables.autoanalyze_count"
-    ]
+    #return [
+    #    "throughput_txn_per_sec",
+    #    "pg_stat_bgwriter.buffers_alloc",
+    #    "pg_stat_bgwriter.buffers_checkpoint",
+    #    "pg_stat_bgwriter.checkpoints_req",
+    #    "pg_stat_bgwriter.maxwritten_clean",
+    #    "pg_stat_database.blks_hit",
+    #    "pg_stat_database.tup_deleted",
+    #    "pg_stat_database.tup_inserted",
+    #    "pg_stat_database.tup_returned",
+    #    "pg_stat_database.tup_updated",
+    #    "pg_stat_user_tables.autoanalyze_count"
+    #]
 
 
 def run_knob_identification(knob_data, metric_data):

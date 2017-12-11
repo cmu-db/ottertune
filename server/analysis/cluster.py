@@ -500,7 +500,8 @@ class DetK(KSelection):
                     else a(k - 1, Nd) + (1 - a(k - 1, Nd)) / 6
             Sks[i] = sum([np.linalg.norm(model.cluster_centers_[j] - c) ** 2
                           for j in range(K)
-                          for c in X[model.sample_labels_ == j]])
+                          for c in X[model.cluster_labels_ == j]])
+                          #for c in X[model.sample_labels_ == j]])
             if K == 1:
                 Fs[i] = 1
             elif Sks[i - 1] == 0:

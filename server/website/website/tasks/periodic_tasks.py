@@ -25,19 +25,15 @@ logger = get_task_logger(__name__)
 # background task every hour or so.
 @periodic_task(run_every=300, name="run_background_tasks")
 
-# test every 10 sec 
-#@periodic_task(run_every=10, name="run_background_tasks")
+#Note: This annotation supports more time units (minute/hour/day). The 
+#following setting tells celery to run background job every 1 hour.
 
-#every 1 hour 
 #@periodic_task(run_every=(crontab(hour=1,minute=0,day_of_week=0)),name="run_background_tasks")
 
 def run_background_tasks():
     ## 1. Create a new entry in the PipelineRun table for this
     ##    background task
-
-    #LOG 
-    #logger.info("run periodic background task !! " )
-
+    
     # Create new PipelineRun object
     pipeline_run_obj = PipelineRun(start_time=now(), end_time=None)
 
@@ -218,28 +214,11 @@ def run_workload_characterization(metric_data):
     detk = create_kselection_model("det-k")
     detk.fit(components, kmeans_models.cluster_map_)
 
+    # Get pruned metrics, cloest samples of each cluster center 
     pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()
 
-    #print pruned_metrics
+    # Return pruned metrics 
     return pruned_metrics
-
-
-    # For now, return the list of pruned metrics that used to be hardcoded
-    # and preloaded into the database as a fixture.
-    # (see preload/postgres-96_m3xlarge_pruned_metrics.json)
-    #return [
-    #    "throughput_txn_per_sec",
-    #    "pg_stat_bgwriter.buffers_alloc",
-    #    "pg_stat_bgwriter.buffers_checkpoint",
-    #    "pg_stat_bgwriter.checkpoints_req",
-    #    "pg_stat_bgwriter.maxwritten_clean",
-    #    "pg_stat_database.blks_hit",
-    #    "pg_stat_database.tup_deleted",
-    #    "pg_stat_database.tup_inserted",
-    #    "pg_stat_database.tup_returned",
-    #    "pg_stat_database.tup_updated",
-    #    "pg_stat_user_tables.autoanalyze_count"
-    #]
 
 
 def run_knob_identification(knob_data, metric_data):

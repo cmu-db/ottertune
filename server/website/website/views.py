@@ -21,12 +21,13 @@ from .forms import NewResultForm, ProjectForm, SessionForm
 from .models import (BackupData, DBMSCatalog, Hardware, KnobCatalog,
                      KnobData, MetricCatalog, MetricData, MetricManager,
                      Project, Result, Session, Workload)
+from .parser import Parser
 from tasks import (aggregate_target_results,
                    map_workload,
                    configuration_recommendation)
 from .types import (DBMSType, HardwareType, KnobUnitType, MetricType,
                     TaskType, VarType)
-from .utils import DBMSUtil, JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
 
 log = logging.getLogger(__name__)
 
@@ -379,7 +380,7 @@ def handle_result_files(session, files):
     # Load the contents of the controller's summary file
     summary = JSONUtil.loads(files['summary'])
     dbms_type = DBMSType.type(summary['database_type'])
-#     dbms_version = DBMSUtil.parse_version_string(
+#     dbms_version = Parser.parse_version_string(
 #        dbms_type, summary['database_version'])
     dbms_version = '9.6'  ## FIXME (dva)
     workload_name = summary['workload_name']
@@ -405,23 +406,23 @@ def handle_result_files(session, files):
                             '(actual=' + dbms.full_name + ')')
 
     # Load, process, and store the knobs in the DBMS's configuration
-    knob_dict, knob_diffs = DBMSUtil.parse_dbms_config(
+    knob_dict, knob_diffs = Parser.parse_dbms_config(
         dbms.pk, JSONUtil.loads(files['knobs']))
-    tunable_knob_dict = DBMSUtil.convert_dbms_params(
+    tunable_knob_dict = Parser.convert_dbms_params(
         dbms.pk, knob_dict)
     knob_data = KnobData.objects.create_knob_data(
         session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
         JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
 
     # Load, process, and store the runtime metrics exposed by the DBMS
-    initial_metric_dict, initial_metric_diffs = DBMSUtil.parse_dbms_metrics(
+    initial_metric_dict, initial_metric_diffs = Parser.parse_dbms_metrics(
             dbms.pk, JSONUtil.loads(files['metrics_before']))
-    final_metric_dict, final_metric_diffs = DBMSUtil.parse_dbms_metrics(
+    final_metric_dict, final_metric_diffs = Parser.parse_dbms_metrics(
             dbms.pk, JSONUtil.loads(files['metrics_after']))
-    metric_dict = DBMSUtil.calculate_change_in_metrics(
+    metric_dict = Parser.calculate_change_in_metrics(
         dbms.pk, initial_metric_dict, final_metric_dict)
     initial_metric_diffs.extend(final_metric_diffs)
-    numeric_metric_dict = DBMSUtil.convert_dbms_metrics(
+    numeric_metric_dict = Parser.convert_dbms_metrics(
         dbms.pk, metric_dict, observation_time)
     metric_data = MetricData.objects.create_metric_data(
         session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
@@ -447,7 +448,7 @@ def handle_result_files(session, files):
         metric_log=initial_metric_diffs)
     backup_data.save()
 
-    nondefault_settings = DBMSUtil.get_nondefault_settings(
+    nondefault_settings = Parser.get_nondefault_settings(
         dbms.pk, knob_dict)
     session.project.last_update = now()
     session.last_update = now()
@@ -560,12 +561,12 @@ def metric_data_view(request, project_id, session_id, data_id):
 def dbms_data_view(request, context, dbms_data):
     if context['data_type'] == 'knobs':
         model_class = KnobData
-        filter_fn = DBMSUtil.filter_tunable_params
+        filter_fn = Parser.filter_tunable_params
         obj_data = dbms_data.knobs
         addl_args = []
     else:
         model_class = MetricData
-        filter_fn = DBMSUtil.filter_numeric_metrics
+        filter_fn = Parser.filter_numeric_metrics
         obj_data = dbms_data.metrics
         addl_args = [True]
 

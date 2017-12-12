@@ -12,9 +12,10 @@ from analysis.gp_tf import GPR, GPR_GD
 from analysis.preprocessing import bin_by_decile, Bin
 from website.models import (DBMSCatalog, Hardware, PipelineResult,
                             Result, Workload)
+from website.parser import Parser
 from website.settings import PIPELINE_DIR
 from website.types import PipelineTaskType
-from website.utils import DataUtil, DBMSUtil, JSONUtil
+from website.utils import DataUtil, JSONUtil
 
 
 class UpdateTask(Task):
@@ -61,7 +62,7 @@ class ConfigurationRecommendation(UpdateTask):
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
-        formatted_params = DBMSUtil.format_dbms_params(result.dbms.pk, retval)
+        formatted_params = Parser.format_dbms_params(result.dbms.pk, retval)
         task_meta = TaskMeta.objects.get(task_id=task_id)
         task_meta.result = formatted_params
         task_meta.save()
@@ -69,7 +70,7 @@ class ConfigurationRecommendation(UpdateTask):
         # Create next configuration to try
         nondefault_params = JSONUtil.loads(
             result.session.nondefault_settings)
-        config = DBMSUtil.create_configuration(
+        config = Parser.create_configuration(
             result.dbms.pk, formatted_params, nondefault_params)
         result.next_configuration = config
         result.save()

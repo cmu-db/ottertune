@@ -41,9 +41,8 @@ class Parser(object):
         return None
 
     @staticmethod
-    def convert_dbms_params(dbms_id, params):
-        return Parser.__utils(dbms_id).convert_dbms_params(
-                params)
+    def convert_dbms_knobs(dbms_id, knobs):
+        return Parser.__utils(dbms_id).convert_dbms_knobs(knobs)
 
     @staticmethod
     def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time):
@@ -51,39 +50,37 @@ class Parser(object):
                 numeric_metrics, observation_time)
 
     @staticmethod
-    def parse_dbms_config(dbms_id, config):
-        return Parser.__utils(dbms_id).parse_dbms_config(config)
+    def parse_dbms_knobs(dbms_id, knobs):
+        return Parser.__utils(dbms_id).parse_dbms_knobs(knobs)
 
     @staticmethod
     def parse_dbms_metrics(dbms_id, metrics):
         return Parser.__utils(dbms_id).parse_dbms_metrics(metrics)
 
     @staticmethod
-    def get_nondefault_settings(dbms_id, config):
-        return Parser.__utils(dbms_id).get_nondefault_settings(
-            config)
+    def get_nondefault_knob_settings(dbms_id, knobs):
+        return Parser.__utils(dbms_id).get_nondefault_knob_settings(knobs)
 
     @staticmethod
-    def create_configuration(dbms_id, tuning_params, custom_params):
-        return Parser.__utils(dbms_id).create_configuration(
-            tuning_params, custom_params)
+    def create_knob_configuration(dbms_id, tuning_knobs, custom_knobs):
+        return Parser.__utils(dbms_id).create_knob_configuration(
+            tuning_knobs, custom_knobs)
 
     @staticmethod
-    def format_dbms_params(dbms_id, params):
-        return Parser.__utils(dbms_id).format_dbms_params(params)
+    def format_dbms_knobs(dbms_id, knobs):
+        return Parser.__utils(dbms_id).format_dbms_knobs(knobs)
 
     @staticmethod
-    def get_configuration_filename(dbms_id):
-        return Parser.__utils(dbms_id).configuration_filename
+    def get_knob_configuration_filename(dbms_id):
+        return Parser.__utils(dbms_id).knob_configuration_filename
 
     @staticmethod
-    def filter_numeric_metrics(dbms_id, metrics, normalize=False):
-        return Parser.__utils(dbms_id).filter_numeric_metrics(
-            metrics, normalize)
+    def filter_numeric_metrics(dbms_id, metrics):
+        return Parser.__utils(dbms_id).filter_numeric_metrics(metrics)
 
     @staticmethod
-    def filter_tunable_params(dbms_id, params):
-        return Parser.__utils(dbms_id).filter_tunable_params(params)
+    def filter_tunable_knobs(dbms_id, knobs):
+        return Parser.__utils(dbms_id).filter_tunable_knobs(knobs)
 
     @staticmethod
     def calculate_change_in_metrics(dbms_id, metrics_start, metrics_end):

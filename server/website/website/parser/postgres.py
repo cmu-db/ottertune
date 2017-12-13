@@ -31,7 +31,7 @@ class PostgresParser(BaseParser):
         (1000, 's'),
     ]
 
-    POSTGRES_BASE_PARAMS = {
+    POSTGRES_BASE_KNOBS = {
         'global.data_directory': None,
         'global.hba_file': None,
         'global.ident_file': None,
@@ -49,49 +49,51 @@ class PostgresParser(BaseParser):
 
     @property
     def base_configuration_settings(self):
-        return dict(self.POSTGRES_BASE_PARAMS)
+        return dict(self.POSTGRES_BASE_KNOBS)
 
     @property
-    def configuration_filename(self):
+    def knob_configuration_filename(self):
         return 'postgresql.conf'
 
     @property
     def transactions_counter(self):
         return 'pg_stat_database.xact_commit'
 
-    def convert_integer(self, int_value, param_info):
+    def convert_integer(self, int_value, metadata):
         converted = None
         try:
             converted = super(PostgresParser, self).convert_integer(
-                int_value, param_info)
+                int_value, metadata)
         except ValueError:
-            if param_info.unit == KnobUnitType.BYTES:
+            if metadata.unit == KnobUnitType.BYTES:
                 converted = ConversionUtil.get_raw_size(
                     int_value, system=self.POSTGRES_BYTES_SYSTEM)
-            elif param_info.unit == KnobUnitType.MILLISECONDS:
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
                 converted = ConversionUtil.get_raw_size(
                     int_value, system=self.POSTGRES_TIME_SYSTEM)
             else:
                 raise Exception(
-                    'Unknown unit type: {}'.format(param_info.unit))
+                    'Unknown unit type: {}'.format(metadata.unit))
         if converted is None:
-            raise Exception('Invalid integer format for param {} ({})'.format(
-                param_info.name, int_value))
+            raise Exception('Invalid integer format for {}: {}'.format(
+                metadata.name, int_value))
         return converted
 
-    def format_integer(self, int_value, param_info):
-        if param_info.unit != KnobUnitType.OTHER and int_value > 0:
-            if param_info.unit == KnobUnitType.BYTES:
+    def format_integer(self, int_value, metadata):
+        if metadata.unit != KnobUnitType.OTHER and int_value > 0:
+            if metadata.unit == KnobUnitType.BYTES:
                 int_value = ConversionUtil.get_human_readable(
                     int_value, PostgresParser.POSTGRES_BYTES_SYSTEM)
-            elif param_info.unit == KnobUnitType.MILLISECONDS:
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
                 int_value = ConversionUtil.get_human_readable(
                     int_value, PostgresParser.POSTGRES_TIME_SYSTEM)
             else:
                 raise Exception(
-                    'Invalid knob unit type: {}'.format(param_info.unit))
+                    'Invalid unit type for {}: {}'.format(
+                        metadata.name, metadata.unit))
         else:
-            int_value = super(PostgresParser, self).format_integer(int_value, param_info)
+            int_value = super(PostgresParser, self).format_integer(
+                int_value, metadata)
         return int_value
 
     def parse_version_string(self, version_string):

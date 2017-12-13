@@ -62,7 +62,7 @@ class ConfigurationRecommendation(UpdateTask):
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
-        formatted_params = Parser.format_dbms_params(result.dbms.pk, retval)
+        formatted_params = Parser.format_dbms_knobs(result.dbms.pk, retval)
         task_meta = TaskMeta.objects.get(task_id=task_id)
         task_meta.result = formatted_params
         task_meta.save()
@@ -70,7 +70,7 @@ class ConfigurationRecommendation(UpdateTask):
         # Create next configuration to try
         nondefault_params = JSONUtil.loads(
             result.session.nondefault_settings)
-        config = Parser.create_configuration(
+        config = Parser.create_knob_configuration(
             result.dbms.pk, formatted_params, nondefault_params)
         result.next_configuration = config
         result.save()

@@ -41,6 +41,4 @@ script:
   - cd ${WEBSITE_ROOT} && coverage run manage.py test --noinput
 
 after_success:
-  # codecov
-  - echo "WORKING DIRECTORY: $PWD"
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

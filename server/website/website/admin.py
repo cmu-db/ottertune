@@ -3,9 +3,8 @@ from djcelery.models import TaskMeta
 
 from .models import (BackupData, DBMSCatalog, KnobCatalog,
                      KnobData, MetricCatalog, MetricData,
-                     PipelineData, PipelineRun,
-                     PipelineResult, Project, Result,
-                     Session, Workload)
+                     PipelineData, PipelineRun, Project,
+                     Result, Session, Workload)
 
 
 class DBMSCatalogAdmin(admin.ModelAdmin):
@@ -134,5 +133,4 @@ admin.site.register(Result, ResultAdmin)
 admin.site.register(BackupData, BackupDataAdmin)
 admin.site.register(PipelineData, PipelineDataAdmin)
 admin.site.register(PipelineRun, PipelineRunAdmin)
-admin.site.register(PipelineResult, PipelineResultAdmin)
 admin.site.register(Workload, WorkloadAdmin)

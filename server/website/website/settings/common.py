@@ -20,9 +20,6 @@ DATA_ROOT = join(PROJECT_ROOT, 'data')
 # Absolute path to directory where all oltpbench data is uploaded
 UPLOAD_DIR = join(DATA_ROOT, 'media')
 
-# This is where intermediate results are stored in our ML pipeline
-PIPELINE_DIR = join(DATA_ROOT, 'pipeline_results')
-
 # Path to the base DBMS configuration files
 CONFIG_DIR = join(PROJECT_ROOT, 'config')
 

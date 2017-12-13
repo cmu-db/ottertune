@@ -334,27 +334,6 @@ class Result(BaseModel):
         return unicode(self.pk)
 
 
-# Note (dva): this model will be deleted as soon as the
-# background tasks are working
-class PipelineResult(models.Model):
-    dbms = models.ForeignKey(DBMSCatalog)
-    hardware = models.ForeignKey(Hardware)
-    creation_timestamp = models.DateTimeField()
-    task_type = models.IntegerField(choices=PipelineTaskType.choices())
-    value = models.TextField()
-
-    @staticmethod
-    def get_latest(dbms, hardware, task_type):
-        results = PipelineResult.objects.filter(
-            dbms=dbms, hardware=hardware, task_type=task_type)
-        return None if len(results) == 0 else results.latest()
-
-    class Meta:
-        unique_together = ("dbms", "hardware",
-                           "creation_timestamp", "task_type")
-        get_latest_by = ('creation_timestamp')
-
-
 class PipelineRunManager(models.Manager):
 
     def get_latest(self):

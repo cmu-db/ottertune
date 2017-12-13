@@ -95,9 +95,14 @@ def generate_data(n_workloads, n_samples_per_workload):
 
 
 def main():
-    if len(sys.argv) != 3:
-        print 'Usage: python data_generator.py [n_workloads] [n_samples_per_workload]'
+    if len(sys.argv) < 3:
+        print 'Usage: python data_generator.py [n_workloads] [n_samples_per_workload] [optional: random_seed]'
         sys.exit(1)
+    if len(sys.argv) == 4:
+        random_seed = int(sys.argv[3])
+        print ""
+        print "Seeding the generator with value: {}".format(random_seed)
+        np.random.seed(seed=random_seed)
     shutil.rmtree(OUTPUT_DIR, ignore_errors=True)
     os.mkdir(OUTPUT_DIR)
 

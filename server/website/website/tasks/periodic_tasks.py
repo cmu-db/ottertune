@@ -6,7 +6,7 @@ from celery.decorators import periodic_task
 from celery.utils.log import get_task_logger
 from django.utils.timezone import now
 
-from analysis.cluster import KMeansClusters, KSelection,create_kselection_model
+from analysis.cluster import KMeansClusters, KSelection, create_kselection_model
 from analysis.factor_analysis import FactorAnalysis
 from analysis.lasso import LassoPath
 from analysis.preprocessing import Bin, get_shuffle_indices
@@ -19,18 +19,16 @@ from website.utils import DataUtil, JSONUtil
 # Log debug messages 
 logger = get_task_logger(__name__)
 
-# Note: This annotation tells celery to run the background every 300
-# seconds (5 minutes), but change this to whatever period of time works
-# well for testing. In reality we will probably want to run this
-# background task every hour or so.
-@periodic_task(run_every=300, name="run_background_tasks")
-
-#Note: This annotation supports more time units (minute/hour/day). The 
-#following setting tells celery to run background job every 1 hour.
-
-#@periodic_task(run_every=(crontab(hour=1,minute=0,day_of_week=0)),name="run_background_tasks")
-
+# Executes 'run_background_tasks' every 5 minutes
+@periodic_task(run_every=(crontab(hour=0, minute=5, day_of_week=0)),
+               name="run_background_tasks")
 def run_background_tasks():
+    # Find all unique workloads that we have data for
+    unique_workloads = Workload.objects.all()
+    if len(unique_workloads) == 0:
+        # No previous workload data yet. Try again later.
+        return
+
     ## 1. Create a new entry in the PipelineRun table for this
     ##    background task
     
@@ -41,9 +39,7 @@ def run_background_tasks():
     # actually updated in the PipelineRun table
     pipeline_run_obj.save()
 
-    ## 2. All unique workloads will be stored in the Workload table.
-    ##     Iterate over all unique workloads.
-    unique_workloads = Workload.objects.all()
+    ## 2. Iterate over all unique workloads.
     for workload in unique_workloads:
         ## 2a. Call first subtask to aggregates the knob & metric data for
         ##     this workload. Save the knob & metric data as (separate)
@@ -83,7 +79,7 @@ def run_background_tasks():
         pruned_metrics_entry = PipelineData(pipeline_run=pipeline_run_obj,
                                             task_type=PipelineTaskType.PRUNED_METRICS,
                                             workload=workload,
-                                            data=pruned_metrics,
+                                            data=JSONUtil.dumps(pruned_metrics),
                                             creation_time=now())
         pruned_metrics_entry.save()
 
@@ -107,7 +103,7 @@ def run_background_tasks():
         ranked_knobs_entry = PipelineData(pipeline_run=pipeline_run_obj,
                                           task_type=PipelineTaskType.RANKED_KNOBS,
                                           workload=workload,
-                                          data=ranked_knobs,
+                                          data=JSONUtil.dumps(ranked_knobs),
                                           creation_time=now())
         ranked_knobs_entry.save()
 
@@ -175,7 +171,6 @@ def run_workload_characterization(metric_data):
     ##                       the columns in the data matrix
 
     matrix = metric_data['data']
-    rowlabels = metric_data['rowlabels']
     columnlabels = metric_data['columnlabels']
 
     # Remove any constant columns
@@ -195,7 +190,6 @@ def run_workload_characterization(metric_data):
     # Shuffle the matrix rows
     shuffle_indices = get_shuffle_indices(n_rows)
     shuffled_matrix = binned_matrix[shuffle_indices, :]
-    shuffled_rowlabels = [rowlabels[i] for i in shuffle_indices]
 
     # Fit factor analysis model
     fa_model = FactorAnalysis()

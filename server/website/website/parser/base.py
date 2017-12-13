@@ -10,7 +10,7 @@ import os
 from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import OrderedDict
 
-from website.models import DBMSCatalog, KnobCatalog, MetricCatalog
+from website.models import KnobCatalog, MetricCatalog
 from website.settings import CONFIG_DIR
 from website.types import BooleanType, MetricType, VarType
 
@@ -35,7 +35,7 @@ class BaseParser(object):
         pass
 
     @abstractproperty
-    def configuration_filename(self):
+    def knob_configuration_filename(self):
         pass
 
     @abstractproperty
@@ -46,172 +46,172 @@ class BaseParser(object):
     def parse_version_string(self, version_string):
         pass
 
-    def convert_bool(self, bool_value, param_info):
+    def convert_bool(self, bool_value, metadata):
         return BooleanType.TRUE if \
                 bool_value.lower() == 'on' else BooleanType.FALSE
 
-    def convert_enum(self, enum_value, param_info):
-        enumvals = param_info.enumvals.split(',')
+    def convert_enum(self, enum_value, metadata):
+        enumvals = metadata.enumvals.split(',')
         try:
             return enumvals.index(enum_value)
         except ValueError:
-            raise Exception('Invalid enum value for param {} ({})'.format(
-                param_info.name, enum_value))
+            raise Exception('Invalid enum value for variable {} ({})'.format(
+                metadata.name, enum_value))
 
-    def convert_integer(self, int_value, param_info):
+    def convert_integer(self, int_value, metadata):
         try:
             return int(int_value)
         except ValueError:
             return int(float(int_value))
 
-    def convert_real(self, real_value, param_info):
+    def convert_real(self, real_value, metadata):
         return float(real_value)
 
-    def convert_string(self, string_value, param_info):
+    def convert_string(self, string_value, metadata):
         raise NotImplementedError('Implement me!')
 
-    def convert_timestamp(self, timestamp_value, param_info):
+    def convert_timestamp(self, timestamp_value, metadata):
         raise NotImplementedError('Implement me!')
 
-    def convert_dbms_params(self, params):
-        param_data = {}
-        for pname, pinfo in self.tunable_knob_catalog_.iteritems():
-            if pinfo.tunable is False:
+    def convert_dbms_knobs(self, knobs):
+        knob_data = {}
+        for name, metadata in self.tunable_knob_catalog_.iteritems():
+            if metadata.tunable is False:
                 continue
-            if pname not in params:
+            if name not in knobs:
                 continue
-            pvalue = params[pname]
-            prep_value = None
-            if pinfo.vartype == VarType.BOOL:
-                prep_value = self.convert_bool(pvalue, pinfo)
-            elif pinfo.vartype == VarType.ENUM:
-                prep_value = self.convert_enum(pvalue, pinfo)
-            elif pinfo.vartype == VarType.INTEGER:
-                prep_value = self.convert_integer(pvalue, pinfo)
-            elif pinfo.vartype == VarType.REAL:
-                prep_value = self.convert_real(pvalue, pinfo)
-            elif pinfo.vartype == VarType.STRING:
-                prep_value = self.convert_string(pvalue, pinfo)
-            elif pinfo.vartype == VarType.TIMESTAMP:
-                prep_value = self.convert_timestamp(pvalue, pinfo)
+            value = knobs[name]
+            conv_value = None
+            if metadata.vartype == VarType.BOOL:
+                conv_value = self.convert_bool(value, metadata)
+            elif metadata.vartype == VarType.ENUM:
+                conv_value = self.convert_enum(value, metadata)
+            elif metadata.vartype == VarType.INTEGER:
+                conv_value = self.convert_integer(value, metadata)
+            elif metadata.vartype == VarType.REAL:
+                conv_value = self.convert_real(value, metadata)
+            elif metadata.vartype == VarType.STRING:
+                conv_value = self.convert_string(value, metadata)
+            elif metadata.vartype == VarType.TIMESTAMP:
+                conv_value = self.convert_timestamp(value, metadata)
             else:
                 raise Exception(
-                    'Unknown variable type: {}'.format(pinfo.vartype))
-            if prep_value is None:
+                    'Unknown variable type: {}'.format(metadata.vartype))
+            if conv_value is None:
                 raise Exception(
-                    'Param value for {} cannot be null'.format(pname))
-            param_data[pname] = prep_value
-        return param_data
+                    'Param value for {} cannot be null'.format(name))
+            knob_data[name] = conv_value
+        return knob_data
 
     def convert_dbms_metrics(self, metrics, observation_time):
 #         if len(metrics) != len(self.numeric_metric_catalog_):
 #             raise Exception('The number of metrics should be equal!')
         metric_data = {}
-        for mname, minfo in self.numeric_metric_catalog_.iteritems():
-            mvalue = metrics[mname]
-            if minfo.metric_type == MetricType.COUNTER:
-                converted = self.convert_integer(mvalue, minfo)
-                metric_data[mname] = float(converted) / observation_time
+        for name, metadata in self.numeric_metric_catalog_.iteritems():
+            value = metrics[name]
+            if metadata.metric_type == MetricType.COUNTER:
+                converted = self.convert_integer(value, metadata)
+                metric_data[name] = float(converted) / observation_time
             else:
                 raise Exception(
-                    'Unknown metric type: {}'.format(minfo.metric_type))
+                    'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
         if self.transactions_counter not in metric_data:
             raise Exception("Cannot compute throughput (no objective function)")
         metric_data['throughput_txn_per_sec'] = metric_data[self.transactions_counter]
         return metric_data
 
     @staticmethod
-    def extract_valid_keys(idict, catalog, default=None):
-        valid_dict = {}
-        diffs = []
-        lowercase_dict = {k.lower(): v for k, v in catalog.iteritems()}
-        for k, v in idict.iteritems():
-            lower_k2 = k.lower()
-            if lower_k2 in lowercase_dict:
-                true_k = lowercase_dict[lower_k2].name
-                if k != true_k:
-                    diffs.append(('miscapitalized_key', true_k, k, v))
-                valid_dict[true_k] = v
+    def extract_valid_variables(variables, catalog, default_value=None):
+        valid_variables = {}
+        diff_log = []
+        valid_lc_variables = {k.lower(): v for k, v in catalog.iteritems()}
+
+        # First check that the names of all variables are valid (i.e., listed
+        # in the official catalog). Invalid variables are logged as 'extras'.
+        # Variable names that are valid but differ in capitalization are still
+        # added to valid_variables but with the proper capitalization. They
+        # are also logged as 'miscapitalized'.
+        for var_name, var_value in variables.iteritems():
+            lc_var_name = var_name.lower()
+            if lc_var_name in valid_lc_variables:
+                valid_name = valid_lc_variables[lc_var_name].name
+                if var_name != valid_name:
+                    diff_log.append(('miscapitalized', valid_name, var_name, var_value))
+                valid_variables[valid_name] = var_value
             else:
-                diffs.append(('extra_key', None, k, v))
-        if len(idict) > len(lowercase_dict):
-            assert len(diffs) > 0
-        elif len(idict) < len(lowercase_dict):
-            lowercase_idict = {k.lower(): v for k, v in idict.iteritems()}
-            for k, v in lowercase_dict.iteritems():
-                if k not in lowercase_idict:
-                    # Set missing keys to a default value
-                    diffs.append(('missing_key', v.name, None, None))
-                    valid_dict[
-                        v.name] = default if default is not None else v.default
-#         assert len(valid_dict) == len(catalog)
-        return valid_dict, diffs
+                diff_log.append(('extra', None, var_name, var_value))
 
-    def parse_helper(self, config):
-        valid_entries = {}
-        for view_name, entries in config.iteritems():
-            for mname, mvalue in entries.iteritems():
-                key = '{}.{}'.format(view_name, mname)
-                if key not in valid_entries:
-                    valid_entries[key] = []
-                valid_entries[key].append(mvalue)
-        return valid_entries
+        # Next find all item names that are listed in the catalog but missing from
+        # variables. Missing variables are added to valid_variables with the given
+        # default_value if provided (or the item's actual default value if not) and
+        # logged as 'missing'.
+        lc_variables = {k.lower(): v for k, v in variables.iteritems()}
+        for valid_lc_name, metadata in valid_lc_variables.iteritems():
+            if valid_lc_name not in lc_variables:
+                diff_log.append(('missing', metadata.name, None, None))
+                valid_variables[metadata.name] = default_value if \
+                    default_value is not None else metadata.default
+        assert len(valid_variables) == len(catalog)
+        return valid_variables, diff_log
 
-    def parse_dbms_config(self, config):
-        valid_knobs = {}
-        for knobtype, subknobs in config.iteritems():
-            if subknobs is None:
+    def parse_helper(self, view_variables):
+        valid_variables = {}
+        for view_name, variables in view_variables.iteritems():
+            for var_name, var_value in variables.iteritems():
+                full_name = '{}.{}'.format(view_name, var_name)
+                if full_name not in valid_variables:
+                    valid_variables[full_name] = []
+                valid_variables[full_name].append(var_value)
+        return valid_variables
+
+    def parse_dbms_variables(self, variables):
+        valid_variables = {}
+        for scope, sub_vars in variables.iteritems():
+            if sub_vars is None:
                 continue
-            if knobtype == 'global':
-                valid_knobs.update(self.parse_helper(subknobs))
-            elif knobtype == 'local':
-                for scope, viewnames in subknobs.iteritems():
+            if scope == 'global':
+                valid_variables.update(self.parse_helper(sub_vars))
+            elif scope == 'local':
+                for _, viewnames in sub_vars.iteritems():
                     for viewname, objnames in viewnames.iteritems():
-                        for objname, ssmets in objnames.iteritems():
-                            valid_knobs.update(self.parse_helper({viewname: ssmets}))
+                        for _, view_vars in objnames.iteritems():
+                            valid_variables.update(self.parse_helper(
+                                {viewname: view_vars}))
             else:
-                raise Exception('Unsupported knobs format: ' + knobtype)
+                raise Exception('Unsupported variable scope: {}'.format(scope))
+        return valid_variables
+
+    def parse_dbms_knobs(self, knobs):
+        valid_knobs = self.parse_dbms_variables(knobs)
 
         for k in list(valid_knobs.keys()):
             assert len(valid_knobs[k]) == 1
             valid_knobs[k] = valid_knobs[k][0]
         # Extract all valid knobs
-        return BaseParser.extract_valid_keys(valid_knobs, self.knob_catalog_, default='0')
+        return BaseParser.extract_valid_variables(
+            valid_knobs, self.knob_catalog_)
 
     def parse_dbms_metrics(self, metrics):
         # Some DBMSs measure different types of stats (e.g., global, local)
         # at different scopes (e.g. indexes, # tables, database) so for now
         # we just combine them
-        valid_metrics = {}
-        for mettype, submetrics in metrics.iteritems():
-            if submetrics is None:
-                continue
-            if mettype == 'global':
-                valid_metrics.update(self.parse_helper(submetrics))
-            elif mettype == 'local':
-                for scope, viewnames in submetrics.iteritems():
-                    for viewname, objnames in viewnames.iteritems():
-                        for objname, ssmets in objnames.iteritems():
-                            valid_metrics.update(self.parse_helper({viewname: ssmets}))
-            else:
-                raise Exception('Unsupported metrics format: ' + mettype)
+        valid_metrics = self.parse_dbms_variables(metrics)
 
         # Extract all valid metrics
-        valid_metrics, diffs = BaseParser.extract_valid_keys(
-            valid_metrics, self.metric_catalog_, default='0')
+        valid_metrics, diffs = BaseParser.extract_valid_variables(
+            valid_metrics, self.metric_catalog_, default_value='0')
 
         # Combine values
-        for mname, mvalues in valid_metrics.iteritems():
-            metric = self.metric_catalog_[mname]
-            mvalues = valid_metrics[mname]
-            if metric.metric_type == MetricType.INFO or len(mvalues) == 1:
-                valid_metrics[mname] = mvalues[0]
+        for name, values in valid_metrics.iteritems():
+            metric = self.metric_catalog_[name]
+            if metric.metric_type == MetricType.INFO or len(values) == 1:
+                valid_metrics[name] = values[0]
             elif metric.metric_type == MetricType.COUNTER:
-                mvalues = [int(v) for v in mvalues if v is not None]
-                if len(mvalues) == 0:
-                    valid_metrics[mname] = 0
+                values = [int(v) for v in values if v is not None]
+                if len(values) == 0:
+                    valid_metrics[name] = 0
                 else:
-                    valid_metrics[mname] = str(sum(mvalues))
+                    valid_metrics[name] = str(sum(values))
             else:
                 raise Exception(
                     'Invalid metric type: {}'.format(metric.metric_type))
@@ -238,16 +238,16 @@ class BaseParser(object):
                 adjusted_metrics[met_name] = end_val
         return adjusted_metrics
 
-    def create_configuration(self, tuning_params, custom_params):
-        config_params = self.base_configuration_settings
-        config_params.update(custom_params)
+    def create_knob_configuration(self, tuning_knobs, custom_knobs):
+        config_knobs = self.base_configuration_settings
+        config_knobs.update(custom_knobs)
 
         categories = {}
-        for pname, pvalue in config_params.iteritems():
-            category = self.knob_catalog_[pname].category
+        for knob_name, knob_value in config_knobs.iteritems():
+            category = self.knob_catalog_[knob_name].category
             if category not in categories:
                 categories[category] = []
-            categories[category].append((pname, pvalue))
+            categories[category].append((knob_name, knob_value))
         categories = OrderedDict(sorted(categories.iteritems()))
 
         config_path = os.path.join(CONFIG_DIR, self.configuration_filename)
@@ -257,82 +257,82 @@ class BaseParser(object):
         header_fmt = ('#' + ('-' * 78) + '\n# {cat1}\n#' +
                       ('-' * 78) + '\n\n').format
         subheader_fmt = '# - {cat2} -\n\n'.format
-        for category, params in categories.iteritems():
+        for category, knobs in categories.iteritems():
             parts = [p.strip() for p in category.upper().split(' / ')]
             config += header_fmt(cat1=parts[0])
             if len(parts) == 2:
                 config += subheader_fmt(cat2=parts[1])
-            for pname, pval in sorted(params):
-                config += '{} = \'{}\'\n'.format(pname, pval)
+            for knob_name, knob_value in sorted(knobs):
+                config += '{} = \'{}\'\n'.format(knob_name, knob_value)
             config += '\n'
         config += header_fmt(cat1='TUNING PARAMETERS')
-        for pname, pval in sorted(tuning_params.iteritems()):
-            if pname.startswith('global.'):
-                pname = pname[len('global.'):]
-            config += '{} = \'{}\'\n'.format(pname, pval)
+        for knob_name, knob_value in sorted(tuning_knobs.iteritems()):
+            if knob_name.startswith('global.'):
+                knob_name = knob_name[len('global.'):]
+            config += '{} = \'{}\'\n'.format(knob_name, knob_value)
         return config
 
-    def get_nondefault_settings(self, config):
+    def get_nondefault_knob_settings(self, knobs):
         nondefault_settings = OrderedDict()
-        for pname, pinfo in self.knob_catalog_.iteritems():
-            if pinfo.tunable is True:
+        for knob_name, metadata in self.knob_catalog_.iteritems():
+            if metadata.tunable is True:
                 continue
-            if pname not in config:
+            if knob_name not in knobs:
                 continue
-            pvalue = config[pname]
-            if pvalue != pinfo.default:
-                nondefault_settings[pname] = pvalue
+            knob_value = knobs[knob_name]
+            if knob_value != metadata.default:
+                nondefault_settings[knob_name] = knob_value
         return nondefault_settings
 
-    def format_bool(self, bool_value, param_info):
+    def format_bool(self, bool_value, metadata):
         return 'on' if bool_value == BooleanType.TRUE else 'off'
 
-    def format_enum(self, enum_value, param_info):
-        enumvals = param_info.enumvals.split(',')
+    def format_enum(self, enum_value, metadata):
+        enumvals = metadata.enumvals.split(',')
         return enumvals[enum_value]
 
-    def format_integer(self, int_value, param_info):
+    def format_integer(self, int_value, metadata):
         return int(round(int_value))
 
-    def format_real(self, real_value, param_info):
+    def format_real(self, real_value, metadata):
         return float(real_value)
 
-    def format_string(self, string_value, param_info):
+    def format_string(self, string_value, metadata):
         raise NotImplementedError('Implement me!')
 
-    def format_timestamp(self, timestamp_value, param_info):
+    def format_timestamp(self, timestamp_value, metadata):
         raise NotImplementedError('Implement me!')
 
-    def format_dbms_params(self, params):
-        formatted_params = {}
-        for pname, pvalue in params.iteritems():
-            pinfo = self.knob_catalog_[pname]
-            prep_value = None
-            if pinfo.vartype == VarType.BOOL:
-                prep_value = self.format_bool(pvalue, pinfo)
-            elif pinfo.vartype == VarType.ENUM:
-                prep_value = self.format_enum(pvalue, pinfo)
-            elif pinfo.vartype == VarType.INTEGER:
-                prep_value = self.format_integer(pvalue, pinfo)
-            elif pinfo.vartype == VarType.REAL:
-                prep_value = self.format_real(pvalue, pinfo)
-            elif pinfo.vartype == VarType.STRING:
-                prep_value = self.format_string(pvalue, pinfo)
-            elif pinfo.vartype == VarType.TIMESTAMP:
-                prep_value = self.format_timestamp(pvalue, pinfo)
+    def format_dbms_knobs(self, knobs):
+        formatted_knobs = {}
+        for knob_name, knob_value in knobs.iteritems():
+            metadata = self.knob_catalog_[knob_name]
+            fvalue = None
+            if metadata.vartype == VarType.BOOL:
+                fvalue = self.format_bool(knob_value, metadata)
+            elif metadata.vartype == VarType.ENUM:
+                fvalue = self.format_enum(knob_value, metadata)
+            elif metadata.vartype == VarType.INTEGER:
+                fvalue = self.format_integer(knob_value, metadata)
+            elif metadata.vartype == VarType.REAL:
+                fvalue = self.format_real(knob_value, metadata)
+            elif metadata.vartype == VarType.STRING:
+                fvalue = self.format_string(knob_value, metadata)
+            elif metadata.vartype == VarType.TIMESTAMP:
+                fvalue = self.format_timestamp(knob_value, metadata)
             else:
-                raise Exception(
-                    'Unknown variable type: {}'.format(pinfo.vartype))
-            if prep_value is None:
-                raise Exception(
-                    'Cannot format value for {}'.format(pname))
-            formatted_params[pname] = prep_value
-        return formatted_params
+                raise Exception('Unknown variable type for {}: {}'.format(
+                        knob_name, metadata.vartype))
+            if fvalue is None:
+                raise Exception('Cannot format value for {}: {}'.format(
+                    knob_name, knob_value))
+            formatted_knobs[knob_name] = fvalue
+        return formatted_knobs
 
-    def filter_numeric_metrics(self, metrics, normalize=False):
+    def filter_numeric_metrics(self, metrics):
         return OrderedDict([(k, v) for k, v in metrics.iteritems() if \
                             k in self.numeric_metric_catalog_])
 
-    def filter_tunable_params(self, params):
-        return OrderedDict([(k, v) for k, v in params.iteritems() if \
+    def filter_tunable_knobs(self, knobs):
+        return OrderedDict([(k, v) for k, v in knobs.iteritems() if \
                             k in self.tunable_knob_catalog_])

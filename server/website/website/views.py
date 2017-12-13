@@ -406,9 +406,9 @@ def handle_result_files(session, files):
                             '(actual=' + dbms.full_name + ')')
 
     # Load, process, and store the knobs in the DBMS's configuration
-    knob_dict, knob_diffs = Parser.parse_dbms_config(
+    knob_dict, knob_diffs = Parser.parse_dbms_knobs(
         dbms.pk, JSONUtil.loads(files['knobs']))
-    tunable_knob_dict = Parser.convert_dbms_params(
+    tunable_knob_dict = Parser.convert_dbms_knobs(
         dbms.pk, knob_dict)
     knob_data = KnobData.objects.create_knob_data(
         session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
@@ -448,7 +448,7 @@ def handle_result_files(session, files):
         metric_log=initial_metric_diffs)
     backup_data.save()
 
-    nondefault_settings = Parser.get_nondefault_settings(
+    nondefault_settings = Parser.get_nondefault_knob_settings(
         dbms.pk, knob_dict)
     session.project.last_update = now()
     session.last_update = now()
@@ -561,19 +561,16 @@ def metric_data_view(request, project_id, session_id, data_id):
 def dbms_data_view(request, context, dbms_data):
     if context['data_type'] == 'knobs':
         model_class = KnobData
-        filter_fn = Parser.filter_tunable_params
+        filter_fn = Parser.filter_tunable_knobs
         obj_data = dbms_data.knobs
-        addl_args = []
     else:
         model_class = MetricData
         filter_fn = Parser.filter_numeric_metrics
         obj_data = dbms_data.metrics
-        addl_args = [True]
 
     dbms_id = dbms_data.dbms.pk
     all_data_dict = JSONUtil.loads(obj_data)
-    args = [dbms_id, all_data_dict] + addl_args
-    featured_dict = filter_fn(*args)
+    featured_dict = filter_fn(dbms_id, all_data_dict)
 
     if 'compare' in request.GET and request.GET['compare'] != 'none':
         comp_id = request.GET['compare']
@@ -581,8 +578,7 @@ def dbms_data_view(request, context, dbms_data):
         comp_data = compare_obj.knobs if \
             context['data_type'] == 'knobs' else compare_obj.metrics
         comp_dict = JSONUtil.loads(comp_data)
-        args = [dbms_id, comp_dict] + addl_args
-        comp_featured_dict = filter_fn(*args)
+        comp_featured_dict = filter_fn(dbms_id, comp_dict)
 
         all_data = [(k, v, comp_dict[k]) for k, v in all_data_dict.iteritems()]
         featured_data = [(k, v, comp_featured_dict[k])

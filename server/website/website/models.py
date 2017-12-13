@@ -7,6 +7,7 @@ from django.utils.timezone import now
 
 from .types import (DBMSType, LabelStyleType, MetricType, HardwareType,
                     KnobUnitType, PipelineTaskType, VarType)
+from website.utils import JSONUtil
 
 
 class BaseModel(models.Model):
@@ -333,34 +334,23 @@ class Result(BaseModel):
         return unicode(self.pk)
 
 
-# Note (dva): this model will be deleted as soon as the
-# background tasks are working
-class PipelineResult(models.Model):
-    dbms = models.ForeignKey(DBMSCatalog)
-    hardware = models.ForeignKey(Hardware)
-    creation_timestamp = models.DateTimeField()
-    task_type = models.IntegerField(choices=PipelineTaskType.choices())
-    value = models.TextField()
+class PipelineRunManager(models.Manager):
 
-    @staticmethod
-    def get_latest(dbms, hardware, task_type):
-        results = PipelineResult.objects.filter(
-            dbms=dbms, hardware=hardware, task_type=task_type)
-        return None if len(results) == 0 else results.latest()
-
-    class Meta:
-        unique_together = ("dbms", "hardware",
-                           "creation_timestamp", "task_type")
-        get_latest_by = ('creation_timestamp')
+    def get_latest(self):
+        return self.all().exclude(end_time=None).first()
 
 
 class PipelineRun(models.Model):
+    objects = PipelineRunManager()
+
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
+
+    class Meta:
+        ordering = ["-id"]
     
 
 class PipelineData(models.Model):
-
     pipeline_run = models.ForeignKey(PipelineRun)
     task_type = models.IntegerField(choices=PipelineTaskType.choices())
     workload = models.ForeignKey(Workload)

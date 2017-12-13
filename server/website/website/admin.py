@@ -3,8 +3,8 @@ from djcelery.models import TaskMeta
 
 from .models import (BackupData, DBMSCatalog, KnobCatalog,
                      KnobData, MetricCatalog, MetricData,
-                     PipelineResult, Project, Result,
-                     Session, Workload)
+                     PipelineData, PipelineRun, Project,
+                     Result, Session, Workload)
 
 
 class DBMSCatalogAdmin(admin.ModelAdmin):
@@ -90,6 +90,19 @@ class BackupDataAdmin(admin.ModelAdmin):
         return obj.id
 
 
+class PipelineDataAdmin(admin.ModelAdmin):
+    list_display = ['id', 'version', 'task_type', 'workload',
+                    'creation_time']
+    ordering = ['-creation_time']
+
+    def version(self, obj):
+        return obj.pipeline_run.id
+
+
+class PipelineRunAdmin(admin.ModelAdmin):
+    list_display = ['id', 'start_time', 'end_time']
+
+
 class PipelineResultAdmin(admin.ModelAdmin):
     list_display = ['task_type', 'dbms_info',
                     'hardware_info', 'creation_timestamp']
@@ -118,5 +131,6 @@ admin.site.register(MetricData, MetricDataAdmin)
 admin.site.register(TaskMeta, TaskMetaAdmin)
 admin.site.register(Result, ResultAdmin)
 admin.site.register(BackupData, BackupDataAdmin)
-admin.site.register(PipelineResult, PipelineResultAdmin)
+admin.site.register(PipelineData, PipelineDataAdmin)
+admin.site.register(PipelineRun, PipelineRunAdmin)
 admin.site.register(Workload, WorkloadAdmin)

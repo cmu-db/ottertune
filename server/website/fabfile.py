@@ -4,13 +4,11 @@ Admin tasks
 @author: dvanaken
 '''
 
-import glob
-import os
 from collections import namedtuple
-from fabric.api import env, execute, local, quiet, settings, task
+from fabric.api import env, local, quiet, settings, task
 from fabric.state import output as fabric_output
 
-from website.settings import DATABASES, PIPELINE_DIR, PROJECT_ROOT
+from website.settings import DATABASES, PROJECT_ROOT
 
 
 # Fabric environment settings
@@ -144,9 +142,6 @@ def reset_website():
     local("mysql -u {} -p{} -N -B -e \"CREATE DATABASE {}\"".format(
             user, passwd, name))
 
-    # Remove old data (almost obscelete)
-    local('rm -rf ' + PIPELINE_DIR)
-
     # Reinitialize the website
     local('python manage.py migrate website')
     local('python manage.py migrate')
@@ -164,7 +159,7 @@ def create_test_website():
 
 @task
 def setup_test_user():
-    # Adds a test user to an existing website with an two empty sessions
+    # Adds a test user to an existing website with two empty sessions
     local(("echo \"from django.contrib.auth.models import User; "
            "User.objects.filter(email='user@email.com').delete(); "
            "User.objects.create_superuser('user', 'user@email.com', 'abcd123')\" "
@@ -174,28 +169,32 @@ def setup_test_user():
 
 
 @task
-def aggregate_results():
-    if not os.path.exists(PIPELINE_DIR):
-        local ('mkdir -p ' + PIPELINE_DIR)
-    cmd = 'from website.tasks import aggregate_results; aggregate_results()'
-    local(('export PYTHONPATH={}\:$PYTHONPATH; '
-           'django-admin shell --settings=website.settings '
-           '-c\"{}\"').format(PROJECT_ROOT, cmd))
+def generate_and_load_data(n_workload, n_samples_per_workload, upload_code,
+                           random_seed=''):
+    local('python script/controller_simulator/data_generator.py {} {} {}'.format(
+        n_workload, n_samples_per_workload, random_seed))
+    local(('python script/controller_simulator/upload_data.py '
+          'script/controller_simulator/generated_data {}').format(upload_code))
 
 
 @task
-def create_workload_mapping_data():
-    if not os.path.exists(PIPELINE_DIR):
-        local ('mkdir -p ' + PIPELINE_DIR)
-    cmd = ('from website.tasks import create_workload_mapping_data; '
-           'create_workload_mapping_data()')
-    local(('export PYTHONPATH={}\:$PYTHONPATH; '
-           'django-admin shell --settings=website.settings '
-           '-c\"{}\"').format(PROJECT_ROOT, cmd))
+def dumpdata(dumppath):
+    # Helper function for calling Django's loaddata function that excludes
+    # the static fixture data from being dumped
+    excluded_models = ['DBMSCatalog', 'KnobCatalog', 'MetricCatalog', 'Hardware']
+    cmd = 'python manage.py dumpdata'
+    for model in excluded_models:
+        cmd += ' --exclude website.' + model
+    cmd += ' > ' + dumppath
+    local(cmd)
 
 
 @task
-def process_data():
-    execute(aggregate_results)
-    execute(create_workload_mapping_data)
+def run_background_tasks():
+    # Runs the background tasks just once.
+    cmd = ("from website.tasks import run_background_tasks; "
+           "run_background_tasks()")
+    local(('export PYTHONPATH={}\:$PYTHONPATH; '
+           'django-admin shell --settings=website.settings '
+           '-c\"{}\"').format(PROJECT_ROOT, cmd))
 

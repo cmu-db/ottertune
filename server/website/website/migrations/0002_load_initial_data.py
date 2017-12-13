@@ -11,9 +11,7 @@ def load_initial_data(apps, schema_editor):
         "dbms_catalog.json",
         "hardware.json",
         "postgres-96_knobs.json",
-        "postgres-96_metrics.json",
-        "postgres-96_m3xlarge_pruned_metrics.json",
-        "postgres-96_m3xlarge_ranked_knobs.json",
+        "postgres-96_metrics.json"
     ]
     for fixture in initial_data_fixtures:
         call_command("loaddata", fixture, app_label="website")
@@ -24,8 +22,7 @@ def unload_initial_data(apps, schema_editor):
         "DBMSCatalog",
         "KnobCatalog",
         "MetricCatalog",
-        "Hardware",
-        "PipelineResult"
+        "Hardware"
     ]
     for model_name in model_names:
         model = apps.get_model("website", model_name)

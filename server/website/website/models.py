@@ -7,6 +7,7 @@ from django.utils.timezone import now
 
 from .types import (DBMSType, LabelStyleType, MetricType, HardwareType,
                     KnobUnitType, PipelineTaskType, VarType)
+from website.utils import JSONUtil
 
 
 class BaseModel(models.Model):
@@ -354,13 +355,23 @@ class PipelineResult(models.Model):
         get_latest_by = ('creation_timestamp')
 
 
+class PipelineRunManager(models.Manager):
+
+    def get_latest(self):
+        return self.all().exclude(end_time=None).first()
+
+
 class PipelineRun(models.Model):
+    objects = PipelineRunManager()
+
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
+
+    class Meta:
+        ordering = ["-id"]
     
 
 class PipelineData(models.Model):
-
     pipeline_run = models.ForeignKey(PipelineRun)
     task_type = models.IntegerField(choices=PipelineTaskType.choices())
     workload = models.ForeignKey(Workload)

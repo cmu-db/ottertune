@@ -4,12 +4,11 @@ Admin tasks
 @author: dvanaken
 '''
 
-import os
 from collections import namedtuple
-from fabric.api import env, execute, local, quiet, settings, task
+from fabric.api import env, local, quiet, settings, task
 from fabric.state import output as fabric_output
 
-from website.settings import DATABASES, PIPELINE_DIR, PROJECT_ROOT
+from website.settings import DATABASES, PIPELINE_DIR
 
 
 # Fabric environment settings
@@ -189,31 +188,4 @@ def dumpdata(dumppath):
         cmd += ' --exclude website.' + model
     cmd += ' > ' + dumppath
     local(cmd)
-
-
-@task
-def aggregate_results():
-    if not os.path.exists(PIPELINE_DIR):
-        local ('mkdir -p ' + PIPELINE_DIR)
-    cmd = 'from website.tasks import aggregate_results; aggregate_results()'
-    local(('export PYTHONPATH={}\:$PYTHONPATH; '
-           'django-admin shell --settings=website.settings '
-           '-c\"{}\"').format(PROJECT_ROOT, cmd))
-
-
-@task
-def create_workload_mapping_data():
-    if not os.path.exists(PIPELINE_DIR):
-        local ('mkdir -p ' + PIPELINE_DIR)
-    cmd = ('from website.tasks import create_workload_mapping_data; '
-           'create_workload_mapping_data()')
-    local(('export PYTHONPATH={}\:$PYTHONPATH; '
-           'django-admin shell --settings=website.settings '
-           '-c\"{}\"').format(PROJECT_ROOT, cmd))
-
-
-@task
-def process_data():
-    execute(aggregate_results)
-    execute(create_workload_mapping_data)
 

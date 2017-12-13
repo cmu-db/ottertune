@@ -4,7 +4,6 @@ Admin tasks
 @author: dvanaken
 '''
 
-import glob
 import os
 from collections import namedtuple
 from fabric.api import env, execute, local, quiet, settings, task
@@ -164,13 +163,32 @@ def create_test_website():
 
 @task
 def setup_test_user():
-    # Adds a test user to an existing website with an two empty sessions
+    # Adds a test user to an existing website with two empty sessions
     local(("echo \"from django.contrib.auth.models import User; "
            "User.objects.filter(email='user@email.com').delete(); "
            "User.objects.create_superuser('user', 'user@email.com', 'abcd123')\" "
            "| python manage.py shell"))
 
     local("python manage.py loaddata test_user_sessions.json")
+
+
+@task
+def generate_and_load_data(n_workload, n_samples_per_workload, upload_code,
+                           random_seed=''):
+    local('python script/controller_simulator/data_generator.py {} {} {}'.format(
+        n_workload, n_samples_per_workload, random_seed))
+    local(('python script/controller_simulator/upload_data.py '
+          'script/controller_simulator/generated_data {}').format(upload_code))
+
+
+@task
+def dumpdata(dumppath):
+    excluded_models = ['DBMSCatalog', 'KnobCatalog', 'MetricCatalog', 'PipelineResult']
+    cmd = 'python manage.py dumpdata'
+    for model in excluded_models:
+        cmd += ' --exclude website.' + model
+    cmd += ' > ' + dumppath
+    local(cmd)
 
 
 @task

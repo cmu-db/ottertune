@@ -7,15 +7,12 @@ Created on Jul 8, 2017
 import json
 import logging
 import numpy as np
-import os.path
-import re
 import string
 from collections import OrderedDict
 from random import choice
 from django.utils.text import capfirst
 
-from .types import (BooleanType, DBMSType, LabelStyleType, MetricType,
-                    VarType, KnobUnitType)
+from .types import LabelStyleType
 
 LOG = logging.getLogger(__name__)
 

@@ -354,6 +354,23 @@ class PipelineResult(models.Model):
         get_latest_by = ('creation_timestamp')
 
 
+class PipelineRun(models.Model):
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True)
+    
+
+class PipelineData(models.Model):
+
+    pipeline_run = models.ForeignKey(PipelineRun)
+    task_type = models.IntegerField(choices=PipelineTaskType.choices())
+    workload = models.ForeignKey(Workload)
+    data = models.TextField()
+    creation_time = models.DateTimeField()
+
+    class Meta:
+        unique_together = ("pipeline_run", "task_type", "workload")
+
+
 class BackupData(BaseModel):
     result = models.ForeignKey(Result)
     raw_knobs = models.TextField()

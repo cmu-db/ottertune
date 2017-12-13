@@ -5,4 +5,4 @@ from .async_tasks import (aggregate_results,
                           map_workload)
 
 
-from .periodic_tasks import (periodic_task_example)
+from .periodic_tasks import (run_background_tasks)

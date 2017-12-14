@@ -21,8 +21,7 @@ from website.utils import DataUtil, JSONUtil
 logger = get_task_logger(__name__)
 
 # Executes 'run_background_tasks' every 5 minutes
-@periodic_task(run_every=(crontab(hour=0, minute=5, day_of_week=0)),
-               name="run_background_tasks")
+@periodic_task(run_every=300, name="run_background_tasks")
 def run_background_tasks():
     # Find all unique workloads that we have data for
     unique_workloads = Workload.objects.all()
@@ -252,7 +251,7 @@ def run_knob_identification(knob_data, metric_data):
     nonconst_metric_matrix = []
     nonconst_metric_columnlabels = []
 
-    for col, cl in zip(knob_matrix.T, metric_columnlabels):
+    for col, cl in zip(metric_matrix.T, metric_columnlabels):
         if np.any(col != col[0]):
             nonconst_metric_matrix.append(col.reshape(-1, 1))
             nonconst_metric_columnlabels.append(cl)

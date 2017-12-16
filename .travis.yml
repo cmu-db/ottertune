@@ -24,7 +24,7 @@ before_install:
 
 install:
   - pip install -r ${WEBSITE_ROOT}/requirements.txt
-  - pip install MySQL-python
+  - pip install MySQL-python coverage codecov
 
 before_script:
   - cp ${WEBSITE_ROOT}/website/settings/credentials_TEMPLATE.py
@@ -35,9 +35,10 @@ before_script:
         -e "s/'PASSWORD'${COLON} 'ADD ME\!\!'/'PASSWORD'${COLON} ''/"
         ${WEBSITE_ROOT}/website/settings/credentials.py
   - cat ${WEBSITE_ROOT}/website/settings/credentials.py
-  - python ${WEBSITE_ROOT}/manage.py makemigrations website
-  - python ${WEBSITE_ROOT}/manage.py migrate website
   - python ${WEBSITE_ROOT}/manage.py migrate
 
 script:
-  - python ${WEBSITE_ROOT}/manage.py test --noinput
+  - cd ${WEBSITE_ROOT} && coverage run manage.py test --noinput
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

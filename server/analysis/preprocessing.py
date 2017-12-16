@@ -11,7 +11,7 @@ from .util import is_numeric_matrix, is_lexical_matrix, NEARZERO
 class Preprocess(object):
 
     __metaclass__ = ABCMeta
-    
+
     @abstractmethod
     def fit(self, matrix):
         pass
@@ -19,8 +19,8 @@ class Preprocess(object):
     @abstractmethod
     def transform(self, matrix, copy):
         pass
-    
-    
+
+
     def fit_transform(self, matrix, copy=True):
         self.fit(matrix)
         return self.transform(matrix, copy)
@@ -28,86 +28,13 @@ class Preprocess(object):
     @abstractmethod
     def inverse_transform(self, matrix, copy):
         pass
-    
-##==========================================================
-##  Standard Normal Form
-##==========================================================
-
-class Standardize(Preprocess):
-
-    def __init__(self, axis=0):
-        assert axis >= 0
-        self.axis_ = axis
-        self.mean_ = None
-        self.std_ = None
-        
-    def fit(self, matrix):
-        self.mean_, self.std_ = get_mean_and_std(matrix, self.axis_)
-        return self
-
-    def transform(self, matrix, copy=True):
-        assert self.mean_ is not None
-        assert self.std_ is not None
-        return standardize(matrix, self.mean_, self.std_, self.axis_, copy)
-
-    def inverse_transform(self, matrix, copy=True):
-        assert self.mean_ is not None
-        assert self.std_ is not None
-        return inverse_standardize(matrix, self.mean_, self.std_, self.axis_, copy)
-        
-def get_mean_and_std(matrix, axis):
-    assert matrix.ndim > 0
-    assert matrix.size > 0
-    assert axis >= 0 and axis < matrix.ndim
-    
-    mmean = np.expand_dims(matrix.mean(axis=axis), axis=axis)
-    mstd = np.expand_dims(matrix.std(axis=axis), axis=axis)
-    #mstd[:] += NEARZERO # Protect against div0 errors
-    #mstd[mstd == 0.] = 1.
-    if np.any(np.abs(mstd) < NEARZERO):
-        raise Exception("Standard deviation calculation has near zero values.")
-    
-    return mmean, mstd
-    
-def standardize(matrix, mmean, mstd, axis, copy=True):
-    if not copy and matrix.dtype != np.dtype("float64"):
-        raise TypeError("Matrix should be of type 'float64'")
-    
-    assert matrix.ndim > 0
-    assert matrix.size > 0
-    assert axis >= 0 and axis < matrix.ndim
-    assert mmean is not None and mstd is not None
-    
-    if copy:
-        matrix = (matrix - mmean) 
-    else:
-        matrix[:] -= mmean
-    matrix[:] /= mstd
-
-    return matrix
-
-def inverse_standardize(matrix, mmean, mstd, axis, copy=True):
-    if not copy and matrix.dtype != np.dtype("float64"):
-        raise TypeError("Matrix should be of type 'float64'")
-    
-    assert matrix.ndim > 0
-    assert matrix.size > 0
-    assert axis >= 0 and axis < matrix.ndim
-    assert mmean.ndim == matrix.ndim and mmean.ndim == mstd.ndim
-    
-    if copy:
-        matrix = matrix * mstd
-    else:
-        matrix[:] *= mstd
-    matrix[:] += mmean
-    return matrix
 
 ##==========================================================
 ##  Bin by Deciles
 ##==========================================================
 
 class Bin(Preprocess):
-    
+
     def __init__(self, bin_start, axis=None):
         if axis is not None and \
                 axis != 1 and axis != 0:
@@ -116,7 +43,7 @@ class Bin(Preprocess):
         self.deciles_ = None
         self.bin_start_ = bin_start
         self.axis_ = axis
-    
+
     def fit(self, matrix):
         if self.axis_ is None:
             self.deciles_ = get_deciles(matrix, self.axis_)
@@ -156,10 +83,10 @@ class Bin(Preprocess):
 def get_deciles(matrix, axis=None):
     if axis is not None:
         raise NotImplementedError("Axis is not yet implemented")
-    
+
     assert matrix.ndim > 0
     assert matrix.size > 0
-    
+
     decile_range = np.arange(10,101,10)
     deciles = np.percentile(matrix, decile_range, axis=axis)
     deciles[-1] = np.Inf
@@ -168,25 +95,25 @@ def get_deciles(matrix, axis=None):
 def bin_by_decile(matrix, deciles, bin_start, axis=None):
     if axis is not None:
         raise NotImplementedError("Axis is not yet implemented")
-    
+
     assert matrix.ndim > 0
     assert matrix.size > 0
     assert deciles is not None
     assert len(deciles) == 10
-    
+
     binned_matrix = np.zeros_like(matrix)
     for i in range(10)[::-1]:
         decile = deciles[i]
         binned_matrix[matrix <= decile] = i + bin_start
-    
+
     return binned_matrix
 
 ##==========================================================
 ##  Shuffle Indices
 ##==========================================================
 class Shuffler(Preprocess):
-    
-    def __init__(self, shuffle_rows=True, shuffle_columns=False, 
+
+    def __init__(self, shuffle_rows=True, shuffle_columns=False,
                  row_indices=None, column_indices=None, seed=0):
         self.shuffle_rows_ = shuffle_rows
         self.shuffle_columns_ = shuffle_columns
@@ -194,7 +121,7 @@ class Shuffler(Preprocess):
         self.column_indices_ = column_indices
         np.random.seed(seed)
         self.fitted_ = False
-    
+
     def fit(self, matrix):
         if self.shuffle_rows_ and self.row_indices_ is None:
             self.row_indices_ = get_shuffle_indices(matrix.data.shape[0])
@@ -219,7 +146,7 @@ class Shuffler(Preprocess):
     def inverse_transform(self, matrix, copy):
         if copy:
             matrix = matrix.copy()
-        
+
         if self.shuffle_rows_:
             inverse_row_indices = np.argsort(self.row_indices_)
             matrix.data = matrix.data[inverse_row_indices]
@@ -241,7 +168,7 @@ def get_shuffle_indices(size, seed=None):
         for d in size:
             indices.append(np.random.choice(d, d, replace=False))
         return indices
-    
+
 
 ##==========================================================
 ##  Polynomial Features
@@ -252,12 +179,12 @@ class PolynomialFeatures(Preprocess):
     This code was copied and modified from sklearn's
     implementation.
     """
-    
+
     def __init__(self, degree=2, interaction_only=False, include_bias=True):
         self.degree_ = degree
         self.interaction_only_ = interaction_only
         self.include_bias_ = include_bias
-        
+
 #     @property
 #     def powers_(self):
 #         combinations = self._combinations(self.n_input_features_, self.degree_,
@@ -265,7 +192,7 @@ class PolynomialFeatures(Preprocess):
 #                                           self.include_bias_)
 #         return np.vstack(np.bincount(c, minlength=self.n_input_features_)
 #                          for c in combinations)
-        
+
     @staticmethod
     def _combinations(n_features, degree, interaction_only, include_bias):
         comb = (combinations if interaction_only else combinations_with_replacement)
@@ -276,7 +203,7 @@ class PolynomialFeatures(Preprocess):
     def fit(self, matrix, copy=True):
         assert matrix.ndim == 2
         assert matrix.size > 0
-        
+
         _, n_features = matrix.shape
         combinations = self._combinations(n_features, self.degree_,
                                           self.interaction_only_,
@@ -299,7 +226,7 @@ class PolynomialFeatures(Preprocess):
         """
         assert matrix.ndim == 2
         assert matrix.size > 0
-        
+
         n_samples, n_features = matrix.shape
 
         if n_features != self.n_input_features_:
@@ -343,11 +270,11 @@ class PolynomialFeatures(Preprocess):
 ##==========================================================
 
 class DummyEncoder(Preprocess):
-     
+
     def __init__(self, n_values, feature_indices):
         import warnings
         from sklearn.preprocessing import OneHotEncoder
-         
+
         if not isinstance(n_values, np.ndarray):
             n_values = np.array(n_values)
         if not isinstance(feature_indices, np.ndarray):
@@ -356,8 +283,8 @@ class DummyEncoder(Preprocess):
         assert feature_indices.shape == n_values.shape
         for nv in n_values:
             if nv <= 2:
-                raise Exception("Categorical features must have 3+ labels") 
-         
+                raise Exception("Categorical features must have 3+ labels")
+
         self.feature_indices = feature_indices
         self.n_values = n_values
         with warnings.catch_warnings():
@@ -365,18 +292,18 @@ class DummyEncoder(Preprocess):
             self.encoder = OneHotEncoder(n_values=n_values, sparse=False)
         self.columnlabels = None
         self.xform_start_indices = None
-     
+
     def fit(self, matrix, copy=True, columnlabels=None):
         assert isinstance(matrix, np.ndarray)
         cat_X = matrix[:, self.feature_indices]
         self.encoder.fit(cat_X)
- 
+
         self.xform_start_indices = np.empty_like(self.feature_indices)
         for i,(idx,nvals) in enumerate(zip(self.feature_indices, self.n_values)):
             start_idx = idx + np.sum(self.n_values[:i]) - np.sum(self.n_values[:i].size)
             self.xform_start_indices[i] = start_idx
         print self.xform_start_indices
- 
+
         if columnlabels is not None:
             labels = []
             cat_index = 0
@@ -392,13 +319,13 @@ class DummyEncoder(Preprocess):
                     labels.append(orig_label)
             self.columnlabels = np.array(labels)
         return self
- 
+
     def transform(self, matrix, copy=True):
         num_cat_feats = self.feature_indices.size
         cat_X = matrix[:, self.feature_indices]
         X_enc = self.encoder.transform(cat_X)
         assert X_enc.shape[1] == np.sum(self.n_values)
-         
+
         nfeats = matrix.shape[1] - num_cat_feats + np.sum(self.n_values)
         offset = 0
         cat_index = 0
@@ -412,11 +339,11 @@ class DummyEncoder(Preprocess):
                 cat_index += 1
             else:
                 new_matrix.append(matrix[:,i].reshape(matrix.shape[0], 1))
- 
+
         new_matrix = np.hstack(new_matrix)
         assert new_matrix.shape == (matrix.shape[0], nfeats)
         return new_matrix
- 
+
     def inverse_transform(self, matrix, copy=True):
         assert matrix.ndim == 2
         n_cat_feats = self.n_values.size
@@ -440,8 +367,8 @@ class DummyEncoder(Preprocess):
                 current_idx += 1
             new_matrix[:, i] = new_col
         return new_matrix
- 
- 
+
+
 def dummy_encoder_helper(dbms, featured_knobs):
     # Note: this function will not work without a config manager.
     # It just needs the type information about each of the knobs
@@ -483,7 +410,7 @@ def fix_scaler(scaler, encoder, params):
             current_idx += nvals
         else:
             current_idx += 1
-    
+
     scaler.mean_ = mean
     scaler.var_ = var
     scaler.scale_ = np.sqrt(var)
@@ -499,7 +426,7 @@ def get_min_max(params, encoder=None):
         nfeats = len(params)
         n_values = np.array([])
         cat_start_idxs = np.array([])
-    
+
     mins = np.empty((nfeats,))
     maxs = np.empty((nfeats,))
     current_idx = 0
@@ -526,7 +453,7 @@ def get_min_max(params, encoder=None):
 ##==========================================================
 
 class MinMaxScaler(Preprocess):
-    
+
     def __init__(self, mins=None, maxs=None):
         from sklearn.preprocessing import MinMaxScaler
 
@@ -560,7 +487,7 @@ class MinMaxScaler(Preprocess):
         self.maxs_ = self.scaler_.data_max_
         self.fitted_ = True
         return self
-    
+
     def transform(self, matrix, copy=True):
         if not self.fitted_:
             raise Exception("Model not fitted!")
@@ -572,7 +499,7 @@ class MinMaxScaler(Preprocess):
         if matrix.ndim == 1:
             matrix = matrix.reshape(1, -1)
         return self.scaler_.inverse_transform(matrix)
-        
+
 
 ##==========================================================
 ##  Testing
@@ -582,23 +509,23 @@ def test_preprocess_module():
     import warnings
     from sklearn import preprocessing as skpp
     from .util import arrays_share_data
-    
+
     warnings.filterwarnings('error')
-    
+
     assert issubclass(Standardize, Preprocess)
     assert isinstance(Standardize(), Preprocess)
     assert issubclass(Bin, Preprocess)
     assert isinstance(Bin(bin_start=1), Preprocess)
     assert issubclass(PolynomialFeatures, Preprocess)
     assert isinstance(PolynomialFeatures(), Preprocess)
-    
+
     print ""
     print "Testing 'Standardize'..."
     x1 = np.array([[2,7,9],
                    [6,9,2],
                    [4,0,2],
                    [7,2,5]], dtype = "float64")
-    
+
     # Tests for axis = 0
     std_norm_pp = Standardize()
     x1a0_exp_mean = np.array([[4.75, 4.5, 4.5]])
@@ -616,7 +543,7 @@ def test_preprocess_module():
     assert arrays_share_data(x2, x2_scaled)
     x1_xf = std_norm_pp.inverse_transform(x1_scaled)
     assert np.allclose(x1, x1_xf)
-    
+
     # Tests for axis = 1
     std_norm_pp = Standardize(axis = 1)
     x1a0_exp_mean = np.array([[6.], [5.66667], [2.], [4.66667]])
@@ -632,7 +559,7 @@ def test_preprocess_module():
     assert np.allclose(x1a0_exp, x2_scaled)
     assert arrays_share_data(x2, x2_scaled)
     assert np.allclose(std_norm_pp.inverse_transform(x1_scaled), x1)
-    
+
     # Test empty array
     x_empty = np.array([], dtype = "float64")
     std_norm_pp = Standardize()
@@ -641,8 +568,8 @@ def test_preprocess_module():
         print "Standardize: failed empty array test"
     except AssertionError:
         print "Standardize: passed empty array test"
-        
-        
+
+
     print "Passed all tests for 'Standardize'"
     print ""
     print "Testing 'Bin'..."
@@ -654,26 +581,26 @@ def test_preprocess_module():
     assert np.array_equal(deciles_exp, bin_pp.deciles_)
     assert is_numeric_matrix(x1)
     assert not is_lexical_matrix(x1)
-    
+
 #     x1_binned_exp = np.array([[2,7,9],
 #                               [6,9,2],
 #                               [4,0,2],
 #                               [7,2,5]], dtype = "float64")
-    
+
     x1_binned_exp = np.array([[1,8,10],
                               [7,10,1],
                               [5,1,1],
                               [8,1,6]], dtype = "float64")
     assert np.array_equal(x1_binned_exp, x1_binned)
     assert not arrays_share_data(x1, x1_binned)
-    
+
     # Test transform with floats out of original range
     x2 = np.array([-1., 6., 20.])
     x2_binned_exp = np.array([1, 7, 10])
     x2_binned = bin_pp.transform(x2)
     assert np.array_equal(x2_binned_exp, x2_binned)
-    
-    
+
+
     # Test empty array
     x_empty = np.array([], dtype = "float64")
     bin_pp = Bin(0)
@@ -682,21 +609,21 @@ def test_preprocess_module():
         print "Bin: failed empty array test"
     except AssertionError:
         print "Bin: passed empty array test"
-        
+
     print "Passed all tests for 'Bin'"
     print ""
     print "Testing 'PolynomialFeatures'..."
-    
+
     x1_poly_exp = np.array([[1,8,10,1,8,10,64,80,100],
                             [7,10,1,49,70,7,100,10,1],
                             [5,1,1,25,5,5,1,1,1],
                             [8,1,6,64,8,48,1,6,36]], dtype = "float64")
-    
+
     x1_poly_inter_exp = np.array([[1,8,10,8,10,80],
                                   [7,10,1,70,7,10],
                                   [5,1,1,5,5,1],
                                   [8,1,6,8,48,6]], dtype = "float64")
-    
+
     poly_pp = PolynomialFeatures(include_bias=False)
     x1_poly = poly_pp.fit_transform(x1_binned_exp)
     assert np.array_equal(x1_poly_exp, x1_poly)
@@ -715,16 +642,10 @@ def test_preprocess_module():
     poly_pp = PolynomialFeatures()
     x_alpha_poly = poly_pp.fit_transform(x_alpha)
     assert np.array_equal(x_alpha_exp, x_alpha_poly)
-    
+
     print "Passed all tests for 'PolynomialFeatures'"
     print ""
-    
+
 
 if __name__ == '__main__':
     test_preprocess_module()
-    
-    
-    
-
-
-    

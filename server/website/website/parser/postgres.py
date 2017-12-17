@@ -1,32 +1,18 @@
 '''
-Created on Jul 8, 2017
+Created on Dec 12, 2017
 
 @author: dvanaken
 '''
 
-import json
-import logging
-import numpy as np
-import os.path
 import re
-import string
-from abc import ABCMeta, abstractmethod, abstractproperty
-from collections import OrderedDict
-from random import choice
-from django.utils.text import capfirst
 
-from website.models import DBMSCatalog, KnobCatalog, MetricCatalog
-from website.settings import CONFIG_DIR
-from website.types import (BooleanType, DBMSType, LabelStyleType, MetricType,
-                    VarType, KnobUnitType)
-
+from .base import BaseParser
+from website.models import DBMSCatalog
+from website.types import DBMSType, KnobUnitType
 from website.utils import ConversionUtil
-from .DBMSUtilImpl import DBMSUtilImpl
 
 
-LOG = logging.getLogger(__name__)
-
-class PostgresUtilImpl(DBMSUtilImpl):
+class PostgresParser(BaseParser):
 
     POSTGRES_BYTES_SYSTEM = [
         (1024 ** 5, 'PB'),
@@ -100,7 +86,7 @@ class PostgresUtilImpl(DBMSUtilImpl):
                     int_value, PostgresParser.POSTGRES_BYTES_SYSTEM)
             elif metadata.unit == KnobUnitType.MILLISECONDS:
                 int_value = ConversionUtil.get_human_readable(
-                    int_value, PostgresUtilImpl.POSTGRES_TIME_SYSTEM)
+                    int_value, PostgresParser.POSTGRES_TIME_SYSTEM)
             else:
                 raise Exception(
                     'Invalid unit type for {}: {}'.format(
@@ -115,9 +101,9 @@ class PostgresUtilImpl(DBMSUtilImpl):
         return re.search("\d+\.\d+(?=\.\d+)", dbms_version).group(0)
 
 
-class Postgres96UtilImpl(PostgresUtilImpl):
+class Postgres96Parser(PostgresParser):
 
     def __init__(self):
         dbms = DBMSCatalog.objects.get(
             type=DBMSType.POSTGRES, version='9.6')
-        super(Postgres96UtilImpl, self).__init__(dbms.pk)
+        super(Postgres96Parser, self).__init__(dbms.pk)

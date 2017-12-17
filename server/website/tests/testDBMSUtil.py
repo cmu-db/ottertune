@@ -1,13 +1,13 @@
 
 from django.test import TestCase
-from website.parser import DBMSUtilImpl
-from website.parser import DBMSUtil
-from website.parser import PostgresUtilImpl
+from website.parser import BaseParser
+from website.parser import Parser
+from website.parser import PostgresParser
 from website.types import BooleanType, VarType, KnobUnitType, LabelStyleType
 
-class DBMSUtilImplTest(TestCase):
+class BaseParserTest(TestCase):
     def testConverts(self):
-        testDBMS = PostgresUtilImpl(2)
+        testDBMS = PostgresParser(2)
 
         # Convert Bool
         self.assertEqual(testDBMS.convert_bool('on', []), BooleanType.TRUE)
@@ -79,10 +79,10 @@ class DBMSUtilImplTest(TestCase):
         pass
 
 
-class PostgresUtilImplTest(TestCase):
+class PostgresParserTest(TestCase):
 
     def testProperties(self):
-        testDBMS = PostgresUtilImpl(2)
+        testDBMS = PostgresParser(2)
         baseConfig = testDBMS.base_configuration_settings
         baseConfigSet = set(baseConfig)
         self.assertTrue('global.data_directory' in baseConfigSet)
@@ -104,11 +104,11 @@ class PostgresUtilImplTest(TestCase):
 
     def testParseVersionString(self):
         # TODO: Find applicable version string??
-        testDBMS = PostgresUtilImpl(2)
+        testDBMS = PostgresParser(2)
 
 
     def testConverts(self):
-        testDBMS = PostgresUtilImpl(2)
+        testDBMS = PostgresParser(2)
 
         # Convert Integer
         KnobUnitBytes = KnobUnitType()
@@ -142,7 +142,7 @@ class PostgresUtilImplTest(TestCase):
             testDBMS.convert_integer('', KnobUnitOther)
 
     def testFormatInteger(self):
-        testDBMS = PostgresUtilImpl(2)
+        testDBMS = PostgresParser(2)
 
         KnobUnitBytes = KnobUnitType()
         KnobUnitBytes.unit = 1

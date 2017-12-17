@@ -2,7 +2,7 @@
 import string
 from django.test import TestCase
 from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil
-from website.parser import PostgresUtilImpl
+from website.parser import PostgresParser
 from website.types import LabelStyleType
 
 class JSONUtilTest(TestCase):

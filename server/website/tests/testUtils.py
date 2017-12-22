@@ -2,7 +2,7 @@
 import string
 from django.test import TestCase
 from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil
-from website.parser import PostgresParser
+from website.parser.postgres import PostgresParser
 from website.types import LabelStyleType
 
 class JSONUtilTest(TestCase):
@@ -76,7 +76,7 @@ class DataUtilTest(TestCase):
 
 class ConversionUtilTest(TestCase):
     def testGetRawSize(self):
-        testImpl = PostgresUtilImpl(2)
+        testImpl = PostgresParser(2)
 
         # Bytes - In Bytes
         byteTestConvert = ['1PB', '2TB', '3GB', '4MB', '5kB', '6B']
@@ -92,7 +92,7 @@ class ConversionUtilTest(TestCase):
 
 
     def testGetHumanReadable(self):
-        testImpl = PostgresUtilImpl(2)
+        testImpl = PostgresParser(2)
 
         # Bytes
         byteTestConvert = [1024**5, 2 * 1024**4, 3 * 1024**3, 4 * 1024**2, 5 * 1024**1, 6]

@@ -1,8 +1,6 @@
 
 from django.test import TestCase
-from website.parser import BaseParser
-from website.parser import Parser
-from website.parser import PostgresParser
+from website.parser.postgres import PostgresParser
 from website.types import BooleanType, VarType, KnobUnitType, LabelStyleType
 
 class BaseParserTest(TestCase):
@@ -30,7 +28,35 @@ class BaseParserTest(TestCase):
 
         # Convert Integer
 
+        IntParam = VarType()
+
+        self.assertEqual(testDBMS.convert_integer('42', IntParam), 42)
+        self.assertEqual(testDBMS.convert_integer('-1', IntParam), -1)
+        self.assertEqual(testDBMS.convert_integer('0', IntParam), 0)
+        self.assertEqual(testDBMS.convert_integer('1', IntParam), 1)
+
+        self.assertEqual(testDBMS.convert_integer('42.0'), 42)
+        self.assertEqual(testDBMS.convert_integer('42.5'), 42)
+        self.assertEqual(testDBMS.convert_integer('42.7'), 42)
+
+        with self.assertRaises(Exception):
+            testDBMS.convert_integer('notInt', IntParam)
+
         # Convert Real
+
+        RealParam = VarType()
+
+        self.assertEqual(testDBMS.convert_real('42.0', RealParam), 42.0)
+        self.assertEqual(testDBMS.convert_real('42.2', RealParam), 42.2)
+        self.assertEqual(testDBMS.convert_real('42.5', RealParam), 42.5)
+        self.assertEqual(testDBMS.convert_real('42.7', RealParam), 42.7)
+
+        self.assertEqual(testDBMS.convert_real('-1', RealParam), -1.0)
+        self.assertEqual(testDBMS.convert_real('0', RealParam), 0.0)
+        self.assertEqual(testDBMS.convert_real('1', RealParam), 1.0)
+
+        with self.assertRaises(Exception):
+            testDBMS.convert_real('notReal', RealParam)
 
         # Convert DBMS Knobs
 
@@ -99,12 +125,23 @@ class PostgresParserTest(TestCase):
         self.assertTrue('global.autovacuum' in baseConfigSet)
         self.assertTrue('global.default_text_search_config' in baseConfigSet)
 
-        self.assertEqual(testDBMS.configuration_filename, 'postgresql.conf')
+        self.assertEqual(testDBMS.knob_configuration_filename, 'postgresql.conf')
         self.assertEqual(testDBMS.transactions_counter, 'pg_stat_database.xact_commit')
 
     def testParseVersionString(self):
-        # TODO: Find applicable version string??
         testDBMS = PostgresParser(2)
+
+        self.assertTrue(testDBMS.parse_version_string("9.6.1"), "9.6")
+        self.assertTrue(testDBMS.parse_version_string("9.6.3"), "9.6")
+        self.assertTrue(testDBMS.parse_version_string("10.2.1"), "10.2")
+        self.assertTrue(testDBMS.parse_version_string("0.0.0"), "0.0")
+
+        with self.assertRaises(Exception):
+            testDBMS.parse_version_string("postgres")
+
+        with self.assertRaises(Exception):
+            testDBMS.parse_version_string("-1.0")
+
 
 
     def testConverts(self):

@@ -11,6 +11,7 @@ import string
 from collections import OrderedDict
 from random import choice
 from django.utils.text import capfirst
+from djcelery.models import TaskMeta
 
 from .types import LabelStyleType
 
@@ -49,6 +50,14 @@ class MediaUtil(object):
 
 
 class TaskUtil(object):
+
+    @staticmethod
+    def get_tasks(tasks):
+        if not tasks:
+           return []
+        task_ids = tasks.split(',')
+        return list(TaskMeta.objects.filter(task_id__in=task_ids))
+
 
     @staticmethod
     def get_task_status(tasks):

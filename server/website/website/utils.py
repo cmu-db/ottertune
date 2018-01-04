@@ -139,7 +139,10 @@ class ConversionUtil(object):
                 if len(value) == len(suffix):
                     amount = 1
                 else:
-                    amount = int(value[:-len(suffix)])
+                    try:
+                        amount = int(value[:-len(suffix)])
+                    except:
+                        continue
                 return amount * factor
         return None
 

@@ -1,9 +1,10 @@
 
 import string
 from django.test import TestCase
-from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil
+from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil, TaskUtil
 from website.parser.postgres import PostgresParser
-from website.types import LabelStyleType
+from website.types import LabelStyleType, VarType
+from website.models import KnobCatalog, DBMSCatalog, Result
 
 class JSONUtilTest(TestCase):
     def testUtil(self):
@@ -39,8 +40,10 @@ class JSONUtilTest(TestCase):
         self.assertEqual(results.keys()[0], "glossary")
         self.assertTrue("title" in results["glossary"].keys())
         self.assertTrue("GlossDiv" in results["glossary"].keys())
-        self.assertEqual(results["glossary"]["GlossDiv"]["GlossList"]["GlossEntry"]["ID"], "SGML")
-        self.assertEqual(results["glossary"]["GlossDiv"]["GlossList"]["GlossEntry"]["GlossSee"], "markup")
+        self.assertEqual(results["glossary"]["GlossDiv"]\
+        ["GlossList"]["GlossEntry"]["ID"], "SGML")
+        self.assertEqual(results["glossary"]["GlossDiv"]\
+        ["GlossList"]["GlossEntry"]["GlossSee"], "markup")
 
         resStr = JSONUtil.dumps(results)
         self.assertEqual(resStr, compressedstr)
@@ -51,11 +54,11 @@ class MediaUtilTest(TestCase):
         for i in range(1000):
             # Don't know a better way of doing this - collisions are still possible???
             code20 = MediaUtil.upload_code_generator(20)
-            self.assertTrue(len(code20) == 20)
+            self.assertEqual(len(code20), 20)
             code40 = MediaUtil.upload_code_generator(40)
-            self.assertTrue(len(code40) == 40)
+            self.assertEqual(len(code40), 40)
             digitCode = MediaUtil.upload_code_generator(40, string.digits)
-            self.assertTrue(len(digitCode) == 40)
+            self.assertEqual(len(digitCode), 40)
             self.assertTrue(digitCode.isdigit())
 
             self.assertTrue(code20 not in testSet)
@@ -66,11 +69,69 @@ class MediaUtilTest(TestCase):
             testSet.add(code40)
             testSet.add(digitCode)
 
+class TaskUtilTest(TestCase):
+    def testGetTaskStatus(self):
+        # FIXME: Actually setup celery tasks instead of a dummy class?
+        testTasks = []
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks)
+        self.assertTrue(status == None and numComplete == 0)
+
+        testTasks2 = [VarType() for i in range(5)]
+        for i in range(len(testTasks2)):
+            testTasks2[i].status = "SUCCESS"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks2)
+        self.assertTrue(status == "SUCCESS" and numComplete == 5)
+
+        testTasks3 = testTasks2
+        testTasks3[3].status = "FAILURE"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks3)
+        self.assertTrue(status == "FAILURE" and numComplete == 3)
+
+        testTasks4 = testTasks3
+        testTasks4[2].status = "REVOKED"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks4)
+        self.assertTrue(status == "REVOKED" and numComplete == 2)
+
+        testTasks5 = testTasks4
+        testTasks5[1].status = "RETRY"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks5)
+        self.assertTrue(status == "RETRY" and numComplete == 1)
+
+        testTasks6 = [VarType() for i in range(10)]
+        for i in range(len(testTasks6)):
+            testTasks6[i].status = "PENDING" if i % 2 == 0 else "SUCCESS"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks6)
+        self.assertTrue(status == "PENDING" and numComplete == 5)
+
+        testTasks7 = testTasks6
+        testTasks7[9].status = "STARTED"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks7)
+        self.assertTrue(status == "STARTED" and numComplete == 4)
+
+        testTasks8 = testTasks7
+        testTasks8[9].status = "RECEIVED"
+
+        (status, numComplete) = TaskUtil.get_task_status(testTasks8)
+        self.assertTrue(status == "RECEIVED" and numComplete == 4)
+
+        with self.assertRaises(Exception):
+            testTasks9 = [VarType() for i in range(1)]
+            testTasks9[0].status = "attemped"
+            TaskUtil.get_task_status(testTasks9)
+
 class DataUtilTest(TestCase):
     def testAggregate(self):
         pass
 
     def testCombine(self):
+        print(DBMSCatalog.objects.all()[:5])
         pass
 
 
@@ -101,11 +162,52 @@ class ConversionUtilTest(TestCase):
             self.assertEqual(ConversionUtil.get_human_readable(byteTestConvert[i], system = testImpl.POSTGRES_BYTES_SYSTEM), byteAns[i])
 
         # Time
-        dayTestConvert = [1000, 55000, 600000, 72000000, 86400000]
-        dayAns = ['1000ms', '55000ms', '10min', '20h', '1d']
+        dayTestConvert = [500, 1000, 55000, 600000, 72000000, 86400000]
+        dayAns = ['500ms', '1s', '55s', '10min', '20h', '1d']
         for i in range(5):
             self.assertEqual(ConversionUtil.get_human_readable(dayTestConvert[i], system = testImpl.POSTGRES_TIME_SYSTEM), dayAns[i])
 
 class LabelUtilTest(TestCase):
     def testStyleLabels(self):
-        pass
+        LabelStyle = LabelStyleType()
+
+        testLabelMap = {"Name": "Postgres",
+                        "Test": "LabelUtils",
+                        "DBMS": "dbms",
+                        "??"  : "Dbms",
+                        "???" : "DBms",
+                        "CapF": "random Word"}
+
+        resTitleLabelMap = LabelUtil.style_labels(testLabelMap,
+                                style = LabelStyle.TITLE)
+
+        testKeys = ["Name", "Test", "DBMS", "??", "???", "CapF"]
+        titleAns = ["Postgres", "Labelutils", "DBMS", "DBMS", "DBMS",
+                    "Random Word"]
+
+        for i, key in enumerate(testKeys):
+            self.assertEqual(resTitleLabelMap[key], titleAns[i])
+
+
+        # NOTE: GENERATES UNICODE
+        resCapfirstLabelMap = LabelUtil.style_labels(testLabelMap,
+                                style = LabelStyle.CAPFIRST)
+        capAns = ["Postgres", "LabelUtils", "DBMS", "DBMS", "DBMS",
+                  "Random Word"]
+
+        for i, key in enumerate(testKeys):
+            if (key == "???"): # DBms -> DBMS or DBms?
+                continue
+            self.assertEqual(resCapfirstLabelMap[key], capAns[i])
+
+        resLowerLabelMap = LabelUtil.style_labels(testLabelMap,
+                                style = LabelStyle.LOWER)
+
+        lowerAns = ["postgres", "labelutils", "dbms", "dbms", "dbms",
+                    "random word"]
+
+        for i, key in enumerate(testKeys):
+            self.assertEqual(resLowerLabelMap[key], lowerAns[i])
+
+        with self.assertRaises(Exception):
+            resExcept = LabelUtil.style_labels(testLabelMap, style = LabelStyle.Invalid)

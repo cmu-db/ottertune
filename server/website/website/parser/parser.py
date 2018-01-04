@@ -19,7 +19,7 @@ class Parser(object):
             Parser.__DBMS_UTILS_IMPLS = {
                 DBMSCatalog.objects.get(
                     type=DBMSType.POSTGRES, version='9.6').pk: Postgres96Parser()
-            } 
+            }
         try:
             if dbms_id is None:
                 return Parser.__DBMS_UTILS_IMPLS

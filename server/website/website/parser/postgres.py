@@ -27,8 +27,8 @@ class PostgresParser(BaseParser):
         (1000 * 60 * 60 * 24, 'd'),
         (1000 * 60 * 60, 'h'),
         (1000 * 60, 'min'),
-        (1, 'ms'),
         (1000, 's'),
+        (1, 'ms'),
     ]
 
     POSTGRES_BASE_KNOBS = {
@@ -74,6 +74,10 @@ class PostgresParser(BaseParser):
             else:
                 raise Exception(
                     'Unknown unit type: {}'.format(metadata.unit))
+
+            if converted < 0:
+                raise Exception('Invalid integer value for {}: {}'.format(
+                    metadata.name, int_value))
         if converted is None:
             raise Exception('Invalid integer format for {}: {}'.format(
                 metadata.name, int_value))

@@ -250,7 +250,7 @@ class BaseParser(object):
             categories[category].append((knob_name, knob_value))
         categories = OrderedDict(sorted(categories.iteritems()))
 
-        config_path = os.path.join(CONFIG_DIR, self.configuration_filename)
+        config_path = os.path.join(CONFIG_DIR, self.knob_configuration_filename)
         with open(config_path, 'r') as f:
             config = f.read()
 

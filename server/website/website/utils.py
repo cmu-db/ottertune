@@ -49,6 +49,12 @@ class MediaUtil(object):
 
 
 class TaskUtil(object):
+    @staticmethod
+    def get_tasks(tasks):
+        if not tasks:
+           return []
+        task_ids = tasks.split(',')
+        return list(TaskMeta.objects.filter(task_id__in=task_ids))
 
     @staticmethod
     def get_task_status(tasks):

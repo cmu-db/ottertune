@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div id="proj_info" class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4>Task Info</h4></caption>
+    <tbody>
+    <tr>
+        <td><div class="text-right">ID:</div></td>
+        <td>{{ id }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-top text-right">Project:</div></td>
+        <td>{{ result.application.project.name|linebreaks }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Application:</div></td>
+        <td><div id="apps">{{result.application.name}}</div></td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Overall status:</div></td>
+        <td>{{ overall_status }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Tasks completed:</div></td>
+        <td>{{ num_completed }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Start time:</div></td>
+        <td>{{ result.creation_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Completion time:</div></td>
+        <td>{{ completion_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Total runtime:</div></td>
+        <td>{{ total_runtime }}</td>
+    </tr>
+    </tbody>
+</table>
+
+{% for task_name, task in tasks %}
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4>{{ task_name }}</h4></caption>
+    <tbody>
+	    <tr>
+	        <td><div class="text-right">Status:</div></td>
+	        <td>{{ task.status }} </td>
+	    </tr>
+	    {% if task.traceback %}
+	    <tr>
+	        <td><div class="text-right">Traceback:</div></td>
+	        <td>{{ task.traceback }} </td>
+	    </tr>
+	    {% endif %}
+	    <tr>
+	        <td><div class="text-right">Result:</div></td>
+	        <td>{{ task.result|linebreaks }} </td>
+	    </tr>
+
+<!--     <tr> -->
+<!--         <td><div class="text-right">Result:</div></td> -->
+<!--         <td><a href="/get_result_data_file/?id={{ result.pk }}&type=new_conf">Download </td> -->
+<!--     </tr> -->
+    </tbody>
+</table>
+{% endfor %}
+</div>
+
+
+{% endblock body %}

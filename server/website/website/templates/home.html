@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div id="project_list" class="container">
+<form action="{% url 'delete_project' %}" method="POST"
+      onsubmit="return confirm('Are you sure you want to delete these projects and all targets/results under this project?')">
+      {% csrf_token %}
+<table id="project_table" class="table table-bordered table-striped table-hover table-nonfluid">
+    <caption><h4>{{ labels.title }}</h4></caption>
+    <tr>
+        <th><input type="checkbox" onClick="toggle(this, 'projects')" /></th>
+        <th>{{ labels.name }}</th>
+        <th>{{ labels.description }}</th>
+        <th>{{ labels.creation_time }}</th>
+        <th>{{ labels.last_update }}</th>
+    </tr>
+    {% for project in projects %}
+        <tr>
+            <td style="vertical-align:middle"><input type="checkbox" name="projects" value="{{ project.pk }}" /></td>
+            <td style="vertical-align:middle"><a href="{% url 'project' project.pk %}">{{ project.name }}</a></td>
+            <td style="vertical-align:middle">{{ project.description|linebreaks }}</td>
+            <td style="vertical-align:middle">{{ project.creation_time }}</td>
+            <td style="vertical-align:middle">{{ project.last_update }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<button class="btn btn-default" type="submit">{{ labels.button_delete }}</button>
+<a class="btn btn-default" href="{% url 'new_project' %}">{{ labels.button_create }}</a>
+</form>
+</div>
+
+<script type="text/javascript">
+function toggle(source, name) {
+    checkboxes = document.getElementsByName(name);
+    for(var i=0, n=checkboxes.length; i<n; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+
+{% endblock body %}

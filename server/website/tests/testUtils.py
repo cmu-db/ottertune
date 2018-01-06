@@ -134,7 +134,6 @@ class DataUtilTest(TestCase):
     def testCombine(self):
         pass
 
-
 class ConversionUtilTest(TestCase):
     def testGetRawSize(self):
         testImpl = PostgresParser(2)
@@ -143,29 +142,41 @@ class ConversionUtilTest(TestCase):
         byteTestConvert = ['1PB', '2TB', '3GB', '4MB', '5kB', '6B']
         byteAns = [1024**5, 2 * 1024**4, 3 * 1024**3, 4 * 1024**2, 5 * 1024**1, 6]
         for i in range(6):
-            self.assertEqual(ConversionUtil.get_raw_size(byteTestConvert[i], system = testImpl.POSTGRES_BYTES_SYSTEM), byteAns[i])
+            self.assertEqual(ConversionUtil.get_raw_size(
+                                byteTestConvert[i],
+                                system = testImpl.POSTGRES_BYTES_SYSTEM),
+                                byteAns[i])
 
         # Time - In Milliseconds?
         dayTestConvert = ['1000ms', '1s', '10min', '20h', '1d']
         dayAns = [1000, 1000, 600000, 72000000, 86400000]
         for i in range(5):
-            self.assertEqual(ConversionUtil.get_raw_size(dayTestConvert[i], system = testImpl.POSTGRES_TIME_SYSTEM), dayAns[i])
+            self.assertEqual(ConversionUtil.get_raw_size(
+                                dayTestConvert[i],
+                                system = testImpl.POSTGRES_TIME_SYSTEM),
+                                dayAns[i])
 
 
     def testGetHumanReadable(self):
         testImpl = PostgresParser(2)
 
         # Bytes
-        byteTestConvert = [1024**5, 2 * 1024**4, 3 * 1024**3, 4 * 1024**2, 5 * 1024**1, 6]
+        byteTestConvert = [1024**5, 2 * 1024**4, 3 * 1024**3,
+                           4 * 1024**2, 5 * 1024**1, 6]
         byteAns = ['1PB', '2TB', '3GB', '4MB', '5kB', '6B']
         for i in range(6):
-            self.assertEqual(ConversionUtil.get_human_readable(byteTestConvert[i], system = testImpl.POSTGRES_BYTES_SYSTEM), byteAns[i])
+            self.assertEqual(ConversionUtil.get_human_readable(
+                                byteTestConvert[i],
+                                system = testImpl.POSTGRES_BYTES_SYSTEM),
+                                byteAns[i])
 
         # Time
         dayTestConvert = [500, 1000, 55000, 600000, 72000000, 86400000]
         dayAns = ['500ms', '1s', '55s', '10min', '20h', '1d']
         for i in range(5):
-            self.assertEqual(ConversionUtil.get_human_readable(dayTestConvert[i], system = testImpl.POSTGRES_TIME_SYSTEM), dayAns[i])
+            self.assertEqual(dayAns[i],
+            ConversionUtil.get_human_readable(dayTestConvert[i],
+                            system = testImpl.POSTGRES_TIME_SYSTEM))
 
 class LabelUtilTest(TestCase):
     def testStyleLabels(self):
@@ -209,4 +220,5 @@ class LabelUtilTest(TestCase):
             self.assertEqual(resLowerLabelMap[key], lowerAns[i])
 
         with self.assertRaises(Exception):
-            resExcept = LabelUtil.style_labels(testLabelMap, style = LabelStyle.Invalid)
+            resExcept = LabelUtil.style_labels(testLabelMap,
+                                               style = LabelStyle.Invalid)

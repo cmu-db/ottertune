@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div id="application_list" class="container">
+<form action="{% url 'delete_application' project.pk %}" method="POST"
+      onsubmit="return confirm('Are you sure you want to delete these applications and all targets/results under this application?')">
+      {% csrf_token %}
+<table style="table-layout: auto; width: 100%;" id="application_table" class="table table-bordered table-striped table-hover table-nonfluid">
+    <caption><h4>{{ labels.title }}</h4></caption>
+    <tr>
+        <th><input type="checkbox" onClick="toggle(this, 'applications')" /></th>
+        <th>{{ labels.name }}</th>
+        <th>{{ labels.dbms }}</th>
+        <th>{{ labels.hardware }}</th>
+        <th>{{ labels.tuning_session }}</th>
+        <th>{{ labels.creation_time }}</th>
+        <th>{{ labels.last_update }}</th>
+    </tr>
+    {% for application in applications %}
+        <tr>
+            <td style="vertical-align:middle"><input type="checkbox" name="applications" value="{{ application.pk }}" /></td>
+            <td style="vertical-align:middle"><a href="{% url 'application' project.pk application.pk %}">{{ application.name }}</a></td>
+            <td style="vertical-align:middle">{{ application.dbms.full_name }}</td>
+            <td style="vertical-align:middle">{{ application.hardware.name }}</td>
+            <td style="vertical-align:middle">{{ application.tuning_session }}</td>
+            <td style="vertical-align:middle">{{ application.creation_time }}</td>
+            <td style="vertical-align:middle">{{ application.last_update }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<button class="btn btn-default" type="submit" name="id" value="{{ project.pk }}">{{ labels.button_delete }}</button>
+<a class="btn btn-default" href="{% url 'new_application' project.pk %}">{{ labels.button_create }}</a>
+<!-- <a class="btn btn-default" href="/edit_application/?pid={{ project.pk }}&id=">{{ labels.button_create }}</a> -->
+</form>
+</div>
+
+<script type="text/javascript">
+function toggle(source, name) {
+    checkboxes = document.getElementsByName(name);
+    for(var i=0, n=checkboxes.length; i<n; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
+
+{% endblock body %}

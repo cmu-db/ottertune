@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container">
+{% if application %}
+<form action="{% url 'edit_application' project.pk application.pk %}" method="POST">
+{% else %}
+<form action="{% url 'new_application' project.pk %}" method="POST">
+{% endif %}
+{% csrf_token %}
+    <table class="table table-striped table-bordered table-hover table-nonfluid">
+        <tr>
+            <td>{{ form.name.label_tag }}</td>
+            <td>{{ form.name }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.description.label_tag }}</td>
+            <td>{{ form.description }}</td>
+        </tr>
+        <tr id="dbms_row">
+            <td>{{ form.dbms.label_tag }}</td>
+            <td>{{ form.dbms }}</td>
+        </tr>
+        <tr id="hardware_row">
+            <td>{{ form.hardware.label_tag }}</td>
+            <td>{{ form.hardware }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.tuning_session.label_tag }}</td>
+            <td>{{ form.tuning_session }}</td>
+        </tr>
+        <tr id="target_obj_row">
+            <td>{{ form.target_objective.label_tag }}</td>
+            <td>{{ form.target_objective }}</td>
+        </tr>
+        <tr id="upload_code_row">
+            <td>{{ form.gen_upload_code.label_tag }}</td>
+            <td>{{ form.gen_upload_code }}</td>
+        </tr>
+    </table>
+<!--     <button class="btn btn-default" type="submit" name="id" value="{{ application.pk }}&{{ project.pk }}">Submit</button> -->
+    <button class="btn btn-default" type="submit" name="id">Submit</button>
+    {% if application %}
+    <a class="btn btn-default" href="{% url 'application' project.pk application.pk %}">Cancel</a>
+    {% else %}
+    <a class="btn btn-default" href="{% url 'project' project.pk %}">Cancel</a>
+    {% endif %}
+</form>
+</div>
+
+<script language="javascript">
+function show_content() {
+	console.log("In show_content()")
+	$("#target_obj_row").toggle()
+}
+
+$(function() {
+	if ("{{ application }}" != "None") {
+	    $("#dbms_row").hide();
+	    $("#hardware_row").hide();
+	} else {
+		$("#upload_code_row").hide();
+	}
+	
+	if (document.getElementById('id_tuning_session').checked) {
+		$("#target_obj_row").show()
+	} else {
+		$("#target_obj_row").hide()
+	}
+});
+</script>
+
+{% endblock body %}

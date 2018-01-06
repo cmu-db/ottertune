@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div id="proj_info" class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4>Project Info (<a href="/edit_project/?id={{project.pk}}">edit</a>)</h4></caption>
+    <tbody>
+    <tr>
+        <td><div class="text-right">Name:</div></td>
+        <td>{{ project.name }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-top text-right">Description:</div></td>
+        <td>{{ project.description|linebreaks }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Applications:</div></td>
+        <td><div id="apps"><a href="/project/?id={{ project.pk }}">here</a></div></td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Creation time:</div></td>
+        <td>{{ project.creation_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Last update:</div></td>
+        <td>{{ project.last_update }}</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+
+{% endblock body %}

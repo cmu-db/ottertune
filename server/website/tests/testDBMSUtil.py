@@ -18,7 +18,8 @@ class BaseParserTest(TestCase):
                 .convert_bool(testBool[i], BoolParam), testBoolAns[i])
 
         # Convert Enum
-        # TODO (jackyl): Change tests for 1-hot encoding, however it's implemented
+        # TODO (jackyl): Change tests for 1-hot encoding,
+        # however it's implemented
         EnumParam = VarType()
         EnumParam.enumvals = 'apple,oranges,cake'
         EnumParam.name = "Test"
@@ -99,37 +100,39 @@ class BaseParserTest(TestCase):
         KnobUnitOther.unit = 3
 
         # Format Bool
-        self.assertEqual(super(PostgresParser, testDBMS).format_bool(BooleanType.TRUE, KnobUnitOther), 'on')
-        self.assertEqual(super(PostgresParser, testDBMS).format_bool(BooleanType.FALSE, KnobUnitOther), 'off')
+        self.assertEqual(super(PostgresParser, testDBMS)
+                         .format_bool(BooleanType.TRUE, KnobUnitOther), 'on')
+        self.assertEqual(super(PostgresParser, testDBMS)
+                         .format_bool(BooleanType.FALSE, KnobUnitOther), 'off')
 
         # Format Enum
         EnumParam = VarType()
         EnumParam.enumvals = 'apple,oranges,cake'
 
-        self.assertEqual(super(PostgresParser, testDBMS).format_enum(0, EnumParam), "apple")
-        self.assertEqual(super(PostgresParser, testDBMS).format_enum(1, EnumParam), "oranges")
-        self.assertEqual(super(PostgresParser, testDBMS).format_enum(2, EnumParam), "cake")
+        self.assertEqual(super(PostgresParser, testDBMS)
+                         .format_enum(0, EnumParam), "apple")
+        self.assertEqual(super(PostgresParser, testDBMS)
+                         .format_enum(1, EnumParam), "oranges")
+        self.assertEqual(super(PostgresParser, testDBMS)
+                         .format_enum(2, EnumParam), "cake")
 
         # Format Integer
         testInt = [42, -1, 0, 0.5, 1, 42.0, 42.5, 42.7]
-        testIntAns = ['42', '-1', '0', '0', '1', '42', '42', '42']
+        testIntAns = [42, -1, 0, 1, 1, 42, 43, 43]
 
         for i in range(len(testInt)):
-            pass
-            # self.assertEqual(
-            #     super(PostgresParser, testDBMS)
-            #     .format_integer(testInt[i], KnobUnitOther), testIntAns[i])
+            self.assertEqual(
+                super(PostgresParser, testDBMS)
+                .format_integer(testInt[i], KnobUnitOther), testIntAns[i])
 
         # Format Real
         testReal = [42, -1, 0, 0.5, 1, 42.0, 42.5, 42.7]
-        testRealAns = ['42.0', '-1.0', '0.0', '0.5', '1.0', '42.0',
-                        '42.5', '42.7']
+        testRealAns = [42.0, -1.0, 0.0, 0.5, 1.0, 42.0, 42.5, 42.7]
 
         for i in range(len(testReal)):
-            pass
-            # self.assertEqual(
-            #     super(PostgresParser, testDBMS)
-            #     .format_integer(testReal[i], KnobUnitOther), testRealAns[i])
+            self.assertEqual(
+                super(PostgresParser, testDBMS)
+                .format_real(testReal[i], KnobUnitOther), testRealAns[i])
 
 
         # Format DBMS Params
@@ -165,8 +168,10 @@ class PostgresParserTest(TestCase):
         self.assertTrue('global.autovacuum' in baseConfigSet)
         self.assertTrue('global.default_text_search_config' in baseConfigSet)
 
-        self.assertEqual(testDBMS.knob_configuration_filename, 'postgresql.conf')
-        self.assertEqual(testDBMS.transactions_counter, 'pg_stat_database.xact_commit')
+        self.assertEqual(testDBMS
+                         .knob_configuration_filename, 'postgresql.conf')
+        self.assertEqual(testDBMS
+                         .transactions_counter, 'pg_stat_database.xact_commit')
 
     def testParseVersionString(self):
         testDBMS = PostgresParser(2)
@@ -203,12 +208,16 @@ class PostgresParserTest(TestCase):
         self.assertEqual(testDBMS.convert_integer('-0.5', KnobUnitOther), 0)
         self.assertEqual(testDBMS.convert_integer('-20', KnobUnitOther), -20)
 
-        self.assertEqual(testDBMS.convert_integer('5kB', KnobUnitBytes), 5 * 1024)
-        self.assertEqual(testDBMS.convert_integer('4MB', KnobUnitBytes), 4 * 1024 ** 2)
+        self.assertEqual(testDBMS
+                         .convert_integer('5kB', KnobUnitBytes), 5 * 1024)
+        self.assertEqual(testDBMS
+                         .convert_integer('4MB', KnobUnitBytes), 4 * 1024 ** 2)
 
         self.assertEqual(testDBMS.convert_integer('1d', KnobUnitTime), 86400000)
-        self.assertEqual(testDBMS.convert_integer('20h', KnobUnitTime), 72000000)
-        self.assertEqual(testDBMS.convert_integer('10min', KnobUnitTime), 600000)
+        self.assertEqual(testDBMS
+                         .convert_integer('20h', KnobUnitTime), 72000000)
+        self.assertEqual(testDBMS
+                         .convert_integer('10min', KnobUnitTime), 600000)
         self.assertEqual(testDBMS.convert_integer('1s', KnobUnitTime), 1000)
 
 

@@ -52,7 +52,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The autocommit mode. If set to 1, all changes to a table take effect immediately. If set to 0, you must use COMMIT to accept a transaction or ROLLBACK to cancel it. If autocommit is 0 and you change it to 1, MySQL performs an automatic COMMIT of any open transaction. Another way to begin a transaction is to use a START TRANSACTION or BEGIN statement. See Section\u00a013.3.1, \u201cSTART TRANSACTION, COMMIT, and ROLLBACK Syntax\u201d."
+            "description": "The autocommit mode. If set to 1, all changes to a table take effect immediately. If set to 0, you must use COMMIT to accept a transaction or ROLLBACK to cancel it. If autocommit is 0 and you change it to 1, MySQL performs an automatic COMMIT of any open transaction. Another way to begin a transaction is to use a START TRANSACTION or BEGIN statement. See Section\u00a013.3.1, 201cSTART TRANSACTION, COMMIT, and ROLLBACK Syntax\u201d."
         },
         "model": "website.KnobCatalog"
     },
@@ -6299,7 +6299,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The server ID, used in replication to give each master and slave a unique identity. This variable is set by the --server-id option. For each server participating in replication, you should pick a positive integer in the range from 1 to 232 \u2212 1 to act as that server's ID."
+            "description": "The server ID, used in replication to give each master and slave a unique identity. This variable is set by the --server-id option. For each server participating in replication, you should pick a positive integer in the range from 1 to 232 2212 1 to act as that server's ID."
         },
         "model": "website.KnobCatalog"
     },
@@ -6356,7 +6356,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "This variable is available if MySQL was compiled using OpenSSL (see Section\u00a06.4.4, \u201cOpenSSL Versus yaSSL\u201d). Its value is the path name of the RSA private key file for the sha256_password authentication plugin. If the file is named as a relative path, it is interpreted relative to the server data directory. The file must be in PEM format."
+            "description": "This variable is available if MySQL was compiled using OpenSSL (see Section 00a06.4.4, 201cOpenSSL Versus yaSSL201d). Its value is the path name of the RSA private key file for the sha256_password authentication plugin. If the file is named as a relative path, it is interpreted relative to the server data directory. The file must be in PEM format."
         },
         "model": "website.KnobCatalog"
     },
@@ -6451,7 +6451,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "This variable is set from the value of the --skip-name-resolve option. If it is OFF, mysqld resolves host names when checking client connections. If it is ON, mysqld uses only IP numbers; in this case, all Host column values in the grant tables must be IP addresses or localhost. See Section\u00a08.12.5.2, \u201cDNS Lookup Optimization and the Host Cache\u201d."
+            "description": "This variable is set from the value of the --skip-name-resolve option. If it is OFF, mysqld resolves host names when checking client connections. If it is ON, mysqld uses only IP numbers; in this case, all Host column values in the grant tables must be IP addresses or localhost. See Section00a08.12.5.2, 201cDNS Lookup Optimization and the Host Cache201d."
         },
         "model": "website.KnobCatalog"
     },
@@ -6706,7 +6706,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "When preparing batches of rows for row-based logging and replication, this variable controls how the rows are searched for matches\u2014that is, whether or not hashing is used for searches using a primary or unique key, some other key, or using no key at all. Setting this variable takes effect for all replication channels immediately, including running channels. The initial setting for the system variable can be specified using the --slave-rows-search-algorithms option."
+            "description": "When preparing batches of rows for row-based logging and replication, this variable controls how the rows are searched for matches2014that is, whether or not hashing is used for searches using a primary or unique key, some other key, or using no key at all. Setting this variable takes effect for all replication channels immediately, including running channels. The initial setting for the system variable can be specified using the --slave-rows-search-algorithms option."
         },
         "model": "website.KnobCatalog"
     },
@@ -6883,7 +6883,7 @@
             "scope": "global",
             "summary": "",
             "unit": 1,
-            "description": "Each session that must perform a sort allocates a buffer of this size. sort_buffer_size is not specific to any storage engine and applies in a general manner for optimization. At minimum the sort_buffer_size value must be large enough to accommodate fifteen tuples in the sort buffer. Also, increasing the value of max_sort_length may require increasing the value of sort_buffer_size. For more information, see Section\u00a08.2.1.13, \u201cORDER BY Optimization\u201d"
+            "description": "Each session that must perform a sort allocates a buffer of this size. sort_buffer_size is not specific to any storage engine and applies in a general manner for optimization. At minimum the sort_buffer_size value must be large enough to accommodate fifteen tuples in the sort buffer. Also, increasing the value of max_sort_length may require increasing the value of sort_buffer_size. For more information, see Section00a08.2.1.13, 201cORDER BY Optimization201d"
         },
         "model": "website.KnobCatalog"
     },
@@ -6997,7 +6997,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The current server SQL mode, which can be set dynamically. The default is NO_ENGINE_SUBSTITUTION. For details, see Section\u00a05.1.8, \u201cServer SQL Modes\u201d."
+            "description": "The current server SQL mode, which can be set dynamically. The default is NO_ENGINE_SUBSTITUTION. For details, see Section00a05.1.8, 201cServer SQL Modes201d."
         },
         "model": "website.KnobCatalog"
     },
@@ -7073,7 +7073,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The maximum number of rows to return from SELECT statements. The default value for a new connection is the maximum number of rows that the server permits per table. Typical default values are (232)\u22121 or (264)\u22121. If you have changed the limit, the default value can be restored by assigning a value of DEFAULT."
+            "description": "The maximum number of rows to return from SELECT statements. The default value for a new connection is the maximum number of rows that the server permits per table. Typical default values are (232)22121 or (264)22121. If you have changed the limit, the default value can be restored by assigning a value of DEFAULT."
         },
         "model": "website.KnobCatalog"
     },
@@ -7206,7 +7206,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The path to a file containing certificate revocation lists in PEM format. Revocation lists work for MySQL distributions compiled using OpenSSL (but not yaSSL). See Section\u00a06.4.4, \u201cOpenSSL Versus yaSSL\u201d."
+            "description": "The path to a file containing certificate revocation lists in PEM format. Revocation lists work for MySQL distributions compiled using OpenSSL (but not yaSSL). See Section00a06.4.4, 201cOpenSSL Versus yaSSL201d."
         },
         "model": "website.KnobCatalog"
     },
@@ -7533,7 +7533,7 @@
             "scope": "global",
             "summary": "",
             "unit": 1,
-            "description": "The stack size for each thread. Many of the limits detected by the crash-me test are dependent on this value. See Section\u00a08.13.2, \u201cThe MySQL Benchmark Suite\u201d. The default of 192KB (256KB for 64-bit systems) is large enough for normal operation. If the thread stack size is too small, it limits the complexity of the SQL statements that the server can handle, the recursion depth of stored procedures, and other memory-consuming actions."
+            "description": "The stack size for each thread. Many of the limits detected by the crash-me test are dependent on this value. See Section\u00a08.13.2, 201cThe MySQL Benchmark Suite\u201d. The default of 192KB (256KB for 64-bit systems) is large enough for normal operation. If the thread stack size is too small, it limits the complexity of the SQL statements that the server can handle, the recursion depth of stored procedures, and other memory-consuming actions."
         },
         "model": "website.KnobCatalog"
     },
@@ -7823,7 +7823,7 @@
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "The CMake configuration program has a COMPILATION_COMMENT option that permits a comment to be specified when building MySQL. This variable contains the value of that comment. See Section\u00a02.9.4, \u201cMySQL Source-Configuration Options\u201d."
+            "description": "The CMake configuration program has a COMPILATION_COMMENT option that permits a comment to be specified when building MySQL. This variable contains the value of that comment. See Section\u00a02.9.4, 201cMySQL Source-Configuration Options\u201d."
         },
         "model": "website.KnobCatalog"
     },

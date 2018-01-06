@@ -50,20 +50,24 @@ class JSONUtilTest(TestCase):
 
 class MediaUtilTest(TestCase):
     def testCodeGen(self):
+        testSet = set()
         for i in range(1000):
+            # Don't know a better way of doing this - collisions are still possible???
             code20 = MediaUtil.upload_code_generator(20)
             self.assertEqual(len(code20), 20)
-            self.assertTrue(code20.isalnum())
             code40 = MediaUtil.upload_code_generator(40)
             self.assertEqual(len(code40), 40)
-            self.assertTrue(code40.isalnum())
             digitCode = MediaUtil.upload_code_generator(40, string.digits)
             self.assertEqual(len(digitCode), 40)
             self.assertTrue(digitCode.isdigit())
-            letterCode = MediaUtil.upload_code_generator(60,
-                            string.ascii_uppercase)
-            self.assertEqual(len(letterCode), 60)
-            self.assertTrue(letterCode.isalpha())
+
+            self.assertTrue(code20 not in testSet)
+            self.assertTrue(code40 not in testSet)
+            self.assertTrue(digitCode not in testSet)
+
+            testSet.add(code20)
+            testSet.add(code40)
+            testSet.add(digitCode)
 
 class TaskUtilTest(TestCase):
     def testGetTaskStatus(self):
@@ -123,15 +127,11 @@ class TaskUtilTest(TestCase):
             TaskUtil.get_task_status(testTasks9)
 
 class DataUtilTest(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        pass
-
     def testAggregate(self):
         pass
 
     def testCombine(self):
+        print(DBMSCatalog.objects.all()[:5])
         pass
 
 

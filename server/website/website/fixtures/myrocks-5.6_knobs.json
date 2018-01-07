@@ -198,10 +198,7 @@
             "minval": "null",
             "default": "CRC32",
             "tunable": true,
-            "enumvals": [
-                "CRC32",
-                "NONE"
-            ],
+            "enumvals": "CRC32,NONE",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -239,10 +236,7 @@
             "minval": "null",
             "default": "IGNORE_ERROR",
             "tunable": true,
-            "enumvals": [
-                "IGNORE_ERROR",
-                "ABORT_SERVER"
-            ],
+            "enumvals": "IGNORE_ERROR,ABORT_SERVER",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -261,11 +255,7 @@
             "minval": "null",
             "default": "MIXED",
             "tunable": true,
-            "enumvals": [
-                "ROW",
-                "STATEMENT",
-                "MIXED"
-            ],
+            "enumvals": "ROW,STATEMENT,MIXED",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -320,12 +310,9 @@
             "dbms": 9,
             "name": "session_variables.binlog_row_image",
             "minval": "null",
-            "default": "full",
+            "default": "FULL",
             "tunable": true,
-            "enumvals": [
-                "full",
-                "minimal"
-            ],
+            "enumvals": "FULL,MINIMAL",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -382,10 +369,7 @@
             "minval": "null",
             "default": "IGNORE_ERROR",
             "tunable": true,
-            "enumvals": [
-                "IGNORE_ERROR",
-                "ABORT_SERVER"
-            ],
+            "enumvals": "IGNORE_ERROR,ABORT_SERVER",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -651,14 +635,7 @@
             "minval": "null",
             "default": "NO_CHAIN",
             "tunable": true,
-            "enumvals": [
-                "NO_CHAIN",
-                "CHAIN",
-                "RELEASE",
-                "0",
-                "1",
-                "2"
-            ],
+            "enumvals": "NO_CHAIN,CHAIN,RELEASE,0,1,2",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -677,14 +654,7 @@
             "minval": "null",
             "default": "AUTO",
             "tunable": true,
-            "enumvals": [
-                "NEVER",
-                "AUTO",
-                "ALWAYS",
-                "0",
-                "1",
-                "2"
-            ],
+            "enumvals": "NEVER,AUTO,ALWAYS,0,1,2",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -855,11 +825,7 @@
             "minval": "null",
             "default": "ON",
             "tunable": true,
-            "enumvals": [
-                "ON",
-                "OFF",
-                "ALL"
-            ],
+            "enumvals": "ON,OFF,ALL",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -1049,11 +1015,7 @@
             "minval": "null",
             "default": "OFF",
             "tunable": true,
-            "enumvals": [
-                "ON",
-                "OFF",
-                "DISABLED"
-            ],
+            "enumvals": "ON,OFF,DISABLED",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -1357,12 +1319,7 @@
             "minval": "null",
             "default": "OFF",
             "tunable": true,
-            "enumvals": [
-                "OFF",
-                "UPGRADE_STEP_1",
-                "UPGRADE_STEP_2",
-                "ON"
-            ],
+            "enumvals": "OFF,UPGRADE_STEP_1,UPGRADE_STEP_2,ON",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1381,11 +1338,7 @@
             "minval": "null",
             "default": "AUTOMATIC",
             "tunable": true,
-            "enumvals": [
-                "AUTOMATIC",
-                "ANONYMOUS",
-                "UUID:NUMBER"
-            ],
+            "enumvals": "AUTOMATIC,ANONYMOUS,UUID:NUMBER",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -1442,10 +1395,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1464,10 +1414,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1486,10 +1433,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1508,10 +1452,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1530,10 +1471,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1552,10 +1490,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1574,10 +1509,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1596,10 +1528,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1618,11 +1547,7 @@
             "minval": "null",
             "default": "Disabled",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No",
-                "Disabled"
-            ],
+            "enumvals": "Yes,No,Disabled",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -1641,10 +1566,7 @@
             "minval": "null",
             "default": "Yes",
             "tunable": false,
-            "enumvals": [
-                "Yes",
-                "No"
-            ],
+            "enumvals": "Yes,No",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -2290,11 +2212,7 @@
             "minval": "null",
             "default": "FILE",
             "tunable": true,
-            "enumvals": [
-                "TABLE",
-                "FILE",
-                "NONE"
-            ],
+            "enumvals": "TABLE,FILE,NONE",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -2503,9 +2421,7 @@
             "minval": "null",
             "default": "FILE",
             "tunable": false,
-            "enumvals": [
-                "FILE"
-            ],
+            "enumvals": "FILE",
             "vartype": 1,
             "context": "dynamic",
             "scope": "global",
@@ -3113,11 +3029,7 @@
             "minval": "null",
             "default": "nulls_unequal",
             "tunable": true,
-            "enumvals": [
-                "nulls_equal",
-                "nulls_unequal",
-                "nulls_ignored"
-            ],
+            "enumvals": "nulls_equal,nulls_unequal,nulls_ignored",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -3288,11 +3200,7 @@
             "minval": "null",
             "default": "0",
             "tunable": true,
-            "enumvals": [
-                "0",
-                "1",
-                "2"
-            ],
+            "enumvals": "0,1,2",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -3558,10 +3466,7 @@
             "minval": "null",
             "default": " 0 or OFF",
             "tunable": true,
-            "enumvals": [
-                " 0 or OFF",
-                " 1 or ON"
-            ],
+            "enumvals": " 0 or OFF, 1 or ON",
             "vartype": 4,
             "context": "dynamic",
             "scope": "global",
@@ -3998,9 +3903,7 @@
             "minval": "null",
             "default": "FILE",
             "tunable": false,
-            "enumvals": [
-                "FILE"
-            ],
+            "enumvals": "FILE",
             "vartype": 1,
             "context": "dynamic",
             "scope": "global",
@@ -4988,10 +4891,7 @@
             "minval": "null",
             "default": "kBinarySearch",
             "tunable": true,
-            "enumvals": [
-                "kBinarySearch",
-                "kHashSearch"
-            ],
+            "enumvals": "kBinarySearch,kHashSearch",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -5010,13 +4910,7 @@
             "minval": "null",
             "default": "error_level",
             "tunable": true,
-            "enumvals": [
-                "debug_level",
-                "info_level",
-                "warn_level",
-                "error_level",
-                "fatal_level"
-            ],
+            "enumvals": "debug_level,info_level,warn_level,error_level,fatal_level",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -6270,11 +6164,7 @@
             "minval": "null",
             "default": "platform specific",
             "tunable": false,
-            "enumvals": [
-                "empty",
-                "dirname",
-                "NULL"
-            ],
+            "enumvals": "empty,dirname,NULL",
             "vartype": 1,
             "context": "restart",
             "scope": "global",
@@ -6578,10 +6468,7 @@
             "minval": "null",
             "default": " IDEMPOTENT(NDB)",
             "tunable": true,
-            "enumvals": [
-                "IDEMPOTENT",
-                "STRICT"
-            ],
+            "enumvals": "IDEMPOTENT,STRICT",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -6694,13 +6581,8 @@
             "name": "session_variables.slave_rows_search_algorithms",
             "minval": "null",
             "default": "TABLE_SCAN,INDEX_SCAN",
-            "tunable": true,
-            "enumvals": [
-                "TABLE_SCAN,INDEX_SCAN",
-                "INDEX_SCAN,HASH_SCAN",
-                "TABLE_SCAN,HASH_SCAN",
-                "TABLE_SCAN,INDEX_SCAN,HASH_SCAN"
-            ],
+            "tunable": false,
+            "enumvals": "TABLE_SCAN,INDEX_SCAN,INDEX_SCAN,HASH_SCAN,TABLE_SCAN,HASH_SCAN,TABLE_SCAN,INDEX_SCAN,HASH_SCAN",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",
@@ -6719,9 +6601,7 @@
             "minval": "null",
             "default": "OFF",
             "tunable": false,
-            "enumvals": [
-                "OFF"
-            ],
+            "enumvals": "OFF",
             "vartype": 1,
             "context": "restart",
             "scope": "global",
@@ -6740,9 +6620,7 @@
             "minval": "null",
             "default": "1",
             "tunable": true,
-            "enumvals": [
-                "0"
-            ],
+            "enumvals": "0",
             "vartype": 4,
             "context": "dynamic",
             "scope": "global",
@@ -6780,9 +6658,7 @@
             "minval": "null",
             "default": "Default",
             "tunable": false,
-            "enumvals": [
-                "ALL_LOSSY"
-            ],
+            "enumvals": "ALL_LOSSY",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -7004,57 +6880,57 @@
     {
         "fields": {
             "category": "",
-            "maxval": "1",
+            "maxval": "null",
             "dbms": 9,
             "name": "session_variables.sql_notes",
-            "minval": "0",
-            "default": "1",
+            "minval": "null",
+            "default": "ON",
             "tunable": true,
             "enumvals": "null",
-            "vartype": 2,
+            "vartype": 4,
             "context": "dynamic",
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "If set to 1 (the default), warnings of Note level increment warning_count and the server records them. If set to 0, Note warnings do not increment warning_count and the server does not record them. mysqldump includes output to set this variable to 0 so that reloading the dump file does not produce warnings for events that do not affect the integrity of the reload operation."
+            "description": "If set to 1 ON (the default), warnings of Note level increment warning_count and the server records them. If set to 0 OFF, Note warnings do not increment warning_count and the server does not record them. mysqldump includes output to set this variable to 0 so that reloading the dump file does not produce warnings for events that do not affect the integrity of the reload operation."
         },
         "model": "website.KnobCatalog"
     },
     {
         "fields": {
             "category": "",
-            "maxval": "1",
+            "maxval": "null",
             "dbms": 9,
             "name": "session_variables.sql_quote_show_create",
-            "minval": "0",
-            "default": "1",
+            "minval": "null",
+            "default": "ON",
             "tunable": false,
             "enumvals": "null",
-            "vartype": 2,
+            "vartype": 4,
             "context": "dynamic",
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "If set to 1 (the default), the server quotes identifiers for SHOW CREATE TABLE and SHOW CREATE DATABASE statements. If set to 0, quoting is disabled. This option is enabled by default so that replication works for identifiers that require quoting. "
+            "description": "If set to 1 ON (the default), the server quotes identifiers for SHOW CREATE TABLE and SHOW CREATE DATABASE statements. If set to 0, quoting is disabled. This option is enabled by default so that replication works for identifiers that require quoting. "
         },
         "model": "website.KnobCatalog"
     },
     {
         "fields": {
             "category": "",
-            "maxval": "1",
+            "maxval": "null",
             "dbms": 9,
             "name": "session_variables.sql_safe_updates",
-            "minval": "0",
-            "default": "1",
+            "minval": "null",
+            "default": "OFF",
             "tunable": false,
             "enumvals": "null",
-            "vartype": 2,
+            "vartype": 4,
             "context": "dynamic",
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "If set to 1, MySQL aborts UPDATE or DELETE statements that do not use a key in the WHERE clause or a LIMIT clause. (Specifically, UPDATE statements must have a WHERE clause that uses a key or a LIMIT clause, or both. DELETE statements must have both.) This makes it possible to catch UPDATE or DELETE statements where keys are not used properly and that would probably change or delete a large number of rows. The default value is 0."
+            "description": "If set to 1 ON, MySQL aborts UPDATE or DELETE statements that do not use a key in the WHERE clause or a LIMIT clause. (Specifically, UPDATE statements must have a WHERE clause that uses a key or a LIMIT clause, or both. DELETE statements must have both.) This makes it possible to catch UPDATE or DELETE statements where keys are not used properly and that would probably change or delete a large number of rows. The default value is 0."
         },
         "model": "website.KnobCatalog"
     },
@@ -7099,19 +6975,19 @@
     {
         "fields": {
             "category": "",
-            "maxval": "1",
+            "maxval": "null",
             "dbms": 9,
             "name": "session_variables.sql_warnings",
-            "minval": "0",
-            "default": "0",
+            "minval": "null",
+            "default": "OFF",
             "tunable": true,
             "enumvals": "null",
-            "vartype": 2,
+            "vartype": 4,
             "context": "dynamic",
             "scope": "global",
             "summary": "",
             "unit": 3,
-            "description": "This variable controls whether single-row INSERT statements produce an information string if warnings occur. The default is 0. Set the value to 1 to produce an information string."
+            "description": "This variable controls whether single-row INSERT statements produce an information string if warnings occur. The default is 0 OFF. Set the value to 1 ON to produce an information string."
         },
         "model": "website.KnobCatalog"
     },
@@ -7504,11 +7380,7 @@
             "minval": "null",
             "default": "one-thread-per-connection",
             "tunable": true,
-            "enumvals": [
-                "no-threads",
-                "one-thread-per-connection",
-                "dynamically-loaded"
-            ],
+            "enumvals": "no-threads,one-thread-per-connection,dynamically-loaded",
             "vartype": 5,
             "context": "restart",
             "scope": "global",
@@ -7717,12 +7589,7 @@
             "minval": "null",
             "default": "REPEATABLE-READ",
             "tunable": true,
-            "enumvals": [
-                "READ-UNCOMMITTED",
-                "READ-COMMITTED",
-                "REPEATABLE-READ",
-                "SERIALIZABLE"
-            ],
+            "enumvals": "READ-UNCOMMITTED,READ-COMMITTED,REPEATABLE-READ,SERIALIZABLE",
             "vartype": 5,
             "context": "dynamic",
             "scope": "global",

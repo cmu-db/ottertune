@@ -64,7 +64,7 @@ class DBMSCatalog(BaseModel):
 
 class KnobCatalog(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=128)
     vartype = models.IntegerField(choices=VarType.choices(), verbose_name="variable type")
     unit = models.IntegerField(choices=KnobUnitType.choices())
     category = models.TextField(null=True)
@@ -127,7 +127,7 @@ class MetricCatalog(BaseModel):
     objects = MetricManager()
 
     dbms = models.ForeignKey(DBMSCatalog)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=128)
     vartype = models.IntegerField(choices=VarType.choices())
     summary = models.TextField(null=True, verbose_name='description')
     scope = models.CharField(max_length=16)

@@ -75,9 +75,9 @@ class PostgresParser(BaseParser):
                 raise Exception(
                     'Unknown unit type: {}'.format(metadata.unit))
 
-            if converted < 0:
-                raise Exception('Invalid integer value for {}: {}'.format(
-                    metadata.name, int_value))
+        if converted < 0:
+            raise Exception('Invalid integer value for {}: {}'.format(
+                metadata.name, int_value))
         if converted is None:
             raise Exception('Invalid integer format for {}: {}'.format(
                 metadata.name, int_value))

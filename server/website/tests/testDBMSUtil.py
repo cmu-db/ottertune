@@ -204,10 +204,6 @@ class PostgresParserTest(TestCase):
         self.assertEqual(testDBMS.convert_integer('0.0', KnobUnitOther), 0)
         self.assertEqual(testDBMS.convert_integer('0.5', KnobUnitOther), 0)
 
-        # NOTE: Is this intended performance?
-        self.assertEqual(testDBMS.convert_integer('-0.5', KnobUnitOther), 0)
-        self.assertEqual(testDBMS.convert_integer('-20', KnobUnitOther), -20)
-
         self.assertEqual(testDBMS
                          .convert_integer('5kB', KnobUnitBytes), 5 * 1024)
         self.assertEqual(testDBMS
@@ -220,24 +216,17 @@ class PostgresParserTest(TestCase):
                          .convert_integer('10min', KnobUnitTime), 600000)
         self.assertEqual(testDBMS.convert_integer('1s', KnobUnitTime), 1000)
 
+        testExceptions = [('A', KnobUnitOther),
+                          ('', KnobUnitOther),
+                          ('-20', KnobUnitOther),
+                          ('-1s', KnobUnitTime),
+                          ('1S', KnobUnitTime),
+                          ('-1MB', KnobUnitBytes),
+                          ('1mb', KnobUnitBytes)]
 
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('A', KnobUnitOther)
-
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('', KnobUnitOther)
-
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('-1s', KnobUnitTime)
-
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('1S', KnobUnitTime)
-
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('-1MB', KnobUnitBytes)
-
-        with self.assertRaises(Exception):
-            testDBMS.convert_integer('1mb', KnobUnitBytes)
+        for failCase, KnobUnit in testExceptions:
+            with self.assertRaises(Exception):
+                testDBMS.convert_integer(failCase, KnobUnit)
 
     def testFormatInteger(self):
         testDBMS = PostgresParser(2)

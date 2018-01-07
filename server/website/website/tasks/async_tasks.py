@@ -123,7 +123,7 @@ def configuration_recommendation(target_data):
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     X_target = target_data['X_matrix']
     y_target = target_data['y_matrix']
-    rowlabels_target = target_data['rowlabels']
+    rowlabels_target = np.array(target_data['rowlabels'])
 
     if not np.array_equal(X_columnlabels, target_data['X_columnlabels']):
         raise Exception(('The workload and target data should have '

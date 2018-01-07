@@ -6,5 +6,13 @@
         "type":2,
         "version":"9.6"
      }
+  },
+  {
+    "model":"website.DBMSCatalog",
+    "pk":9,
+    "fields":{
+        "type":9,
+        "version":"5.6"
+     }
   }
 ]

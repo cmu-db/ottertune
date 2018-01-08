@@ -258,8 +258,9 @@ class MetricData(DataModel):
 class WorkloadManager(models.Manager):
 
     def create_workload(self, dbms, hardware, name):
+        # (dbms,hardware,name) should be unique for each workload
         try:
-            return Workload.objects.get(name=name)
+            return Workload.objects.get(dbms=dbms,hardware=hardware,name=name)
         except Workload.DoesNotExist:
             return self.create(dbms=dbms,
                                hardware=hardware,
@@ -273,8 +274,12 @@ class Workload(BaseModel):
 
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
-    name = models.CharField(max_length=128, unique=True,
+    name = models.CharField(max_length=128, #unique=True,
                             verbose_name='workload name')
+
+    # (dbms,hardware,name) should be unique for each workload
+    class Meta:
+        unique_together = ("dbms", "hardware", "name")
 
 #     @property
 #     def isdefault(self):

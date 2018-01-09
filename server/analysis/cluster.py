@@ -128,7 +128,11 @@ class KMeans(ModelBase):
             member_rows = X[self.cluster_labels_ == cluster_label, :]
             member_labels = self.sample_labels_[self.cluster_labels_ == cluster_label]
             centroid = np.expand_dims(self.cluster_centers_[cluster_label], axis=0)
-            assert member_rows.shape[0] > 0, "All clusters must have at least 1 member!"
+            
+            #assert member_rows.shape[0] > 0, "All clusters must have at least 1 member!"
+            print self.n_clusters_ 
+            if member_rows.shape[0] == 0: # "All clusters must have at least 1 member!"
+                return None
 
             # Calculate distance between each member row and the current cluster
             dists = np.empty(member_rows.shape[0])
@@ -231,8 +235,16 @@ class KMeansClusters(ModelBase):
             sample_labels = ["sample_{}".format(i) for i in range(X.shape[1])]
         self.sample_labels_ = sample_labels
         for K in range(self.min_cluster_, self.max_cluster_ + 1):
-            self.cluster_map_[K] = KMeans().fit(X, K, self.sample_labels_,
+            tmp = KMeans().fit(X, K, self.sample_labels_,
                                                 estimator_params)
+            if tmp is None: #maximum cluster
+                assert K > min_cluster, "min_cluster is too large for the model" 
+                self.max_cluster_ = K-1
+                break
+            else:
+                self.cluster_map_[K] = tmp
+
+
         return self
 
 

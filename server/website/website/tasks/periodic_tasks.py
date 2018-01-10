@@ -21,12 +21,11 @@ from website.utils import DataUtil, JSONUtil
 logger = get_task_logger(__name__)
 
 # Executes 'run_background_tasks' every 5 minutes
-@periodic_task(run_every=10, name="run_background_tasks")
+@periodic_task(run_every=300, name="run_background_tasks")
 def run_background_tasks():
     # Find all unique workloads that we have data for
     unique_workloads = Workload.objects.all()
-    print 'unique_workloads'
-    print unique_workloads
+    
     if len(unique_workloads) == 0:
         # No previous workload data yet. Try again later.
         return
@@ -73,8 +72,6 @@ def run_background_tasks():
                                     creation_time=now())
         metric_entry.save()
 
-        print 'workload'
-        print workload
         ## 2b. Call the Workload Characterization subtask to compute
         ##     the list of pruned metrics for this workload
         pruned_metrics = run_workload_characterization(metric_data=metric_data)
@@ -184,7 +181,7 @@ def run_workload_characterization(metric_data):
         if np.any(col != col[0]):
             nonconst_matrix.append(col.reshape(-1, 1))
             nonconst_columnlabels.append(cl)
-    assert len(nonconst_matrix) > 0 
+    assert len(nonconst_matrix) > 0, "Need more data to train the model"  
     nonconst_matrix = np.hstack(nonconst_matrix)
     n_rows, n_cols = nonconst_matrix.shape
 
@@ -202,37 +199,25 @@ def run_workload_characterization(metric_data):
     
     # Components: metrics * factors  
     components = fa_model.components_.T.copy()
-
-    # Combine duplicate rows in components, the metrics with the same factors
-    # are combined into the same tuple  
-    nondup_components, tmp, nondup_columnlabels = \
-            DataUtil.combine_duplicate_rows(components,components,np.array(nonconst_columnlabels))
-    n_nondup_rows, n_factors = nondup_components.shape
-    assert n_nondup_rows > 0 and n_factors > 0 
-
-    #Choose any metric in each tuple. For now just choose the first one. 
-    if type(nondup_columnlabels[0]) is tuple:
-        nondup_columnlabels = [x[0] for x in nondup_columnlabels]   
-    
-    if n_nondup_rows < 3:
-        return nondup_columnlabels
     
     # Run Kmeans for # clusters k in range(2, num_nonduplicate_metrics - 1)
     kmeans_models = KMeansClusters()
-    kmeans_models.fit(nondup_components, min_cluster=2,
-                         max_cluster=n_nondup_rows - 1,
-                         sample_labels=nondup_columnlabels,
+    kmeans_models.fit(components, min_cluster=2,
+                         max_cluster=n_cols - 1,
+                         sample_labels=nonconst_columnlabels,
                          estimator_params={'n_init': 50})
     
     # Compute optimal # clusters, k, using  DetK
     detk = create_kselection_model("det-k")
-    detk.fit(nondup_components, kmeans_models.cluster_map_)
+    detk.fit(components, kmeans_models.cluster_map_)
+    
+    # Set optimal # cluster to max_cluster_ if it exceeds max_cluster_
+    if detk.optimal_num_clusters_ > kmeans_models.max_cluster_:
+        detk.optimal_num_cluster = kmeans_models.max_cluster_
     
     # Get pruned metrics, cloest samples of each cluster center
     pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()
-
-    print 'pruned_metrics'
-    print pruned_metrics
+    
     # Return pruned metrics
     return pruned_metrics
 
@@ -263,16 +248,17 @@ def run_knob_identification(knob_data, metric_data):
     # remove constant columns from knob_matrix and metric_matrix
     nonconst_knob_matrix = []
     nonconst_knob_columnlabels = []
-
+    
     for col, cl in zip(knob_matrix.T, knob_columnlabels):
         if np.any(col != col[0]):
             nonconst_knob_matrix.append(col.reshape(-1, 1))
             nonconst_knob_columnlabels.append(cl)
+    assert len(nonconst_knob_matrix) > 0, "Need more data to train the model"  
     nonconst_knob_matrix = np.hstack(nonconst_knob_matrix)
 
     nonconst_metric_matrix = []
     nonconst_metric_columnlabels = []
-
+    
     for col, cl in zip(metric_matrix.T, metric_columnlabels):
         if np.any(col != col[0]):
             nonconst_metric_matrix.append(col.reshape(-1, 1))
@@ -293,8 +279,5 @@ def run_knob_identification(knob_data, metric_data):
 
     # run lasso algorithm
     lasso_model = LassoPath()
-    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix, shuffled_knob_rowlabels)
-    
-    print 'ranked knobs' 
-    print lasso_model.get_ranked_features()
+    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix,nonconst_knob_columnlabels)
     return lasso_model.get_ranked_features()

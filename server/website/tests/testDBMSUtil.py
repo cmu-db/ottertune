@@ -64,12 +64,106 @@ class BaseParserTest(TestCase):
         with self.assertRaises(Exception):
             super(PostgresParser, testDBMS).convert_real('notReal', RealParam)
 
+    def testConvertCatalogs(self):
         # Convert DBMS Knobs
+        testDBMS = Postgres96Parser()
+        testKnobs = {'global.wal_sync_method'   : 'open_sync', # Enum
+                     'global.random_page_cost'  : 0.22, # Real
+                     'global.archive_command'   : 'archive', # String
+                     'global.cpu_tuple_cost'    : 0.55, # Real
+                     'global.force_parallel_mode'   : 'regress', # Enum
+                     'global.enable_hashjoin'   : 'on', # Bool
+                     'global.geqo_effort'       : 5, # Int
+                     'global.wal_buffers'       : 1024, # Int
+                     'global.FAKE_KNOB'         : 20}
+
+        testBaseConvertKnobs = super(PostgresParser, PostgresParser(2)).convert_dbms_knobs(testKnobs)
+        self.assertEqual(testBaseConvertKnobs, {})
+
+        testP96ConvertKnobs = testDBMS.convert_dbms_knobs(testKnobs)
+        # TODO: (jackyl) Test tunable knobs of other vartypes (string, bool, timestamp)
+        self.assertEqual(len(testP96ConvertKnobs.keys()), 3)
+        self.assertEqual(testP96ConvertKnobs['global.random_page_cost'], 0.22)
+        # NOTE: (jackyl) Fix enum when 1-hot encoding implemented
+        self.assertEqual(testP96ConvertKnobs['global.wal_sync_method'], 2)
+        self.assertEqual(testP96ConvertKnobs['global.wal_buffers'], 1024)
+
+        testExceptKnobs = {'global.wal_sync_method' : '3'}
+        with self.assertRaises(Exception):
+            testDBMS.convert_dbms_knobs(testExceptKnobs)
+
+        testNontunableKnobs = {'global.enable_hashjoin' : 'on'}
+        self.assertEqual(testDBMS.convert_dbms_knobs(testNontunableKnobs), {})
+
+        # TODO: (jackyl) Need exception test for nonexistent var type
 
         # Convert DBMS Metrics
+        testMetrics = {}
+
+        for key, val in testDBMS.numeric_metric_catalog_.iteritems():
+            testMetrics[key] = 2
+        testMetrics['pg_stat_database.xact_commit'] = 10
+        testMetrics['pg_FAKE_METRIC'] = 0
+
+        self.assertEqual(testMetrics.get('throughput_txn_per_sec'), None)
+
+        testP96ConvertMetrics = testDBMS.convert_dbms_metrics(testMetrics, 0.1)
+        for (key, val) in testDBMS.numeric_metric_catalog_.iteritems():
+            if (key == testDBMS.transactions_counter):
+                self.assertEqual(testP96ConvertMetrics[key], 100)
+                continue
+            self.assertEqual(testP96ConvertMetrics[key], 20)
+
+        self.assertEqual(testP96ConvertMetrics['throughput_txn_per_sec'], 100)
+        self.assertEqual(testP96ConvertMetrics.get('pg_FAKE_METRIC'), None)
 
     def testExtractValidVariables(self):
-        pass
+        testDBMS = Postgres96Parser()
+        numTunableKnobs = len(testDBMS.tunable_knob_catalog_.keys())
+        numNontunableKnobs = len(testDBMS.knob_catalog_.keys())
+
+        testEmpty, testEmptyDifflog = testDBMS.extract_valid_variables({}, testDBMS.tunable_knob_catalog_)
+        self.assertEqual(len(testEmpty.keys()), numTunableKnobs)
+        self.assertEqual(len(testEmptyDifflog), numTunableKnobs)
+
+        testVariables = {'global.wal_sync_method'   : 'fsync',
+                         'global.random_page_cost'  : 0.22,
+                         'global.Wal_buffers'       : 1024,
+                         'global.archive_command'   : 'archive',
+                         'global.GEQO_EFFORT'       : 5,
+                         'global.enable_hashjoin'   : 'on',
+                         'global.cpu_tuple_cost'    : 0.55,
+                         'global.force_parallel_mode'   : 'regress',
+                         'global.FAKE_KNOB'         : 'fake'}
+
+        tuneExtract, tuneDifflog = testDBMS.extract_valid_variables(testVariables, testDBMS.tunable_knob_catalog_)
+
+        self.assertTrue(('miscapitalized', 'global.wal_buffers', 'global.Wal_buffers', 1024) in tuneDifflog)
+        self.assertTrue(('extra', None, 'global.GEQO_EFFORT', 5) in tuneDifflog)
+        self.assertTrue(('extra', None, 'global.enable_hashjoin', 'on') in tuneDifflog)
+        self.assertTrue(('missing', 'global.deadlock_timeout', None, None) in tuneDifflog)
+        self.assertTrue(('missing', 'global.temp_buffers', None, None) in tuneDifflog)
+        self.assertTrue(tuneExtract.get('global.temp_buffers') != None)
+        self.assertTrue(tuneExtract.get('global.deadlock_timeout') != None)
+
+        self.assertEqual(tuneExtract.get('global.wal_buffers'), 1024)
+        self.assertEqual(tuneExtract.get('global.Wal_buffers'), None)
+
+        self.assertEqual(len(tuneExtract), len(testDBMS.tunable_knob_catalog_))
+
+        nontuneExtract, nontuneDifflog = testDBMS.extract_valid_variables(testVariables, testDBMS.knob_catalog_)
+
+        self.assertTrue(('miscapitalized', 'global.wal_buffers', 'global.Wal_buffers', 1024) in nontuneDifflog)
+        self.assertTrue(('miscapitalized', 'global.geqo_effort', 'global.GEQO_EFFORT', 5) in nontuneDifflog)
+        self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in nontuneDifflog)
+        self.assertTrue(('missing', 'global.lc_ctype', None, None) in nontuneDifflog)
+        self.assertTrue(('missing', 'global.full_page_writes', None, None) in nontuneDifflog)
+
+        self.assertEqual(nontuneExtract.get('global.wal_buffers'), 1024)
+        self.assertEqual(nontuneExtract.get('global.geqo_effort'), 5)
+        self.assertEqual(nontuneExtract.get('global.Wal_buffers'), None)
+        self.assertEqual(nontuneExtract.get('global.GEQO_EFFORT'), None)
+
 
     def testParses(self):
         # Parse Helper
@@ -81,13 +175,63 @@ class BaseParserTest(TestCase):
         pass
 
     def testCalculateChangeInMetrics(self):
-        pass
+        testDBMS = Postgres96Parser()
+        self.assertEqual(testDBMS.calculate_change_in_metrics({}, {}), {})
+
+        testMetricStart =  {'pg_stat_bgwriter.buffers_alloc'    : 256,
+                            'pg_stat_archiver.last_failed_wal'  : "today",
+                            'pg_stat_archiver.last_failed_time' : "2018-01-10 11:24:30",
+                            'pg_stat_user_tables.n_tup_upd'     : 123,
+                            'pg_stat_user_tables.relname'       : "Customers",
+                            'pg_stat_user_tables.relid'         : 2,
+                            'pg_stat_user_tables.last_vacuum'   : "2018-01-09 12:00:00",
+                            'pg_stat_database.tup_fetched'      : 156,
+                            'pg_stat_database.datname'          : "testOttertune",
+                            'pg_stat_database.datid'            : 1,
+                            'pg_stat_database.stats_reset'      : "2018-01-09 13:00:00",
+                            'pg_stat_user_indexes.idx_scan'     : 23,
+                            'pg_stat_user_indexes.relname'      : "Managers",
+                            'pg_stat_user_indexes.relid'        : 20}
+
+        testMetricEnd =    {'pg_stat_bgwriter.buffers_alloc'    : 300,
+                            'pg_stat_archiver.last_failed_wal'  : "today",
+                            'pg_stat_archiver.last_failed_time' : "2018-01-11 11:24:30",
+                            'pg_stat_user_tables.n_tup_upd'     : 150,
+                            'pg_stat_user_tables.relname'       : "Customers",
+                            'pg_stat_user_tables.relid'         : 2,
+                            'pg_stat_user_tables.last_vacuum'   : "2018-01-10 12:00:00",
+                            'pg_stat_database.tup_fetched'      : 260,
+                            'pg_stat_database.datname'          : "testOttertune",
+                            'pg_stat_database.datid'            : 1,
+                            'pg_stat_database.stats_reset'      : "2018-01-10 13:00:00",
+                            'pg_stat_user_indexes.idx_scan'     : 23,
+                            'pg_stat_user_indexes.relname'      : "Managers",
+                            'pg_stat_user_indexes.relid'        : 20}
+
+        testAdjMetrics = testDBMS.calculate_change_in_metrics(testMetricStart, testMetricEnd)
+
+        self.assertEqual(testAdjMetrics['pg_stat_bgwriter.buffers_alloc'], 44)
+        self.assertEqual(testAdjMetrics['pg_stat_archiver.last_failed_wal'], "today")
+        self.assertEqual(testAdjMetrics['pg_stat_archiver.last_failed_time'], "2018-01-11 11:24:30")
+        self.assertEqual(testAdjMetrics['pg_stat_user_tables.n_tup_upd'], 27)
+        self.assertEqual(testAdjMetrics['pg_stat_user_tables.relname'], "Customers")
+        self.assertEqual(testAdjMetrics['pg_stat_user_tables.relid'], 0)
+        self.assertEqual(testAdjMetrics['pg_stat_user_tables.last_vacuum'], "2018-01-10 12:00:00")
+        self.assertEqual(testAdjMetrics['pg_stat_database.tup_fetched'], 104)
+        self.assertEqual(testAdjMetrics['pg_stat_database.datname'], "testOttertune")
+        self.assertEqual(testAdjMetrics['pg_stat_database.datid'], 0)
+        self.assertEqual(testAdjMetrics['pg_stat_database.stats_reset'], "2018-01-10 13:00:00")
+        self.assertEqual(testAdjMetrics['pg_stat_user_indexes.idx_scan'], 0)
+        self.assertEqual(testAdjMetrics['pg_stat_user_indexes.relid'], 0)
 
     def testCreateConfig(self):
         pass
 
     def testGetNondefaultSettings(self):
-        testDBMS = PostgresParser(2)
+        testDBMS = Postgres96Parser()
+
+        self.assertEqual(testDBMS.get_nondefault_knob_settings({}), {})
+        
         pass
 
     def testFormats(self):
@@ -142,7 +286,7 @@ class BaseParserTest(TestCase):
 
     def testFilters(self):
         testDBMS = Postgres96Parser()
-        
+
         # Filter Numeric Metrics
         testMetrics =  {'pg_stat_bgwriter.checkpoints_req'  : (2L, 'global'),
                         'pg_stat_archiver.last_failed_wal'  : (1L, 'global'),

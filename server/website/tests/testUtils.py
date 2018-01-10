@@ -2,9 +2,9 @@
 import string
 from django.test import TestCase
 from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil, TaskUtil
-from website.parser.postgres import PostgresParser
+from website.parser.postgres import PostgresParser, Postgres96Parser
 from website.types import LabelStyleType, VarType
-from website.models import KnobCatalog, DBMSCatalog, Result
+from website.models import KnobCatalog, DBMSCatalog, MetricCatalog, Result
 
 class JSONUtilTest(TestCase):
     def testUtil(self):
@@ -126,6 +126,7 @@ class DataUtilTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+
         pass
 
     def testAggregate(self):

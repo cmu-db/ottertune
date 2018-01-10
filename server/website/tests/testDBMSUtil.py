@@ -1,6 +1,7 @@
 
 from django.test import TestCase
-from website.parser.postgres import PostgresParser
+from django.conf import settings
+from website.parser.postgres import PostgresParser, Postgres96Parser
 from website.types import BooleanType, VarType, KnobUnitType, LabelStyleType
 
 class BaseParserTest(TestCase):
@@ -134,19 +135,60 @@ class BaseParserTest(TestCase):
                 super(PostgresParser, testDBMS)
                 .format_real(testReal[i], KnobUnitOther), testRealAns[i])
 
-
         # Format DBMS Params
 
         # Format DBMS Metrics
         pass
 
     def testFilters(self):
+        testDBMS = Postgres96Parser()
+        
         # Filter Numeric Metrics
+        testMetrics =  {'pg_stat_bgwriter.checkpoints_req'  : (2L, 'global'),
+                        'pg_stat_archiver.last_failed_wal'  : (1L, 'global'),
+                        'pg_stat_database.stats_reset'      : (6L, 'database'),
+                        'pg_statio_user_indexes.indexrelname'   : (1L, 'index'),
+                        'pg_stat_bgwriter.maxwritten_clean' : (2L, 'global'),
+                        'pg_stat_database.tup_fetched'      : (2L, 'database'),
+                        'pg_statio_user_tables.heap_blks_read'  : (2L, 'table'),
+                        'pg_FAKE_METRIC'                    : (2L, 'database')}
 
-        # Filter Tunable Parameters
+        fMetrics = testDBMS.filter_numeric_metrics(testMetrics)
 
-        pass
+        self.assertEqual(len(fMetrics.keys()), 4)
+        self.assertEqual(fMetrics.get('pg_stat_bgwriter.checkpoints_req'),
+                        (2L, 'global'))
+        self.assertEqual(fMetrics.get('pg_stat_archiver.last_failed_wal'), None)
+        self.assertEqual(fMetrics.get('pg_stat_database.stats_reset'), None)
+        self.assertEqual(fMetrics.get('pg_statio_user_indexes.indexrelname'),
+                        None)
+        self.assertEqual(fMetrics.get('pg_stat_bgwriter.maxwritten_clean'),
+                        (2L, 'global'))
+        self.assertEqual(fMetrics.get('pg_stat_database.tup_fetched'),
+                        (2L, 'database'))
+        self.assertEqual(fMetrics.get('pg_statio_user_tables.heap_blks_read'),
+                        (2L, 'table'))
+        self.assertEqual(fMetrics.get('pg_FAKE_KNOB'), None)
 
+        # Filter Tunable Knobs
+        testKnobs = {'global.wal_sync_method'   : 5,
+                     'global.random_page_cost'  : 3,
+                     'global.archive_command'   : 1,
+                     'global.cpu_tuple_cost'    : 3,
+                     'global.force_parallel_mode'   : 5,
+                     'global.enable_hashjoin'   : 3,
+                     'global.geqo_effort'       : 2,
+                     'global.wal_buffers'       : 2,
+                     'global.FAKE_KNOB'         : 2}
+
+        fKnobs = testDBMS.filter_tunable_knobs(testKnobs)
+
+        self.assertEqual(len(fKnobs.keys()), 3)
+        self.assertEqual(fKnobs.get('global.wal_sync_method'), 5)
+        self.assertEqual(fKnobs.get('global.wal_buffers'), 2)
+        self.assertEqual(fKnobs.get('global.random_page_cost'), 3)
+        self.assertEqual(fKnobs.get('global.cpu_tuple_cost'), None)
+        self.assertEqual(fKnobs.get('global.FAKE_KNOB'), None)
 
 class PostgresParserTest(TestCase):
 

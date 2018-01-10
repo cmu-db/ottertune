@@ -393,8 +393,6 @@ def handle_result_files(session, files):
         dbms.pk, JSONUtil.loads(files['knobs']))
     tunable_knob_dict = Parser.convert_dbms_knobs(
         dbms.pk, knob_dict)
-    print 'tunable_knob_dict'
-    print tunable_knob_dict
     knob_data = KnobData.objects.create_knob_data(
         session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
         JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)

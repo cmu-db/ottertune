@@ -274,8 +274,7 @@ class Workload(BaseModel):
 
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
-    name = models.CharField(max_length=128, #unique=True,
-                            verbose_name='workload name')
+    name = models.CharField(max_length=128, verbose_name='workload name')
 
     # (dbms,hardware,name) should be unique for each workload
     class Meta:

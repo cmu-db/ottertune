@@ -43,7 +43,6 @@ apt-get -y install mysql-server >> $LOG 2>&1
 echo -e "\n--- Setting up the MySQL user and database ---\n"
 mysql -uroot -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS $DBNAME" >> /vagrant/vm_build.log 2>&1
 mysql -uroot -p$DBPASSWD -e "GRANT ALL PRIVILEGES ON $DBNAME.* TO '$DBUSER'@'localhost' IDENTIFIED BY '$DBPASSWD'" >> $LOG 2>&1
-mysql -uroot -p$DBPASSWD -e "CREATE DATABASE IF NOT EXISTS test_$DBNAME" >> /vagrant/vm_build.log 2>&1
 mysql -uroot -p$DBPASSWD -e "GRANT ALL PRIVILEGES ON test_$DBNAME.* TO '$DBUSER'@'localhost' IDENTIFIED BY '$DBPASSWD'" >> $LOG 2>&1
 
 # Update Django settings

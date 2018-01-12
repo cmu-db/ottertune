@@ -80,13 +80,13 @@ class BaseParserTest(TestCase):
         testBaseConvertKnobs = super(PostgresParser, PostgresParser(2)).convert_dbms_knobs(testKnobs)
         self.assertEqual(testBaseConvertKnobs, {})
 
-        testP96ConvertKnobs = testDBMS.convert_dbms_knobs(testKnobs)
+        testConvertKnobs = testDBMS.convert_dbms_knobs(testKnobs)
         # TODO: (jackyl) Test tunable knobs of other vartypes (string, bool, timestamp)
-        self.assertEqual(len(testP96ConvertKnobs.keys()), 3)
-        self.assertEqual(testP96ConvertKnobs['global.random_page_cost'], 0.22)
+        self.assertEqual(len(testConvertKnobs.keys()), 3)
+        self.assertEqual(testConvertKnobs['global.random_page_cost'], 0.22)
         # NOTE: (jackyl) Fix enum when 1-hot encoding implemented
-        self.assertEqual(testP96ConvertKnobs['global.wal_sync_method'], 2)
-        self.assertEqual(testP96ConvertKnobs['global.wal_buffers'], 1024)
+        self.assertEqual(testConvertKnobs['global.wal_sync_method'], 2)
+        self.assertEqual(testConvertKnobs['global.wal_buffers'], 1024)
 
         testExceptKnobs = {'global.wal_sync_method' : '3'}
         with self.assertRaises(Exception):
@@ -107,15 +107,15 @@ class BaseParserTest(TestCase):
 
         self.assertEqual(testMetrics.get('throughput_txn_per_sec'), None)
 
-        testP96ConvertMetrics = testDBMS.convert_dbms_metrics(testMetrics, 0.1)
+        testConvertMetrics = testDBMS.convert_dbms_metrics(testMetrics, 0.1)
         for (key, val) in testDBMS.numeric_metric_catalog_.iteritems():
             if (key == testDBMS.transactions_counter):
-                self.assertEqual(testP96ConvertMetrics[key], 100)
+                self.assertEqual(testConvertMetrics[key], 100)
                 continue
-            self.assertEqual(testP96ConvertMetrics[key], 20)
+            self.assertEqual(testConvertMetrics[key], 20)
 
-        self.assertEqual(testP96ConvertMetrics['throughput_txn_per_sec'], 100)
-        self.assertEqual(testP96ConvertMetrics.get('pg_FAKE_METRIC'), None)
+        self.assertEqual(testConvertMetrics['throughput_txn_per_sec'], 100)
+        self.assertEqual(testConvertMetrics.get('pg_FAKE_METRIC'), None)
 
     def testExtractValidVariables(self):
         testDBMS = Postgres96Parser()
@@ -225,14 +225,29 @@ class BaseParserTest(TestCase):
         self.assertEqual(testAdjMetrics['pg_stat_user_indexes.relid'], 0)
 
     def testCreateConfig(self):
-        pass
+         pass
 
     def testGetNondefaultSettings(self):
         testDBMS = Postgres96Parser()
 
         self.assertEqual(testDBMS.get_nondefault_knob_settings({}), {})
-        
-        pass
+
+        testNondefaults =  {'global.archive_command'    : "nonempty", # ''
+                            'global.geqo_effort'        : "5", # Default 5
+                            'global.enable_hashjoin'    : "off", # Default On
+                            'global.cpu_tuple_cost'     : "0.01", # Default 0.01
+                            'global.force_parallel_mode': "off",
+                            'global.wal_sync_method'    : "fsync", # fdatasync
+                            'global.random_page_cost'   : "5.0", # Default 4.0
+                            'global.wal_buffers'        : "-1"} # Default -1
+
+        testResults = testDBMS.get_nondefault_knob_settings(testNondefaults)
+
+        self.assertEqual(len(testResults.keys()), 2)
+        self.assertEqual(testResults.get('global.archive_command'), 'nonempty')
+        self.assertEqual(testResults.get('global.enable_hashjoin'), 'off')
+        self.assertEqual(testResults.get('global.wal_sync_method'), None)
+        self.assertEqual(testResults.get('global.wal_buffers'), None)
 
     def testFormats(self):
         testDBMS = PostgresParser(2)
@@ -279,10 +294,29 @@ class BaseParserTest(TestCase):
                 super(PostgresParser, testDBMS)
                 .format_real(testReal[i], KnobUnitOther), testRealAns[i])
 
+    def testFormatKnobs(self):
         # Format DBMS Params
+        testDBMS = Postgres96Parser()
+        self.assertEqual(testDBMS.format_dbms_knobs({}), {})
 
-        # Format DBMS Metrics
-        pass
+        testKnobs = {'global.wal_sync_method'   : 2, # Enum
+                     'global.random_page_cost'  : 0.22, # Real
+                     #'global.archive_command'   : "archive", # String
+                     'global.cpu_tuple_cost'    : 0.55, # Real
+                     'global.force_parallel_mode'   : 2, # Enum
+                     'global.enable_hashjoin'   : BooleanType.TRUE, # Bool
+                     'global.geqo_effort'       : 5, # Int
+                     'global.wal_buffers'       : 1024} # Int
+                     # 'global.FAKE_KNOB'         : "20"}
+        # FIXME: (jackyl) Add tests for string types and timestamps
+        testFormattedKnobs = testDBMS.format_dbms_knobs(testKnobs)
+        self.assertEqual(testFormattedKnobs.get('global.wal_sync_method'), 'open_sync')
+        self.assertEqual(testFormattedKnobs.get('global.random_page_cost'), 0.22)
+        self.assertEqual(testFormattedKnobs.get('global.cpu_tuple_cost'), 0.55)
+        self.assertEqual(testFormattedKnobs.get('global.force_parallel_mode'), 'regress')
+        self.assertEqual(testFormattedKnobs.get('global.enable_hashjoin'), 'on')
+        self.assertEqual(testFormattedKnobs.get('global.geqo_effort'), 5)
+        self.assertEqual(testFormattedKnobs.get('global.wal_buffers'), '1kB')
 
     def testFilters(self):
         testDBMS = Postgres96Parser()

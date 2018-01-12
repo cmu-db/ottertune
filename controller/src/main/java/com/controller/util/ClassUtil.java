@@ -33,7 +33,8 @@ import java.util.Set;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * 
@@ -41,7 +42,7 @@ import org.apache.log4j.Logger;
  *
  */
 public abstract class ClassUtil {
-    private static final Logger LOG = Logger.getLogger(ClassUtil.class);
+    private static final Logger LOG = LogManager.getLogger(ClassUtil.class);
     
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
     
@@ -49,13 +50,13 @@ public abstract class ClassUtil {
     private static final Map<Class<?>, Set<Class<?>>> CACHE_getInterfaceClasses = new HashMap<Class<?>, Set<Class<?>>>();
 
     /**
-     * Check if the given object is an array (primitve or native).
+     * Check if the given object is an array (primitive or native).
      * http://www.java2s.com/Code/Java/Reflection/Checkifthegivenobjectisanarrayprimitveornative.htm
      * @param obj  Object to test.
      * @return     True of the object is an array.
      */
     public static boolean isArray(final Object obj) {
-        return (obj != null ? obj.getClass().isArray() : false);
+        return obj != null && obj.getClass().isArray();
     }
     
     public static boolean[] isArray(final Object objs[]) {
@@ -111,7 +112,6 @@ public abstract class ClassUtil {
                 getGenericTypesImpl(next, classes);
             }
         } // FOR
-        return;
     }
     
     /**
@@ -175,7 +175,7 @@ public abstract class ClassUtil {
 //        } // FOR
         
         Constructor<T> constructor = ClassUtil.getConstructor(target_class, classes);
-        T ret = null;
+        T ret;
         try {
             ret = constructor.newInstance(params);
         } catch (Exception ex) {
@@ -225,7 +225,7 @@ public abstract class ClassUtil {
             for (int i = 0; i < params.length; i++) {
                 List<Class<?>> cSuper = ClassUtil.getSuperClasses(cTypes[i]);
                 if (LOG.isDebugEnabled()) LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
-                if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
+                if (!CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty()) {
                     return ((Constructor<T>)c);
                 }
             } // FOR (param)
@@ -256,8 +256,7 @@ public abstract class ClassUtil {
      return result;
    }
 
-   public static <T> T newInstance(String className, Class<T> expected)
-                                         throws ClassNotFoundException {
+   public static <T> T newInstance(String className, Class<T> expected) {
      return newInstance(getClass(className), expected);
    }
     
@@ -270,7 +269,7 @@ public abstract class ClassUtil {
         Class<?> target_class = null;
         try {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
-            target_class = (Class<?>)loader.loadClass(class_name);
+            target_class = loader.loadClass(class_name);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to retrieve class for " + class_name, ex);
         }

@@ -17,42 +17,56 @@
 package com.controller.collectors;
 
 import com.controller.util.JSONUtil;
-import org.apache.log4j.Logger;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 public class DBCollector implements DBParameterCollector {
 
-    private static final Logger LOG = Logger.getLogger(DBCollector.class);
+    private static final Logger LOG = LogManager.getLogger(DBCollector.class);
 
     protected static final String JSON_GLOBAL_KEY = "global";
     protected static final String JSON_LOCAL_KEY = "local";
 
-    protected final Map<String, String> dbParameters = new TreeMap<String, String>();
+    protected final Map<String, String> dbParameters = new TreeMap<>();
 
-    protected final Map<String, String> dbMetrics = new TreeMap<String, String>();
+    protected final Map<String, String> dbMetrics = new TreeMap<>();
 
     protected final StringBuilder version = new StringBuilder();
 
     @Override
     public boolean hasParameters() {
-        return (dbParameters.isEmpty() == false);
+        return !dbParameters.isEmpty();
     }
 
     @Override
     public boolean hasMetrics() {
-    	return (dbMetrics.isEmpty() == false);
+    	return !dbMetrics.isEmpty();
     }
 
     @Override
     public String collectParameters() {
-    	return JSONUtil.format(JSONUtil.toJSONString(dbParameters));
+        try {
+            return JSONUtil.format(dbParameters);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     public String collectMetrics() {
-    	return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
+        try {
+            return JSONUtil.format(dbMetrics);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.controller;
 import com.controller.collectors.DBCollector;
 import com.controller.collectors.PostgresCollector;
 import com.controller.util.JSONUtil;
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class Main {
     private static final int DEFAULT_TIME = 5;  //default observation time: 5 s
     private static final int TO_MILLISECONDS = 1000;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JsonProcessingException {
         // Parse command line argument
         if(args.length % 2 != 0) {
             System.out.println("Command line argument mal formed");
@@ -40,10 +40,10 @@ public class Main {
 
         // Parse input config file
         String configFileName = "input_config.json";
-        HashMap<String, String> input = ConfigFileParser.getInputFromConfigFile(configFileName);
+        Map<String, String> input = ConfigFileParser.getInputFromConfigFile(configFileName);
         // db type
         String dbtype = input.get("database_type");
-        DBCollector collector = null;
+        DBCollector collector;
         // parameters for creating a collector.
         String username = input.get("username");
         String password = input.get("password");
@@ -63,7 +63,7 @@ public class Main {
 
         try {
             // summary json obj
-            JSONObject summary = new JSONObject();
+            Map<String, Object> summary = new HashMap<>();
             summary.put("observation_time", time);
             summary.put("database_type", dbtype);
             summary.put("database_version", collector.collectVersion());
@@ -89,7 +89,7 @@ public class Main {
 
             // write summary JSONObject into a JSON file
             PrintWriter summaryout = new PrintWriter("output/summary.json","UTF-8");
-            summaryout.println(JSONUtil.format(summary.toString()));
+            summaryout.println(JSONUtil.format(summary));
             summaryout.flush();
 
             // second collection (after queries)

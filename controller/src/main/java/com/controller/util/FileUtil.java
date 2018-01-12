@@ -19,18 +19,20 @@ package com.controller.util;
 
 import java.io.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
  * @author pavlo
  */
 public abstract class FileUtil {
-    private static final Logger LOG = Logger.getLogger(FileUtil.class);
+    private static final Logger LOG = LogManager.getLogger(FileUtil.class);
 
     private static final Pattern EXT_SPLIT = Pattern.compile("\\.");
     
@@ -69,7 +71,7 @@ public abstract class FileUtil {
             return basename;
         
         File f = new File(basename);
-        if (f != null && f.isFile()) {
+        if (f.isFile()) {
             String parts[] = EXT_SPLIT.split(basename);
             
             // Check how many files already exist
@@ -117,20 +119,26 @@ public abstract class FileUtil {
 
     }
 
+    private static void makeDir(String filename){
+        if (filename != null) {
+            File f = new File(filename);
+            if (!f.exists()) {
+                boolean created = f.mkdirs();
+                if (!created){
+                    throw new RuntimeException(String.format("Error while creating directory %s",
+                                                             f.getAbsolutePath()));
+                }
+            }
+        }
+    }
+
     /**
      * Create any directory in the list paths if it doesn't exist
      * 
      * @param paths
      */
     public static void makeDirIfNotExists(String... paths) {
-        for (String p : paths) {
-            if (p == null)
-                continue;
-            File f = new File(p);
-            if (f.exists() == false) {
-                f.mkdirs();
-            }
-        } // FOR
+        Arrays.stream(paths).forEach(FileUtil::makeDir);
     }
 
     /**
@@ -147,15 +155,15 @@ public abstract class FileUtil {
     }
 
     public static File getTempFile(String ext) {
-        return (FileUtil.getTempFile(null, ext, false));
+        return FileUtil.getTempFile(null, ext, false);
     }
 
     public static File getTempFile(String prefix, String suffix, boolean deleteOnExit) {
         File tempFile;
-        if (suffix != null && suffix.startsWith(".") == false)
+        if (suffix != null && !suffix.startsWith("."))
             suffix = "." + suffix;
         if (prefix == null)
-            prefix = "hstore";
+            prefix = "hstore"; // Wut?!
 
         try {
             tempFile = File.createTempFile(prefix, suffix);
@@ -180,11 +188,11 @@ public abstract class FileUtil {
         } else if (!(temp.mkdir())) {
             throw new RuntimeException("Could not create temp directory: " + temp.getAbsolutePath());
         }
-        return (temp);
+        return temp;
     }
 
     public static File writeStringToFile(String file_path, String content) throws IOException {
-        return (FileUtil.writeStringToFile(new File(file_path), content));
+        return FileUtil.writeStringToFile(new File(file_path), content);
     }
 
     public static File writeStringToFile(File file, String content) throws IOException {
@@ -282,7 +290,7 @@ public abstract class FileUtil {
             throw new IOException("The file '" + file + "' does not exist");
         }
 
-        BufferedReader in = null;
+        BufferedReader in;
         if (file.getPath().endsWith(".gz")) {
             FileInputStream fin = new FileInputStream(file);
             GZIPInputStream gzis = new GZIPInputStream(fin);
@@ -307,7 +315,7 @@ public abstract class FileUtil {
 
         // Read in the bytes
         int offset = 0;
-        int numRead = 0;
+        int numRead;
         while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
             offset += numRead;
         } // WHILE
@@ -334,7 +342,7 @@ public abstract class FileUtil {
      * Find the path to a directory below our current location in the source
      * tree Throws a RuntimeException if we go beyond our repository checkout
      * 
-     * @param dirName
+     * @param fileName
      * @return
      * @throws IOException
      */
@@ -342,7 +350,7 @@ public abstract class FileUtil {
         return (FileUtil.find(fileName, new File(".").getCanonicalFile(), false).getCanonicalFile());
     }
 
-    private static final File find(String name, File current, boolean isdir) throws IOException {
+    private static File find(String name, final File current, boolean isdir) throws IOException {
         LOG.debug("Find Current Location = " + current);
         boolean has_svn = false;
         for (File file : current.listFiles()) {
@@ -369,14 +377,11 @@ public abstract class FileUtil {
      * @return
      * @throws IOException
      */
-    public static List<File> getFilesInDirectory(final File dir, final String filePrefix) throws IOException {
-        assert (dir.isDirectory()) : "Invalid search directory path: " + dir;
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return (name.startsWith(filePrefix));
-            }
-        };
-        return (Arrays.asList(dir.listFiles(filter)));
+    public static List<File> getFilesInDirectory(final File dir, final String filePrefix) {
+        assert !dir.isDirectory() : "Invalid search directory path: " + dir;
+        return Arrays.stream(dir.listFiles())
+                .filter(x -> x.getName().startsWith(filePrefix))
+                .collect(Collectors.toList());
+
     }
 }

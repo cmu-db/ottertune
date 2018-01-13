@@ -39,7 +39,8 @@ public abstract class JSONUtil {
     public static String format(String json) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         Object obj = mapper.readValue(json, Object.class);
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+        return mapper.writerWithDefaultPrettyPrinter()
+                     .writeValueAsString(obj);
     }
     
     /**
@@ -78,8 +79,7 @@ public abstract class JSONUtil {
         File f = new File(output_path);
         try {
             FileUtil.makeDirIfNotExists(f.getParent());
-            String json = toJSONString(object);
-            FileUtil.writeStringToFile(f, format(json));
+            FileUtil.writeStringToFile(f, format(object));
         } catch (Exception ex) {
             LOG.error("Failed to serialize the " + object.getClass().getSimpleName() + " file '" + f + "'", ex);
             throw new IOException(ex);

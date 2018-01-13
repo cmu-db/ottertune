@@ -90,6 +90,7 @@ public class PostgresCollector extends DBCollector {
 
     private Map<String, Map<String, String>> getMetricsMap(String viewName, String jsonKeyName) {
         Map<String, Map<String, String>> thisViewObj = new HashMap<>();
+
         List<Map<String, String>> thisViewList = pgMetrics.get(viewName);
         for(Map<String, String> dbmap : thisViewList) {
             String jsonkey = dbmap.get(jsonKeyName);

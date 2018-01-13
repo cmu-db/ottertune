@@ -52,6 +52,10 @@ public abstract class FileUtil {
                 result.add(a.trim());
             }
         }
+//        Arrays.stream(args)
+//                .filter(f -> f != null && !f.trim().isEmpty())
+//                .map(String::trim)
+//                .forEach(result::add);
         return result.toString();
     }
 
@@ -346,6 +350,7 @@ public abstract class FileUtil {
     private static File find(String name, final File current, boolean isdir) throws IOException {
         LOG.debug("Find Current Location = " + current);
         boolean has_svn = false;
+
         for (File file : current.listFiles()) {
             if (file.getCanonicalPath().endsWith(File.separator + name) && file.isDirectory() == isdir) {
                 return (file);
@@ -370,10 +375,18 @@ public abstract class FileUtil {
      * @return
      * @throws IOException
      */
-    public static List<File> getFilesInDirectory(final File dir, final String filePrefix) {
-        assert !dir.isDirectory() : "Invalid search directory path: " + dir;
+    public static List<File> getFilesInDirectory(final File dir, final String filePrefix)
+            throws IOException {
+
+        assert dir.isFile() : "Invalid search directory path: " + dir;
+//
+//        return Files.list(dir.toPath())
+//                .map(x -> x.toFile())
+//                .filter(f -> f.isFile() && f.getName().startsWith(filePrefix))
+//                .collect(Collectors.toList());
+
         return Arrays.stream(dir.listFiles())
-                .filter(x -> x.getName().startsWith(filePrefix))
+                .filter(f -> f.isFile() && f.getName().startsWith(filePrefix))
                 .collect(Collectors.toList());
 
     }

@@ -49,24 +49,12 @@ public class DBCollector implements DBParameterCollector {
 
     @Override
     public String collectParameters() {
-        try {
-            return JSONUtil.format(dbParameters);
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return JSONUtil.format(dbParameters);
     }
 
     @Override
     public String collectMetrics() {
-        try {
-            return JSONUtil.format(dbMetrics);
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return JSONUtil.format(dbMetrics);
     }
 
     @Override

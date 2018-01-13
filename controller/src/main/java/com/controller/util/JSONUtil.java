@@ -49,11 +49,17 @@ public abstract class JSONUtil {
      * @param object
      * @return
      */
-    public static <T> String format(T object) throws JsonProcessingException {
+    public static <T> String format(T object) {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.writer()
-                .withDefaultPrettyPrinter()
-                .writeValueAsString(object);
+        try {
+            return mapper.writer()
+                    .withDefaultPrettyPrinter()
+                    .writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     /**
@@ -62,9 +68,15 @@ public abstract class JSONUtil {
      * @param object
      * @return
      */
-    public static <T> String toJSONString(T object) throws JsonProcessingException {
+    public static <T> String toJSONString(T object) {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(object);
+        try {
+            return mapper.writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

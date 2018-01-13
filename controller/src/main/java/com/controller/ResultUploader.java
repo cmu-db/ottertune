@@ -28,7 +28,12 @@ public class ResultUploader {
         try {
             MultipartEntityBuilder mb =  MultipartEntityBuilder.create().addTextBody("upload_code", uploadCode);
 
-//            files.entrySet().stream().forEach(e -> mb.addPart(e.getKey(), new FileBody(new File(e.getValue()))));
+/*
+            files.entrySet()
+                    .stream()
+                    .forEach(e -> mb.addPart(e.getKey(),
+                                             new FileBody(new File(e.getValue()))));
+*/
 
             for (Map.Entry<String, String> e : files.entrySet()) {
                 String filename = e.getKey();

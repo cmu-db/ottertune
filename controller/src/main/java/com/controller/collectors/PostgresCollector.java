@@ -34,10 +34,10 @@ public class PostgresCollector extends DBCollector {
     private static final String PARAMETERS_SQL = "SHOW ALL;";
 
     private static final String[] PG_STAT_VIEWS = {
-    	    "pg_stat_archiver",
+            "pg_stat_archiver",
             "pg_stat_bgwriter",
             "pg_stat_database",
-    	    "pg_stat_database_conflicts",
+            "pg_stat_database_conflicts",
             "pg_stat_user_tables",
             "pg_statio_user_tables",
             "pg_stat_user_indexes",
@@ -92,7 +92,7 @@ public class PostgresCollector extends DBCollector {
         Map<String, Map<String, String>> thisViewObj = new HashMap<>();
 
         List<Map<String, String>> thisViewList = pgMetrics.get(viewName);
-        for(Map<String, String> dbmap : thisViewList) {
+        for (Map<String, String> dbmap : thisViewList) {
             String jsonkey = dbmap.get(jsonKeyName);
             thisViewObj.put(jsonkey, dbmap);
         }
@@ -142,13 +142,7 @@ public class PostgresCollector extends DBCollector {
         }
         jobLocal.put("indexes",jobIndexes);
 
-        try {
-            return JSONUtil.format(jobLocal);
-        }
-        catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return JSONUtil.format(jobLocal);
     }
 
     private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {

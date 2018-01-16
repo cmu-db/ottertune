@@ -200,24 +200,21 @@ def run_workload_characterization(metric_data):
     # Components: metrics * factors  
     components = fa_model.components_.T.copy()
     
-    # Run Kmeans for # clusters k in range(2, num_nonduplicate_metrics - 1)
+    # Run Kmeans for # clusters k in range(1, num_nonduplicate_metrics - 1)
+    # K should be much smaller than n_cols in detK, For now max_cluster <= 20
     kmeans_models = KMeansClusters()
-    kmeans_models.fit(components, min_cluster=2,
-                         max_cluster=n_cols - 1,
+    kmeans_models.fit(components, min_cluster=1,
+                         max_cluster=min(n_cols - 1, 20), 
                          sample_labels=nonconst_columnlabels,
                          estimator_params={'n_init': 50})
     
-    # Compute optimal # clusters, k, using  DetK
+    # Compute optimal # clusters, k, using DetK, 
     detk = create_kselection_model("det-k")
     detk.fit(components, kmeans_models.cluster_map_)
-    
-    # Set optimal # cluster to max_cluster_ if it exceeds max_cluster_
-    if detk.optimal_num_clusters_ > kmeans_models.max_cluster_:
-        detk.optimal_num_cluster = kmeans_models.max_cluster_
-    
+
     # Get pruned metrics, cloest samples of each cluster center
     pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()
-    
+
     # Return pruned metrics
     return pruned_metrics
 
@@ -279,5 +276,5 @@ def run_knob_identification(knob_data, metric_data):
 
     # run lasso algorithm
     lasso_model = LassoPath()
-    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix,nonconst_knob_columnlabels)
+    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix, nonconst_knob_columnlabels)
     return lasso_model.get_ranked_features()

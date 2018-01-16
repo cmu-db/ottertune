@@ -504,12 +504,13 @@ class DetK(KSelection):
         Fs = np.empty(n_clusters)
         Sks = np.empty(n_clusters)
         a = {}
+        # K from 1 to maximum_cluster_
         for i, (K, model) \
                 in enumerate(sorted(cluster_map.iteritems())):
             #compute a(K,Nd) (i.e. a[K]) 
             if K == 2:
                 a[K] = 1 - 3.0 / (4 * Nd)
-            else:
+            elif K > 2:
                 a[K] = a[K - 1] + (1 - a[K - 1]) / 6.0
             Sks[i] = model.cluster_inertia_ 
             
@@ -519,7 +520,6 @@ class DetK(KSelection):
                 Fs[i] = 1
             else:
                 Fs[i] = Sks[i] / (a[K] * Sks[i - 1])
-        
         self.clusters_ = np.array(sorted(cluster_map.keys()))
         self.optimal_num_clusters_ = self.clusters_[np.argmin(Fs)]
         self.Fs_ = Fs

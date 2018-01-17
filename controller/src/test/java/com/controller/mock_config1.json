@@ -1,0 +1,9 @@
+{
+  "database_type" : "somedb",
+  "database_url" : "jdbc:mysql://localhost:3306/mysqldb",
+  "username" : "root",
+  "password" : "",
+  "upload_code" : "MY_UPLOAD_CODE",
+  "upload_url" : "http://localhost:8080",
+  "workload_name" : "workload_name"
+}

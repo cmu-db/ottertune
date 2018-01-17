@@ -1,0 +1,11 @@
+{
+  "global" : {
+    "global" :{
+      "auto_generate_certs": {
+        "auto_pram" : "NO"
+      }
+    }
+  },
+  "local" : {
+  }
+}

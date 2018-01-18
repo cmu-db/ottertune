@@ -164,11 +164,12 @@ class BaseParserTest(TestCase):
         self.assertEqual(nontuneExtract.get('global.Wal_buffers'), None)
         self.assertEqual(nontuneExtract.get('global.GEQO_EFFORT'), None)
 
-
     def testParses(self):
         # Parse Helper
 
-        # Parse DBMS Config
+        # Parse DBMS Variables
+
+        # Parse DBMS Knobs
 
         # Parse DBMS Metrics
 
@@ -225,6 +226,8 @@ class BaseParserTest(TestCase):
         self.assertEqual(testAdjMetrics['pg_stat_user_indexes.relid'], 0)
 
     def testCreateConfig(self):
+        testDBMS = Postgres96Parser()
+
          pass
 
     def testGetNondefaultSettings(self):

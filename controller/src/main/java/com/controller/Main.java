@@ -110,7 +110,7 @@ public class Main {
         outfiles.put("metrics_before", "output/metrics_before.json");
         outfiles.put("metrics_after", "output/metrics_after.json");
         outfiles.put("summary", "output/summary.json");
-        //ResultUploader.upload(uploadURL, uploadCode, outfiles);
+        ResultUploader.upload(uploadURL, uploadCode, outfiles);
 
     }
 }

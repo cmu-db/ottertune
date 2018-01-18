@@ -2,6 +2,7 @@ package com.controller;
 
 import com.controller.collectors.DBCollector;
 import com.controller.collectors.PostgresCollector;
+import com.controller.collectors.SAPCollector;
 import com.controller.util.JSONUtil;
 import org.json.simple.JSONObject;
 
@@ -56,6 +57,9 @@ public class Main {
             case "postgres":
                 collector = new PostgresCollector(dbURL, username, password);
                 break;
+            case "saphana":
+                collector = new SAPCollector(dbURL, username, password);
+                break;
             default:
                 System.out.println("Please specify database type!");
                 return;
@@ -106,7 +110,7 @@ public class Main {
         outfiles.put("metrics_before", "output/metrics_before.json");
         outfiles.put("metrics_after", "output/metrics_after.json");
         outfiles.put("summary", "output/summary.json");
-        ResultUploader.upload(uploadURL, uploadCode, outfiles);
+        //ResultUploader.upload(uploadURL, uploadCode, outfiles);
 
     }
 }

@@ -123,17 +123,66 @@ class TaskUtilTest(TestCase):
             TaskUtil.get_task_status(testTasks9)
 
 class DataUtilTest(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-
-        pass
-
     def testAggregate(self):
         pass
 
     def testCombine(self):
-        pass
+        import numpy as np
+        testNoDupsRowLabels = np.array(["Workload-0", "Workload-1"])
+        testNoDupsX = np.matrix([[0.22, 5, "string", "11:11", "fsync", True],
+                                 [0.21, 6, "string", "11:12", "fsync", True]])
+        testNoDupsY = np.matrix([[30, 30, 40],
+                                 [10, 10, 40]])
+
+        testX, testY, rowlabels = DataUtil.combine_duplicate_rows(testNoDupsX, testNoDupsY, testNoDupsRowLabels)
+
+        self.assertEqual(len(testX), len(testY))
+        self.assertEqual(len(testX), len(rowlabels))
+
+        self.assertEqual(rowlabels[0], tuple([testNoDupsRowLabels[0]]))
+        self.assertEqual(rowlabels[1], tuple([testNoDupsRowLabels[1]]))
+        self.assertTrue((testX[0] == testNoDupsX[0]).all())
+        self.assertTrue((testX[1] == testNoDupsX[1]).all())
+        self.assertTrue((testY[0] == testNoDupsY[0]).all())
+        self.assertTrue((testY[1] == testNoDupsY[1]).all())
+
+        testRowLabels = np.array(["Workload-0",
+                                  "Workload-1",
+                                  "Workload-2",
+                                  "Workload-3"])
+        testXMat = np.matrix([[0.22, 5, "string", "timestamp", "enum", True],
+                              [0.3, 5, "rstring", "timestamp2", "enum", False],
+                              [0.22, 5, "string", "timestamp", "enum", True],
+                              [0.3, 5, "r", "timestamp2", "enum", False]])
+        testYMat = np.matrix([[20, 30, 40],
+                              [30, 30, 40],
+                              [20, 30, 40],
+                              [32, 30, 40]])
+
+        testX, testY, rowlabels = DataUtil.combine_duplicate_rows(testXMat, testYMat, testRowLabels)
+
+        self.assertTrue(len(testX) <= len(testXMat))
+        self.assertTrue(len(testY) <= len(testYMat))
+        self.assertEqual(len(testX), len(testY))
+        self.assertEqual(len(testX), len(rowlabels))
+
+        rowlabelsSet = set(rowlabels)
+        self.assertTrue(tuple(["Workload-0", "Workload-2"]) in rowlabelsSet)
+        self.assertTrue(("Workload-1",) in rowlabelsSet)
+        self.assertTrue(("Workload-3",) in rowlabelsSet)
+
+        rows = set()
+        for i in testX:
+            self.assertTrue(tuple(i) not in rows)
+            self.assertTrue(i in testXMat)
+            rows.add(tuple(i))
+
+        rowys = set()
+        for i in testY:
+            self.assertTrue(tuple(i) not in rowys)
+            self.assertTrue(i in testYMat)
+            rowys.add(tuple(i))
+
 
 class ConversionUtilTest(TestCase):
     def testGetRawSize(self):

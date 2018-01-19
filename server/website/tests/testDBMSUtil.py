@@ -314,12 +314,32 @@ class BaseParserTest(TestCase):
         self.assertEqual(testAdjMetrics['pg_stat_user_indexes.relid'], 0)
 
     def testCreateConfig(self):
+        import os
+        from website.settings import CONFIG_DIR
         testDBMS = Postgres96Parser()
 
         tuningKnobs = {}
         customKnobs = {}
+
+        categories = set()
+        for (k, v) in testDBMS.knob_catalog_.iteritems():
+            if (v.category not in categories):
+                categories.add(v.category)
+                tuningKnobs.update({k : v.default})
+
         configRes = testDBMS.create_knob_configuration(tuningKnobs, customKnobs)
-        pass
+        config_path = os.path.join(CONFIG_DIR, testDBMS.knob_configuration_filename)
+        with open(config_path, 'r') as f:
+            configHeader = f.read()
+
+        self.assertTrue(configHeader in configRes)
+
+        for k in tuningKnobs:
+            line = k[len('global.'):]+ ' = \'' + str(tuningKnobs[k]) + '\''
+            self.assertTrue(line in configRes)
+
+        with self.assertRaises(Exception):
+            testDBMS.create_knob_configuration(tuningKnobs, {"FAKE_KNOB" : 1})
 
     def testGetNondefaultSettings(self):
         testDBMS = Postgres96Parser()

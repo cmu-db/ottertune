@@ -7,6 +7,7 @@ Fabric==1.13.1
 hurry.filesize==0.9
 numpy==1.13.1
 poster==0.8.1
+MySQL-python==1.2.5
 scikit-learn==0.19.1
 scipy==1.0.0
 supervisor==3.3.1

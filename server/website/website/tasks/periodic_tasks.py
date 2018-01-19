@@ -25,6 +25,7 @@ logger = get_task_logger(__name__)
 def run_background_tasks():
     # Find all unique workloads that we have data for
     unique_workloads = Workload.objects.all()
+    
     if len(unique_workloads) == 0:
         # No previous workload data yet. Try again later.
         return
@@ -180,6 +181,7 @@ def run_workload_characterization(metric_data):
         if np.any(col != col[0]):
             nonconst_matrix.append(col.reshape(-1, 1))
             nonconst_columnlabels.append(cl)
+    assert len(nonconst_matrix) > 0, "Need more data to train the model"  
     nonconst_matrix = np.hstack(nonconst_matrix)
     n_rows, n_cols = nonconst_matrix.shape
 
@@ -194,17 +196,19 @@ def run_workload_characterization(metric_data):
     # Fit factor analysis model
     fa_model = FactorAnalysis()
     fa_model.fit(shuffled_matrix, nonconst_columnlabels)
-
-    # Run Kmeans for # clusters k in range(2, num_instance_types - 1)
+    
+    # Components: metrics * factors  
     components = fa_model.components_.T.copy()
-
+    
+    # Run Kmeans for # clusters k in range(1, num_nonduplicate_metrics - 1)
+    # K should be much smaller than n_cols in detK, For now max_cluster <= 20
     kmeans_models = KMeansClusters()
-    kmeans_models.fit(components, min_cluster=2,
-                         max_cluster=n_cols - 1,
+    kmeans_models.fit(components, min_cluster=1,
+                         max_cluster=min(n_cols - 1, 20), 
                          sample_labels=nonconst_columnlabels,
                          estimator_params={'n_init': 50})
-
-    # Compute optimal # clusters, k, using  DetK
+    
+    # Compute optimal # clusters, k, using DetK, 
     detk = create_kselection_model("det-k")
     detk.fit(components, kmeans_models.cluster_map_)
 
@@ -241,16 +245,17 @@ def run_knob_identification(knob_data, metric_data):
     # remove constant columns from knob_matrix and metric_matrix
     nonconst_knob_matrix = []
     nonconst_knob_columnlabels = []
-
+    
     for col, cl in zip(knob_matrix.T, knob_columnlabels):
         if np.any(col != col[0]):
             nonconst_knob_matrix.append(col.reshape(-1, 1))
             nonconst_knob_columnlabels.append(cl)
+    assert len(nonconst_knob_matrix) > 0, "Need more data to train the model"  
     nonconst_knob_matrix = np.hstack(nonconst_knob_matrix)
 
     nonconst_metric_matrix = []
     nonconst_metric_columnlabels = []
-
+    
     for col, cl in zip(metric_matrix.T, metric_columnlabels):
         if np.any(col != col[0]):
             nonconst_metric_matrix.append(col.reshape(-1, 1))
@@ -271,5 +276,5 @@ def run_knob_identification(knob_data, metric_data):
 
     # run lasso algorithm
     lasso_model = LassoPath()
-    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix, shuffled_knob_rowlabels)
+    lasso_model.fit(shuffled_knob_matrix, shuffled_metric_matrix, nonconst_knob_columnlabels)
     return lasso_model.get_ranked_features()

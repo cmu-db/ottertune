@@ -33,6 +33,7 @@ class DBMSType(BaseType):
     SQLITE    = 6
     HSTORE    = 7
     VECTOR    = 8
+    MYROCKS   = 9
 
     TYPE_NAMES = {
         MYSQL:     'MySQL',
@@ -43,6 +44,7 @@ class DBMSType(BaseType):
         HSTORE:    'HStore',
         VECTOR:    'Vector',
         SQLSERVER: 'SQL Server',
+        MYROCKS:   'MyRocks',
     }
 
 

@@ -128,7 +128,10 @@ class KMeans(ModelBase):
             member_rows = X[self.cluster_labels_ == cluster_label, :]
             member_labels = self.sample_labels_[self.cluster_labels_ == cluster_label]
             centroid = np.expand_dims(self.cluster_centers_[cluster_label], axis=0)
-            assert member_rows.shape[0] > 0, "All clusters must have at least 1 member!"
+            
+            # "All clusters must have at least 1 member!"
+            if member_rows.shape[0] == 0:
+                return None
 
             # Calculate distance between each member row and the current cluster
             dists = np.empty(member_rows.shape[0])
@@ -231,8 +234,14 @@ class KMeansClusters(ModelBase):
             sample_labels = ["sample_{}".format(i) for i in range(X.shape[1])]
         self.sample_labels_ = sample_labels
         for K in range(self.min_cluster_, self.max_cluster_ + 1):
-            self.cluster_map_[K] = KMeans().fit(X, K, self.sample_labels_,
-                                                estimator_params)
+            tmp = KMeans().fit(X, K, self.sample_labels_,estimator_params)
+            if tmp is None: #Set maximum cluster
+                assert K > min_cluster, "min_cluster is too large for the model" 
+                self.max_cluster_ = K-1
+                break
+            else:
+                self.cluster_map_[K] = tmp
+
         return self
 
 
@@ -368,7 +377,7 @@ class GapStatistic(KSelection):
                                                      Xb_model.cluster_labels_))
             logWkbs[indk] = sum(logBWkbs) / n_B
             sk[indk] = np.sqrt(sum((logBWkbs-logWkbs[indk])**2) / n_B)
-        sk = sk * np.sqrt(1 + 1 / n_B)
+        sk = sk * np.sqrt(1 + 1.0 / n_B)
 
         khats = np.zeros(n_clusters)
         gaps = logWkbs - logWks
@@ -494,20 +503,23 @@ class DetK(KSelection):
         Nd = X.shape[1]
         Fs = np.empty(n_clusters)
         Sks = np.empty(n_clusters)
+        a = {}
+        # K from 1 to maximum_cluster_
         for i, (K, model) \
                 in enumerate(sorted(cluster_map.iteritems())):
-            a = lambda k, Nd: 1 - 3 / (4 * Nd) if k == 2 \
-                    else a(k - 1, Nd) + (1 - a(k - 1, Nd)) / 6
-            Sks[i] = sum([np.linalg.norm(model.cluster_centers_[j] - c) ** 2
-                          for j in range(K)
-                          for c in X[model.cluster_labels_ == j]])
+            #compute a(K,Nd) (i.e. a[K]) 
+            if K == 2:
+                a[K] = 1 - 3.0 / (4 * Nd)
+            elif K > 2:
+                a[K] = a[K - 1] + (1 - a[K - 1]) / 6.0
+            Sks[i] = model.cluster_inertia_ 
+            
             if K == 1:
                 Fs[i] = 1
             elif Sks[i - 1] == 0:
                 Fs[i] = 1
             else:
-                Fs[i] = Sks[i] / (a(K, Nd) * Sks[i - 1])
-
+                Fs[i] = Sks[i] / (a[K] * Sks[i - 1])
         self.clusters_ = np.array(sorted(cluster_map.keys()))
         self.optimal_num_clusters_ = self.clusters_[np.argmin(Fs)]
         self.Fs_ = Fs

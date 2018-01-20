@@ -125,7 +125,7 @@ class TaskUtilTest(TestCase):
 class DataUtilTest(TestCase):
     def testAggregate(self):
         pass
-
+        
     def testCombine(self):
         import numpy as np
         testNoDupsRowLabels = np.array(["Workload-0", "Workload-1"])
@@ -182,7 +182,6 @@ class DataUtilTest(TestCase):
             self.assertTrue(tuple(i) not in rowys)
             self.assertTrue(i in testYMat)
             rowys.add(tuple(i))
-
 
 class ConversionUtilTest(TestCase):
     def testGetRawSize(self):

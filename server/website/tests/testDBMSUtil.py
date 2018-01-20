@@ -164,15 +164,104 @@ class BaseParserTest(TestCase):
         self.assertEqual(nontuneExtract.get('global.Wal_buffers'), None)
         self.assertEqual(nontuneExtract.get('global.GEQO_EFFORT'), None)
 
-
     def testParses(self):
-        # Parse Helper
+        testDBMS = Postgres96Parser()
 
-        # Parse DBMS Config
+        # Parse Helper
+        testViewVars = {'global' : {'wal_sync_method' : 'open_sync',
+                                    'random_page_cost': 0.22},
+                        'local'  : {'FAKE_KNOB' : 'FAKE'}}
+
+        testParse = testDBMS.parse_helper(testViewVars)
+
+        self.assertEqual(len(testParse.keys()), 3)
+        self.assertEqual(testParse.get('global.wal_sync_method'), ['open_sync'])
+        self.assertEqual(testParse.get('global.random_page_cost'), [0.22])
+        self.assertEqual(testParse.get('local.FAKE_KNOB'), ['FAKE'])
+
+        # Parse DBMS Variables
+        testDBMSVars = {'global' : {'GlobalView1'   :
+                                    {'cpu_tuple_cost'   : 0.01,
+                                     'random_page_cost' : 0.22},
+                                    'GlobalView2'   :
+                                    {'cpu_tuple_cost'   : 0.05,
+                                     'random_page_cost' : 0.25}},
+                        'local'  : {'CustomerTable' :
+                                    {'LocalView1'   :
+                                     {'LocalObj1'   :
+                                        {'cpu_tuple_cost'   : 0.1,
+                                         'random_page_cost' : 0.2},
+                                      'LocalObj2'   :
+                                        {'cpu_tuple_cost'   : 0.5,
+                                         'random_page_cost' : 0.3}}}},
+                        'fakeScope' : None}
+        # NOTE: For local objects, method will not distinguish local objects or tables.
+        testParse = testDBMS.parse_dbms_variables(testDBMSVars)
+
+        self.assertEqual(len(testParse.keys()), 6)
+        self.assertEqual(testParse.get('GlobalView1.cpu_tuple_cost'), [0.01])
+        self.assertEqual(testParse.get('GlobalView1.random_page_cost'), [0.22])
+        self.assertEqual(testParse.get('GlobalView2.cpu_tuple_cost'), [0.05])
+        self.assertEqual(testParse.get('GlobalView2.random_page_cost'), [0.25])
+        self.assertEqual(testParse.get('LocalView1.cpu_tuple_cost'), [0.5])
+        self.assertEqual(testParse.get('LocalView1.random_page_cost'), [0.3])
+
+        testScope = {'unknownScope' : {'GlobalView1'   :
+                                        {'cpu_tuple_cost'   : 0.01,
+                                         'random_page_cost' : 0.22},
+                                       'GlobalView2'   :
+                                        {'cpu_tuple_cost'   : 0.05,
+                                         'random_page_cost' : 0.25}}}
+
+        with self.assertRaises(Exception):
+            testDBMS.parse_dbms_variables(testScope)
+
+        # Parse DBMS Knobs
+        testKnobs = {'global' : {'global' :
+                                {'wal_sync_method'  : 'fsync',
+                                 'random_page_cost' : 0.22,
+                                 'wal_buffers'      : 1024,
+                                 'archive_command'  :'archive',
+                                 'geqo_effort'      : 5,
+                                 'enable_hashjoin'  : 'on',
+                                 'cpu_tuple_cost'   : 0.55,
+                                 'force_parallel_mode'  : 'regress',
+                                 'FAKE_KNOB'        : 'fake'}}}
+
+
+        (testParseDict, testParseLog) = testDBMS.parse_dbms_knobs(testKnobs)
+
+        self.assertEqual(len(testParseLog), len(testDBMS.knob_catalog_.keys()) - 7)
+        self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in testParseLog)
+
+        self.assertEqual(len(testParseDict.keys()), len(testDBMS.knob_catalog_.keys()))
+        self.assertEqual(testParseDict['global.wal_sync_method'], 'fsync')
+        self.assertEqual(testParseDict['global.random_page_cost'], 0.22)
 
         # Parse DBMS Metrics
+        testMetrics =  {'global'    :
+                            {'pg_stat_archiver.last_failed_wal' : "today",
+                             'pg_stat_bgwriter.buffers_alloc' : 256,
+                             'pg_stat_archiver.last_failed_time' : "2018-01-10 11:24:30"},
+                        'database'  :
+                            {'pg_stat_database.tup_fetched' : 156,
+                             'pg_stat_database.datid'       : 1,
+                             'pg_stat_database.datname'     : "testOttertune",
+                             'pg_stat_database.stats_reset' : "2018-01-09 13:00:00"},
+                        'table'     :
+                            {'pg_stat_user_tables.last_vacuum'  : "2018-01-09 12:00:00",
+                             'pg_stat_user_tables.relid'        : 20,
+                             'pg_stat_user_tables.relname'      : "Managers",
+                             'pg_stat_user_tables.n_tup_upd'    : 123},
+                        'index'     :
+                            {'pg_stat_user_indexes.idx_scan'    : 23,
+                             'pg_stat_user_indexes.relname'     : "Customers",
+                             'pg_stat_user_indexes.relid'       : 2}}
 
-        pass
+        # testParseDict, testParseLog = testDBMS.parse_dbms_metrics(testMetrics)
+        #
+        # self.assertEqual(len(testParseDict.keys()), len(testDBMS.metric_catalog_.keys()))
+        # self.assertEqual(len(testParseLog), len(testDBMS.metric_catalog_.keys()) - 14)
 
     def testCalculateChangeInMetrics(self):
         testDBMS = Postgres96Parser()
@@ -225,7 +314,32 @@ class BaseParserTest(TestCase):
         self.assertEqual(testAdjMetrics['pg_stat_user_indexes.relid'], 0)
 
     def testCreateConfig(self):
-         pass
+        import os
+        from website.settings import CONFIG_DIR
+        testDBMS = Postgres96Parser()
+
+        tuningKnobs = {}
+        customKnobs = {}
+
+        categories = set()
+        for (k, v) in testDBMS.knob_catalog_.iteritems():
+            if (v.category not in categories):
+                categories.add(v.category)
+                tuningKnobs.update({k : v.default})
+
+        configRes = testDBMS.create_knob_configuration(tuningKnobs, customKnobs)
+        config_path = os.path.join(CONFIG_DIR, testDBMS.knob_configuration_filename)
+        with open(config_path, 'r') as f:
+            configHeader = f.read()
+
+        self.assertTrue(configHeader in configRes)
+
+        for k in tuningKnobs:
+            line = k[len('global.'):]+ ' = \'' + str(tuningKnobs[k]) + '\''
+            self.assertTrue(line in configRes)
+
+        with self.assertRaises(Exception):
+            testDBMS.create_knob_configuration(tuningKnobs, {"FAKE_KNOB" : 1})
 
     def testGetNondefaultSettings(self):
         testDBMS = Postgres96Parser()

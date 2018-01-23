@@ -362,3 +362,4 @@ def map_workload(target_data):
     target_data['mapped_workload'] = (best_workload_id, best_score)
     target_data['scores'] = scores
     return target_data
+    

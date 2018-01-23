@@ -27,8 +27,8 @@ class PostgresParser(BaseParser):
         (1000 * 60 * 60 * 24, 'd'),
         (1000 * 60 * 60, 'h'),
         (1000 * 60, 'min'),
-        (1, 'ms'),
         (1000, 's'),
+        (1, 'ms'),
     ]
 
     POSTGRES_BASE_KNOBS = {
@@ -74,10 +74,17 @@ class PostgresParser(BaseParser):
             else:
                 raise Exception(
                     'Unknown unit type: {}'.format(metadata.unit))
+
+        if converted < 0:
+            raise Exception('Invalid integer value for {}: {}'.format(
+                metadata.name, int_value))
         if converted is None:
             raise Exception('Invalid integer format for {}: {}'.format(
                 metadata.name, int_value))
         return converted
+
+    def convert_string(self, string_value, metadata):
+        return unicode(str(string_value))
 
     def format_integer(self, int_value, metadata):
         if metadata.unit != KnobUnitType.OTHER and int_value > 0:
@@ -96,9 +103,13 @@ class PostgresParser(BaseParser):
                 int_value, metadata)
         return int_value
 
+    def format_string(self, string_value, metadata):
+        return unicode(str(string_value))
+
     def parse_version_string(self, version_string):
         dbms_version = version_string.split(',')[0]
         return re.search("\d+\.\d+(?=\.\d+)", dbms_version).group(0)
+
 
 
 class Postgres96Parser(PostgresParser):

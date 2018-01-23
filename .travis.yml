@@ -34,12 +34,13 @@ before_script:
         -e "s/'USER'${COLON} 'ADD ME\!\!'/'USER'${COLON} '${DBUSER}'/"
         -e "s/'PASSWORD'${COLON} 'ADD ME\!\!'/'PASSWORD'${COLON} ''/"
         ${WEBSITE_ROOT}/website/settings/credentials.py
+  - echo "LOGGING = {}" >> ${WEBSITE_ROOT}/website/settings/credentials.py
   - cat ${WEBSITE_ROOT}/website/settings/credentials.py
   - python ${WEBSITE_ROOT}/manage.py migrate
 
 script:
   - cd controller && gradle build
-  - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput
+  - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

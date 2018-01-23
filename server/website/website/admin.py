@@ -38,9 +38,6 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    fields = ['name', 'user', 'description',
-              'creation_time', 'last_update', 'upload_code',
-              'nondefault_settings']
     list_display = ('name', 'user', 'last_update', 'creation_time')
     list_display_links = ('name',)
 

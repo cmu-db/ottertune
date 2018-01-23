@@ -182,7 +182,7 @@ def dumpdata(dumppath):
     # Helper function for calling Django's loaddata function that excludes
     # the static fixture data from being dumped
     excluded_models = ['DBMSCatalog', 'KnobCatalog', 'MetricCatalog', 'Hardware']
-    cmd = 'python manage.py dumpdata'
+    cmd = 'python manage.py dumpdata --natural-foreign --natural-primary'
     for model in excluded_models:
         cmd += ' --exclude website.' + model
     cmd += ' > ' + dumppath

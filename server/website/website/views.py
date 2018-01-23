@@ -119,7 +119,7 @@ def create_or_edit_project(request, project_id=''):
         if project_id == '':
             form = ProjectForm(request.POST)
             if not form.is_valid():
-                return HttpResponse(str(form))
+                return render(request, 'edit_project.html', {'form': form})
             project = form.save(commit=False)
             project.user = request.user
             ts = now()
@@ -131,7 +131,7 @@ def create_or_edit_project(request, project_id=''):
                                                  user=request.user)
             form = ProjectForm(request.POST, instance=project)
             if not form.is_valid():
-                return HttpResponse(str(form))
+                return render(request, 'edit_project.html', {'form': form})
             project.last_update = now()
             project.save()
         return redirect(reverse('project_sessions', kwargs={'project_id': project.pk}))
@@ -242,7 +242,8 @@ def create_or_edit_session(request, project_id, session_id=''):
             # Create a new session from the form contents
             form = SessionForm(request.POST)
             if not form.is_valid():
-                return HttpResponse(str(form))
+                return render(request, 'edit_session.html',
+                              {'project': project, 'form': form})
             session = form.save(commit=False)
             session.user = request.user
             session.project = project
@@ -256,7 +257,8 @@ def create_or_edit_session(request, project_id, session_id=''):
             session = Session.objects.get(pk=session_id)
             form = SessionForm(request.POST, instance=session)
             if not form.is_valid():
-                return HttpResponse(str(form))
+                return render(request, 'edit_session.html',
+                              {'project': project, 'form': form, 'session': session})
             if form.cleaned_data['gen_upload_code'] is True:
                 session.upload_code = MediaUtil.upload_code_generator()
             session.last_update = now()
@@ -346,8 +348,8 @@ def new_result(request):
         try:
             session = Session.objects.get(upload_code=upload_code)
         except Session.DoesNotExist:
-            log.warning("Wrong upload code: " + upload_code)
-            return HttpResponse("wrong upload_code!")
+            log.warning("Invalid upload code: " + upload_code)
+            return HttpResponse("Invalid upload code: " + upload_code)
 
         return handle_result_files(session, request.FILES)
     log.warning("Request type was not POST")
@@ -362,9 +364,7 @@ def handle_result_files(session, files):
 
     # Load the contents of the controller's summary file
     summary = JSONUtil.loads(files['summary'])
-    dbms_type = DBMSType.type(summary['database_type']) 
-   # dbms_version = Parser.parse_version_string(dbms_type, summary['database_version'])
-   # dbms_version = '9.6'  ## FIXME (dva)
+    dbms_type = DBMSType.type(summary['database_type'])
     dbms_version = summary['database_version'] ##TODO parse_version_string 
     workload_name = summary['workload_name']
     observation_time = summary['observation_time']

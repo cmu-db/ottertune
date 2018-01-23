@@ -6,6 +6,7 @@ Common Django settings for the OtterTune project.
 import os
 import sys
 from os.path import abspath, dirname, exists, join
+import celery
 
 ## ==============================================
 ## PATH CONFIGURATION
@@ -52,7 +53,8 @@ except Exception:
 ## ==============================================
 
 DEBUG = False
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+CELERY_ALWAYS_EAGER = True
+TEST_RUNNER = 'celery.contrib.test_runner.CeleryTestSuiteRunner'
 INTERNAL_IPS = ['127.0.0.1']
 
 ## ==============================================
@@ -150,7 +152,7 @@ TEMPLATES = [
              ],
              'loaders':['django.template.loaders.filesystem.Loader',
              'django.template.loaders.app_directories.Loader',
-             ] ,  
+             ] ,
              'debug': DEBUG,
         },
     },
@@ -339,4 +341,3 @@ except ImportError as err:
     print ('Copy settings/credentials_TEMPLATE.py to '
            'credentials.py and update settings.')
     raise
-

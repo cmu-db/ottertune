@@ -8,8 +8,7 @@ from django.contrib.auth import get_user
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .utils import (TEST_BASIC_SESSION_ID, TEST_PASSWORD, TEST_PROJECT_ID,
-                    TEST_TUNING_SESSION_ID, TEST_USERNAME)
+from .utils import (TEST_BASIC_SESSION_ID, TEST_PASSWORD, TEST_PROJECT_ID, TEST_USERNAME)
 
 
 class UserAuthViewTests(TestCase):

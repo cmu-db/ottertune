@@ -1,7 +1,5 @@
 import os
 
-from django.contrib.auth import get_user
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -9,8 +7,8 @@ from website.models import Result
 from website.settings import PROJECT_ROOT
 
 from .utils import (TEST_BASIC_SESSION_ID, TEST_BASIC_SESSION_UPLOAD_CODE,
-                    TEST_PASSWORD, TEST_PROJECT_ID, TEST_TUNING_SESSION_ID,
-                    TEST_TUNING_SESSION_UPLOAD_CODE, TEST_USERNAME)
+                    TEST_PASSWORD, TEST_TUNING_SESSION_ID, TEST_TUNING_SESSION_UPLOAD_CODE,
+                    TEST_USERNAME)
 
 
 class UploadResultsTests(TestCase):

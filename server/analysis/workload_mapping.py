@@ -11,9 +11,9 @@ import operator
 import os
 import warnings
 
-import zlib
-import dill as pickle
+import cPickle as pickle
 import numpy as np
+import zlib
 from sklearn.preprocessing import StandardScaler
 
 from . import preprocessing as prep

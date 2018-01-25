@@ -10,10 +10,10 @@ import multiprocessing
 import operator
 import os
 import warnings
+import zlib
 
 import cPickle as pickle
 import numpy as np
-import zlib
 from sklearn.preprocessing import StandardScaler
 
 from . import preprocessing as prep
@@ -132,7 +132,8 @@ class WorkloadMapper(object):
         with stopwatch("workload mapping model creation"):
             n_values, cat_indices, params = prep.dummy_encoder_helper(self.dbms_name,
                                                                       self.featured_knobs_)
-            if n_values.size > 0:
+            assert isinstance(n_values, np.ndarray)
+            if n_values.size > 0:  # pylint: disable=no-member
                 self.dummy_encoder_ = prep.DummyEncoder(n_values, cat_indices)
             else:
                 self.dummy_encoder_ = None

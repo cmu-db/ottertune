@@ -7,7 +7,7 @@ DBUSER=dbuser
 DBPASSWD=test123
 
 LOG=/vagrant/vm_build.log
-REPOPATH=/home/ubuntu/ottertune
+REPOPATH=/ottertune
 SETTINGSPATH=$REPOPATH/server/website/website/settings
 
 # Clear old log contents
@@ -16,12 +16,12 @@ SETTINGSPATH=$REPOPATH/server/website/website/settings
 # Install Ubuntu packages
 echo -e "\n--- Installing Ubuntu packages ---\n"
 apt-get -qq update
-apt-get -y install python-pip python-dev python-mysqldb rabbitmq-server gradle default-jdk >> $LOG 2>&1
+apt-get -y install python-pip python-dev python-mysqldb rabbitmq-server gradle default-jdk libmysqlclient-dev >> $LOG 2>&1
 
 # Install Python packages
 echo -e "\n--- Installing Python packages ---\n"
 pip install --upgrade pip >> $LOG 2>&1
-cat ${REPOPATH}/server/website/requirements.txt | xargs -n 1 pip install >> $LOG 2>&1
+pip install -r ${REPOPATH}/server/website/requirements.txt >> $LOG 2>&1
 
 # Install MySQL
 echo -e "\n--- Install MySQL specific packages and settings ---\n"

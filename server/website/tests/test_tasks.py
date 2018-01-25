@@ -1,9 +1,10 @@
 # this will be for unit-testing tasks
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from website.tasks import periodic_tasks
 from website.models import Workload, PipelineRun
 
+@override_settings(CELERY_ALWAYS_EAGER = True, TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner')
 class BackgroundTestCase(TestCase):
 
     fixtures = ['test_website.json']

@@ -53,8 +53,7 @@ except Exception:
 ## ==============================================
 
 DEBUG = False
-CELERY_ALWAYS_EAGER = True
-TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 INTERNAL_IPS = ['127.0.0.1']
 
 ## ==============================================

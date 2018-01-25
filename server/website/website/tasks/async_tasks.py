@@ -4,7 +4,7 @@ from celery.task import task, Task
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler
 
-from analysis.gp_tf import GPR, GPR_GD
+from analysis.gp_tf import GPR, GPRGD
 from analysis.preprocessing import bin_by_decile, Bin
 from website.models import (PipelineData, PipelineRun,
                             Result, Workload)
@@ -216,7 +216,7 @@ def configuration_recommendation(target_data):
         X_samples[:, i] = np.random.rand(
             num_samples) * (col_max - col_min) + col_min
 
-    model = GPR_GD()
+    model = GPRGD()
     model.fit(X_scaled, y_scaled, ridge)
     res = model.predict(X_samples)
 

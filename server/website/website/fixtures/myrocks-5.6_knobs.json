@@ -7769,5 +7769,329 @@
             "description": "The number of errors, warnings, and notes that resulted from the last statement that generated messages. This variable is read only."
         },
         "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "128",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.level0_file_num_compaction_trigger",
+            "minval": "-1",
+            "default": "4",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Number of files to trigger level-0 compaction. A value <0 means that level-0 compaction will not be triggered by number of files at all."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "128",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.num_levels",
+            "minval": "2",
+            "default": "7",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Number of levels for this database."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "512",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.level0_stop_writes_trigger",
+            "minval": "2",
+            "default": "36",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Maximum number of level-0 files.  We stop writes at this point."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "512",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.level0_slowdown_writes_trigger",
+            "minval": "2",
+            "default": "20",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Soft limit on number of level-0 files. We start slowing down writes at this point. A value <0 means that no writing slow down will be triggered by number of files in level-0."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "17179869184",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.max_bytes_for_level_base",
+            "minval": "1048576",
+            "default": "268435456",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Control maximum total data size for a level. max_bytes_for_level_base is the max total for level-1. Maximum number of bytes for level L can be calculated as (max_bytes_for_level_base) * (max_bytes_for_level_multiplier ^ (L-1))"
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.max_bytes_for_level_multiplier",
+            "minval": "2",
+            "default": "10",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "we make last level the base level, which means merging L0 data into the last level, until it exceeds max_bytes_for_level_base. And then we make the second last level to be base level, to start to merge L0 data to second last level, with its target size to be 1/max_bytes_for_level_multiplier of the last level's extra size."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "17179869184",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.target_file_size_base",
+            "minval": "1048576",
+            "default": "67108864",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "target_file_size_base is per-file size for level-1.Target file size for level L can be calculated by target_file_size_base * (target_file_size_multiplier ^ (L-1))"
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.target_file_size_multiplier",
+            "minval": "1",
+            "default": "1",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "By default target_file_size_multiplier is 1, which means by default files in different levels will have similar size."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "128",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.max_sequential_skip_in_iterations",
+            "minval": "2",
+            "default": "8",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "This number specifies the number of keys (with the same userkey) that will be sequentially skipped before a reseek is issued."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.max_write_buffer_number",
+            "minval": "2",
+            "default": "2",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "The maximum number of write buffers that are built up in memory. The default and the minimum number is 2, so that when 1 write buffer is being flushed to storage, new writes can continue to the other write buffer."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.min_write_buffer_number_to_merge",
+            "minval": "1",
+            "default": "1",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "The minimum number of write buffers that will be merged together before writing to storage."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.table_factory::block_size_deviation",
+            "minval": "1",
+            "default": "10",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "If the percentage of free space in the current block is less than this specified number and adding a new record to the block will exceed the configured block size, then this block will be closed and the new record will be written to the next block."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "64",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.table_factory::block_restart_interval",
+            "minval": "1",
+            "default": "16",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Number of keys between restart points for delta encoding of keys."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "67108864",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.table_factory::block_size",
+            "minval": "512",
+            "default": "4096",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Approximate size of user data packed per block."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "17179869184",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.write_buffer_size",
+            "minval": "1048576",
+            "default": "67108864",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 2,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Amount of data to build up in memory (backed by an unsorted log on disk) before converting to a sorted on-disk file."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "null",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.level_compaction_dynamic_level_bytes",
+            "minval": "null",
+            "default": "OFF",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 4,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "If ON, RocksDB will pick target size of each level dynamically."
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "",
+            "maxval": "null",
+            "dbms": 9,
+            "name": "rocksdb_cf_options.disable_auto_compactions",
+            "minval": "null",
+            "default": "OFF",
+            "tunable": true,
+            "enumvals": "null",
+            "vartype": 4,
+            "context": "dynamic",
+            "scope": "column_family",
+            "summary": "",
+            "unit": 3,
+            "description": "Disable automatic compactions. Manual compactions can still be issued on this column family"
+        },
+        "model": "website.KnobCatalog"
     }
+   
 ]

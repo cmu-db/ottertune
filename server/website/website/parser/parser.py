@@ -7,6 +7,8 @@ Created on Dec 12, 2017
 from website.models import DBMSCatalog
 from website.types import DBMSType
 from .postgres import Postgres96Parser
+from .myrocks import MyRocks56Parser
+
 
 
 class Parser(object):
@@ -18,7 +20,9 @@ class Parser(object):
         if Parser.__DBMS_UTILS_IMPLS is None:
             Parser.__DBMS_UTILS_IMPLS = {
                 DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.6').pk: Postgres96Parser()
+                    type=DBMSType.POSTGRES, version='9.6').pk:Postgres96Parser(),
+                DBMSCatalog.objects.get(
+                    type=DBMSType.MYROCKS, version='5.6').pk: MyRocks56Parser()
             } 
         try:
             if dbms_id is None:

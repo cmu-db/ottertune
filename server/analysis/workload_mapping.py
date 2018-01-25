@@ -4,23 +4,25 @@ Created on Jul 11, 2016
 @author: dvanaken
 '''
 
-import warnings
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
-import os.path
-import gc, copy
-import zlib
-import dill as pickle
+import copy
+import gc
 import multiprocessing
-import numpy as np
 import operator
+import os
+import warnings
+import zlib
+
+import cPickle as pickle
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 
+from . import preprocessing as prep
 from .gp_tf import GPR
-from common.matrix import Matrix
-from .util import get_unique_matrix
-import analysis.preprocessing as prep
+from .matrix import Matrix
 from .util import stopwatch
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+
 
 class WorkloadState(object):
 
@@ -36,6 +38,7 @@ class WorkloadState(object):
     @staticmethod
     def decompress(compressed_workload_state):
         return pickle.loads(zlib.decompress(compressed_workload_state))
+
 
 def worker_create_model((worker_id, workload_name, data, njobs, verbose)):
     if verbose:
@@ -55,8 +58,9 @@ def worker_create_model((worker_id, workload_name, data, njobs, verbose)):
     workload_state = WorkloadState(X, y, models)
     workload_state = WorkloadState.compress(workload_state)
     if verbose:
-        print "{}: done. ({}/{})".format(worker_id, worker_id+1, njobs)
+        print "{}: done. ({}/{})".format(worker_id, worker_id + 1, njobs)
     return (workload_name, workload_state)
+
 
 def worker_score_workload((worker_id, workload_name, workload_state,
                            X_client, y_client, njobs, verbose)):
@@ -83,14 +87,15 @@ def worker_score_workload((worker_id, workload_name, workload_state,
     dists = np.sum(np.square(np.subtract(predictions, y_client.data)), axis=1)
     assert dists.shape == (predictions.shape[0],)
     if verbose:
-        print "{}: done. ({}/{})".format(worker_id, worker_id+1, njobs)
+        print "{}: done. ({}/{})".format(worker_id, worker_id + 1, njobs)
     return (workload_name, np.mean(dists))
+
 
 class WorkloadMapper(object):
 
     POOL_SIZE = 8
     MAX_SAMPLES = 5000
-    
+
     def __init__(self, dbms_name, featured_knobs, featured_metrics,
                  target_workload_name, workload_repo_dirs, verbose=False):
         self.verbose_ = verbose
@@ -107,7 +112,7 @@ class WorkloadMapper(object):
         self.featured_metrics_ = featured_metrics
 
 #         target_wkld_desc = exp.exp_id(exp.benchmark)
-        self.workload_dirs_ = [w for w in workload_repo_dirs if not \
+        self.workload_dirs_ = [w for w in workload_repo_dirs if not
                                w.endswith(target_workload_name)]
         assert len(self.workload_dirs_) > 0
 
@@ -127,14 +132,15 @@ class WorkloadMapper(object):
         with stopwatch("workload mapping model creation"):
             n_values, cat_indices, params = prep.dummy_encoder_helper(self.dbms_name,
                                                                       self.featured_knobs_)
-            if n_values.size > 0:
+            assert isinstance(n_values, np.ndarray)
+            if n_values.size > 0:  # pylint: disable=no-member
                 self.dummy_encoder_ = prep.DummyEncoder(n_values, cat_indices)
             else:
                 self.dummy_encoder_ = None
             self.X_scaler_ = StandardScaler()
             self.y_scaler_ = StandardScaler()
             data_map = {}
-            for i,wd in enumerate(self.workload_dirs_):
+            for i, wd in enumerate(self.workload_dirs_):
                 # Load and filter data
                 Xpath = os.path.join(wd, "X_data_enc.npz")
                 ypath = os.path.join(wd, "y_data_enc.npz")
@@ -158,7 +164,7 @@ class WorkloadMapper(object):
                 num_samples = X.shape[0]
                 assert num_samples <= self.MAX_SAMPLES
                 assert num_samples == y.shape[0]
- 
+
                 # Dummy-code categorical knobs
                 if self.dummy_encoder_ is not None:
                     if i == 0:
@@ -167,11 +173,11 @@ class WorkloadMapper(object):
                     X = Matrix(self.dummy_encoder_.transform(X.data),
                                X.rowlabels,
                                self.dummy_encoder_.columnlabels)
-                
+
                 self.X_scaler_.partial_fit(X.data)
                 self.y_scaler_.partial_fit(y.data)
                 data_map[wd] = (X, y)
-            
+
             if self.dummy_encoder_ is not None:
                 # Fix X_scaler wrt categorical features
                 prep.fix_scaler(self.X_scaler_, self.dummy_encoder_, params)
@@ -198,63 +204,48 @@ class WorkloadMapper(object):
             # Recenter y-values
             for wd, (X, y) in data_map.iteritems():
                 y.data = self.y_gp_scaler_.transform(y.data)
-            
+
             njobs = len(data_map)
-            iterable = [(i,wd,ws,njobs,self.verbose_) for i,(wd,ws) \
-                        in enumerate(data_map.iteritems())]            
+            iterable = [(i, wd, ws, njobs, self.verbose_) for i, (wd, ws)
+                        in enumerate(data_map.iteritems())]
             if self.pool_ is not None:
                 res = self.pool_.map(worker_create_model, iterable)
             else:
                 res = []
                 for item in iterable:
-                    res.append(worker_create_model(item)) 
+                    res.append(worker_create_model(item))
             self.workload_states_ = dict(res)
 
     def map_workload(self, X_client, y_client):
-#         tuner = TunerContext()
-
         with stopwatch("workload mapping - preprocessing"):
-#             # Recompute the GPR models if the # of knobs to tune has
-#             # changed (incremental knob selection feature is enabled)
-#             tuner_feat_knobs = tuner.featured_knobs
-#             if not np.array_equal(tuner_feat_knobs, self.featured_knobs_):
-#                 print ("# knobs: {} --> {}. Re-creating models"
-#                        .format(tuner_feat_knobs.size,
-#                                self.featured_knobs_.size))
-#                 assert tuner_feat_knobs.size != self.featured_knobs_.size
-#                 assert tuner.incremental_knob_selection == True
-#                 self.featured_knobs_ = tuner_feat_knobs
-#                 self.initialize_models()
-#                 gc.collect()
-
             # Filter be featured knobs & metrics
             X_client = X_client.filter(self.featured_knobs_, "columns")
             y_client = y_client.filter(self.featured_metrics_, "columns")
-             
+
             # Generate unique X,y matrices
-            X_client, y_client = get_unique_matrix(X_client, y_client)
-            
+            X_client, y_client = Matrix.get_unique_matrix(X_client, y_client)
+
             # Preprocessing steps
             if self.dummy_encoder_ is not None:
                 X_client = Matrix(self.dummy_encoder_.transform(X_client.data),
                                   X_client.rowlabels,
                                   self.dummy_encoder_.columnlabels)
             X_client.data = self.X_scaler_.transform(X_client.data)
-            
+
             # Create y_client scaler with prior and transform client data
             y_client_scaler = copy.deepcopy(self.y_scaler_)
             y_client_scaler.n_samples_seen_ = 1
             y_client_scaler.partial_fit(y_client.data)
             y_client.data = y_client_scaler.transform(y_client.data)
-            
+
             # Bin and recenter client data
             y_client.data = self.y_binner_.transform(y_client.data)
             y_client.data = self.y_gp_scaler_.transform(y_client.data)
 
             # Compute workload scores in parallel
             njobs = len(self.workload_states_)
-            iterable = [(i, wd, ws, X_client, y_client, njobs, self.verbose_) \
-                    for i,(wd,ws) in enumerate(self.workload_states_.iteritems())]
+            iterable = [(i, wd, ws, X_client, y_client, njobs, self.verbose_)
+                        for i, (wd, ws) in enumerate(self.workload_states_.iteritems())]
 
         with stopwatch("workload mapping - predictions"):
             if self.pool_ is not None:
@@ -270,5 +261,5 @@ class WorkloadMapper(object):
         print "WORKLOAD SCORES"
         for wkld, score in sorted_wkld_scores:
             print "{0}: {1:.2f}".format(os.path.basename(wkld), score)
-        
+
         return sorted_wkld_scores[0][0]

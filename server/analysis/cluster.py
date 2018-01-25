@@ -4,10 +4,11 @@ Created on Jul 4, 2016
 @author: dva
 '''
 
-import copy
-import numpy as np
 from abc import ABCMeta, abstractproperty
 from collections import OrderedDict
+
+import copy
+import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans as SklearnKMeans
 
@@ -57,7 +58,10 @@ class KMeans(ModelBase):
     SAMPLE_CUTOFF_ = 1000
 
     def __init__(self):
-        self._reset()
+        self.model_ = None
+        self.n_clusters_ = None
+        self.sample_labels_ = None
+        self.sample_distances_ = None
 
     @property
     def cluster_inertia_(self):
@@ -128,7 +132,7 @@ class KMeans(ModelBase):
             member_rows = X[self.cluster_labels_ == cluster_label, :]
             member_labels = self.sample_labels_[self.cluster_labels_ == cluster_label]
             centroid = np.expand_dims(self.cluster_centers_[cluster_label], axis=0)
-            
+
             # "All clusters must have at least 1 member!"
             if member_rows.shape[0] == 0:
                 return None
@@ -192,7 +196,10 @@ class KMeansClusters(ModelBase):
     """
 
     def __init__(self):
-        self._reset()
+        self.min_cluster_ = None
+        self.max_cluster_ = None
+        self.cluster_map_ = None
+        self.sample_labels_ = None
 
     def _reset(self):
         """Resets all attributes (erases the model)"""
@@ -234,10 +241,10 @@ class KMeansClusters(ModelBase):
             sample_labels = ["sample_{}".format(i) for i in range(X.shape[1])]
         self.sample_labels_ = sample_labels
         for K in range(self.min_cluster_, self.max_cluster_ + 1):
-            tmp = KMeans().fit(X, K, self.sample_labels_,estimator_params)
-            if tmp is None: #Set maximum cluster
-                assert K > min_cluster, "min_cluster is too large for the model" 
-                self.max_cluster_ = K-1
+            tmp = KMeans().fit(X, K, self.sample_labels_, estimator_params)
+            if tmp is None:  # Set maximum cluster
+                assert K > min_cluster, "min_cluster is too large for the model"
+                self.max_cluster_ = K - 1
                 break
             else:
                 self.cluster_map_[K] = tmp
@@ -269,7 +276,8 @@ class KSelection(ModelBase):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self._reset()
+        self.optimal_num_clusters_ = None
+        self.clusters_ = None
 
     def _reset(self):
         """Resets all attributes (erases the model)"""
@@ -304,21 +312,24 @@ class GapStatistic(KSelection):
     name_ : string
             The name of this technique
 
-    logWks_ : array, [n_clusters]
-              The within-dispersion measures of X (log)
+    log_wks_ : array, [n_clusters]
+               The within-dispersion measures of X (log)
 
-    logWkbs_ : array, [n_clusters]
-               The within-dispersion measures of the generated
-               reference data sets
+    log_wkbs_ : array, [n_clusters]
+                The within-dispersion measures of the generated
+                reference data sets
 
     khats_ : array, [n_clusters]
              The gap-statistic for each cluster
     """
 
     NAME_ = "gap-statistic"
-    
+
     def __init__(self):
         super(GapStatistic, self).__init__()
+        self.log_wks_ = None
+        self.log_wkbs_ = None
+        self.khats_ = None
 
     @property
     def name_(self):
@@ -327,11 +338,11 @@ class GapStatistic(KSelection):
     def _reset(self):
         """Resets all attributes (erases the model)"""
         super(GapStatistic, self)._reset()
-        self.logWks_ = None
-        self.logWkbs_ = None
+        self.log_wks_ = None
+        self.log_wkbs_ = None
         self.khats_ = None
 
-    def fit(self, X, cluster_map, n_B=50):
+    def fit(self, X, cluster_map, n_b=50):
         """Estimates the optimal number of clusters (K) for a
            KMeans model trained on X.
 
@@ -344,7 +355,7 @@ class GapStatistic(KSelection):
                        A dictionary mapping each cluster size (K) to the KMeans
                        model fitted to X with K clusters
 
-        n_B : int
+        n_b : int
               The number of reference data sets to generate
 
 
@@ -357,41 +368,41 @@ class GapStatistic(KSelection):
         n_clusters = len(cluster_map)
 
         # Dispersion for real distribution
-        logWks = np.zeros(n_clusters)
-        logWkbs = np.zeros(n_clusters)
+        log_wks = np.zeros(n_clusters)
+        log_wkbs = np.zeros(n_clusters)
         sk = np.zeros(n_clusters)
         for indk, (K, model) in enumerate(sorted(cluster_map.iteritems())):
-            logWks[indk] = np.log(GapStatistic.Wk(X,
-                                                  model.cluster_centers_,
-                                                  model.cluster_labels_))
+            log_wks[indk] = np.log(GapStatistic.Wk(X,
+                                                   model.cluster_centers_,
+                                                   model.cluster_labels_))
 
             # Create B reference datasets
-            logBWkbs = np.zeros(n_B)
-            for i in range(n_B):
+            log_b_wkbs = np.zeros(n_b)
+            for i in range(n_b):
                 Xb = np.empty_like(X)
                 for j in range(X.shape[1]):
                     Xb[:, j] = np.random.uniform(mins[j], maxs[j], size=X.shape[0])
                 Xb_model = KMeans().fit(Xb, K)
-                logBWkbs[i] = np.log(GapStatistic.Wk(Xb,
-                                                     Xb_model.cluster_centers_,
-                                                     Xb_model.cluster_labels_))
-            logWkbs[indk] = sum(logBWkbs) / n_B
-            sk[indk] = np.sqrt(sum((logBWkbs-logWkbs[indk])**2) / n_B)
-        sk = sk * np.sqrt(1 + 1.0 / n_B)
+                log_b_wkbs[i] = np.log(GapStatistic.Wk(Xb,
+                                                       Xb_model.cluster_centers_,
+                                                       Xb_model.cluster_labels_))
+            log_wkbs[indk] = sum(log_b_wkbs) / n_b
+            sk[indk] = np.sqrt(sum((log_b_wkbs - log_wkbs[indk])**2) / n_b)
+        sk = sk * np.sqrt(1 + 1.0 / n_b)
 
         khats = np.zeros(n_clusters)
-        gaps = logWkbs - logWks
+        gaps = log_wkbs - log_wks
         gsks = gaps - sk
         self.clusters_ = np.array(sorted(cluster_map.keys()))
         for i in range(1, n_clusters):
-            khats[i] = gaps[i-1] - gsks[i]
-            if self.optimal_num_clusters_ is None and gaps[i-1] >= gsks[i]:
-                self.optimal_num_clusters_ = self.clusters_[i-1]
+            khats[i] = gaps[i - 1] - gsks[i]
+            if self.optimal_num_clusters_ is None and gaps[i - 1] >= gsks[i]:
+                self.optimal_num_clusters_ = self.clusters_[i - 1]
         if self.optimal_num_clusters_ is None:
             self.optimal_num_clusters_ = 0
 
-        self.logWks_ = logWks
-        self.logWkbs_ = logWkbs
+        self.log_wks_ = log_wks
+        self.log_wkbs_ = log_wkbs
         self.khats_ = khats
         return self
 
@@ -434,7 +445,7 @@ class GapStatistic(KSelection):
         The within-dispersion of each cluster (K)
         """
         K = len(mu)
-        return sum([np.linalg.norm(mu[i]-x)**2
+        return sum([np.linalg.norm(mu[i] - x)**2
                     for i in range(K)
                     for x in X[cluster_labels == i]])
 
@@ -462,7 +473,7 @@ class DetK(KSelection):
     name_ : string
             The name of this technique
 
-    Fs_ : array, [n_clusters]
+    fs_ : array, [n_clusters]
           The computed evaluation functions F(K) for each cluster size K
     """
 
@@ -470,6 +481,7 @@ class DetK(KSelection):
 
     def __init__(self):
         super(DetK, self).__init__()
+        self.fs_ = None
 
     @property
     def name_(self):
@@ -478,7 +490,7 @@ class DetK(KSelection):
     def _reset(self):
         """Resets all attributes (erases the model)"""
         super(DetK, self)._reset()
-        self.Fs_ = None
+        self.fs_ = None
 
     def fit(self, X, cluster_map):
         """Estimates the optimal number of clusters (K) for a
@@ -500,29 +512,29 @@ class DetK(KSelection):
         """
         self._reset()
         n_clusters = len(cluster_map)
-        Nd = X.shape[1]
-        Fs = np.empty(n_clusters)
-        Sks = np.empty(n_clusters)
-        a = {}
+        nd = X.shape[1]
+        fs = np.empty(n_clusters)
+        sks = np.empty(n_clusters)
+        alpha = {}
         # K from 1 to maximum_cluster_
         for i, (K, model) \
                 in enumerate(sorted(cluster_map.iteritems())):
-            #compute a(K,Nd) (i.e. a[K]) 
+            # Compute alpha(K, nd) (i.e. alpha[K])
             if K == 2:
-                a[K] = 1 - 3.0 / (4 * Nd)
+                alpha[K] = 1 - 3.0 / (4 * nd)
             elif K > 2:
-                a[K] = a[K - 1] + (1 - a[K - 1]) / 6.0
-            Sks[i] = model.cluster_inertia_ 
-            
+                alpha[K] = alpha[K - 1] + (1 - alpha[K - 1]) / 6.0
+            sks[i] = model.cluster_inertia_
+
             if K == 1:
-                Fs[i] = 1
-            elif Sks[i - 1] == 0:
-                Fs[i] = 1
+                fs[i] = 1
+            elif sks[i - 1] == 0:
+                fs[i] = 1
             else:
-                Fs[i] = Sks[i] / (a[K] * Sks[i - 1])
+                fs[i] = sks[i] / (alpha[K] * sks[i - 1])
         self.clusters_ = np.array(sorted(cluster_map.keys()))
-        self.optimal_num_clusters_ = self.clusters_[np.argmin(Fs)]
-        self.Fs_ = Fs
+        self.optimal_num_clusters_ = self.clusters_[np.argmin(fs)]
+        self.fs_ = fs
         return self
 
 

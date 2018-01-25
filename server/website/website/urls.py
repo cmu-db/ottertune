@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/delete/$', website_views.delete_session, name='delete_session'),
 
     # URLs for result views
-    url(r'^new_result/', website_views.new_result),
+    url(r'^new_result/', website_views.new_result, name='new_result'),
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/results/(?P<result_id>[0-9]+)/$', website_views.result_view, name='result'),
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/workloads/(?P<wkld_id>[0-9]+)/$', website_views.workload_view, name='workload'),
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/knobs/(?P<data_id>[0-9]+)/$', website_views.knob_data_view, name='knob_data'),

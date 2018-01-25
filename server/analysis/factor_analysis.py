@@ -43,7 +43,12 @@ class FactorAnalysis(ModelBase):
     """
 
     def __init__(self):
-        self._reset()
+        self.model_ = None
+        self.components_ = None
+        self.feature_labels_ = None
+        self.total_variance_ = None
+        self.pvars_ = None
+        self.pvars_noise_ = None
 
     def _reset(self):
         """Resets all attributes (erases the model)"""

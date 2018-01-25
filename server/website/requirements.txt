@@ -7,6 +7,9 @@ Fabric==1.13.1
 hurry.filesize==0.9
 numpy==1.13.1
 poster==0.8.1
+pycodestyle==2.3.1
+pylint==1.5.2
+pyDOE==0.3.8
 MySQL-python==1.2.5
 scikit-learn==0.19.1
 scipy==1.0.0

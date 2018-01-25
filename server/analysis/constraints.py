@@ -106,7 +106,7 @@ class ParamConstraintHelper(object):
         return conv_sample
 
     def randomize_categorical_features(self, sample, scaled=True, rescale=True):
-        n_cat_feats = self.cat_param_indices_.size
+        n_cat_feats = self.cat_param_indices_.size  # pylint: disable=no-member
         if n_cat_feats == 0:
             return sample
 

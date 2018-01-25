@@ -6,6 +6,8 @@ from website.models import Workload, PipelineRun
 
 class BackgroundTestCase(TestCase):
 
+    fixtures = ['test_website.json']
+
     def testNoError(self):
         result = periodic_tasks.run_background_tasks.delay()
         self.assertTrue(result.successful())
@@ -32,6 +34,8 @@ class BackgroundTestCase(TestCase):
 
 class AggregateTestCase(TestCase):
 
+    fixtures = ['test_website.json']
+
     def testValidWorkload(self):
         workloads = Workload.objects.all()
         valid_workload = workloads[0]
@@ -43,18 +47,22 @@ class AggregateTestCase(TestCase):
 
 class MetricKnobTestCase(TestCase):
 
+    fixtures = ['test_website.json']
+
     @classmethod
     def setUpClass(cls):
+        super(MetricKnobTestCase, cls).setUpClass()
         workloads = Workload.objects.all()
         valid_workload = workloads[0]
-        knob_data, metric_data = periodic_tasks.aggregate_data(workload)
+        cls.knob_data, cls.metric_data = periodic_tasks.aggregate_data(valid_workload)
 
     def testValidPrunedMetrics(self):
-        pruned_metrics = periodic_tasks.run_workload_characterization(metric_data)
+        pruned_metrics = periodic_tasks.run_workload_characterization(self.metric_data)
         for m in pruned_metrics:
-            self.assertIn(m, metric_data['columnlabels'])
+            self.assertIn(m, self.metric_data['columnlabels'])
 
     def testValidImportantKnobs(self):
-        ranked_knobs = periodic_tasks.run_knob_identification(knob_data)
+        # uses unpruned metrics, is this an issue?
+        ranked_knobs = periodic_tasks.run_knob_identification(self.knob_data, self.metric_data)
         for k in ranked_knobs:
-            self.assertIn(k, knob_data['columnlabels'])
+            self.assertIn(k, self.knob_data['columnlabels'])

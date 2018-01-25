@@ -6,7 +6,7 @@ Common Django settings for the OtterTune project.
 import os
 import sys
 from os.path import abspath, dirname, exists, join
-import celery
+import djcelery
 
 ## ==============================================
 ## PATH CONFIGURATION
@@ -54,7 +54,7 @@ except Exception:
 
 DEBUG = False
 CELERY_ALWAYS_EAGER = True
-TEST_RUNNER = 'celery.contrib.test_runner.CeleryTestSuiteRunner'
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 INTERNAL_IPS = ['127.0.0.1']
 
 ## ==============================================

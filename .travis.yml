@@ -39,8 +39,10 @@ before_script:
   - python ${WEBSITE_ROOT}/manage.py migrate
 
 script:
-  - cd controller && gradle build
-  - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
+  - cd server && pycodestyle --ignore=E501 analysis
+  - pylint analysis
+  - cd website && coverage run manage.py test --noinput -v 2
+  - cd ../../controller && gradle build
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

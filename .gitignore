@@ -86,3 +86,7 @@ ENV/
 .project
 .pydevproject
 .settings
+
+# Text editor configs #
+#######################
+.vimrc

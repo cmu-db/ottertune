@@ -12,12 +12,12 @@ from .utils import (TEST_BASIC_SESSION_ID, TEST_PASSWORD, TEST_PROJECT_ID, TEST_
 
 
 class UserAuthViewTests(TestCase):
- 
+
     fixtures = ['test_user.json', 'test_user_sessions.json']
- 
+
     def setUp(self):
         pass
- 
+
     def test_valid_login(self):
         data = {
             'username': TEST_USERNAME,
@@ -27,7 +27,7 @@ class UserAuthViewTests(TestCase):
         self.assertRedirects(response, reverse('home_projects'))
         user = get_user(self.client)
         self.assertTrue(user.is_authenticated())
- 
+
     def test_invalid_login(self):
         data = {
             'username': 'invalid_user',
@@ -37,16 +37,16 @@ class UserAuthViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated())
- 
+
     def test_login_view(self):
         response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
- 
+
     def test_new_signup(self):
         response = self.client.get(reverse('signup'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, u"Create Your Account")
- 
+
     def test_logout_view(self):
         self.client.logout()
         user = get_user(self.client)
@@ -54,9 +54,9 @@ class UserAuthViewTests(TestCase):
 
 
 class ProjectViewsTests(TestCase):
-  
+
     fixtures = ['test_website.json']
-  
+
     def setUp(self):
         self.client.login(username=TEST_USERNAME, password=TEST_PASSWORD)
 
@@ -91,7 +91,7 @@ class ProjectViewsTests(TestCase):
 
     def test_edit_project_ok(self):
         form_addr = reverse('edit_project', kwargs={'project_id': TEST_PROJECT_ID})
-        post_data = { 'name': 'new_project_name' }
+        post_data = {'name': 'new_project_name'}
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, reverse('project_sessions',
@@ -99,14 +99,14 @@ class ProjectViewsTests(TestCase):
 
     def test_delete_zero_project(self):
         form_addr = reverse('delete_project')
-        post_data = { 'projects': [] }
+        post_data = {'projects': []}
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, reverse('home_projects'))
 
     def test_delete_one_project(self):
         form_addr = reverse('delete_project')
-        post_data = { 'projects': [TEST_PROJECT_ID] }
+        post_data = {'projects': [TEST_PROJECT_ID]}
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, reverse('home_projects'))
@@ -123,7 +123,7 @@ class ProjectViewsTests(TestCase):
             self.assertEqual(response.status_code, 200)
             project_ids.append(response.context['project'].pk)
         delete_form_addr = reverse('delete_project')
-        post_data = { 'projects': project_ids }
+        post_data = {'projects': project_ids}
         response = self.client.post(delete_form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, reverse('home_projects'))
@@ -204,18 +204,20 @@ class SessionViewsTests(TestCase):
                                                        'session_id': TEST_BASIC_SESSION_ID}))
 
     def test_delete_zero_sessions(self):
-        form_addr = reverse('delete_session', kwargs={ 'project_id': TEST_PROJECT_ID })
-        post_data = { 'sessions': [] }
+        form_addr = reverse('delete_session', kwargs={'project_id': TEST_PROJECT_ID})
+        post_data = {'sessions': []}
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse('project_sessions', kwargs={ 'project_id': TEST_PROJECT_ID }))
+        self.assertRedirects(response, reverse('project_sessions',
+                                               kwargs={'project_id': TEST_PROJECT_ID}))
 
     def test_delete_one_session(self):
-        form_addr = reverse('delete_session', kwargs={ 'project_id': TEST_PROJECT_ID })
-        post_data = { 'sessions': [TEST_BASIC_SESSION_ID] }
+        form_addr = reverse('delete_session', kwargs={'project_id': TEST_PROJECT_ID})
+        post_data = {'sessions': [TEST_BASIC_SESSION_ID]}
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse('project_sessions', kwargs={ 'project_id': TEST_PROJECT_ID }))
+        self.assertRedirects(response, reverse('project_sessions',
+                                               kwargs={'project_id': TEST_PROJECT_ID}))
 
     def test_delete_multiple_sessions(self):
         create_form_addr = reverse('new_session', kwargs={'project_id': TEST_PROJECT_ID})
@@ -233,7 +235,8 @@ class SessionViewsTests(TestCase):
             self.assertEqual(response.status_code, 200)
             session_ids.append(response.context['session'].pk)
         delete_form_addr = reverse('delete_session', kwargs={'project_id': TEST_PROJECT_ID})
-        post_data = { 'sessions': session_ids }
+        post_data = {'sessions': session_ids}
         response = self.client.post(delete_form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse('project_sessions', kwargs={'project_id': TEST_PROJECT_ID}))
+        self.assertRedirects(response, reverse('project_sessions',
+                                               kwargs={'project_id': TEST_PROJECT_ID}))

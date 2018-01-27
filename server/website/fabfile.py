@@ -138,9 +138,9 @@ def reset_website():
     passwd = DATABASES['default']['PASSWORD']
     name = DATABASES['default']['NAME']
     local("mysql -u {} -p{} -N -B -e \"DROP DATABASE IF EXISTS {}\"".format(
-            user, passwd, name))
+        user, passwd, name))
     local("mysql -u {} -p{} -N -B -e \"CREATE DATABASE {}\"".format(
-            user, passwd, name))
+        user, passwd, name))
 
     # Reinitialize the website
     local('python manage.py migrate website')
@@ -174,7 +174,7 @@ def generate_and_load_data(n_workload, n_samples_per_workload, upload_code,
     local('python script/controller_simulator/data_generator.py {} {} {}'.format(
         n_workload, n_samples_per_workload, random_seed))
     local(('python script/controller_simulator/upload_data.py '
-          'script/controller_simulator/generated_data {}').format(upload_code))
+           'script/controller_simulator/generated_data {}').format(upload_code))
 
 
 @task
@@ -194,7 +194,6 @@ def run_background_tasks():
     # Runs the background tasks just once.
     cmd = ("from website.tasks import run_background_tasks; "
            "run_background_tasks()")
-    local(('export PYTHONPATH={}\:$PYTHONPATH; '
+    local(('export PYTHONPATH={}\:$PYTHONPATH; '  # pylint: disable=anomalous-backslash-in-string
            'django-admin shell --settings=website.settings '
            '-c\"{}\"').format(PROJECT_ROOT, cmd))
-

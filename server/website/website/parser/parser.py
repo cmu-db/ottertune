@@ -4,11 +4,10 @@ Created on Dec 12, 2017
 @author: dvanaken
 '''
 
+from .myrocks import MyRocks56Parser
+from .postgres import Postgres96Parser
 from website.models import DBMSCatalog
 from website.types import DBMSType
-from .postgres import Postgres96Parser
-from .myrocks import MyRocks56Parser
-
 
 
 class Parser(object):
@@ -20,10 +19,10 @@ class Parser(object):
         if Parser.__DBMS_UTILS_IMPLS is None:
             Parser.__DBMS_UTILS_IMPLS = {
                 DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.6').pk:Postgres96Parser(),
+                    type=DBMSType.POSTGRES, version='9.6').pk: Postgres96Parser(),
                 DBMSCatalog.objects.get(
                     type=DBMSType.MYROCKS, version='5.6').pk: MyRocks56Parser()
-            } 
+            }
         try:
             if dbms_id is None:
                 return Parser.__DBMS_UTILS_IMPLS
@@ -40,7 +39,7 @@ class Parser(object):
             if dbms.type == dbms_type:
                 try:
                     return v.parse_version_string(version_string)
-                except:
+                except AttributeError:
                     pass
         return None
 
@@ -51,7 +50,7 @@ class Parser(object):
     @staticmethod
     def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time):
         return Parser.__utils(dbms_id).convert_dbms_metrics(
-                numeric_metrics, observation_time)
+            numeric_metrics, observation_time)
 
     @staticmethod
     def parse_dbms_knobs(dbms_id, knobs):

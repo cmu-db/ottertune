@@ -4,12 +4,14 @@ Common Django settings for the OtterTune project.
 """
 
 import os
-import sys
 from os.path import abspath, dirname, exists, join
+import sys
 
-## ==============================================
-## PATH CONFIGURATION
-## ==============================================
+import djcelery
+
+# ==============================================
+# PATH CONFIGURATION
+# ==============================================
 
 # Absolute path to this Django project directory.
 PROJECT_ROOT = dirname(dirname(dirname(abspath(__file__))))
@@ -30,12 +32,12 @@ LOG_DIR = join(PROJECT_ROOT, 'log')
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o664
 FILE_UPLOAD_PERMISSIONS = 0o664
 
-# Path to OtterTune's ML modules
+# Path to OtterTune's website and ML modules
 OTTERTUNE_LIBS = dirname(PROJECT_ROOT)
 
-## ==============================================
-## Path setup
-## ==============================================
+# ==============================================
+# Path setup
+# ==============================================
 
 # Add OtterTune's ML modules to path
 sys.path.insert(0, OTTERTUNE_LIBS)
@@ -44,20 +46,20 @@ sys.path.insert(0, OTTERTUNE_LIBS)
 try:
     if not exists(LOG_DIR):
         os.mkdir(LOG_DIR)
-except Exception:
+except OSError:  # Invalid permissions
     pass
 
-## ==============================================
-## DEBUG CONFIGURATION
-## ==============================================
+# ==============================================
+# DEBUG CONFIGURATION
+# ==============================================
 
 DEBUG = False
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 INTERNAL_IPS = ['127.0.0.1']
 
-## ==============================================
-## GENERAL CONFIGURATION
-## ==============================================
+# ==============================================
+# GENERAL CONFIGURATION
+# ==============================================
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -82,9 +84,9 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-## ==============================================
-## MEDIA CONFIGURATION
-## ==============================================
+# ==============================================
+# MEDIA CONFIGURATION
+# ==============================================
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -96,9 +98,9 @@ MEDIA_ROOT_URL = '/media/'
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = '/media/'
 
-## ==============================================
-## STATIC FILE CONFIGURATION
-## ==============================================
+# ==============================================
+# STATIC FILE CONFIGURATION
+# ==============================================
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -122,12 +124,11 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-## ==============================================
-## TEMPLATE CONFIGURATION
-## ==============================================
+# ==============================================
+# TEMPLATE CONFIGURATION
+# ==============================================
 
 TEMPLATES = [
     {
@@ -137,8 +138,7 @@ TEMPLATES = [
             join(PROJECT_ROOT, 'website', 'template')
         ],
         'OPTIONS': {
-                'context_processors': [
-                # TEMPLATE_CONTEXT_PROCESSORS
+            'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -147,18 +147,19 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.csrf',
-             ],
-             'loaders':['django.template.loaders.filesystem.Loader',
-             'django.template.loaders.app_directories.Loader',
-             ] ,  
-             'debug': DEBUG,
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
+            'debug': DEBUG,
         },
     },
 ]
 
-## ==============================================
-## MIDDLEWARE CONFIGURATION
-## ==============================================
+# ==============================================
+# MIDDLEWARE CONFIGURATION
+# ==============================================
 
 MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -171,9 +172,9 @@ MIDDLEWARE_CLASSES = (
     'request_logging.middleware.LoggingMiddleware',
 )
 
-## ==============================================
-## APP CONFIGURATION
-## ==============================================
+# ==============================================
+# APP CONFIGURATION
+# ==============================================
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -194,11 +195,9 @@ INSTALLED_APPS = (
     'website',
 )
 
-## ==============================================
-## RABBITMQ/CELERY CONFIGURATION
-## ==============================================
-
-import djcelery
+# ==============================================
+# RABBITMQ/CELERY CONFIGURATION
+# ==============================================
 
 # Broker URL for RabbitMq
 BROKER_URL = 'amqp://guest:guest@localhost:5672//'
@@ -216,9 +215,9 @@ CELERYD_CONCURRENCY = 8
 
 djcelery.setup_loader()
 
-## ==============================================
-## LOGGING CONFIGURATION
-## ==============================================
+# ==============================================
+# LOGGING CONFIGURATION
+# ==============================================
 
 # A website logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -230,23 +229,28 @@ LOGGING = {
     'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
     'handlers': {
         'logfile': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': join(LOG_DIR, 'website.log'),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
         },
-        'console':{
-            'level':'INFO',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
             'formatter': 'standard'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
         },
     },
     'filters': {
@@ -256,16 +260,16 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers':['console', 'logfile'],
+            'handlers': ['console', 'logfile'],
             'propagate': True,
-            'level':'WARN',
+            'level': 'WARN',
         },
         'django.db.backends': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': False,
         },
-        'website.views': {
+        'website': {
             'handlers': ['console', 'logfile'],
             'propagate': False,
             'level': 'DEBUG',
@@ -275,39 +279,31 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        # Uncomment to email admins after encountering an error (and debug=False)
+        # 'django.request': {
+        #     'handlers': ['mail_admins'],
+        #     'level': 'ERROR',
+        #     'propagate': True,
+        # },
     }
-#     'handlers': {
-#         'mail_admins': {
-#             'level': 'ERROR',
-#             'filters': ['require_debug_false'],
-#             'class': 'django.utils.log.AdminEmailHandler'
-#         }
-#     },
-#     'loggers': {
-#         'django.request': {
-#             'handlers': ['mail_admins'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#     }
 }
 
-## ==============================================
-## URL CONFIGURATION
-## ==============================================
+# ==============================================
+# URL CONFIGURATION
+# ==============================================
 
 ROOT_URLCONF = 'website.urls'
 
-## ==============================================
-## WSGI CONFIGURATION
-## ==============================================
+# ==============================================
+# WSGI CONFIGURATION
+# ==============================================
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'website.wsgi.application'
 
-## ==============================================
-## PASSWORD VALIDATORS
-## ==============================================
+# ==============================================
+# PASSWORD VALIDATORS
+# ==============================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -327,16 +323,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-## ==============================================
-## MISC
-## ==============================================
+# ==============================================
+# MISC
+# ==============================================
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 try:
-    from credentials import *
+    from .credentials import *  # pylint: disable=wildcard-import,wrong-import-position,unused-wildcard-import
 except ImportError as err:
     print ('Copy settings/credentials_TEMPLATE.py to '
            'credentials.py and update settings.')
     raise
-

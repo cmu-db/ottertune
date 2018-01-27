@@ -1,5 +1,5 @@
 """
-WSGI config for sample project.
+WSGI config for the OtterTune website.
 
 This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
@@ -13,7 +13,11 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
-import os, sys
+import os
+import sys
+
+from django.core.wsgi import get_wsgi_application
+
 
 sys.path.append('/var/www/ottertune')
 sys.path.append('/var/www/ottertune/website')
@@ -22,18 +26,8 @@ sys.path.append('/var/www/ottertune/website')
 # if running multiple sites in the same mod_wsgi process. To fix this, use
 # mod_wsgi daemon mode with each site in its own daemon process, or use
 os.environ["DJANGO_SETTINGS_MODULE"] = "website.settings"
-#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "website.settings")
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
-
-from django.core.wsgi import get_wsgi_application
-#from django.core.handlers.wsgi import WSGIHandler
-
-application = get_wsgi_application()
-#application = WSGIHandler()
-
-# Apply WSGI middleware here.
-# from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)
+application = get_wsgi_application()  # pylint: disable=invalid-name

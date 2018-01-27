@@ -133,7 +133,7 @@ class WorkloadMapper(object):
             n_values, cat_indices, params = prep.dummy_encoder_helper(self.dbms_name,
                                                                       self.featured_knobs_)
             assert isinstance(n_values, np.ndarray)
-            if n_values.size > 0:  # pylint: disable=no-member
+            if n_values.size > 0:
                 self.dummy_encoder_ = prep.DummyEncoder(n_values, cat_indices)
             else:
                 self.dummy_encoder_ = None

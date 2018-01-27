@@ -2,22 +2,23 @@
 Private/custom Django settings for the OtterTune project.
 
 """
+# pylint: disable=invalid-name
 
-## ==============================================
-## SECRET KEY CONFIGURATION
-## ==============================================
+# ==============================================
+# SECRET KEY CONFIGURATION
+# ==============================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'ADD ME!!'
 
-## ==============================================
-## DATABASE CONFIGURATION
-## ==============================================
+# ==============================================
+# DATABASE CONFIGURATION
+# ==============================================
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ottertune', 
+        'NAME': 'ottertune',
         'USER': 'ADD ME!!',
         'PASSWORD': 'ADD ME!!',
         'HOST': '',
@@ -28,16 +29,16 @@ DATABASES = {
     }
 }
 
-## ==============================================
-## DEBUG CONFIGURATION
-## ==============================================
+# ==============================================
+# DEBUG CONFIGURATION
+# ==============================================
 
 # Can override the DEBUG setting here
 DEBUG = False
 
-## ==============================================
-## MANAGER CONFIGURATION
-## ==============================================
+# ==============================================
+# MANAGER CONFIGURATION
+# ==============================================
 
 # Admin and managers for this project. These people receive private
 # site alerts.
@@ -46,9 +47,9 @@ ADMINS = (
 )
 MANAGERS = ADMINS
 
-## ==============================================
-## GENERAL CONFIGURATION
-## ==============================================
+# ==============================================
+# GENERAL CONFIGURATION
+# ==============================================
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

@@ -1,3 +1,4 @@
+import debug_toolbar
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.staticfiles.views import serve
@@ -9,6 +10,7 @@ from website import views as website_views
 
 admin.autodiscover()
 
+# pylint: disable=line-too-long,invalid-name
 urlpatterns = [
     # URLs for user registration & login
     url(r'^signup/', website_views.signup_view, name='signup'),
@@ -40,11 +42,10 @@ urlpatterns = [
     # URLs for the DBMS knob & metric reference pages
     url(r'^ref/(?P<dbms_name>.+)/(?P<version>.+)/knobs/(?P<knob_name>.+)/$', website_views.dbms_knobs_reference, name="dbms_knobs_ref"),
     url(r'^ref/(?P<dbms_name>.+)/(?P<version>.+)/metrics/(?P<metric_name>.+)/$', website_views.dbms_metrics_reference, name="dbms_metrics_ref"),
-    
+
     # URLs to the helper functions called by the javascript code
     url(r'^get_workload_data/', website_views.get_workload_data),
     url(r'^get_data/', website_views.get_timeline_data),
-    url(r'^update_similar/', website_views.update_similar),
 
     # Admin URLs
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -52,14 +53,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # Static URL
-    url(r'^static/(?P<path>.*)$', never_cache(serve)), 
+    url(r'^static/(?P<path>.*)$', never_cache(serve)),
 ]
 
-
 if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns = [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
-
+    urlpatterns.insert(0, url(r'^__debug__/', include(debug_toolbar.urls)))

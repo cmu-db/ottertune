@@ -5,14 +5,12 @@ Created on Jan 16, 2018
 '''
 
 import re
+from collections import OrderedDict
 
 from .base import BaseParser
 from website.models import DBMSCatalog
-from website.types import DBMSType, KnobUnitType
+from website.types import DBMSType, KnobUnitType, MetricType, VarType
 from website.utils import ConversionUtil
-from website.types import BooleanType, MetricType, VarType
-from collections import OrderedDict
-
 
 
 class MyRocksParser(BaseParser):
@@ -48,7 +46,7 @@ class MyRocksParser(BaseParser):
 
     @property
     def transactions_counter(self):
-        return 'session_status.com_xa_commit' #FIX ME:choose a proper metric
+        return 'session_status.questions'
 
     def convert_integer(self, int_value, metadata):
         converted = None
@@ -63,7 +61,7 @@ class MyRocksParser(BaseParser):
                 converted = ConversionUtil.get_raw_size(
                     int_value, system=self.MYROCKS_TIME_SYSTEM)
             else:
-                print int_value,metadata.name , metadata.unit 
+                print int_value, metadata.name, metadata.unit
                 raise Exception(
                     'Unknown unit type: {}'.format(metadata.unit))
         if converted is None:
@@ -90,25 +88,27 @@ class MyRocksParser(BaseParser):
 
     def parse_version_string(self, version_string):
         dbms_version = version_string.split(',')[0]
-        return re.search("\d+\.\d+(?=\.\d+)", dbms_version).group(0)
+        return re.search(r'\d+\.\d+(?=\.\d+)', dbms_version).group(0)
 
     def parse_helper(self, scope, view_variables):
         valid_variables = {}
         for view_name, variables in view_variables.iteritems():
             if scope == 'local':
                 for obj_name, sub_vars in variables.iteritems():
-                    for var_name, var_value in sub_vars.iteritems(): #local    
-                        full_name = '{}.{}.{}'.format \
-                                (view_name, obj_name, var_name)
+                    for var_name, var_value in sub_vars.iteritems():  # local
+                        full_name = '{}.{}.{}'.format(view_name, obj_name, var_name)
                         valid_variables[full_name] = var_value
             elif scope == 'global':
-                for var_name, var_value in variables.iteritems(): #global    
+                for var_name, var_value in variables.iteritems():  # global
                     full_name = '{}.{}'.format(view_name, var_name)
                     valid_variables[full_name] = var_value
             else:
                 raise Exception('Unsupported variable scope: {}'.format(scope))
         return valid_variables
 
+    # global variable fullname: viewname.varname
+    # local variable fullname: viewname.objname.varname
+    # return format: valid_variables = {var_fullname:var_val}
     def parse_dbms_variables(self, variables):
         valid_variables = {}
         for scope, sub_vars in variables.iteritems():
@@ -120,27 +120,23 @@ class MyRocksParser(BaseParser):
                 for _, viewnames in sub_vars.iteritems():
                     for viewname, objnames in viewnames.iteritems():
                         for obj_name, view_vars in objnames.iteritems():
-                            valid_variables.update(self.parse_helper('local',
-                                {viewname: {obj_name: view_vars}}))
+                            valid_variables.update(self.parse_helper(
+                                'local', {viewname: {obj_name: view_vars}}))
             else:
                 raise Exception('Unsupported variable scope: {}'.format(scope))
-        
-        #return format: valid_variables = {var_fullname:var_val}
-        #global variable fullname: viewname.varname
-        #local variable fullname: viewname.objname.varname
-        return valid_variables    
+        return valid_variables
 
-    #local variable: viewname.objname.varname
-    #global variable: viewname.varname
-    #This function is to change local variable fullname to viewname.varname,
-    #global variable remains same. This is because local varialbe in knob_catalog 
-    #is in parial format (i,e. viewname.varname)
+    # local variable: viewname.objname.varname
+    # global variable: viewname.varname
+    # This function is to change local variable fullname to viewname.varname, global
+    # variable remains same. This is because local varialbe in knob_catalog is in
+    # parial format (i,e. viewname.varname)
     @staticmethod
     def partial_name(full_name):
         var_name = full_name.split('.')
-        if len(var_name) == 2: #global variable
+        if len(var_name) == 2:  # global variable
             return full_name
-        elif len(var_name) == 3: #local variable
+        elif len(var_name) == 3:  # local variable
             return var_name[0] + '.' + var_name[2]
         else:
             raise Exception('Invalid variable full name: {}'.format(full_name))
@@ -159,22 +155,21 @@ class MyRocksParser(BaseParser):
         for var_name, var_value in variables.iteritems():
             lc_var_name = var_name.lower()
             prt_name = MyRocksParser.partial_name(lc_var_name)
-            if  prt_name in valid_lc_variables:
+            if prt_name in valid_lc_variables:
                 valid_name = valid_lc_variables[prt_name].name
-                if prt_name !=  valid_name:
-                    diff_log.append(('miscapitalized', \
-                            valid_name, var_name, var_value))
+                if prt_name != valid_name:
+                    diff_log.append(('miscapitalized', valid_name, var_name, var_value))
                 valid_variables[var_name] = var_value
             else:
                 diff_log.append(('extra', None, var_name, var_value))
 
         # Next find all item names that are listed in the catalog but missing from
-        # variables. Missing global variables are added to valid_variables with 
-        # the given default_value if provided (or the item's actual default value 
-        # if not) and logged as 'missing'. For now missing local variables are 
+        # variables. Missing global variables are added to valid_variables with
+        # the given default_value if provided (or the item's actual default value
+        # if not) and logged as 'missing'. For now missing local variables are
         # not added to valid_variables
-        lc_variables = {MyRocksParser.partial_name(k.lower()): \
-                v for k, v in variables.iteritems()}
+        lc_variables = {MyRocksParser.partial_name(k.lower()): v
+                        for k, v in variables.iteritems()}
         for valid_lc_name, metadata in valid_lc_variables.iteritems():
             if valid_lc_name not in lc_variables:
                 diff_log.append(('missing', metadata.name, None, None))
@@ -220,15 +215,15 @@ class MyRocksParser(BaseParser):
     def convert_dbms_metrics(self, metrics, observation_time):
         metric_data = {}
         for name, value in metrics.iteritems():
-            prt_name =  MyRocksParser.partial_name(name) 
+            prt_name = MyRocksParser.partial_name(name)
             if prt_name in self.numeric_metric_catalog_:
                 metadata = self.numeric_metric_catalog_[prt_name]
                 if metadata.metric_type == MetricType.COUNTER:
                     converted = self.convert_integer(value, metadata)
                     metric_data[name] = float(converted) / observation_time
                 else:
-                    raise Exception('Unknown metric type for {}: {}'.\
-                                    format(name, metadata.metric_type))
+                    raise Exception('Unknown metric type for {}: {}'.format(
+                        name, metadata.metric_type))
 
         if self.transactions_counter not in metric_data:
             raise Exception("Cannot compute throughput (no objective function)")
@@ -241,7 +236,7 @@ class MyRocksParser(BaseParser):
             prt_name = MyRocksParser.partial_name(name)
             if prt_name in self.tunable_knob_catalog_:
                 metadata = self.tunable_knob_catalog_[prt_name]
-                assert(metadata.tunable == True)
+                assert(metadata.tunable)
                 value = knobs[name]
                 conv_value = None
                 if metadata.vartype == VarType.BOOL:
@@ -266,12 +261,12 @@ class MyRocksParser(BaseParser):
         return knob_data
 
     def filter_numeric_metrics(self, metrics):
-        return OrderedDict([(k, v) for k, v in metrics.iteritems() if \
-                MyRocksParser.partial_name(k) in self.numeric_metric_catalog_])
+        return OrderedDict([(k, v) for k, v in metrics.iteritems() if
+                            MyRocksParser.partial_name(k) in self.numeric_metric_catalog_])
 
     def filter_tunable_knobs(self, knobs):
-        return OrderedDict([(k, v) for k, v in knobs.iteritems() if \
-                MyRocksParser.partial_name(k) in self.tunable_knob_catalog_])
+        return OrderedDict([(k, v) for k, v in knobs.iteritems() if
+                            MyRocksParser.partial_name(k) in self.tunable_knob_catalog_])
 
 
 class MyRocks56Parser(MyRocksParser):

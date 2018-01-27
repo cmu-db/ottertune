@@ -2,12 +2,11 @@ from collections import namedtuple, OrderedDict
 
 from django.contrib.auth.models import User
 from django.core.validators import validate_comma_separated_integer_list
-from django.db import models
+from django.db import models, DEFAULT_DB_ALIAS
 from django.utils.timezone import now
 
 from .types import (DBMSType, LabelStyleType, MetricType, HardwareType,
                     KnobUnitType, PipelineTaskType, VarType)
-from website.utils import JSONUtil
 
 
 class BaseModel(models.Model):
@@ -30,7 +29,7 @@ class BaseModel(models.Model):
                 if field.name == 'id':
                     verbose_name = cls._model_name() + ' id'
                 labels[field.name] = verbose_name
-            except:
+            except AttributeError:
                 pass
         return LabelUtil.style_labels(labels, style)
 
@@ -38,8 +37,8 @@ class BaseModel(models.Model):
     def _model_name(cls):
         return cls.__name__
 
-    class Meta:
-        abstract=True
+    class Meta:  # pylint: disable=old-style-class,no-init
+        abstract = True
 
 
 class DBMSCatalog(BaseModel):
@@ -79,7 +78,8 @@ class KnobCatalog(BaseModel):
     tunable = models.BooleanField(verbose_name="tunable")
 
 
-MetricMeta = namedtuple('MetricMeta', ['name', 'pprint', 'unit', 'short_unit', 'scale', 'improvement'])
+MetricMeta = namedtuple('MetricMeta',
+                        ['name', 'pprint', 'unit', 'short_unit', 'scale', 'improvement'])
 
 
 class MetricManager(models.Manager):
@@ -95,7 +95,7 @@ class MetricManager(models.Manager):
                        'txn/sec', 1, MORE_IS_BETTER)
 
     # Objective function metric metadata
-    OBJ_META = { THROUGHPUT: THROUGHPUT_META }
+    OBJ_META = {THROUGHPUT: THROUGHPUT_META}
 
     @staticmethod
     def get_default_metrics(target_objective=None):
@@ -114,7 +114,8 @@ class MetricManager(models.Manager):
             dbms=dbms, metric_type=MetricType.COUNTER).values_list('name', flat=True)
         numeric_metrics = {}
         for metname in numeric_metric_names:
-            numeric_metrics[metname] = MetricMeta(metname, metname, 'events / second', 'events/sec', 1, '')
+            numeric_metrics[metname] = MetricMeta(
+                metname, metname, 'events / second', 'events/sec', 1, '')
         sorted_metrics = [(mname, mmeta) for mname, mmeta in
                           sorted(numeric_metrics.iteritems())]
         if include_target_objectives:
@@ -141,11 +142,11 @@ class Project(BaseModel):
     creation_time = models.DateTimeField()
     last_update = models.DateTimeField()
 
-    def delete(self, using=None):
+    def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
         sessions = Session.objects.filter(project=self)
         for x in sessions:
             x.delete()
-        super(Project, self).delete(using)
+        super(Project, self).delete(using, keep_parents)
 
 
 class Hardware(BaseModel):
@@ -153,8 +154,8 @@ class Hardware(BaseModel):
     name = models.CharField(max_length=32)
     cpu = models.IntegerField()
     memory = models.FloatField()
-    storage = models.CharField(max_length=64,
-            validators=[validate_comma_separated_integer_list])
+    storage = models.CharField(
+        max_length=64, validators=[validate_comma_separated_integer_list])
     storage_type = models.CharField(max_length=16)
     additional_specs = models.TextField(null=True)
 
@@ -185,14 +186,14 @@ class Session(BaseModel):
         else:
             self.target_objective = None
 
-    def delete(self, using=None):
+    def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
         targets = KnobData.objects.filter(session=self)
         results = Result.objects.filter(session=self)
         for t in targets:
             t.delete()
         for r in results:
             r.delete()
-        super(Session, self).delete(using) 
+        super(Session, self).delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
 
 
 class DataModel(BaseModel):
@@ -202,13 +203,14 @@ class DataModel(BaseModel):
     data = models.TextField()
     dbms = models.ForeignKey(DBMSCatalog)
 
-    class Meta:
+    class Meta:  # pylint: disable=old-style-class,no-init
         abstract = True
 
 
 class DataManager(models.Manager):
 
-    def create_name(self, data_obj, key):
+    @staticmethod
+    def create_name(data_obj, key):
         ts = data_obj.creation_time.strftime("%m-%d-%y")
         return (key + '@' + ts + '#' + str(data_obj.pk))
 
@@ -260,7 +262,7 @@ class WorkloadManager(models.Manager):
     def create_workload(self, dbms, hardware, name):
         # (dbms,hardware,name) should be unique for each workload
         try:
-            return Workload.objects.get(dbms=dbms,hardware=hardware,name=name)
+            return Workload.objects.get(dbms=dbms, hardware=hardware, name=name)
         except Workload.DoesNotExist:
             return self.create(dbms=dbms,
                                hardware=hardware,
@@ -268,7 +270,8 @@ class WorkloadManager(models.Manager):
 
 
 class Workload(BaseModel):
-#     __DEFAULT_FMT = '{db}_{hw}_UNASSIGNED'.format
+
+    # __DEFAULT_FMT = '{db}_{hw}_UNASSIGNED'.format
 
     objects = WorkloadManager()
 
@@ -276,23 +279,22 @@ class Workload(BaseModel):
     hardware = models.ForeignKey(Hardware)
     name = models.CharField(max_length=128, verbose_name='workload name')
 
-    # (dbms,hardware,name) should be unique for each workload
-    class Meta:
+    class Meta:  # pylint: disable=old-style-class,no-init
         unique_together = ("dbms", "hardware", "name")
 
-#     @property
-#     def isdefault(self):
-#         return self.cluster_name == self.default
-#
-#     @property
-#     def default(self):
-#         return self.__DEFAULT_FMT(db=self.dbms.pk,
-#                                   hw=self.hardware.pk)
-#
-#     @staticmethod
-#     def get_default(dbms_id, hw_id):
-#         return Workload.__DEFAULT_FMT(db=dbms_id,
-#                                       hw=hw_id)
+    # @property
+    # def isdefault(self):
+    #     return self.cluster_name == self.default
+    #
+    # @property
+    # def default(self):
+    #     return self.__DEFAULT_FMT(db=self.dbms.pk,
+    #                               hw=self.hardware.pk)
+    #
+    # @staticmethod
+    # def get_default(dbms_id, hw_id):
+    #     return Workload.__DEFAULT_FMT(db=dbms_id,
+    #                                   hw=hw_id)
 
 
 class ResultManager(models.Manager):
@@ -350,9 +352,9 @@ class PipelineRun(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
 
-    class Meta:
+    class Meta:  # pylint: disable=old-style-class,no-init
         ordering = ["-id"]
-    
+
 
 class PipelineData(models.Model):
     pipeline_run = models.ForeignKey(PipelineRun)
@@ -361,7 +363,7 @@ class PipelineData(models.Model):
     data = models.TextField()
     creation_time = models.DateTimeField()
 
-    class Meta:
+    class Meta:  # pylint: disable=old-style-class,no-init
         unique_together = ("pipeline_run", "task_type", "workload")
 
 

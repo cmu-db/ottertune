@@ -1,19 +1,17 @@
 import numpy as np
-
 from celery.task import task, Task
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler
 
 from analysis.gp_tf import GPR, GPRGD
-from analysis.preprocessing import bin_by_decile, Bin
-from website.models import (PipelineData, PipelineRun,
-                            Result, Workload)
+from analysis.preprocessing import Bin
+from website.models import PipelineData, PipelineRun, Result, Workload
 from website.parser import Parser
 from website.types import PipelineTaskType
 from website.utils import DataUtil, JSONUtil
 
 
-class UpdateTask(Task):
+class UpdateTask(Task):  # pylint: disable=abstract-method
 
     def __init__(self):
         self.rate_limit = '50/m'
@@ -21,10 +19,10 @@ class UpdateTask(Task):
         self.default_retry_delay = 60
 
 
-class AggregateTargetResults(UpdateTask):
+class AggregateTargetResults(UpdateTask):  # pylint: disable=abstract-method
 
     def on_success(self, retval, task_id, args, kwargs):
-        super(UpdateTask, self).on_success(retval, task_id, args, kwargs)
+        super(AggregateTargetResults, self).on_success(retval, task_id, args, kwargs)
 
         # Completely delete this result because it's huge and not
         # interesting
@@ -33,10 +31,10 @@ class AggregateTargetResults(UpdateTask):
         task_meta.save()
 
 
-class MapWorkload(UpdateTask):
+class MapWorkload(UpdateTask):  # pylint: disable=abstract-method
 
     def on_success(self, retval, task_id, args, kwargs):
-        super(UpdateTask, self).on_success(retval, task_id, args, kwargs)
+        super(MapWorkload, self).on_success(retval, task_id, args, kwargs)
 
         # Replace result with formatted result
         new_res = {
@@ -44,14 +42,14 @@ class MapWorkload(UpdateTask):
             'mapped_workload_id': args[0]['mapped_workload'],
         }
         task_meta = TaskMeta.objects.get(task_id=task_id)
-        task_meta.result = new_res # Only store scores
+        task_meta.result = new_res  # Only store scores
         task_meta.save()
 
 
-class ConfigurationRecommendation(UpdateTask):
+class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-method
 
     def on_success(self, retval, task_id, args, kwargs):
-        super(UpdateTask, self).on_success(retval, task_id, args, kwargs)
+        super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
 
         result_id = args[0]['newest_result_id']
         result = Result.objects.get(pk=result_id)
@@ -226,7 +224,7 @@ def configuration_recommendation(target_data):
     best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
 
-    conf_map = {k: best_config[i] for i,k in enumerate(X_columnlabels)}
+    conf_map = {k: best_config[i] for i, k in enumerate(X_columnlabels)}
     return conf_map
 
 

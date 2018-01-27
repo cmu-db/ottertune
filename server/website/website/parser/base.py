@@ -68,10 +68,10 @@ class BaseParser(object):
         return float(real_value)
 
     def convert_string(self, string_value, metadata):
-        raise NotImplementedError('Implement me!')
+        return string_value
 
     def convert_timestamp(self, timestamp_value, metadata):
-        raise NotImplementedError('Implement me!')
+        return timestamp_value
 
     def convert_dbms_knobs(self, knobs):
         knob_data = {}
@@ -154,7 +154,7 @@ class BaseParser(object):
         assert len(valid_variables) == len(catalog)
         return valid_variables, diff_log
 
-    def parse_helper(self, view_variables):
+    def parse_helper(self, scope, view_variables):
         valid_variables = {}
         for view_name, variables in view_variables.iteritems():
             for var_name, var_value in variables.iteritems():
@@ -170,13 +170,13 @@ class BaseParser(object):
             if sub_vars is None:
                 continue
             if scope == 'global':
-                valid_variables.update(self.parse_helper(sub_vars))
+                valid_variables.update(self.parse_helper(scope, sub_vars))
             elif scope == 'local':
                 for _, viewnames in sub_vars.iteritems():
                     for viewname, objnames in viewnames.iteritems():
                         for _, view_vars in objnames.iteritems():
                             valid_variables.update(self.parse_helper(
-                                {viewname: view_vars}))
+                                scope, {viewname: view_vars}))
             else:
                 raise Exception('Unsupported variable scope: {}'.format(scope))
         return valid_variables
@@ -298,10 +298,10 @@ class BaseParser(object):
         return float(real_value)
 
     def format_string(self, string_value, metadata):
-        raise NotImplementedError('Implement me!')
+        return string_value
 
     def format_timestamp(self, timestamp_value, metadata):
-        raise NotImplementedError('Implement me!')
+        return timestamp_value
 
     def format_dbms_knobs(self, knobs):
         formatted_knobs = {}

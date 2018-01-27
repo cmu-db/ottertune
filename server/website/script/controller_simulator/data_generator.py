@@ -6,24 +6,30 @@ Created on Nov 30, 2017
 
 import copy
 import datetime
-import json
-import numpy as np
 import os
 import shutil
 import sys
 
+import json
+import numpy as np
+
+
+# Data generator configuration
 OBSERVATION_TIME_SEC = 300  # 5 minutes
 START_TIME = datetime.datetime.now() - datetime.timedelta(weeks=1)
 START_FREQUENCY = datetime.timedelta(minutes=10)
 END_FREQUENCY = datetime.timedelta(seconds=OBSERVATION_TIME_SEC)
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
+# Paths
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 SAMPLE_DIR = os.path.join(ROOT_DIR, 'samples')
 OUTPUT_DIR = os.path.join(ROOT_DIR, 'generated_data')
 
+
 def unix_time_millis(dt):
     return int((dt - EPOCH).total_seconds() * 1000.0)
+
 
 def generate_data(n_workloads, n_samples_per_workload):
     with open(os.path.join(SAMPLE_DIR, 'knobs.json'), 'r') as f:
@@ -57,13 +63,17 @@ def generate_data(n_workloads, n_samples_per_workload):
             end_time = start_time + END_FREQUENCY
 
             knob_vals = np.random.randint(1, 11, 4)
-            knob_data['global']['global']['shared_buffers'] = str(knob_vals[0]) + 'GB'
-            knob_data['global']['global']['work_mem'] = str(knob_vals[1]) + 'GB'
-            knob_data['global']['global']['checkpoint_timing'] = str(knob_vals[2]) + 'min'
-            knob_data['global']['global']['effective_io_concurrency'] = str(knob_vals[3])
+            global_knobs = knob_data['global']['global']
+            global_knobs['shared_buffers'] = str(knob_vals[0]) + 'GB'
+            global_knobs['work_mem'] = str(knob_vals[1]) + 'GB'
+            global_knobs['checkpoint_timing'] = str(knob_vals[2]) + 'min'
+            global_knobs['effective_io_concurrency'] = str(knob_vals[3])
 
-            metrics_start_data['global']['pg_stat_bgwriter']['buffers_alloc'] = np.random.randint(3000, 7000)
-            metrics_end_data['global']['pg_stat_bgwriter']['buffers_alloc'] = np.random.randint(7000, 10000)
+            metrics_start_data['global']['pg_stat_bgwriter']['buffers_alloc'] = np.random.randint(
+                3000, 7000)
+            metrics_end_data['global']['pg_stat_bgwriter']['buffers_alloc'] = np.random.randint(
+                7000, 10000)
+
             locations = [
                 ('xact_commit', metrics_start_data['local']['database']['pg_stat_database']),
                 ('xact_commit', metrics_end_data['local']['database']['pg_stat_database']),
@@ -83,7 +93,7 @@ def generate_data(n_workloads, n_samples_per_workload):
                     kvs[name] = met_val
 
             basepath = os.path.join(wkld_dir, 'sample-{}'.format(j))
-            
+
             with open(basepath + "__knobs.json", 'w') as f:
                 json.dump(knob_data, f, indent=4)
             with open(basepath + '__metrics_start.json', 'w') as f:
@@ -96,7 +106,8 @@ def generate_data(n_workloads, n_samples_per_workload):
 
 def main():
     if len(sys.argv) < 3:
-        print 'Usage: python data_generator.py [n_workloads] [n_samples_per_workload] [optional: random_seed]'
+        print ('Usage: python data_generator.py [n_workloads] [n_samples_per_workload] '
+               '[optional: random_seed]')
         sys.exit(1)
     if len(sys.argv) == 4:
         random_seed = int(sys.argv[3])
@@ -109,6 +120,7 @@ def main():
     generate_data(int(sys.argv[1]), int(sys.argv[2]))
     print ""
     print "Finished. Generated data written to " + OUTPUT_DIR + "."
+
 
 if __name__ == "__main__":
     main()

@@ -183,7 +183,7 @@ class GPR(object):
         if np.isscalar(ridge):
             ridge = np.ones(sample_size) * ridge
         assert isinstance(ridge, np.ndarray)
-        assert ridge.ndim == 1  # pylint: disable=no-member
+        assert ridge.ndim == 1
 
         X_dists = np.zeros((sample_size, sample_size), dtype=np.float32)
         with tf.Session(graph=self.graph,

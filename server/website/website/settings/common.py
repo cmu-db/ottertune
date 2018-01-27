@@ -6,7 +6,6 @@ Common Django settings for the OtterTune project.
 import os
 import sys
 from os.path import abspath, dirname, exists, join
-import djcelery
 
 ## ==============================================
 ## PATH CONFIGURATION
@@ -151,7 +150,7 @@ TEMPLATES = [
              ],
              'loaders':['django.template.loaders.filesystem.Loader',
              'django.template.loaders.app_directories.Loader',
-             ] ,
+             ] ,  
              'debug': DEBUG,
         },
     },
@@ -340,3 +339,4 @@ except ImportError as err:
     print ('Copy settings/credentials_TEMPLATE.py to '
            'credentials.py and update settings.')
     raise
+

@@ -222,8 +222,8 @@ def configuration_recommendation(target_data):
 
     # FIXME: whether we select the min/max for the best config depends
     # on the target objective
-    best_config_idx = np.argmin(res.minL.ravel())
-    best_config = res.minL_conf[best_config_idx, :]
+    best_config_idx = np.argmin(res.minl.ravel())
+    best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
 
     conf_map = {k: best_config[i] for i,k in enumerate(X_columnlabels)}

@@ -1,1 +1,0 @@
-The website stores the uploaded files in this directory

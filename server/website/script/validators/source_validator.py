@@ -44,7 +44,7 @@ LOG.setLevel(logging.INFO)
 
 # NOTE: absolute path to ottertune directory is calculated from current directory
 # directory structure: ottertune/server/website/scripts/validators/<this_file>
-# OTTERTUNE_DIR needs to be redefined if the directory structure is changed
+# OTTERTUNE_DIR needs to be redefined if the directory structure is changed.
 CODE_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
 OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                  [CODE_SOURCE_DIR,
@@ -96,14 +96,7 @@ OUTPUT_FORMAT = (THICK_LINE + "\n\033[1m %s: FAILED\n %s\033[0m\n" + THIN_LINE +
 # Namedtuple for storing regex pattern information
 PatternInfo = namedtuple("PatternInfo", ['name', 'pattern', 'message'])
 
-# check_pylint
-PYLINT_FORMAT_PATTERNS = [
-    PatternInfo('line_num', re.compile(r'(?<=:)\d+(?=:)'), None),
-    PatternInfo('msg', re.compile(r'(?<=\) ).*$'), None),
-    PatternInfo('msg_id', re.compile(r'(?<=\()[a-zA-z][0-9]+(?=\,)'), None),
-    PatternInfo('symbol', re.compile(r'(?<=\, )\w[\w-]+(?=\,)'), None),
-]
-PYLINT_FORMAT = " - line {line}: {msg} ({msg_id}: {symbol})".format
+PYLINT_FORMAT = " - line {line}: {message} ({symbol})".format
 
 # check_pycodestyle
 PYCODESTYLE_COMMENT_PATTERN = re.compile(r'#\s*pycodestyle:\s*disable\s*=\s*[\w\,\s]+$')
@@ -122,47 +115,29 @@ ILLEGAL_FORMAT = " - line {line_num}: {msg}".format
 # ==============================================
 
 def check_pylint(file_path, config_path=None):
-    # This message template outputs all of pylint's error logging
-    # vars in ~json format which makes it much easier to parse
-    options = ['--msg-template=\'{{"abspath": "{abspath}", "line": '
-               '"{line:3d}", "msg": "{msg}", "msg_id": "{msg_id}", '
-               '"symbol": "{symbol}", "category": "{category}"}}\'']
+    options = []
     if config_path is not None:
         options.append('--rcfile=' + config_path)
 
     with settings(warn_only=True), quiet():
         res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
-        content = res.stdout.replace('\n', '')
-        idx = 0
-        entries = []
-        while True:
-            while idx < len(content) and content[idx] != '{':
-                idx = idx + 1
-            if idx >= len(content):
-                break
-            assert content[idx] == '{'
-            start_idx = idx
-            idx += 1
-            while idx < len(content) and content[idx] != '}':
-                idx += 1
-            if idx >= len(content):
-                break
-            assert content[idx] == '}'
-            idx += 1
-            entries.append(content[start_idx: idx])
-        output = []
-        for entry in entries:
-            entry = json.loads(entry)
+    if res.stdout == '':
+        assert res.return_code == 0, 'return_code={}, expected=0'.format(res.return_code)
+        return True, None
 
-            # We crop the message details to make the output more readable
-            msg = re.sub(' +', ' ', entry['msg'])
-            msg = msg.replace('^', '').replace('|', '')
-            msg = msg.strip()
-            msg_len = 80 - (21 + len(entry['msg_id']) + len(entry['symbol']))
-            entry['msg'] = msg[:msg_len] + '...'
-            output.append(PYLINT_FORMAT(**entry))
-        output = '\n'.join(output) + '\n'
-        return res.return_code == 0, output
+    output = []
+    errors = json.loads(res.stdout)
+    for entry in errors:
+        # We crop the message details to make the output more readable
+        msg = entry['message'].replace('\n', '')
+        msg = msg.replace('^', '').replace('|', '')
+        msg = re.sub(' +', ' ', msg)
+        msg = msg.strip()
+        max_msg_len = 80 - (18 + len(entry['symbol']))
+        entry['message'] = msg[:max_msg_len]
+        output.append(PYLINT_FORMAT(**entry))
+    output = '\n'.join(output) + '\n'
+    return res.return_code == 0, output
 
 
 def check_pycodestyle(file_path, config_path=None):
@@ -227,7 +202,7 @@ def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unus
                     output.append(ILLEGAL_FORMAT(line_num=line_num, msg=pattern_info.message))
                     status = False
             line_num += 1
-        output = None if status else '\n'.join(output) + '\n\n'
+        output = None if status else '\n'.join(output) + '\n'
         return status, output
 
 
@@ -238,7 +213,7 @@ def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unus
 def validate_validator(modules, config_path):
     status = True
 
-    # Check that the required modules are installed
+    # Check if required modules are installed
     for module in modules:
         if module is not None:
             try:
@@ -260,17 +235,12 @@ def validate_file(file_path):
         status = True
     else:
         status = True
-        outputs = []
         for validator in VALIDATORS:
             val_status, val_output = validator.validate_fn(
                 file_path, validator.config_path)
             if not val_status:
                 status = False
-                outputs.append((validator.name, val_output))
-        if len(outputs) > 0:
-            for name, output in outputs:
-                LOG.info(OUTPUT_FORMAT, name, file_path, output)
-            LOG.info(THICK_LINE)
+                LOG.info(OUTPUT_FORMAT, validator.name, file_path, val_output)
     return status
 
 
@@ -340,9 +310,9 @@ def main():
             # Looks good, let's validate
             LOG.info("Scanning file : %s\n", file_path)
             status = validate_file(file_path)
-            if not status:
-                LOG.info("Validation NOT successful")
-                sys.exit(EXIT_FAILURE)
+#             if not status:
+#                 LOG.info("Validation NOT successful")
+#                 sys.exit(EXIT_FAILURE)
 
     else:
         # Validate all files in server directory
@@ -350,9 +320,10 @@ def main():
             LOG.info("Scanning directory : %s\n", dir_path)
 
             status = validate_dir(dir_path)
-            if not status:
-                LOG.info("Validation NOT successful\n")
-                sys.exit(EXIT_FAILURE)
+    if not status:
+        LOG.info(THICK_LINE)
+        LOG.info("Validation NOT successful\n")
+        sys.exit(EXIT_FAILURE)
 
     LOG.info("Validation successful\n")
     sys.exit(EXIT_SUCCESS)

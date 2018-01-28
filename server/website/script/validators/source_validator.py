@@ -10,12 +10,14 @@
 
 import argparse
 import logging
+import imp
 import os
 import re
 import sys
-import imp
+import json
 import functools
 from collections import namedtuple
+from fabric.api import local, settings, quiet
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = -1
@@ -101,7 +103,7 @@ PYLINT_FORMAT_PATTERNS = [
     PatternInfo('msg_id', re.compile(r'(?<=\()[a-zA-z][0-9]+(?=\,)'), None),
     PatternInfo('symbol', re.compile(r'(?<=\, )\w[\w-]+(?=\,)'), None),
 ]
-PYLINT_FORMAT = " - line {line_num}: {msg} ({msg_id}: {symbol})".format
+PYLINT_FORMAT = " - line {line}: {msg} ({msg_id}: {symbol})".format
 
 # check_pycodestyle
 PYCODESTYLE_COMMENT_PATTERN = re.compile(r'#\s*pycodestyle:\s*disable\s*=\s*[\w\,\s]+$')
@@ -120,34 +122,47 @@ ILLEGAL_FORMAT = " - line {line_num}: {msg}".format
 # ==============================================
 
 def check_pylint(file_path, config_path=None):
-    from pylint import epylint as lint
-
-    options = []
+    # This message template outputs all of pylint's error logging
+    # vars in ~json format which makes it much easier to parse
+    options = ['--msg-template=\'{{"abspath": "{abspath}", "line": '
+               '"{line:3d}", "msg": "{msg}", "msg_id": "{msg_id}", '
+               '"symbol": "{symbol}", "category": "{category}"}}\'']
     if config_path is not None:
         options.append('--rcfile=' + config_path)
-    options = ' '.join(options)
-    stdout_file, stderr_file = lint.py_run(file_path + ' ' + options, return_std=True)
-    stdout, stderr = stdout_file.read(), stderr_file.read()
-    status = stdout == '' and stderr == ''
-    if status:
-        output = None
-    else:
+
+    with settings(warn_only=True), quiet():
+        res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
+        content = res.stdout.replace('\n', '')
+        idx = 0
+        entries = []
+        while True:
+            while idx < len(content) and content[idx] != '{':
+                idx = idx + 1
+            if idx >= len(content):
+                break
+            assert content[idx] == '{'
+            start_idx = idx
+            idx += 1
+            while idx < len(content) and content[idx] != '}':
+                idx += 1
+            if idx >= len(content):
+                break
+            assert content[idx] == '}'
+            idx += 1
+            entries.append(content[start_idx: idx])
         output = []
-        if stdout != '':
-            # Fix pylint's output format (stdout)
-            for line in stdout.strip().split('\n')[1:]:
-                line = line.strip()
-                if line == '':
-                    continue
-                format_vars = {}
-                for pattern_info in PYLINT_FORMAT_PATTERNS:
-                    m = pattern_info.pattern.search(line)
-                    format_vars[pattern_info.name] = '' if m is None else m.group()
-                output.append(PYLINT_FORMAT(**format_vars))
-            output = '\n'.join(output) + '\n'
-        if stderr != '':
-            output += stderr + '\n'
-    return status, output
+        for entry in entries:
+            entry = json.loads(entry)
+
+            # We crop the message details to make the output more readable
+            msg = re.sub(' +', ' ', entry['msg'])
+            msg = msg.replace('^', '').replace('|', '')
+            msg = msg.strip()
+            msg_len = 80 - (21 + len(entry['msg_id']) + len(entry['symbol']))
+            entry['msg'] = msg[:msg_len] + '...'
+            output.append(PYLINT_FORMAT(**entry))
+        output = '\n'.join(output) + '\n'
+        return res.return_code == 0, output
 
 
 def check_pycodestyle(file_path, config_path=None):
@@ -212,7 +227,7 @@ def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unus
                     output.append(ILLEGAL_FORMAT(line_num=line_num, msg=pattern_info.message))
                     status = False
             line_num += 1
-        output = None if status else '\n'.join(output) + '\n'
+        output = None if status else '\n'.join(output) + '\n\n'
         return status, output
 
 
@@ -336,10 +351,10 @@ def main():
 
             status = validate_dir(dir_path)
             if not status:
-                LOG.info("Validation NOT successful")
+                LOG.info("Validation NOT successful\n")
                 sys.exit(EXIT_FAILURE)
 
-    LOG.info("Validation successful")
+    LOG.info("Validation successful\n")
     sys.exit(EXIT_SUCCESS)
 
 

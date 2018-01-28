@@ -1,15 +1,15 @@
 import copy
 import numpy as np
-
-from numpy.random import choice
-
 from django.test import TestCase, override_settings
 
 from website.tasks import periodic_tasks
-from website.models import Workload, PipelineRun, PipelineData
+from website.models import PipelineData, PipelineRun, Workload
 from website.types import PipelineTaskType
 
-@override_settings(CELERY_ALWAYS_EAGER = True, TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner')
+CELERY_TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
+
+
+@override_settings(CELERY_ALWAYS_EAGER=True, TEST_RUNNER=CELERY_TEST_RUNNER)
 class BackgroundTestCase(TestCase):
 
     fixtures = ['test_website.json']
@@ -28,7 +28,8 @@ class BackgroundTestCase(TestCase):
         self.assertTrue(result.successful())
 
     def testNewPipelineRun(self):
-        # this test currently relies on the fixture data so that it actually tests anything
+        # this test currently relies on the fixture data so that
+        # it actually tests anything
         workloads = Workload.objects.all()
         if len(workloads) > 0:
             runs_before = len(PipelineRun.objects.all())
@@ -38,9 +39,11 @@ class BackgroundTestCase(TestCase):
 
     def checkNewTask(self, task_type):
         workloads = Workload.objects.all()
-        pruned_before = [len(PipelineData.objects.filter(workload=workload, task_type=task_type)) for workload in workloads]
+        pruned_before = [len(PipelineData.objects.filter(
+            workload=workload, task_type=task_type)) for workload in workloads]
         periodic_tasks.run_background_tasks.delay()
-        pruned_after = [len(PipelineData.objects.filter(workload=workload, task_type=task_type)) for workload in workloads]
+        pruned_after = [len(PipelineData.objects.filter(
+            workload=workload, task_type=task_type)) for workload in workloads]
         for before, after in zip(pruned_before, pruned_after):
             self.assertEqual(before + 1, after)
 
@@ -49,6 +52,7 @@ class BackgroundTestCase(TestCase):
 
     def testNewRankedKnobs(self):
         self.checkNewTask(PipelineTaskType.RANKED_KNOBS)
+
 
 class AggregateTestCase(TestCase):
 
@@ -63,6 +67,7 @@ class AggregateTestCase(TestCase):
             for k in keys:
                 self.assertIn(k, d)
 
+
 class PrunedMetricTestCase(TestCase):
 
     fixtures = ['test_website.json']
@@ -74,6 +79,7 @@ class PrunedMetricTestCase(TestCase):
         for m in pruned_metrics:
             self.assertIn(m, metric_data['columnlabels'])
 
+
 class RankedKnobTestCase(TestCase):
 
     fixtures = ['test_website.json']
@@ -82,17 +88,19 @@ class RankedKnobTestCase(TestCase):
         workloads = Workload.objects.all()
         knob_data, metric_data = periodic_tasks.aggregate_data(workloads[0])
 
-        # instead of doing actual metric pruning by factor analysis / clustering, just randomly select 5 nonconstant metrics
+        # instead of doing actual metric pruning by factor analysis /
+        # clustering, just randomly select 5 nonconstant metrics
         nonconst_metric_columnlabels = []
         for col, cl in zip(metric_data['data'].T, metric_data['columnlabels']):
             if np.any(col != col[0]):
                 nonconst_metric_columnlabels.append(cl)
 
         num_metrics = min(5, len(nonconst_metric_columnlabels))
-        selected_columnlabels = choice(nonconst_metric_columnlabels, num_metrics, replace=False)
+        selected_columnlabels = np.random.choice(nonconst_metric_columnlabels,
+                                                 num_metrics, replace=False)
         pruned_metric_idxs = [i for i, metric_name in
-            enumerate(metric_data['columnlabels'])
-            if metric_name in selected_columnlabels]
+                              enumerate(metric_data['columnlabels'])
+                              if metric_name in selected_columnlabels]
         pruned_metric_data = {
             'data': metric_data['data'][:, pruned_metric_idxs],
             'rowlabels': copy.deepcopy(metric_data['rowlabels']),

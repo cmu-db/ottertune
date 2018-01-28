@@ -329,9 +329,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
-try:
-    from .credentials import *  # pylint: disable=wildcard-import,wrong-import-position,unused-wildcard-import
-except ImportError as err:
-    print ('Copy settings/credentials_TEMPLATE.py to '
-           'credentials.py and update settings.')
-    raise
+
+# Import and override defaults with custom configuration options
+# pylint: disable=wildcard-import,wrong-import-position,unused-wildcard-import
+from .credentials import *  # pycodestyle: disable=E402
+# pylint: enable=wildcard-import,wrong-import-position,unused-wildcard-import

@@ -54,7 +54,6 @@ class UploadResultsTests(TestCase):
         post_data = {'upload_code': upload_code}
         response = self.client.post(form_addr, post_data)
         self.assertEqual(response.status_code, 200)
-        print response
         self.assertContains(response, u"New result form is not valid:")
         self.assertContains(response, u"This field is required", 4)
 

@@ -4,11 +4,14 @@ Admin tasks
 @author: dvanaken
 '''
 
+import logging
 from collections import namedtuple
 from fabric.api import env, local, quiet, settings, task
 from fabric.state import output as fabric_output
 
 from website.settings import DATABASES, PROJECT_ROOT
+
+LOG = logging.getLogger(__name__)
 
 
 # Fabric environment settings
@@ -62,8 +65,7 @@ def status_rabbitmq():
         status = STATUS.RUNNING
     else:
         raise Exception("Rabbitmq: unknown status " + str(res.return_code))
-    print status
-    print_status(status, 'rabbitmq')
+    log_status(status, 'rabbitmq')
     return status
 
 
@@ -96,7 +98,7 @@ def status_celery():
             status = STATUS.STOPPED
         else:
             raise e
-    print_status(status, 'celery')
+    log_status(status, 'celery')
     return status
 
 
@@ -122,10 +124,8 @@ def parse_bool(value):
         raise Exception('Cannot convert {} to bool'.format(type(value)))
 
 
-def print_status(status, task_name):
-    print "{} status: {}".format(
-        task_name,
-        STATUS._fields[STATUS.index(status)])
+def log_status(status, task_name):
+    LOG.info("%s status: %s", task_name, STATUS._fields[STATUS.index(status)])
 
 
 @task

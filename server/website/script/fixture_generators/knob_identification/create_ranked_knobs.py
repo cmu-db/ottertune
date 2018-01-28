@@ -1,8 +1,10 @@
+import logging
 import os
 import shutil
 import json
 import itertools
 
+LOG = logging.getLogger(__name__)
 
 DATADIR = '/dataset/oltpbench/first_paper_experiments/analysis/knob_identification'
 
@@ -27,14 +29,14 @@ def validate_postgres(knobs, dbms):
     for kname, kinfo in knob_info.iteritems():
         if kname not in knobs and kinfo['tunable'] is True:
             knobs.append(kname)
-            print "WARNING: adding missing knob to end ({})".format(kname)
+            LOG.warn("Adding missing knob to end of list (%s)", kname)
     knob_names = knob_info.keys()
     for kname in knobs:
         if kname not in knob_names:
             if kname not in EXTRA_EXCEPTIONS:
                 raise Exception('Extra knob: {}'.format(kname))
             knobs.remove(kname)
-            print "WARNING: removing extra knob ({})".format(kname)
+            LOG.warn("Removing extra knob (%s)", kname)
 
 
 def main():

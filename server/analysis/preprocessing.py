@@ -39,8 +39,7 @@ class Bin(Preprocess):
     def __init__(self, bin_start, axis=None):
         if axis is not None and \
                 axis != 1 and axis != 0:
-            raise NotImplementedError("Axis={} is not yet implemented"
-                                      .format(axis))
+            raise NotImplementedError("Axis={} is not yet implemented".format(axis))
         self.deciles_ = None
         self.bin_start_ = bin_start
         self.axis_ = axis
@@ -311,7 +310,6 @@ class DummyEncoder(Preprocess):
         for i, (idx, nvals) in enumerate(zip(self.feature_indices, self.n_values)):
             start_idx = idx + np.sum(self.n_values[:i]) - np.sum(self.n_values[:i].size)
             self.xform_start_indices[i] = start_idx
-        print self.xform_start_indices
 
         if columnlabels is not None:
             labels = []
@@ -510,91 +508,90 @@ class MinMaxScaler(Preprocess):
 #   Testing
 # ==========================================================
 
-def test_preprocess_module():
-    import warnings
-    from .util import arrays_share_data
+# def test_preprocess_module():
+#     import warnings
+#     from .util import arrays_share_data
+#
+#     warnings.filterwarnings('error')
+#
+#     assert issubclass(Bin, Preprocess)
+#     assert isinstance(Bin(bin_start=1), Preprocess)
+#     assert issubclass(PolynomialFeatures, Preprocess)
+#     assert isinstance(PolynomialFeatures(), Preprocess)
+#
+#     x1 = np.array([[2, 7, 9],
+#                    [6, 9, 2],
+#                    [4, 0, 2],
+#                    [7, 2, 5]], dtype="float64")
+#
+#     print "Testing 'Bin'..."
+#     decile_range = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+#     deciles_exp = np.percentile(x1, decile_range)
+#     deciles_exp[-1] = np.Inf
+#     bin_pp = Bin(bin_start=1)
+#     x1_binned = bin_pp.fit_transform(x1)
+#     assert np.array_equal(deciles_exp, bin_pp.deciles_)
+#     assert is_numeric_matrix(x1)
+#     assert not is_lexical_matrix(x1)
+#
+#     x1_binned_exp = np.array([[1, 8, 10],
+#                               [7, 10, 1],
+#                               [5, 1, 1],
+#                               [8, 1, 6]], dtype="float64")
+#     assert np.array_equal(x1_binned_exp, x1_binned)
+#     assert not arrays_share_data(x1, x1_binned)
+#
+#     # Test transform with floats out of original range
+#     x2 = np.array([-1., 6., 20.])
+#     x2_binned_exp = np.array([1, 7, 10])
+#     x2_binned = bin_pp.transform(x2)
+#     assert np.array_equal(x2_binned_exp, x2_binned)
+#
+#     # Test empty array
+#     x_empty = np.array([], dtype="float64")
+#     bin_pp = Bin(0)
+#     try:
+#         bin_pp.fit_transform(x_empty)
+#         print "Bin: failed empty array test"
+#     except AssertionError:
+#         print "Bin: passed empty array test"
+#
+#     print "Passed all tests for 'Bin'"
+#     print ""
+#     print "Testing 'PolynomialFeatures'..."
+#
+#     x1_poly_exp = np.array([[1, 8, 10, 1, 8, 10, 64, 80, 100],
+#                             [7, 10, 1, 49, 70, 7, 100, 10, 1],
+#                             [5, 1, 1, 25, 5, 5, 1, 1, 1],
+#                             [8, 1, 6, 64, 8, 48, 1, 6, 36]], dtype="float64")
+#
+#     x1_poly_inter_exp = np.array([[1, 8, 10, 8, 10, 80],
+#                                   [7, 10, 1, 70, 7, 10],
+#                                   [5, 1, 1, 5, 5, 1],
+#                                   [8, 1, 6, 8, 48, 6]], dtype="float64")
+#
+#     poly_pp = PolynomialFeatures(include_bias=False)
+#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
+#     assert np.array_equal(x1_poly_exp, x1_poly)
+#     poly_pp = PolynomialFeatures(include_bias=True)
+#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
+#     x1_poly_bias_exp = np.hstack([np.ones((x1_binned_exp.shape[0], 1)), x1_poly_exp])
+#     assert np.array_equal(x1_poly_bias_exp, x1_poly)
+#     poly_pp = PolynomialFeatures(include_bias=False, interaction_only=True)
+#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
+#     assert np.array_equal(x1_poly_inter_exp, x1_poly)
+#
+#     x_alpha = np.array([['a', 'b', 'c']], dtype=object)
+#     x_alpha_exp = np.array([['', 'a', 'b', 'c', 'aa', 'ab', 'ac', 'bb', 'bc', 'cc']])
+#     assert not is_numeric_matrix(x_alpha)
+#     assert is_lexical_matrix(x_alpha)
+#     poly_pp = PolynomialFeatures()
+#     x_alpha_poly = poly_pp.fit_transform(x_alpha)
+#     assert np.array_equal(x_alpha_exp, x_alpha_poly)
+#
+#     print "Passed all tests for 'PolynomialFeatures'"
+#     print ""
 
-    warnings.filterwarnings('error')
 
-    assert issubclass(Bin, Preprocess)
-    assert isinstance(Bin(bin_start=1), Preprocess)
-    assert issubclass(PolynomialFeatures, Preprocess)
-    assert isinstance(PolynomialFeatures(), Preprocess)
-
-    x1 = np.array([[2, 7, 9],
-                   [6, 9, 2],
-                   [4, 0, 2],
-                   [7, 2, 5]], dtype="float64")
-
-    print ""
-    print "Testing 'Bin'..."
-    decile_range = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-    deciles_exp = np.percentile(x1, decile_range)
-    deciles_exp[-1] = np.Inf
-    bin_pp = Bin(bin_start=1)
-    x1_binned = bin_pp.fit_transform(x1)
-    assert np.array_equal(deciles_exp, bin_pp.deciles_)
-    assert is_numeric_matrix(x1)
-    assert not is_lexical_matrix(x1)
-
-    x1_binned_exp = np.array([[1, 8, 10],
-                              [7, 10, 1],
-                              [5, 1, 1],
-                              [8, 1, 6]], dtype="float64")
-    assert np.array_equal(x1_binned_exp, x1_binned)
-    assert not arrays_share_data(x1, x1_binned)
-
-    # Test transform with floats out of original range
-    x2 = np.array([-1., 6., 20.])
-    x2_binned_exp = np.array([1, 7, 10])
-    x2_binned = bin_pp.transform(x2)
-    assert np.array_equal(x2_binned_exp, x2_binned)
-
-    # Test empty array
-    x_empty = np.array([], dtype="float64")
-    bin_pp = Bin(0)
-    try:
-        bin_pp.fit_transform(x_empty)
-        print "Bin: failed empty array test"
-    except AssertionError:
-        print "Bin: passed empty array test"
-
-    print "Passed all tests for 'Bin'"
-    print ""
-    print "Testing 'PolynomialFeatures'..."
-
-    x1_poly_exp = np.array([[1, 8, 10, 1, 8, 10, 64, 80, 100],
-                            [7, 10, 1, 49, 70, 7, 100, 10, 1],
-                            [5, 1, 1, 25, 5, 5, 1, 1, 1],
-                            [8, 1, 6, 64, 8, 48, 1, 6, 36]], dtype="float64")
-
-    x1_poly_inter_exp = np.array([[1, 8, 10, 8, 10, 80],
-                                  [7, 10, 1, 70, 7, 10],
-                                  [5, 1, 1, 5, 5, 1],
-                                  [8, 1, 6, 8, 48, 6]], dtype="float64")
-
-    poly_pp = PolynomialFeatures(include_bias=False)
-    x1_poly = poly_pp.fit_transform(x1_binned_exp)
-    assert np.array_equal(x1_poly_exp, x1_poly)
-    poly_pp = PolynomialFeatures(include_bias=True)
-    x1_poly = poly_pp.fit_transform(x1_binned_exp)
-    x1_poly_bias_exp = np.hstack([np.ones((x1_binned_exp.shape[0], 1)), x1_poly_exp])
-    assert np.array_equal(x1_poly_bias_exp, x1_poly)
-    poly_pp = PolynomialFeatures(include_bias=False, interaction_only=True)
-    x1_poly = poly_pp.fit_transform(x1_binned_exp)
-    assert np.array_equal(x1_poly_inter_exp, x1_poly)
-
-    x_alpha = np.array([['a', 'b', 'c']], dtype=object)
-    x_alpha_exp = np.array([['', 'a', 'b', 'c', 'aa', 'ab', 'ac', 'bb', 'bc', 'cc']])
-    assert not is_numeric_matrix(x_alpha)
-    assert is_lexical_matrix(x_alpha)
-    poly_pp = PolynomialFeatures()
-    x_alpha_poly = poly_pp.fit_transform(x_alpha)
-    assert np.array_equal(x_alpha_exp, x_alpha_poly)
-
-    print "Passed all tests for 'PolynomialFeatures'"
-    print ""
-
-
-if __name__ == '__main__':
-    test_preprocess_module()
+# if __name__ == '__main__':
+#     test_preprocess_module()

@@ -17,9 +17,7 @@ def load_data(filename):
     stats_dict = {}
     for line in csv_stats[1:]:
         parts = line.strip().split(',', 3)
-        if len(parts) != 4:
-            print parts
-        assert len(parts) == 4
+        assert len(parts) == 4, "parts: {}".format(parts)
         stat = {}
         stat['name'] = parts[header.index('column_name')]
         stat['summary'] = parts[header.index('description')]

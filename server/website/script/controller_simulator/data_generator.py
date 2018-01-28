@@ -6,12 +6,15 @@ Created on Nov 30, 2017
 
 import copy
 import datetime
+import logging
 import os
 import shutil
 import sys
 
 import json
 import numpy as np
+
+LOG = logging.getLogger(__name__)
 
 
 # Data generator configuration
@@ -106,20 +109,18 @@ def generate_data(n_workloads, n_samples_per_workload):
 
 def main():
     if len(sys.argv) < 3:
-        print ('Usage: python data_generator.py [n_workloads] [n_samples_per_workload] '
-               '[optional: random_seed]')
+        LOG.error('Usage: python data_generator.py [n_workloads] [n_samples_per_workload] '
+                  '[optional: random_seed]')
         sys.exit(1)
     if len(sys.argv) == 4:
         random_seed = int(sys.argv[3])
-        print ""
-        print "Seeding the generator with value: {}".format(random_seed)
+        LOG.info("Seeding the generator with value: %d", random_seed)
         np.random.seed(seed=random_seed)
     shutil.rmtree(OUTPUT_DIR, ignore_errors=True)
     os.mkdir(OUTPUT_DIR)
 
     generate_data(int(sys.argv[1]), int(sys.argv[2]))
-    print ""
-    print "Finished. Generated data written to " + OUTPUT_DIR + "."
+    LOG.info("Finished. Generated data written to %s.", OUTPUT_DIR)
 
 
 if __name__ == "__main__":

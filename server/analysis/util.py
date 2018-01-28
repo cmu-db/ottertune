@@ -4,18 +4,34 @@ Created on Oct 24, 2017
 @author: dva
 '''
 
+import logging
 from numbers import Number
 
 import contextlib
 import datetime
 import numpy as np
 
-NEARZERO = 1.e-8
+
+def get_analysis_logger(name, level=logging.INFO):
+    logger = logging.getLogger(name)
+    log_handler = logging.StreamHandler()
+    log_formatter = logging.Formatter(
+        fmt='%(asctime)s [%(funcName)s:%(lineno)03d] %(levelname)-5s: %(message)s',
+        datefmt='%m-%d-%Y %H:%M:%S'
+    )
+    log_handler.setFormatter(log_formatter)
+    logger.addHandler(log_handler)
+    logger.setLevel(level)
+    np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
+    return logger
 
 
-def stdev_zero(data, axis=None):
+LOG = get_analysis_logger(__name__)
+
+
+def stdev_zero(data, axis=None, nearzero=1e-8):
     mstd = np.expand_dims(data.std(axis=axis), axis=axis)
-    return (np.abs(mstd) < NEARZERO).squeeze()
+    return (np.abs(mstd) < nearzero).squeeze()
 
 
 def get_datetime():
@@ -52,7 +68,7 @@ def stopwatch(message=None):
     finally:
         ts.stop()
         if message is not None:
-            print('Total elapsed_seconds time for %s: %.3fs' % (message, ts.elapsed_seconds))
+            LOG.info('Total elapsed_seconds time for %s: %.3fs', message, ts.elapsed_seconds)
 
 
 def get_data_base(arr):

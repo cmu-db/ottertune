@@ -11,7 +11,6 @@ import operator
 import os
 import warnings
 import zlib
-
 import cPickle as pickle
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -19,9 +18,11 @@ from sklearn.preprocessing import StandardScaler
 from . import preprocessing as prep
 from .gp_tf import GPR
 from .matrix import Matrix
-from .util import stopwatch
+from .util import get_analysis_logger, stopwatch
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
+
+LOG = get_analysis_logger(__name__)
 
 
 class WorkloadState(object):
@@ -40,15 +41,12 @@ class WorkloadState(object):
         return pickle.loads(zlib.decompress(compressed_workload_state))
 
 
-def worker_create_model((worker_id, workload_name, data, njobs, verbose)):
-    if verbose:
-        print "{}: building models for {}".format(worker_id,
-                                                  os.path.basename(workload_name))
+def worker_create_model((worker_id, workload_name, data, njobs)):
+    LOG.info("%d: building models for %s", worker_id, os.path.basename(workload_name))
     X, y = data
     models = {}
     for col, label in zip(y.data.T, y.columnlabels):
-        if verbose:
-            print "    {}: {}".format(worker_id, label)
+        LOG.debug("    %d: %s", worker_id, label)
         length_scale, magnitude, ridge_const = 1., 1., 1.
         ridge = np.ones(X.data.shape[0]) * ridge_const
         col = col.reshape(-1, 1)
@@ -57,16 +55,13 @@ def worker_create_model((worker_id, workload_name, data, njobs, verbose)):
         models[label] = model
     workload_state = WorkloadState(X, y, models)
     workload_state = WorkloadState.compress(workload_state)
-    if verbose:
-        print "{}: done. ({}/{})".format(worker_id, worker_id + 1, njobs)
+    LOG.debug("%d: done. (%d/%d)", worker_id, worker_id + 1, njobs)
     return (workload_name, workload_state)
 
 
 def worker_score_workload((worker_id, workload_name, workload_state,
-                           X_client, y_client, njobs, verbose)):
-    if verbose:
-        print "{}: computing scores for {}".format(worker_id,
-                                                   os.path.basename(workload_name))
+                           X_client, y_client, njobs)):
+    LOG.debug("%d: computing scores for %s", worker_id, os.path.basename(workload_name))
     workload_state = WorkloadState.decompress(workload_state)
     assert np.array_equal(workload_state.X.columnlabels,
                           X_client.columnlabels)
@@ -77,8 +72,7 @@ def worker_score_workload((worker_id, workload_name, workload_state,
     metrics = workload_state.y.columnlabels
     predictions = np.empty_like(y_client.data)
     for i, metric in enumerate(metrics):
-        if verbose:
-            print "    {}: {}".format(worker_id, metric)
+        LOG.debug("    %d: %s", worker_id, metric)
         model = workload_state.models[metric]
         res = model.predict(X_client.data)
         predictions[:, i] = res.ypreds.ravel()
@@ -86,8 +80,7 @@ def worker_score_workload((worker_id, workload_name, workload_state,
     # Compute distance
     dists = np.sum(np.square(np.subtract(predictions, y_client.data)), axis=1)
     assert dists.shape == (predictions.shape[0],)
-    if verbose:
-        print "{}: done. ({}/{})".format(worker_id, worker_id + 1, njobs)
+    LOG.debug("%d: done. (%d/%d)", worker_id, worker_id + 1, njobs)
     return (workload_name, np.mean(dists))
 
 
@@ -97,8 +90,7 @@ class WorkloadMapper(object):
     MAX_SAMPLES = 5000
 
     def __init__(self, dbms_name, featured_knobs, featured_metrics,
-                 target_workload_name, workload_repo_dirs, verbose=False):
-        self.verbose_ = verbose
+                 target_workload_name, workload_repo_dirs):
         self.workload_states_ = None
         self.dbms_name_ = dbms_name
 
@@ -126,9 +118,7 @@ class WorkloadMapper(object):
         gc.collect()
 
     def initialize_models(self):
-        if self.verbose_:
-            print ("Initializing models for # knobs={}\n"
-                   .format(self.featured_knobs_.size))
+        LOG.info("Initializing models for # knobs=%d\n", self.featured_knobs_.size)
         with stopwatch("workload mapping model creation"):
             n_values, cat_indices, params = prep.dummy_encoder_helper(self.dbms_name,
                                                                       self.featured_knobs_)
@@ -153,7 +143,7 @@ class WorkloadMapper(object):
                 assert np.array_equal(X.rowlabels, y.rowlabels)
                 num_samples = X.shape[0]
                 if num_samples > self.MAX_SAMPLES:
-                    print "Shrinking {} samples to {}".format(num_samples, self.MAX_SAMPLES)
+                    LOG.info("Shrinking %d samples to %d", num_samples, self.MAX_SAMPLES)
                     rand_indices = prep.get_shuffle_indices(num_samples)[:self.MAX_SAMPLES]
                     X = Matrix(X.data[rand_indices],
                                X.rowlabels[rand_indices],
@@ -206,7 +196,7 @@ class WorkloadMapper(object):
                 y.data = self.y_gp_scaler_.transform(y.data)
 
             njobs = len(data_map)
-            iterable = [(i, wd, ws, njobs, self.verbose_) for i, (wd, ws)
+            iterable = [(i, wd, ws, njobs) for i, (wd, ws)
                         in enumerate(data_map.iteritems())]
             if self.pool_ is not None:
                 res = self.pool_.map(worker_create_model, iterable)
@@ -244,7 +234,7 @@ class WorkloadMapper(object):
 
             # Compute workload scores in parallel
             njobs = len(self.workload_states_)
-            iterable = [(i, wd, ws, X_client, y_client, njobs, self.verbose_)
+            iterable = [(i, wd, ws, X_client, y_client, njobs)
                         for i, (wd, ws) in enumerate(self.workload_states_.iteritems())]
 
         with stopwatch("workload mapping - predictions"):
@@ -257,9 +247,8 @@ class WorkloadMapper(object):
 
         sorted_wkld_scores = sorted(wkld_scores, key=operator.itemgetter(1))
 
-        print ""
-        print "WORKLOAD SCORES"
+        LOG.info("WORKLOAD_SCORES")
         for wkld, score in sorted_wkld_scores:
-            print "{0}: {1:.2f}".format(os.path.basename(wkld), score)
+            LOG.info("    %s: %0.2f", os.path.basename(wkld), score)
 
         return sorted_wkld_scores[0][0]

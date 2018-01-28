@@ -1,5 +1,6 @@
 import numpy as np
 from celery.task import task, Task
+from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler
 
@@ -9,6 +10,8 @@ from website.models import PipelineData, PipelineRun, Result, Workload
 from website.parser import Parser
 from website.types import PipelineTaskType
 from website.utils import DataUtil, JSONUtil
+
+LOG = get_task_logger(__name__)
 
 
 class UpdateTask(Task):  # pylint: disable=abstract-method
@@ -231,7 +234,7 @@ def configuration_recommendation(target_data):
 def load_data_helper(filtered_pipeline_data, workload, task_type):
     pipeline_data = filtered_pipeline_data.get(workload=workload,
                                                task_type=task_type)
-    print "PIPELINE DATA: {}".format(pipeline_data.data)
+    LOG.debug("PIPELINE DATA: %s", str(pipeline_data.data))
     return JSONUtil.loads(pipeline_data.data)
 
 

@@ -69,13 +69,6 @@ class Matrix(object):
 
         for matrix in matrices:
             assert isinstance(matrix, Matrix)
-            if matrix.columnlabels.shape != matrices[0].columnlabels.shape:
-                print ""
-                print matrix.columnlabels
-                print ""
-                print matrices[0].columnlabels
-                print ""
-                print set(matrices[0].columnlabels) - set(matrix.columnlabels)
             assert matrix.columnlabels.shape == matrices[0].columnlabels.shape
             assert matrix.data.shape[1] == matrices[0].data.shape[1]
             if require_equal_columnlabels:
@@ -276,8 +269,6 @@ class Matrix(object):
         y_unique.rowlabels = rowlabels
         X_unique.rowlabels = rowlabels
         if X_unique.data.shape != X.data.shape:
-            print "\n\nDIFF(num_knobs={}): X_unique: {}, X: {}\n\n".format(
-                X_unique.columnlabels.shape[0], X_unique.data.shape, X.data.shape)
             dup_map = {}
             dup_indexes = np.array([d for d in range(X.data.shape[0])
                                     if d not in unique_indexes])
@@ -296,84 +287,84 @@ class Matrix(object):
         return X_unique, y_unique
 
 
-def matrix_tests():
-    a = np.array([[2, 7, 6],
-                  [9, 4, 1],
-                  [0, 2, 4]])
-    a_rl = np.array(['Ar1', 'Ar2', 'Ar3'])
-    a_cl = np.array(['Ac1', 'Ac2', 'Ac3'])
-    matrix_a = Matrix(a, a_rl, a_cl)
-
-    b = np.array([[2, 7, 6],
-                  [9, 5, 1],
-                  [0, 2, 4]])
-    b_rl = np.array(['Br1', 'Br2', 'Br3'])
-    b_cl = np.array(['Bc1', 'Bc2', 'Bc3'])
-    matrix_b = Matrix(b, b_rl, b_cl)
-
-    # Test hstack
-    print "Testing 'hstack'..."
-    ab_hstack_data_exp = np.array([[2, 7, 6, 2, 7, 6],
-                                   [9, 4, 1, 9, 5, 1],
-                                   [0, 2, 4, 0, 2, 4]])
-    a_b_cl_exp = np.array(['Ac1', 'Ac2', 'Ac3', 'Bc1', 'Bc2', 'Bc3'])
-    ab_hstack_exp = Matrix(ab_hstack_data_exp, a_rl, a_b_cl_exp)
-    ab_hstack = Matrix.hstack([matrix_a, matrix_b], require_equal_rowlabels=False)
-    assert ab_hstack_exp == ab_hstack
-    try:
-        Matrix.hstack([matrix_a, matrix_b], require_equal_rowlabels=True)
-        print "Failed hstack require equal columns test"
-    except AssertionError:
-        print "Passed hstack require equal columns test"
-
-    print "Passed all tests for 'hstack'"
-    print ""
-    print "Testing 'vstack'..."
-    ab_vstack_data_exp = np.array([[2, 7, 6],
-                                   [9, 4, 1],
-                                   [0, 2, 4],
-                                   [2, 7, 6],
-                                   [9, 5, 1],
-                                   [0, 2, 4]])
-    a_b_rl_exp = np.array(['Ar1', 'Ar2', 'Ar3', 'Br1', 'Br2', 'Br3'])
-    ab_vstack_exp = Matrix(ab_vstack_data_exp, a_b_rl_exp, a_cl)
-    ab_vstack = Matrix.vstack([matrix_a, matrix_b], require_equal_columnlabels=False)
-    assert ab_vstack_exp == ab_vstack
-    try:
-        Matrix.vstack([matrix_a, matrix_b], require_equal_columnlabels=True)
-        print "Failed vstack require equal columns test"
-    except AssertionError:
-        print "Passed vstack require equal columns test"
-
-    print "Passed all tests for 'vstack'"
-    print ""
-    print "Testing 'unique_rows'..."
-    unique_rows_data_exp = np.array([[2, 7, 6],
-                                     [9, 4, 1],
-                                     [0, 2, 4],
-                                     [9, 5, 1]])
-    unique_rl = np.array(['Ar1', 'Ar2', 'Ar3', 'Br2'])
-    unique_rows_exp = Matrix(unique_rows_data_exp, unique_rl, a_cl)
-    unique_rows, _ = ab_vstack_exp.unique_rows(return_index=True)
-    assert unique_rows_exp == unique_rows
-    unique_rows = ab_hstack_exp.unique_rows()
-    assert ab_hstack_exp == unique_rows
-
-    print "Passed all tests for 'unique_rows'"
-    print ""
-    print "Testing 'unique_columns'..."
-    unique_columns_data_exp = np.array([[2, 7, 6, 7],
-                                        [9, 4, 1, 5],
-                                        [0, 2, 4, 2]])
-    unique_cl = np.array(['Ac1', 'Ac2', 'Ac3', 'Bc2'])
-    unique_columns_exp = Matrix(unique_columns_data_exp, a_rl, unique_cl)
-    unique_columns, _ = ab_hstack_exp.unique_columns(return_index=True)
-    assert unique_columns_exp == unique_columns
-    unique_columns2 = unique_columns.unique_columns()
-    assert unique_columns == unique_columns2
-    print "Passed all tests for 'unique_columns'"
-    print ""
-
-
-if __name__ == "__main__":
-    matrix_tests()
+# def matrix_tests():
+#     a = np.array([[2, 7, 6],
+#                   [9, 4, 1],
+#                   [0, 2, 4]])
+#     a_rl = np.array(['Ar1', 'Ar2', 'Ar3'])
+#     a_cl = np.array(['Ac1', 'Ac2', 'Ac3'])
+#     matrix_a = Matrix(a, a_rl, a_cl)
+#
+#     b = np.array([[2, 7, 6],
+#                   [9, 5, 1],
+#                   [0, 2, 4]])
+#     b_rl = np.array(['Br1', 'Br2', 'Br3'])
+#     b_cl = np.array(['Bc1', 'Bc2', 'Bc3'])
+#     matrix_b = Matrix(b, b_rl, b_cl)
+#
+#     # Test hstack
+#     print "Testing 'hstack'..."
+#     ab_hstack_data_exp = np.array([[2, 7, 6, 2, 7, 6],
+#                                    [9, 4, 1, 9, 5, 1],
+#                                    [0, 2, 4, 0, 2, 4]])
+#     a_b_cl_exp = np.array(['Ac1', 'Ac2', 'Ac3', 'Bc1', 'Bc2', 'Bc3'])
+#     ab_hstack_exp = Matrix(ab_hstack_data_exp, a_rl, a_b_cl_exp)
+#     ab_hstack = Matrix.hstack([matrix_a, matrix_b], require_equal_rowlabels=False)
+#     assert ab_hstack_exp == ab_hstack
+#     try:
+#         Matrix.hstack([matrix_a, matrix_b], require_equal_rowlabels=True)
+#         print "Failed hstack require equal columns test"
+#     except AssertionError:
+#         print "Passed hstack require equal columns test"
+#
+#     print "Passed all tests for 'hstack'"
+#     print ""
+#     print "Testing 'vstack'..."
+#     ab_vstack_data_exp = np.array([[2, 7, 6],
+#                                    [9, 4, 1],
+#                                    [0, 2, 4],
+#                                    [2, 7, 6],
+#                                    [9, 5, 1],
+#                                    [0, 2, 4]])
+#     a_b_rl_exp = np.array(['Ar1', 'Ar2', 'Ar3', 'Br1', 'Br2', 'Br3'])
+#     ab_vstack_exp = Matrix(ab_vstack_data_exp, a_b_rl_exp, a_cl)
+#     ab_vstack = Matrix.vstack([matrix_a, matrix_b], require_equal_columnlabels=False)
+#     assert ab_vstack_exp == ab_vstack
+#     try:
+#         Matrix.vstack([matrix_a, matrix_b], require_equal_columnlabels=True)
+#         print "Failed vstack require equal columns test"
+#     except AssertionError:
+#         print "Passed vstack require equal columns test"
+#
+#     print "Passed all tests for 'vstack'"
+#     print ""
+#     print "Testing 'unique_rows'..."
+#     unique_rows_data_exp = np.array([[2, 7, 6],
+#                                      [9, 4, 1],
+#                                      [0, 2, 4],
+#                                      [9, 5, 1]])
+#     unique_rl = np.array(['Ar1', 'Ar2', 'Ar3', 'Br2'])
+#     unique_rows_exp = Matrix(unique_rows_data_exp, unique_rl, a_cl)
+#     unique_rows, _ = ab_vstack_exp.unique_rows(return_index=True)
+#     assert unique_rows_exp == unique_rows
+#     unique_rows = ab_hstack_exp.unique_rows()
+#     assert ab_hstack_exp == unique_rows
+#
+#     print "Passed all tests for 'unique_rows'"
+#     print ""
+#     print "Testing 'unique_columns'..."
+#     unique_columns_data_exp = np.array([[2, 7, 6, 7],
+#                                         [9, 4, 1, 5],
+#                                         [0, 2, 4, 2]])
+#     unique_cl = np.array(['Ac1', 'Ac2', 'Ac3', 'Bc2'])
+#     unique_columns_exp = Matrix(unique_columns_data_exp, a_rl, unique_cl)
+#     unique_columns, _ = ab_hstack_exp.unique_columns(return_index=True)
+#     assert unique_columns_exp == unique_columns
+#     unique_columns2 = unique_columns.unique_columns()
+#     assert unique_columns == unique_columns2
+#     print "Passed all tests for 'unique_columns'"
+#     print ""
+#
+#
+# if __name__ == "__main__":
+#     matrix_tests()

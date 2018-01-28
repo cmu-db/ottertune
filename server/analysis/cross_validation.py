@@ -14,8 +14,9 @@ from fabric.api import local
 from sklearn.model_selection import KFold
 from sklearn.utils.validation import _is_arraylike, check_X_y
 
-from .util import stopwatch
+from .util import get_analysis_logger, stopwatch
 
+LOG = get_analysis_logger(__name__)
 
 GridScore = namedtuple('GridScore', ['parameters', 'mean_scores', 'cv_scores'])
 
@@ -43,7 +44,7 @@ def mp_grid_search((task_id,     # pylint: disable=unused-argument
         gc.collect()
         for j, score_fn in enumerate(score_fns):
             scores[i, j] = score_fn(y_test, ypreds, sigmas)
-        print "\tCompleted {}/{} folds".format(i + 1, nfolds)
+        LOG.info("\tCompleted %d/%d folds", i + 1, nfolds)
     mean_scores = scores.mean(axis=0)
     grid_score = GridScore(sparams, mean_scores, scores)
     return grid_score
@@ -80,7 +81,7 @@ class GridSearch(object):
     def fit(self, X, y):
         X, y = check_X_y(X, y, allow_nd=True, multi_output=True,
                          y_numeric=True, estimator="GridSearch")
-        print "njobs = {}".format(self.njobs)
+        LOG.info("njobs = %d", self.njobs)
         if self.njobs > 1:
             assert False
 #             iterable = [(i, pg, self.estimator_cls, self.kf, X, y, \
@@ -89,7 +90,6 @@ class GridSearch(object):
 #             try:
 #                 p = multiprocessing.Pool(self.njobs)
 #                 res = p.map(mp_grid_search, iterable)
-#                 print res
 #             except:
 #                 traceback.print_exc()
         else:
@@ -97,7 +97,7 @@ class GridSearch(object):
             estimator = self.estimator_cls()
             num_tasks = len(self.parameter_grid)
             for i, params in enumerate(self.parameter_grid):
-                print "Starting task {}/{}...".format(i + 1, num_tasks)
+                LOG.info("Starting task %d/%d...", i + 1, num_tasks)
                 with stopwatch("Done. Elapsed time"):
                     self.grid_scores.append(mp_grid_search((i,
                                                             params,

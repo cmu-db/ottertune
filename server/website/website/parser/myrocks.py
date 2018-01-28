@@ -61,9 +61,7 @@ class MyRocksParser(BaseParser):
                 converted = ConversionUtil.get_raw_size(
                     int_value, system=self.MYROCKS_TIME_SYSTEM)
             else:
-                print int_value, metadata.name, metadata.unit
-                raise Exception(
-                    'Unknown unit type: {}'.format(metadata.unit))
+                raise Exception('Unknown unit type: {}'.format(metadata.unit))
         if converted is None:
             raise Exception('Invalid integer format for {}: {}'.format(
                 metadata.name, int_value))
@@ -78,9 +76,8 @@ class MyRocksParser(BaseParser):
                 int_value = ConversionUtil.get_human_readable(
                     int_value, MyRocksParser.MYROCKS_TIME_SYSTEM)
             else:
-                raise Exception(
-                    'Invalid unit type for {}: {}'.format(
-                        metadata.name, metadata.unit))
+                raise Exception('Invalid unit type for {}: {}'.format(
+                    metadata.name, metadata.unit))
         else:
             int_value = super(MyRocksParser, self).format_integer(
                 int_value, metadata)

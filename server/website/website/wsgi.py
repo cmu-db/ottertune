@@ -1,3 +1,8 @@
+#
+# OtterTune - wsgi.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 """
 WSGI config for the OtterTune website.
 

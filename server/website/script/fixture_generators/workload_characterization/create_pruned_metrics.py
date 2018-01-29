@@ -1,3 +1,8 @@
+#
+# OtterTune - create_pruned_metrics.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import os
 import shutil
 import json

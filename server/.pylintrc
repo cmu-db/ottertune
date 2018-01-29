@@ -5,7 +5,7 @@
 
 # Python code to execute. Adds the analysis directory to the system path
 # variable which is necessary to avoid ImportErrors in our website code.
-init-hook='import os, sys; cwd = os.getcwd(); analysis_path = '' if '/server/' not in cwd else cwd[0:cwd.index('/server/') + len('/server/') - 1]; sys.path.insert(0, analysis_path)'
+init-hook='import os, sys; cwd = os.getcwd(); analysis_path = os.path.join(cwd, 'server') if '/server/' not in cwd else cwd[0:cwd.index('/server/') + len('/server/') - 1]; sys.path.insert(0, analysis_path)'
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.

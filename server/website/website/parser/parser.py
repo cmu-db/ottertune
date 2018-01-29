@@ -1,3 +1,8 @@
+#
+# OtterTune - parser.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Dec 12, 2017
 

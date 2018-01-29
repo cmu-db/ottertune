@@ -1,3 +1,8 @@
+#
+# OtterTune - utils.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 TEST_USERNAME = 'user'
 
 TEST_PASSWORD = 'abcd123'

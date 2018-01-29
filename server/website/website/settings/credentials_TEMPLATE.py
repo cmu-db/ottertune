@@ -1,3 +1,8 @@
+#
+# OtterTune - credentials_TEMPLATE.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 """
 Private/custom Django settings for the OtterTune project.
 

@@ -1,3 +1,8 @@
+#
+# OtterTune - cluster.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Jul 4, 2016
 

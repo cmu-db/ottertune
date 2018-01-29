@@ -1,3 +1,8 @@
+#
+# OtterTune - periodic_tasks.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import copy
 import numpy as np
 

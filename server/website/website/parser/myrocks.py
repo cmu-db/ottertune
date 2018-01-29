@@ -1,3 +1,8 @@
+#
+# OtterTune - myrocks.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Jan 16, 2018
 

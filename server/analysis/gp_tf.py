@@ -1,3 +1,8 @@
+#
+# OtterTune - gp_tf.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Aug 18, 2016
 

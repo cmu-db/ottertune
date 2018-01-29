@@ -1,3 +1,8 @@
+#
+# OtterTune - fix_permissions.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 from fabric.api import local
 
 PATH = "/var/www/ottertune"

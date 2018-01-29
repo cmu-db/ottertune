@@ -1,3 +1,8 @@
+#
+# OtterTune - cross_validation.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Aug 29, 2016
 

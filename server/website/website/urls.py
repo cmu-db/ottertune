@@ -1,3 +1,8 @@
+#
+# OtterTune - urls.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import debug_toolbar
 from django.conf.urls import include, url
 from django.contrib import admin

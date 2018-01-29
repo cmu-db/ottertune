@@ -1,3 +1,8 @@
+#
+# OtterTune - data_generator.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Nov 30, 2017
 

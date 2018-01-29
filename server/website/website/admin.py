@@ -1,3 +1,8 @@
+#
+# OtterTune - admin.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 from django.contrib import admin
 from djcelery.models import TaskMeta
 

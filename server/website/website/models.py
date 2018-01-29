@@ -1,3 +1,8 @@
+#
+# OtterTune - models.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 from collections import namedtuple, OrderedDict
 
 from django.contrib.auth.models import User

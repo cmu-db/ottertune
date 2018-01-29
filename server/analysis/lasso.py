@@ -1,3 +1,8 @@
+#
+# OtterTune - lasso.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Jul 8, 2016
 

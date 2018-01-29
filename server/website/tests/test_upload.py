@@ -1,3 +1,8 @@
+#
+# OtterTune - test_upload.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import os
 
 from django.core.urlresolvers import reverse

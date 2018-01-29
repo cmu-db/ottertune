@@ -1,3 +1,8 @@
+#
+# OtterTune - views.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import logging
 from collections import OrderedDict
 

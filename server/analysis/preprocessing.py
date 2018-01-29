@@ -1,3 +1,8 @@
+#
+# OtterTune - preprocessing.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 from abc import ABCMeta, abstractmethod
 
 from itertools import chain, combinations, combinations_with_replacement

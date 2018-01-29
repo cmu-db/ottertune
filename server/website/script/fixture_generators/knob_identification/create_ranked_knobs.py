@@ -1,3 +1,8 @@
+#
+# OtterTune - create_ranked_knobs.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import logging
 import os
 import shutil

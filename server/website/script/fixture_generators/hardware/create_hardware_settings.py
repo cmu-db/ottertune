@@ -1,3 +1,8 @@
+#
+# OtterTune - create_hardware_settings.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import csv
 import json
 import shutil

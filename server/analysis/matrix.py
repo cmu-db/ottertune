@@ -1,3 +1,8 @@
+#
+# OtterTune - matrix.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Mar 23, 2016
 

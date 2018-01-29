@@ -1,3 +1,8 @@
+#
+# OtterTune - util_functions.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Aug 14, 2017
 

@@ -139,6 +139,7 @@ def validate_file(file_path):
     if file_path in EXCLUDE_FILES or not file_path.endswith(".py"):
         status = True
     else:
+        LOG.debug("Validating file: %s", file_path)
         status = True
         output = []
         failed_validators = []
@@ -188,7 +189,8 @@ def check_pylint(file_path, config_path=None):
     with settings(warn_only=True), quiet():
         res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
     if res.stdout == '':
-        assert res.return_code == 0, 'return_code={}, expected=0'.format(res.return_code)
+        assert res.return_code == 0, 'return_code={}, expected=0\n{}'.format(
+            res.return_code, res.stderr)
         return True, None
 
     output = []

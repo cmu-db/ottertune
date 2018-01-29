@@ -1,3 +1,8 @@
+#
+# OtterTune - async_tasks.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 import numpy as np
 from celery.task import task, Task
 from celery.utils.log import get_task_logger

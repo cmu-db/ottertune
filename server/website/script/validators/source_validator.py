@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
+#
+# OtterTune - source_validator.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 
 # ==============================================
 # SOURCE VALIDATOR
 # ==============================================
-
+#
 # Adapted from the source validator used by Peloton.
 # (see https://github.com/cmu-db/peloton/blob/master/script/validators/source_validator.py)
 
@@ -22,29 +27,18 @@ from fabric.api import local, settings, quiet
 EXIT_SUCCESS = 0
 EXIT_FAILURE = -1
 
-
-# ==============================================
-# LOGGING CONFIGURATION
-# ==============================================
-
-LOG = logging.getLogger(__name__)
-LOG_HANDLER = logging.StreamHandler()
-LOG_FORMATTER = logging.Formatter(
-    fmt='%(asctime)s [%(funcName)s:%(lineno)03d] %(levelname)-5s: %(message)s',
-    datefmt='%H:%M:%S'
-)
-LOG_HANDLER.setFormatter(LOG_FORMATTER)
-LOG.addHandler(LOG_HANDLER)
-LOG.setLevel(logging.INFO)
-
-
 # ==============================================
 # CONFIGURATION
 # ==============================================
 
-# NOTE: absolute path to ottertune directory is calculated from current directory
+# Logging
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.StreamHandler())
+LOG.setLevel(logging.INFO)
+
+# NOTE: the absolute path to ottertune directory is calculated from current
 # directory structure: ottertune/server/website/scripts/validators/<this_file>
-# OTTERTUNE_DIR needs to be redefined if the directory structure is changed
+# OTTERTUNE_DIR needs to be redefined if the directory structure is changed.
 CODE_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
 OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                  [CODE_SOURCE_DIR,
@@ -83,162 +77,48 @@ EXCLUDE_FILES = [
     os.path.join(OTTERTUNE_DIR, "server/website/website/parser/postgres.py"),
 ]
 
-# Output format
-THICK_LINE = '=' * 80 + '\n'
-THIN_LINE = '-' * 80 + '\n'
-OUTPUT_FORMAT = (THICK_LINE + "\n\033[1m %s: FAILED\n %s\033[0m\n" + THIN_LINE + "%s")
-
-
-# ==============================================
-# VALIDATOR CONFIGURATION
-# ==============================================
-
-# Namedtuple for storing regex pattern information
-PatternInfo = namedtuple("PatternInfo", ['name', 'pattern', 'message'])
-
-# check_pylint
-PYLINT_FORMAT_PATTERNS = [
-    PatternInfo('line_num', re.compile(r'(?<=:)\d+(?=:)'), None),
-    PatternInfo('msg', re.compile(r'(?<=\) ).*$'), None),
-    PatternInfo('msg_id', re.compile(r'(?<=\()[a-zA-z][0-9]+(?=\,)'), None),
-    PatternInfo('symbol', re.compile(r'(?<=\, )\w[\w-]+(?=\,)'), None),
-]
-PYLINT_FORMAT = " - line {line}: {msg} ({msg_id}: {symbol})".format
-
-# check_pycodestyle
+# Regex patterns
 PYCODESTYLE_COMMENT_PATTERN = re.compile(r'#\s*pycodestyle:\s*disable\s*=\s*[\w\,\s]+$')
-PYCODESTYLE_FORMAT = " - line {line_num}:{offset} {msg} ({msg_id})".format
-
-# check_illegal_patterns
 ILLEGAL_PATTERNS = [
-    PatternInfo('print', re.compile(r'^print[ (]'),
-                'Print statements are not permitted. Use the logging module instead.'),
+    (re.compile(r'^print[ (]'), "Do not use 'print'. Use the logging module instead.")
 ]
-ILLEGAL_FORMAT = " - line {line_num}: {msg}".format
+HEADER_PATTERN = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
 
-
-# ==============================================
-# VALIDATOR FUNCTION DEFINITIONS
-# ==============================================
-
-def check_pylint(file_path, config_path=None):
-    # This message template outputs all of pylint's error logging
-    # vars in ~json format which makes it much easier to parse
-    options = ['--msg-template=\'{{"abspath": "{abspath}", "line": '
-               '"{line:3d}", "msg": "{msg}", "msg_id": "{msg_id}", '
-               '"symbol": "{symbol}", "category": "{category}"}}\'']
-    if config_path is not None:
-        options.append('--rcfile=' + config_path)
-
-    with settings(warn_only=True), quiet():
-        res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
-        content = res.stdout.replace('\n', '')
-        idx = 0
-        entries = []
-        while True:
-            while idx < len(content) and content[idx] != '{':
-                idx = idx + 1
-            if idx >= len(content):
-                break
-            assert content[idx] == '{'
-            start_idx = idx
-            idx += 1
-            while idx < len(content) and content[idx] != '}':
-                idx += 1
-            if idx >= len(content):
-                break
-            assert content[idx] == '}'
-            idx += 1
-            entries.append(content[start_idx: idx])
-        output = []
-        for entry in entries:
-            entry = json.loads(entry)
-
-            # We crop the message details to make the output more readable
-            msg = re.sub(' +', ' ', entry['msg'])
-            msg = msg.replace('^', '').replace('|', '')
-            msg = msg.strip()
-            msg_len = 80 - (21 + len(entry['msg_id']) + len(entry['symbol']))
-            entry['msg'] = msg[:msg_len] + '...'
-            output.append(PYLINT_FORMAT(**entry))
-        output = '\n'.join(output) + '\n'
-        return res.return_code == 0, output
-
-
-def check_pycodestyle(file_path, config_path=None):
-    import pycodestyle
-
-    # A custom reporter class for pycodestyle that checks for disabled errors
-    # and formats the style report output.
-    class CustomReporter(pycodestyle.StandardReport):
-        def get_file_results(self):
-            # Iterates through the lines of code that generated lint errors and
-            # checks if the given error has been disabled for that line via an
-            # inline comment (e.g., # pycodestyle: disable=E201,E226). Those
-            # that have been disabled are not treated as errors.
-            self._deferred_print.sort()
-            results = []
-            prev_line_num = -1
-            prev_line_errs = []
-            for line_number, offset, code, text, _ in self._deferred_print:
-                if prev_line_num == line_number:
-                    err_codes = prev_line_errs
-                else:
-                    line = self.lines[line_number - 1]
-                    m = PYCODESTYLE_COMMENT_PATTERN.search(line)
-                    if m and m.group(0):
-                        err_codes = [ec.strip() for ec in m.group(0).split('=')[1].split(',')]
-                    else:
-                        err_codes = []
-                prev_line_num = line_number
-                prev_line_errs = err_codes
-                if code in err_codes:
-                    # Error is disabled in source
-                    continue
-
-                # Format the output of the style checker
-                results.append(PYCODESTYLE_FORMAT(
-                    line_num=self.line_offset + line_number,
-                    offset=offset + 1, msg=text, msg_id=code))
-            return results, len(results) == 0
-    # END CustomReporter class
-
-    options = {} if config_path is None else {'config_file': config_path}
-    style = pycodestyle.StyleGuide(quiet=True, **options)
-
-    # Update the reporter to be our custom one
-    style.options.reporter = CustomReporter
-    style.init_report()
-    report = style.check_files([file_path])
-    results, status = report.get_file_results()
-    output = None if status else '\n'.join(results) + '\n'
-    return status, output
-
-
-def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unused-argument
-    with open(file_path, 'r') as f:
-        status = True
-        line_num = 1
-        output = []
-        for line in f:
-            line = line.strip()
-            for pattern_info in ILLEGAL_PATTERNS:
-                if not line.startswith('#') and pattern_info.pattern.search(line):
-                    output.append(ILLEGAL_FORMAT(line_num=line_num, msg=pattern_info.message))
-                    status = False
-            line_num += 1
-        output = None if status else '\n'.join(output) + '\n\n'
-        return status, output
+# Stdout format strings
+SEPARATOR = 80 * '-'
+OUTPUT_FMT = (
+    '' + SEPARATOR + '\n\n'
+    '\033[1m'        # start bold text
+    '%s\n'
+    'FAILED: %s\n\n'
+    '\033[0m'        # end bold text
+    '%s'
+)
+VALIDATOR_FMT = '{name}\n{u}\n{out}'.format
+MSG_PREFIX_FMT = ' {filename}:{line:3d}: '.format
+MSG_SUFFIX_FMT = ' ({symbol})'.format
 
 
 # ==============================================
 # UTILITY FUNCTION DEFINITIONS
 # ==============================================
 
+def format_message(filename, line, message, symbol=None):
+    out_prefix = MSG_PREFIX_FMT(filename=filename, line=line)
+    out_suffix = '' if symbol is None else MSG_SUFFIX_FMT(symbol=symbol)
+
+    # Crop the message details to make the output more readable
+    max_msg_len = 80 - len(out_prefix) - len(out_suffix)
+    if len(message) > max_msg_len:
+        message = message[:max_msg_len - 3] + '...'
+    output = (out_prefix + message + out_suffix).replace('\n', '')
+    return output + '\n'
+
+
 def validate_validator(modules, config_path):
     status = True
 
-    # Check that the required modules are installed
+    # Check if required modules are installed
     for module in modules:
         if module is not None:
             try:
@@ -260,17 +140,19 @@ def validate_file(file_path):
         status = True
     else:
         status = True
-        outputs = []
+        output = []
+        failed_validators = []
         for validator in VALIDATORS:
             val_status, val_output = validator.validate_fn(
                 file_path, validator.config_path)
             if not val_status:
                 status = False
-                outputs.append((validator.name, val_output))
-        if len(outputs) > 0:
-            for name, output in outputs:
-                LOG.info(OUTPUT_FORMAT, name, file_path, output)
-            LOG.info(THICK_LINE)
+                output.append(VALIDATOR_FMT(name=validator.name,
+                                            u='-' * len(validator.name),
+                                            out=val_output))
+                failed_validators.append(validator.name)
+        if not status:
+            LOG.info(OUTPUT_FMT, file_path, ', '.join(failed_validators), '\n'.join(output))
     return status
 
 
@@ -292,6 +174,125 @@ def validate_dir(root_dir):
 
 
 # ==============================================
+# VALIDATOR FUNCTION DEFINITIONS
+# ==============================================
+
+def check_pylint(file_path, config_path=None):
+    options = [
+        '--output-format=json',
+        '--reports=yes',
+    ]
+    if config_path is not None:
+        options.append('--rcfile=' + config_path)
+
+    with settings(warn_only=True), quiet():
+        res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
+    if res.stdout == '':
+        assert res.return_code == 0, 'return_code={}, expected=0'.format(res.return_code)
+        return True, None
+
+    output = []
+    errors = json.loads(res.stdout)
+    for entry in errors:
+        # Remove extra whitespace and hints
+        msg = entry['message'].replace('^', '').replace('|', '')
+        msg = re.sub(' +', ' ', msg)
+        msg = msg.strip()
+        output.append(format_message(os.path.basename(file_path), entry['line'],
+                                     msg, entry['symbol']))
+    output = ''.join(output)
+    return res.return_code == 0, output
+
+
+def check_pycodestyle(file_path, config_path=None):
+    import pycodestyle
+
+    # A custom reporter class for pycodestyle that checks for disabled errors
+    # and formats the style report output.
+    class CustomReporter(pycodestyle.StandardReport):
+        def get_file_results(self):
+            # Iterates through the lines of code that generated lint errors and
+            # checks if the given error has been disabled for that line via an
+            # inline comment (e.g., # pycodestyle: disable=E201,E226). Those
+            # that have been disabled are not treated as errors.
+            self._deferred_print.sort()
+            results = []
+            prev_line_num = -1
+            prev_line_errs = []
+            for line_number, _, code, text, _ in self._deferred_print:
+                if prev_line_num == line_number:
+                    err_codes = prev_line_errs
+                else:
+                    line = self.lines[line_number - 1]
+                    m = PYCODESTYLE_COMMENT_PATTERN.search(line)
+                    if m and m.group(0):
+                        err_codes = [ec.strip() for ec in m.group(0).split('=')[1].split(',')]
+                    else:
+                        err_codes = []
+                prev_line_num = line_number
+                prev_line_errs = err_codes
+                if code in err_codes:
+                    # Error is disabled in source
+                    continue
+
+                results.append(format_message(os.path.basename(file_path),
+                                              self.line_offset + line_number,
+                                              text, code))
+            return results, len(results) == 0
+    # END CustomReporter class
+
+    options = {} if config_path is None else {'config_file': config_path}
+    style = pycodestyle.StyleGuide(quiet=True, **options)
+
+    # Set the reporter option to our custom one
+    style.options.reporter = CustomReporter
+    style.init_report()
+    report = style.check_files([file_path])
+    results, status = report.get_file_results()
+    output = None if status else ''.join(results)
+    return status, output
+
+
+def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unused-argument
+    status = True
+    line_num = 1
+    output = []
+    with open(file_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            for pattern_info in ILLEGAL_PATTERNS:
+                if not line.startswith('#') and pattern_info[0].search(line):
+                    output.append(format_message(filename=os.path.basename(file_path),
+                                                 line=line_num,
+                                                 message=pattern_info[1]))
+                    status = False
+            line_num += 1
+    output = None if status else ''.join(output)
+    return status, output
+
+
+def check_header(file_path, config_file=None):  # pylint: disable=unused-argument
+    status = True
+    output = None
+    with open(file_path, 'r') as f:
+        file_contents = f.read()
+
+    header_match = HEADER_PATTERN.search(file_contents)
+    filename = os.path.basename(file_path)
+    if header_match:
+        if filename not in header_match.group(0):
+            status = False
+            output = format_message(filename=filename, line=2,
+                                    message="Incorrect filename in header")
+
+    else:
+        status = False
+        output = format_message(filename=filename, line=1,
+                                message='Missing header')
+    return status, output
+
+
+# ==============================================
 # VALIDATORS
 # ==============================================
 
@@ -309,6 +310,9 @@ VALIDATORS = [
 
     # Checks that the python source files do not use illegal patterns
     Validator('check_illegal_patterns', check_illegal_patterns, [], None),
+
+    # Checks that the source files have headers
+    Validator('check_header', check_header, [], None)
 ]
 
 
@@ -318,41 +322,33 @@ VALIDATORS = [
 
 def main():
     parser = argparse.ArgumentParser(description="Validate OtterTune's source code")
-    parser.add_argument("-f", "--files", nargs='*', help="A list of files to validate")
+    parser.add_argument('paths', metavar='PATH', type=str, nargs='*',
+                        help='Files or directories to (recursively) validate')
     args = parser.parse_args()
 
-    LOG.info('Enabled source validators:\n%s\n', '\n'.join('  ' + v.name for v in VALIDATORS))
+    LOG.info('\nRunning source validators:\n%s\n',
+             '\n'.join('  ' + v.name for v in VALIDATORS))
     for validator in VALIDATORS:
         if not validate_validator(validator.modules, validator.config_path):
             sys.exit(EXIT_FAILURE)
 
-    LOG.info("Running source validators...")
-    if args.files:
-        # Validate just the provided files.
-        for file_path in args.files:
-            file_path = os.path.abspath(file_path.lower())
+    target_paths = args.paths if args.paths else DEFAULT_DIRS
+    for target in target_paths:
+        target = os.path.abspath(target)
+        if os.path.isfile(target):
+            LOG.debug("Scanning file: %s\n", target)
+            status = validate_file(target)
+        elif os.path.isdir(target):
+            LOG.debug("Scanning directory: %s\n", target)
+            status = validate_dir(target)
+        else:
+            LOG.error("%s isn't a file or directory", target)
+            sys.exit(EXIT_FAILURE)
 
-            # Fail if the file DNE or isn't really a file
-            if not os.path.isfile(file_path):
-                LOG.info("%s isn't a file", file_path)
-                sys.exit(EXIT_FAILURE)
-
-            # Looks good, let's validate
-            LOG.info("Scanning file : %s\n", file_path)
-            status = validate_file(file_path)
-            if not status:
-                LOG.info("Validation NOT successful")
-                sys.exit(EXIT_FAILURE)
-
-    else:
-        # Validate all files in server directory
-        for dir_path in DEFAULT_DIRS:
-            LOG.info("Scanning directory : %s\n", dir_path)
-
-            status = validate_dir(dir_path)
-            if not status:
-                LOG.info("Validation NOT successful\n")
-                sys.exit(EXIT_FAILURE)
+    if not status:
+        LOG.info(SEPARATOR + '\n')
+        LOG.info("Validation NOT successful\n")
+        sys.exit(EXIT_FAILURE)
 
     LOG.info("Validation successful\n")
     sys.exit(EXIT_SUCCESS)

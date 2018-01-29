@@ -1,3 +1,8 @@
+#
+# OtterTune - common.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 """
 Common Django settings for the OtterTune project.
 
@@ -54,7 +59,7 @@ except OSError:  # Invalid permissions
 # ==============================================
 
 DEBUG = False
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'tests.runner.BaseRunner'
 INTERNAL_IPS = ['127.0.0.1']
 
 # ==============================================

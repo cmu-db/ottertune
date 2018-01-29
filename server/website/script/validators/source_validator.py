@@ -64,7 +64,7 @@ EXCLUDE_FILES = [
     os.path.join(OTTERTUNE_DIR, 'server/website/manage.py'),
 
     # Untracked files
-    os.path.join(OTTERTUNE_DIR, 'server/website/settings/credentials.py'),
+    os.path.join(OTTERTUNE_DIR, 'server/website/website/settings/credentials.py'),
 
     # TODO (dvanaken): remove these and format files after merging #49
     os.path.join(OTTERTUNE_DIR, "server/website/script/controller_simulator/upload_data.py"),

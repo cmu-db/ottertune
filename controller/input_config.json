@@ -1,8 +1,8 @@
 {
   "database_type" : "saphana",
-  "database_url" : "jdbc:sap://54.86.23.41:39015",
+  "database_url" : "jdbc:sap://localhost:39015",
   "username" : "SYSTEM",
   "password" : "17Ad4907@",
   "upload_code" : "MY_UPLOAD_CODE",
-  "upload_url" : "http://localhost:8080"
+  "upload_url" : ""
 }

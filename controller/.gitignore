@@ -9,6 +9,7 @@
 .gradle/
 /gradlew.bat
 /gradlew
+gradle.properties
 
 # Intellij
 .idea
@@ -20,4 +21,4 @@ build/
 out/
 
 # lib
-lib/
+

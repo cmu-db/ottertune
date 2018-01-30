@@ -1,7 +1,0 @@
-{
- "database_type": "postgres",
- "start_time": 1512076859887,
- "observation_time": 5,
- "end_time": 1512076864891,
- "database_version": "PostgreSQL 10.1 on x86_64-apple-darwin16.7.0, compiled by Apple LLVM version 9.0.0 (clang-900.0.38), 64-bit"
-}

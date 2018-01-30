@@ -56,24 +56,20 @@ public class SAPCollector extends DBCollector {
     public SAPCollector(String oriDBUrl, String username, String password) {
     	pgMetrics = new HashMap<>();
         try {
-            System.out.println("Begin");
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
 //            Catalog.setSeparator(conn);
 
             Statement s = conn.createStatement();
 
             // Collect DBMS version
-            System.out.println("Start get version");
             ResultSet out = s.executeQuery(VERSION_SQL);
             if (out.next()) {
             	this.version.append(out.getString(1));
             }
-            System.out.println("Finish");
 
             // Collect DBMS parameters
             out = s.executeQuery(PARAMETERS_SQL);
             while (out.next()) {
-                //System.out.println(out.getString("KEY"));
                 dbParameters.put("(" + out.getString("FILE_NAME") + ","
               + out.getString("LAYER_NAME") + ","
               + out.getString("TENANT_NAME") + ","
@@ -85,13 +81,10 @@ public class SAPCollector extends DBCollector {
             // Collect DBMS internal metrics
             for (String viewName : SAP_SYS_VIEW) {
             	out = s.executeQuery("SELECT * FROM " + viewName);
-                System.out.println("Metrics collected");
             	pgMetrics.put(viewName, getMetrics(out));
             }
             for (String viewName : SAP_SYS_LOCAL_VIEW) {
-                System.out.println("SELECT * FROM " + viewName + " where schema_name = 'SYSTEM'");
                 out = s.executeQuery("SELECT * FROM " + viewName + " where schema_name = 'SYSTEM' ");
-                
                 pgMetrics.put(viewName, getMetrics(out));
             }
         } catch (SQLException e) {
@@ -123,7 +116,6 @@ public class SAPCollector extends DBCollector {
             for(Map<String, String> dbmap : thisViewList) {
                 String jsonkey = dbmap.get(jsonKeyName);
                 thisViewObj.put(jsonkey, genMapJSONObj(dbmap));
-                //System.out.println(jsonkey);
             }
         } catch (JSONException je) {
             System.out.println(je);
@@ -145,13 +137,6 @@ public class SAPCollector extends DBCollector {
                 String jsonKeyName = SAP_SYS_VIEW_GLOBAL_KEY[i];
                 jobGlobal.put(viewName, genLocalJSONObj(viewName, jsonKeyName));
             }
-            // // "pg_stat_archiver" (only one instance in the list)
-            // Map<String, String> archiverList = pgMetrics.get("pg_stat_archiver").get(0);
-            // jobGlobal.put("pg_stat_archiver", genMapJSONObj(archiverList));
-
-            // // "pg_stat_bgwriter" (only one instance in the list)
-            // Map<String, String> bgwriterList = pgMetrics.get("pg_stat_bgwriter").get(0);
-            // jobGlobal.put("pg_stat_bgwriter", genMapJSONObj(bgwriterList));
 
             // add global json object
             stringer.value(jobGlobal);
@@ -168,15 +153,6 @@ public class SAPCollector extends DBCollector {
             }
             jobLocal.put("table", jobTable);
 
-            // // "database"
-            // JSONObject jobDatabase = new JSONObject();
-            // for(int i = 0; i < SAP_SYS_VIEW_LOCAL_DATABASE.length; i ++) {
-            //     String viewName = SAP_SYS_VIEW_LOCAL_DATABASE[i];
-            //     String jsonKeyName = SAP_SYS_VIEW_LOCAL_DATABASE_KEY;
-            //     jobDatabase.put(viewName,  genLocalJSONObj(viewName,jsonKeyName));
-            // }
-            // jobLocal.put("database", jobDatabase);
-
             // "indexes"
             JSONObject jobIndexes = new JSONObject();
             for(int i = 0; i < SAP_SYS_VIEW_LOCAL_INDEXES.length; i ++) {
@@ -186,7 +162,7 @@ public class SAPCollector extends DBCollector {
             }
             jobLocal.put("indexes",jobIndexes);
 
-            // // add local json object
+            // add local json object
             stringer.value(jobLocal);
             stringer.endObject();
 
@@ -203,7 +179,6 @@ public class SAPCollector extends DBCollector {
         String[] columnNames = new String[numColumns];
         for (int i = 0; i < numColumns; ++i) {
         	columnNames[i] = metadata.getColumnName(i + 1).toLowerCase();
-            System.out.println(columnNames[i]);
         }
 
         List<Map<String, String>> metrics = new ArrayList<Map<String, String>>();

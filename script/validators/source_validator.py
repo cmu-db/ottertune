@@ -43,11 +43,9 @@ CODE_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
 OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                  [CODE_SOURCE_DIR,
                                                   os.path.pardir,
-                                                  os.path.pardir,
-                                                  os.path.pardir,
                                                   os.path.pardir]))
 
-# Other directory paths used are relative to PELOTON_DIR
+# Other directory paths used are relative to OTTERTUNE_DIR
 DEFAULT_DIRS = [
     os.path.join(OTTERTUNE_DIR, "server")
 ]
@@ -307,11 +305,11 @@ Validator = namedtuple('Validator', 'name validate_fn modules config_path')
 VALIDATORS = [
     # Runs pylint on python source
     Validator('check_pylint', check_pylint, ['pylint'],
-              os.path.join(OTTERTUNE_DIR, "server/.pylintrc")),
+              os.path.join(OTTERTUNE_DIR, "script/formatting/config/pylintrc")),
 
     # Runs pycodestyle on python source
     Validator('check_pycodestyle', check_pycodestyle, ['pycodestyle'],
-              os.path.join(OTTERTUNE_DIR, "server/.pycodestyle")),
+              os.path.join(OTTERTUNE_DIR, "script/formatting/config/pycodestyle")),
 
     # Checks that the python source files do not use illegal patterns
     Validator('check_illegal_patterns', check_illegal_patterns, [], None),

@@ -11,7 +11,7 @@
 #
 # To enable, symlink this file to '.git/hooks/pre-commit' like so:
 #   cd $OTTERTUNE_DIR/.git/hooks/pre-commit
-#   ln -s ../../server/website/script/git-hooks/pre-commit ./pre-commit
+#   ln -s ../../script/git-hooks/pre-commit ./pre-commit
 
 
 FILES=$(git diff --name-only HEAD --cached --diff-filter=d | grep '\.\(py\)$')
@@ -33,7 +33,7 @@ if [ -n "$FILES" ]; then
     # cd ..
 
     # Run source code validator
-    python server/website/script/validators/source_validator.py $FILES
+    python script/validators/source_validator.py $FILES
     VALIDATOR_RESULT=$?
 
     if [ "$VALIDATOR_RESULT" -ne 0 ] || [ "$SERVER_TESTS_RESULT" -ne 0 ] || [ "$CONTROLLER_TESTS_RESULT" -ne 0 ]; then
@@ -59,7 +59,7 @@ if [ -n "$FILES" ]; then
             echo " FAILED source validation!"
             echo ""
             echo " Use the formatting script to help format all changed files:"
-            echo " (ottertune/server/website/script/formatting/formatter.py)"
+            echo " (ottertune/script/formatting/formatter.py)"
             echo ""
             echo "      \"python formatter.py --staged-files\""
             echo ""

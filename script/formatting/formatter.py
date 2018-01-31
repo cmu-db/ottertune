@@ -42,8 +42,6 @@ CODE_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
 OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                  [CODE_SOURCE_DIR,
                                                   os.path.pardir,
-                                                  os.path.pardir,
-                                                  os.path.pardir,
                                                   os.path.pardir]))
 
 
@@ -68,6 +66,9 @@ HEADER_REGEX = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
 # ==============================================
 
 def format_file(file_path, update_header, format_code):
+    if not file_path.endswith(".py"):
+        return
+
     with open(file_path, 'r') as f:
         file_contents = f.read()
 
@@ -100,8 +101,7 @@ def format_dir(dir_path, update_header, format_code):
     for subdir, _, files in os.walk(dir_path):  # pylint: disable=not-an-iterable
         for file_path in files:
             file_path = subdir + os.path.sep + file_path
-            if file_path.endswith(".py"):
-                format_file(file_path, update_header, format_code)
+            format_file(file_path, update_header, format_code)
 
 
 def main():

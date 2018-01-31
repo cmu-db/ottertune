@@ -40,7 +40,7 @@ before_script:
 script:
   - cd controller && gradle build
   - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
-  - python script/validators/source_validator.py
+  - cd ../.. && python script/validators/source_validator.py
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

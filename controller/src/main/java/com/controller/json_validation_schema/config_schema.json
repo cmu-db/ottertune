@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "summary of collector output",
+  "description": "config files: user input",
+  "type": "object",
+  "properties": {
+    "database_type": {
+      "type" : "string"
+    },
+    "database_url": {
+      "type" : "number"
+    },
+    "username" :{
+      "type" : "number"
+    },
+    "password": {
+      "type" : "number"
+    },
+    "upload_code": {
+      "type" : "string"
+    },
+    "upload_url": {
+      "type" : "string"
+    },
+    "workload_name": {
+      "type" : "string"
+    }
+  }
+}

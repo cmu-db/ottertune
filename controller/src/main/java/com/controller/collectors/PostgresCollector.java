@@ -51,7 +51,6 @@ public class PostgresCollector extends DBCollector {
     	pgMetrics = new HashMap<>();
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
-//            Catalog.setSeparator(conn);
 
             Statement s = conn.createStatement();
 

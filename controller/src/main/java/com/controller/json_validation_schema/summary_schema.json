@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "summary of collector output",
+  "description": "output summary",
+  "type": "object",
+  "properties": {
+    "database_type": {
+      "type" : "string"
+    },
+    "start_time": {
+      "type" : "number"
+    },
+    "observation_time" :{
+      "type" : "number"
+    },
+    "end_time": {
+      "type" : "number"
+    },
+    "database_version": {
+      "type" : "string"
+    }
+  }
+}

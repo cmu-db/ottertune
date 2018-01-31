@@ -9,6 +9,7 @@
 .gradle/
 /gradlew.bat
 /gradlew
+/settings.gradle
 
 # Intellij
 .idea
@@ -21,3 +22,6 @@ out/
 
 # lib
 lib/
+
+# log file
+.log

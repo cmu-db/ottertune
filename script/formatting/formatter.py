@@ -116,7 +116,7 @@ def main():
                         help='Files or directories to (recursively) apply the actions to')
     args = parser.parse_args()
 
-    if args.no_update_header and not args.no_format_code:
+    if args.no_update_header and args.no_format_code:
         LOG.info("No actions to perform (both --no-update-header and "
                  "--no-format-code given). Exiting...")
         sys.exit(EXIT_FAILURE)

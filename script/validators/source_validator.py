@@ -18,6 +18,7 @@ import logging
 import imp
 import os
 import re
+import subprocess
 import sys
 import json
 import functools
@@ -327,6 +328,8 @@ def main():
     parser = argparse.ArgumentParser(description="Validate OtterTune's source code")
     parser.add_argument('paths', metavar='PATH', type=str, nargs='*',
                         help='Files or directories to (recursively) validate')
+    parser.add_argument('--staged-files', action='store_true',
+                        help='Apply the selected action(s) to all staged files (git)')
     args = parser.parse_args()
 
     LOG.info('\nRunning source validators:\n%s\n',
@@ -335,8 +338,19 @@ def main():
         if not validate_validator(validator.modules, validator.config_path):
             sys.exit(EXIT_FAILURE)
 
-    target_paths = args.paths if args.paths else DEFAULT_DIRS
-    for target in target_paths:
+    if args.staged_files:
+        targets = [os.path.abspath(os.path.join(OTTERTUNE_DIR, f))
+                   for f in subprocess.check_output(["git", "diff", "--name-only", "HEAD",
+                                                     "--cached", "--diff-filter=d"]).split()]
+        if not targets:
+            LOG.error("No staged files or not calling from a repository. Exiting...")
+            sys.exit(EXIT_FAILURE)
+    elif args.paths:
+        targets = args.paths
+    else:
+        targets = DEFAULT_DIRS
+
+    for target in targets:
         target = os.path.abspath(target)
         if os.path.isfile(target):
             LOG.debug("Scanning file: %s\n", target)

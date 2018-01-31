@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *  Copyright 2015-2018 by OLTPBenchmark Project                                   *
  *                                                                            *
  *  Licensed under the Apache License, Version 2.0 (the "License");           *
  *  you may not use this file except in compliance with the License.          *
@@ -19,21 +19,26 @@ package com.controller.util;
 
 import java.io.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
  * @author pavlo
  */
 public abstract class FileUtil {
-    private static final Logger LOG = Logger.getLogger(FileUtil.class);
+
+    private static final Logger LOG = LogManager.getLogger(FileUtil.class);
 
     private static final Pattern EXT_SPLIT = Pattern.compile("\\.");
-    
     
     /**
      * Join path components
@@ -41,17 +46,16 @@ public abstract class FileUtil {
      * @return
      */
     public static String joinPath(String... args) {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
+        StringJoiner result = new StringJoiner(File.separator);
         for (String a : args) {
-            if (a != null && a.length() > 0) {
-                if (!first) {
-                    result.append("/");
-                }
-                result.append(a);
-                first = false;
+            if (a != null && !a.trim().isEmpty()) {
+                result.add(a.trim());
             }
         }
+//        Arrays.stream(args)
+//                .filter(f -> f != null && !f.trim().isEmpty())
+//                .map(String::trim)
+//                .forEach(result::add);
         return result.toString();
     }
 
@@ -69,7 +73,7 @@ public abstract class FileUtil {
             return basename;
         
         File f = new File(basename);
-        if (f != null && f.isFile()) {
+        if (f.isFile()) {
             String parts[] = EXT_SPLIT.split(basename);
             
             // Check how many files already exist
@@ -88,22 +92,22 @@ public abstract class FileUtil {
     }
 
     public static boolean exists(String path) {
-        return (new File(path).exists());
+        return Files.exists(Paths.get(path));
     }
 
     public static String realpath(String path) {
-        File f = new File(path);
         String ret = null;
         try {
-            ret = f.getCanonicalPath();
+            File file = new File(path);
+            ret = file.getCanonicalPath();
         } catch (Exception ex) {
             LOG.warn(ex);
         }
-        return (ret);
+        return ret;
     }
 
     public static String basename(String path) {
-        return (new File(path)).getName();
+        return new File(path).getName();
     }
 
     public static String getExtension(File f) {
@@ -113,8 +117,20 @@ public abstract class FileUtil {
                 return (parts[parts.length - 1]);
             }
         }
-        return (null);
+        return null;
+    }
 
+    private static void makeDir(String filename){
+        if (filename != null) {
+            File f = new File(filename);
+            if (!f.exists()) {
+                boolean created = f.mkdirs();
+                if (!created){
+                    throw new RuntimeException(String.format("Error while creating directory %s",
+                                                             f.getAbsolutePath()));
+                }
+            }
+        }
     }
 
     /**
@@ -123,14 +139,7 @@ public abstract class FileUtil {
      * @param paths
      */
     public static void makeDirIfNotExists(String... paths) {
-        for (String p : paths) {
-            if (p == null)
-                continue;
-            File f = new File(p);
-            if (f.exists() == false) {
-                f.mkdirs();
-            }
-        } // FOR
+        Arrays.stream(paths).forEach(FileUtil::makeDir);
     }
 
     /**
@@ -147,15 +156,15 @@ public abstract class FileUtil {
     }
 
     public static File getTempFile(String ext) {
-        return (FileUtil.getTempFile(null, ext, false));
+        return FileUtil.getTempFile(null, ext, false);
     }
 
     public static File getTempFile(String prefix, String suffix, boolean deleteOnExit) {
         File tempFile;
-        if (suffix != null && suffix.startsWith(".") == false)
+        if (suffix != null && !suffix.startsWith("."))
             suffix = "." + suffix;
         if (prefix == null)
-            prefix = "hstore";
+            prefix = "hstore"; // Wut?!
 
         try {
             tempFile = File.createTempFile(prefix, suffix);
@@ -164,7 +173,7 @@ public abstract class FileUtil {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        return (tempFile);
+        return tempFile;
     }
 
     /**
@@ -180,11 +189,11 @@ public abstract class FileUtil {
         } else if (!(temp.mkdir())) {
             throw new RuntimeException("Could not create temp directory: " + temp.getAbsolutePath());
         }
-        return (temp);
+        return temp;
     }
 
     public static File writeStringToFile(String file_path, String content) throws IOException {
-        return (FileUtil.writeStringToFile(new File(file_path), content));
+        return FileUtil.writeStringToFile(new File(file_path), content);
     }
 
     public static File writeStringToFile(File file, String content) throws IOException {
@@ -192,7 +201,7 @@ public abstract class FileUtil {
         writer.write(content);
         writer.flush();
         writer.close();
-        return (file);
+        return file;
     }
 
     /**
@@ -203,7 +212,7 @@ public abstract class FileUtil {
      * @return
      */
     public static File writeStringToTempFile(String content) {
-        return (writeStringToTempFile(content, "tmp", false));
+        return writeStringToTempFile(content, "tmp", false);
     }
 
     /**
@@ -215,7 +224,7 @@ public abstract class FileUtil {
      * @return
      */
     public static File writeStringToTempFile(String content, String ext) {
-        return (writeStringToTempFile(content, ext, false));
+        return writeStringToTempFile(content, ext, false);
     }
 
     /**
@@ -239,22 +248,18 @@ public abstract class FileUtil {
     }
 
     public static String readFile(File path) {
-	System.out.println(path);
-        return (readFile(path.getAbsolutePath()));
+        LOG.debug(path);
+        return readFile(path.getAbsolutePath());
     }
 
     public static String readFile(String path) {
-        StringBuilder buffer = new StringBuilder();
-        try {
-            BufferedReader in = FileUtil.getReader(path);
-            while (in.ready()) {
-                buffer.append(in.readLine()).append("\n");
-            } // WHILE
-            in.close();
+        String res;
+        try (BufferedReader in = FileUtil.getReader(path)) {
+            res = in.lines().collect(Collectors.joining("\n"));
         } catch (IOException ex) {
             throw new RuntimeException("Failed to read file contents from '" + path + "'", ex);
         }
-        return (buffer.toString());
+        return res;
     }
 
     /**
@@ -266,7 +271,7 @@ public abstract class FileUtil {
      * @throws IOException
      */
     public static BufferedReader getReader(String path) throws IOException {
-        return (FileUtil.getReader(new File(path)));
+        return FileUtil.getReader(new File(path));
     }
 
     /**
@@ -282,7 +287,7 @@ public abstract class FileUtil {
             throw new IOException("The file '" + file + "' does not exist");
         }
 
-        BufferedReader in = null;
+        BufferedReader in;
         if (file.getPath().endsWith(".gz")) {
             FileInputStream fin = new FileInputStream(file);
             GZIPInputStream gzis = new GZIPInputStream(fin);
@@ -292,7 +297,7 @@ public abstract class FileUtil {
             in = new BufferedReader(new FileReader(file));
             LOG.debug("Reading in the contents of '" + file.getName() + "'");
         }
-        return (in);
+        return in;
     }
 
     public static byte[] readBytesFromFile(String path) throws IOException {
@@ -307,7 +312,7 @@ public abstract class FileUtil {
 
         // Read in the bytes
         int offset = 0;
-        int numRead = 0;
+        int numRead;
         while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
             offset += numRead;
         } // WHILE
@@ -315,7 +320,7 @@ public abstract class FileUtil {
             throw new IOException("Failed to read the entire contents of '" + file.getName() + "'");
         }
         in.close();
-        return (bytes);
+        return bytes;
     }
 
     /**
@@ -327,14 +332,14 @@ public abstract class FileUtil {
      * @throws IOException
      */
     public static File findDirectory(String dirName) throws IOException {
-        return (FileUtil.find(dirName, new File(".").getCanonicalFile(), true).getCanonicalFile());
+        return FileUtil.find(dirName, new File(".").getCanonicalFile(), true).getCanonicalFile();
     }
 
     /**
      * Find the path to a directory below our current location in the source
      * tree Throws a RuntimeException if we go beyond our repository checkout
      * 
-     * @param dirName
+     * @param fileName
      * @return
      * @throws IOException
      */
@@ -342,9 +347,10 @@ public abstract class FileUtil {
         return (FileUtil.find(fileName, new File(".").getCanonicalFile(), false).getCanonicalFile());
     }
 
-    private static final File find(String name, File current, boolean isdir) throws IOException {
+    private static File find(String name, final File current, boolean isdir) throws IOException {
         LOG.debug("Find Current Location = " + current);
         boolean has_svn = false;
+
         for (File file : current.listFiles()) {
             if (file.getCanonicalPath().endsWith(File.separator + name) && file.isDirectory() == isdir) {
                 return (file);
@@ -357,7 +363,7 @@ public abstract class FileUtil {
         if (!has_svn)
             throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getAbsolutePath() + "]");
         File next = new File(current.getCanonicalPath() + File.separator + "");
-        return (FileUtil.find(name, next, isdir));
+        return FileUtil.find(name, next, isdir);
     }
 
     /**
@@ -369,14 +375,19 @@ public abstract class FileUtil {
      * @return
      * @throws IOException
      */
-    public static List<File> getFilesInDirectory(final File dir, final String filePrefix) throws IOException {
-        assert (dir.isDirectory()) : "Invalid search directory path: " + dir;
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return (name.startsWith(filePrefix));
-            }
-        };
-        return (Arrays.asList(dir.listFiles(filter)));
+    public static List<File> getFilesInDirectory(final File dir, final String filePrefix)
+            throws IOException {
+
+        assert dir.isFile() : "Invalid search directory path: " + dir;
+//
+//        return Files.list(dir.toPath())
+//                .map(x -> x.toFile())
+//                .filter(f -> f.isFile() && f.getName().startsWith(filePrefix))
+//                .collect(Collectors.toList());
+
+        return Arrays.stream(dir.listFiles())
+                .filter(f -> f.isFile() && f.getName().startsWith(filePrefix))
+                .collect(Collectors.toList());
+
     }
 }

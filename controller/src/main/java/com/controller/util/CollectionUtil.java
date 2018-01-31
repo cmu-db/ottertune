@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *  Copyright 2015-2018 by OLTPBenchmark Project                                   *
  *                                                                            *
  *  Licensed under the Apache License, Version 2.0 (the "License");           *
  *  you may not use this file except in compliance with the License.          *
@@ -17,28 +17,22 @@
 
 package com.controller.util;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedMap;
-
 import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.lang.NotImplementedException;
+
+import java.util.*;
+import java.util.Map.Entry;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import java.util.stream.Collectors;
 
 /**
  * 
  * @author pavlo
  */
 public abstract class CollectionUtil {
+
+    private static final Logger LOG = LogManager.getLogger(CollectionUtil.class);
     
     private static final Random RANDOM = new Random();
     
@@ -68,17 +62,10 @@ public abstract class CollectionUtil {
                 array[i] = t;
             }
         }
-        return;
     }
     
     public static int[] toIntArray(Collection<Integer> items) {
-        int ret[] = new int[items.size()];
-        int idx = 0;
-        for (Integer i : items) {
-            assert(i != null);
-            ret[idx++] = i.intValue();
-        } // FOR
-        return (ret);
+        return items.stream().mapToInt(x -> x).toArray();
     }
     
     /**
@@ -88,9 +75,9 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> List<T> list(Iterator<T> it) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         CollectionUtil.addAll(list, it);
-        return (list);
+        return list;
     }
     /**
      * Put all of the values of an Enumeration into a new List
@@ -99,7 +86,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> List<T> list(Enumeration<T> e) {
-        return (list(iterable(e)));
+        return list(iterable(e));
     }
     /**
      * Put all of the values of an Iterable into a new List
@@ -120,7 +107,7 @@ public abstract class CollectionUtil {
     public static <T> Set<T> set(Iterator<T> it) {
         Set<T> set = new HashSet<T>();
         CollectionUtil.addAll(set, it);
-        return (set);
+        return set;
     }
     /**
      * Put all of the values of an Iterable into a new Set
@@ -129,7 +116,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> Set<T> set(Iterable<T> it) {
-        return (set(it.iterator()));
+        return set(it.iterator());
     }
     
     /**
@@ -139,9 +126,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> List<String> toStringList(Collection<T> data) {
-        List<String> ret = new ArrayList<String>();
-        for (T t : data) ret.add(t.toString());
-        return (ret);
+        return data.stream().map(Object::toString).collect(Collectors.toList());
     }
     
     /**
@@ -151,9 +136,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> Set<String> toStringSet(Collection<T> data) {
-        Set<String> ret = new HashSet<String>();
-        for (T t : data) ret.add(t.toString());
-        return (ret);
+        return data.stream().map(Object::toString).collect(Collectors.toSet());
     }
     
     /**
@@ -162,7 +145,7 @@ public abstract class CollectionUtil {
      * @param items
      */
     public static <T> T random(Collection<T> items) {
-        return (CollectionUtil.random(items, RANDOM));
+        return CollectionUtil.random(items, RANDOM);
     }
     
     /**
@@ -174,7 +157,7 @@ public abstract class CollectionUtil {
      */
     public static <T> T random(Collection<T> items, Random rand) {
         int idx = rand.nextInt(items.size());
-        return (CollectionUtil.get(items, idx));
+        return CollectionUtil.get(items, idx);
     }
     
     /**
@@ -194,27 +177,18 @@ public abstract class CollectionUtil {
      * @param rand
      * @return
      */
-    public static <T> T random(Iterable<T> it, Random rand) { 
-        List<T> list = new ArrayList<T>();
-        for (T t : it) {
-            list.add(t);
-        } // FOR
-        return (CollectionUtil.random(list, rand));
+    public static <T> T random(Iterable<T> it, Random rand) {
+        List<T> list = new ArrayList<>();
+        it.forEach(list::add);
+        return CollectionUtil.random(list, rand);
     }
     
     public static <E extends Enum<?>> Set<E> getAllExcluding(E elements[], E...excluding) {
-        Set<E> exclude_set = new HashSet<E>();
-        for (E e : excluding) exclude_set.add(e);
-        
-        Set<E> elements_set = new HashSet<E>();
-        for (int i = 0; i < elements.length; i++) {
-            if (!exclude_set.contains(elements[i])) elements_set.add(elements[i]);
-        } // FOR
-        return (elements_set);
-//      Crappy java....
-//        Object new_elements[] = new Object[elements_set.size()];
-//        elements_set.toArray(new_elements);
-//        return ((E[])new_elements);
+        HashSet<E> excludingSet = new HashSet<>(Arrays.asList(excluding));
+        HashSet<E> elementSet = new HashSet<>(Arrays.asList(elements));
+
+        elementSet.removeAll(excludingSet);
+        return elementSet;
     }
     
     /**
@@ -224,10 +198,8 @@ public abstract class CollectionUtil {
      * @param items
      */
     public static <T> Collection<T> addAll(Collection<T> data, T...items) {
-        for (T i : (T[])items) {
-            data.add(i);
-        }
-        return (data);
+        data.addAll(Arrays.asList(items));
+        return data;
     }
     
     /**
@@ -237,10 +209,8 @@ public abstract class CollectionUtil {
      * @param items
      */
     public static <T> Collection<T> addAll(Collection<T> data, Enumeration<T> items) {
-        while (items.hasMoreElements()) {
-            data.add(items.nextElement());
-        } // WHILE
-        return (data);
+        iterable(items).forEach(data::add);
+        return data;
     }
     
     /**
@@ -250,7 +220,7 @@ public abstract class CollectionUtil {
      * @param items
      */
     public static <T> Collection<T> addAll(Collection<T> data, Iterable<T> items) {
-        return (CollectionUtil.addAll(data, items.iterator()));
+        return CollectionUtil.addAll(data, items.iterator());
     }
     
     /**
@@ -260,10 +230,8 @@ public abstract class CollectionUtil {
      * @param items
      */
     public static <T> Collection<T> addAll(Collection<T> data, Iterator<T> items) {
-        while (items.hasNext()) {
-            data.add(items.next());
-        } // WHILE
-        return (data);
+        items.forEachRemaining(data::add);
+        return data;
     }
     
     /**
@@ -294,7 +262,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T first(Iterable<T> items) {
-        return (CollectionUtil.get(items, 0));
+        return CollectionUtil.get(items, 0);
     }
     
     /**
@@ -304,7 +272,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T first(Iterator<T> items) {
-        return (items.hasNext() ? items.next() : null);
+        return items.hasNext() ? items.next() : null;
     }
     
     /**
@@ -314,7 +282,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T first(Enumeration<T> items) {
-        return (items.hasMoreElements() ? items.nextElement() : null);
+        return items.hasMoreElements() ? items.nextElement() : null;
     }
     
     /**
@@ -344,7 +312,10 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T last(Iterable<T> items) {
+
         T last = null;
+//        items.iterator().forEachRemaining(i -> last = i);
+
         if (items instanceof AbstractList<?>) {
             AbstractList<T> list = (AbstractList<T>)items;
             last = (list.isEmpty() ? null : list.get(list.size() - 1));
@@ -363,10 +334,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T last(T...items) {
-        if (items != null && items.length > 0) {
-            return (items[items.length-1]);
-        }
-        return (null);
+        return Arrays.stream(items).reduce((first, second) -> second).orElse(null);
     }
 
     /**
@@ -377,11 +345,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <K extends Comparable<?>, V> List<V> getSortedList(SortedMap<K, Collection<V>> map) {
-        List<V> ret = new ArrayList<V>();
-        for (Collection<V> col : map.values()) {
-           ret.addAll(col);
-        } // FOR
-        return (ret);
+        return map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
     
     /**
@@ -391,12 +355,12 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> Iterable<T> iterable(final Iterator<T> it) {
-        return (new Iterable<T>() {
+        return new Iterable<T>() {
             @Override
             public Iterator<T> iterator() {
-                return (it);
+                return it;
             }
-        });
+        };
     }
     
     public static <T> Iterable<T> iterable(final T values[]) {

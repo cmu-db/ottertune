@@ -81,6 +81,10 @@ coverage.xml
 venv/
 ENV/
 
+# Intellij #
+.idea
+*.iml
+
 # Eclipse #
 ###########
 .project

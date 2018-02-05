@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD:controller/input_config.json
+  "database_type" : "mysql",
+  "database_url" : "jdbc:mysql://localhost:3306/mysqldb",
+  "username" : "root",
+=======
   "database_type" : "postgres",
   "database_url" : "jdbc:postgresql://localhost:5432/postgres",
   "username" : "",
+>>>>>>> 026eaae9f7846dec31ee08ba29fe2cee97f1d599:controller/config/sample_postgres_config.json
   "password" : "",
   "upload_code" : "MY_UPLOAD_CODE",
   "upload_url" : "http://localhost:8080",

@@ -14,6 +14,11 @@ from website.utils import ConversionUtil
 
 class PostgresParser(BaseParser):
 
+    def __init__(self, dbms_id):
+        super(PostgresParser, self).__init__(dbms_id)
+        self.valid_true_val = ["on", "true", "yes", 1]
+        self.valid_false_val = ["off", "false", "no", 0]
+
     POSTGRES_BYTES_SYSTEM = [
         (1024 ** 5, 'PB'),
         (1024 ** 4, 'TB'),

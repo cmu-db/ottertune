@@ -1,0 +1,7 @@
+{
+ "database_type": "mysql",
+ "start_time": 1512318694191,
+ "observation_time": 5,
+ "end_time": 1512318699192,
+ "database_version": "5.7.20"
+}

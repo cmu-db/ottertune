@@ -242,7 +242,7 @@ class MyRocksParser(BaseParser):
                 value = knobs[name]
                 conv_value = None
                 if metadata.vartype == VarType.BOOL:
-                    conv_value = self.convert_bool(value)
+                    conv_value = self.convert_bool(value, metadata)
                 elif metadata.vartype == VarType.ENUM:
                     conv_value = self.convert_enum(value, metadata)
                 elif metadata.vartype == VarType.INTEGER:

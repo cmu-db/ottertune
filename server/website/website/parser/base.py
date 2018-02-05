@@ -48,7 +48,7 @@ class BaseParser(object):
     def parse_version_string(self, version_string):
         pass
 
-    def convert_bool(self, bool_value):
+    def convert_bool(self, bool_value, metadata):
         return BooleanType.TRUE if bool_value in self.valid_true_val \
             else BooleanType.FALSE
 
@@ -100,7 +100,7 @@ class BaseParser(object):
                                     'but the actual value is: {}'
                                     .format(self.valid_boolean_val_to_string(), 
                                             str(value)))
-                conv_value = self.convert_bool(value)
+                conv_value = self.convert_bool(value, metadata)
             elif metadata.vartype == VarType.ENUM:
                 conv_value = self.convert_enum(value, metadata)
             elif metadata.vartype == VarType.INTEGER:

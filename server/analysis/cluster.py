@@ -24,6 +24,8 @@ from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans as SklearnKMeans
 
 from .base import ModelBase
+from celery.utils.log import get_task_logger
+from sklearn.metrics import silhouette_score
 
 # Log debug messages
 logger = get_task_logger(__name__)

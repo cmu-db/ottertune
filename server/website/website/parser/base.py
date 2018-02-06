@@ -29,6 +29,8 @@ class BaseParser(object):
         self.numeric_metric_catalog_ = {m: v for m, v in \
                 self.metric_catalog_.iteritems() if \
                 v.metric_type == MetricType.COUNTER}
+        self.valid_true_val = list()
+        self.valid_false_val = list()
 
     @abstractproperty
     def base_configuration_settings(self):
@@ -47,8 +49,8 @@ class BaseParser(object):
         pass
 
     def convert_bool(self, bool_value, metadata):
-        return BooleanType.TRUE if \
-                bool_value.lower() == 'on' else BooleanType.FALSE
+        return BooleanType.TRUE if bool_value in self.valid_true_val \
+            else BooleanType.FALSE
 
     def convert_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
@@ -73,6 +75,15 @@ class BaseParser(object):
     def convert_timestamp(self, timestamp_value, metadata):
         return timestamp_value
 
+    def valid_boolean_val_to_string(self):
+        str_true = 'valid true values: '
+        for bval in self.valid_true_val:
+            str_true += str(bval) + ' '
+        str_false = 'valid false values: '
+        for bval in self.valid_false_val:
+            str_false += str(bval) + ' '
+        return str_true + '; ' + str_false
+
     def convert_dbms_knobs(self, knobs):
         knob_data = {}
         for name, metadata in self.tunable_knob_catalog_.iteritems():
@@ -83,13 +94,29 @@ class BaseParser(object):
             value = knobs[name]
             conv_value = None
             if metadata.vartype == VarType.BOOL:
+                if not self._check_knob_bool_val(value):
+                    raise Exception('Knob boolean value not valid! '
+                                    'Boolean values should be one of: {}, '
+                                    'but the actual value is: {}'
+                                    .format(self.valid_boolean_val_to_string(), 
+                                            str(value)))
                 conv_value = self.convert_bool(value, metadata)
             elif metadata.vartype == VarType.ENUM:
                 conv_value = self.convert_enum(value, metadata)
             elif metadata.vartype == VarType.INTEGER:
                 conv_value = self.convert_integer(value, metadata)
+                if not self._check_knob_num_in_range(conv_value, metadata):
+                    raise Exception('Knob integer num value not in range! '
+                                    'min: {}, max: {}, actual: {}'
+                                    .format(metadata.minval,
+                                            metadata.maxval, str(conv_value)))
             elif metadata.vartype == VarType.REAL:
                 conv_value = self.convert_real(value, metadata)
+                if not self._check_knob_num_in_range(conv_value, metadata):
+                    raise Exception('Knob real num value not in range! '
+                                    'min: {}, max: {}, actual: {}'
+                                    .format(metadata.minval,
+                                            metadata.maxval, str(conv_value)))
             elif metadata.vartype == VarType.STRING:
                 conv_value = self.convert_string(value, metadata)
             elif metadata.vartype == VarType.TIMESTAMP:
@@ -102,6 +129,12 @@ class BaseParser(object):
                     'Param value for {} cannot be null'.format(name))
             knob_data[name] = conv_value
         return knob_data
+
+    def _check_knob_num_in_range(self, value, mdata):
+        return value >= float(mdata.minval) and value <= float(mdata.maxval)
+
+    def _check_knob_bool_val(self, value):
+        return value in self.valid_true_val or value in self.valid_false_val
 
     def convert_dbms_metrics(self, metrics, observation_time):
 #         if len(metrics) != len(self.numeric_metric_catalog_):

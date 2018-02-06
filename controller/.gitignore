@@ -24,4 +24,4 @@ out/
 lib/
 
 # log file
-.log
+*.log

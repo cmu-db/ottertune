@@ -3,6 +3,7 @@ package com.controller;
 import com.controller.collectors.DBCollector;
 import com.controller.collectors.MySQLCollector;
 import com.controller.collectors.PostgresCollector;
+import com.controller.collectors.SAPCollector;
 import com.controller.util.JSONUtil;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
@@ -74,6 +75,9 @@ public class Main {
                 break;
             case MYSQL:
                 collector = new MySQLCollector(controllerConfiguration.getDatabaseUrl(), controllerConfiguration.getUsername(), controllerConfiguration.getPassword());
+                break;
+            case SAPHANA:
+                collector = new SAPCollector(controllerConfiguration.getDatabaseUrl(), controllerConfiguration.getUsername(), controllerConfiguration.getPassword());
                 break;
             default:
                 logger.error("Invalid database type");

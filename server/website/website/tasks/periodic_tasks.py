@@ -183,7 +183,8 @@ def run_workload_characterization(metric_data):
 
     # Fit factor analysis model
     fa_model = FactorAnalysis()
-    fa_model.fit(shuffled_matrix, nonconst_columnlabels)
+    #For now we use 5 latent variables 
+    fa_model.fit(shuffled_matrix, nonconst_columnlabels, n_components=5)
 
     # Components: metrics * factors
     components = fa_model.components_.T.copy()
@@ -196,9 +197,9 @@ def run_workload_characterization(metric_data):
                       sample_labels=nonconst_columnlabels,
                       estimator_params={'n_init': 50})
 
-    # Compute optimal # clusters, k, using DetK
-    detk = create_kselection_model("det-k")
-    detk.fit(components, kmeans_models.cluster_map_)
+    # Compute optimal # clusters, k, using gap statistics 
+    gapk = create_kselection_model("gap-statistic")
+    gapk.fit(components, kmeans_models.cluster_map_)
 
     # Get pruned metrics, cloest samples of each cluster center
     pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()

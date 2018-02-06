@@ -49,8 +49,14 @@ class BaseParser(object):
         pass
 
     def convert_bool(self, bool_value, metadata):
-        return BooleanType.TRUE if bool_value in self.valid_true_val \
-            else BooleanType.FALSE
+        if (bool_value in self.valid_true_val and
+            bool_value not in self.valid_false_val):
+            return BooleanType.TRUE
+        elif (bool_value in self.valid_false_val and
+              bool_value not in self.valid_true_val):
+              return BooleanType.FALSE
+        else:
+            raise Exception("Invalid Boolean {}", bool_value)
 
     def convert_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
@@ -98,7 +104,7 @@ class BaseParser(object):
                     raise Exception('Knob boolean value not valid! '
                                     'Boolean values should be one of: {}, '
                                     'but the actual value is: {}'
-                                    .format(self.valid_boolean_val_to_string(), 
+                                    .format(self.valid_boolean_val_to_string(),
                                             str(value)))
                 conv_value = self.convert_bool(value, metadata)
             elif metadata.vartype == VarType.ENUM:

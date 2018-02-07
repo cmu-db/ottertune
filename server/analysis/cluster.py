@@ -15,7 +15,6 @@ import os
 import json
 import copy
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
@@ -25,7 +24,6 @@ from celery.utils.log import get_task_logger
 
 from .base import ModelBase
 
-matplotlib.use('agg')
 # Log debug messages
 LOGGER = get_task_logger(__name__)
 

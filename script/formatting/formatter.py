@@ -44,12 +44,14 @@ OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                   os.path.pardir,
                                                   os.path.pardir]))
 
+JAVA_JAR_PATH = os.path.join(
+    OTTERTUNE_DIR, 'controller/build/libs/google-java-format-1.5-all-deps.jar')
 
 # ==============================================
-# FILE HEADER FORMAT
+# FILE HEADER FORMATS
 # ==============================================
 
-HEADER_FORMAT = (
+PYTHON_HEADER_FORMAT = (
     "#\n"
     "# OtterTune - {filename}\n"
     "#\n"
@@ -58,14 +60,65 @@ HEADER_FORMAT = (
 ).format
 
 # Regex for updating old headers
-HEADER_REGEX = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
+PYTHON_HEADER_REGEX = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
 
+JAVA_HEADER_FORMAT = (
+    "/*\n"
+    " * OtterTune - {filename}\n"
+    " *\n"
+    " * Copyright (c) 2017-18, Carnegie Mellon University Database Group\n"
+    " */\n\n"
+).format
+
+JAVA_HEADER_REGEX = re.compile(r'/\*\n \*.*\n \*\n \* Copyright.*\n \*/\n\n')
 
 # ==============================================
 # UTILITY FUNCTION DEFINITIONS
 # ==============================================
 
+
 def format_file(file_path, update_header, format_code):
+    if file_path.endswith(".py"):
+        format_python_file(file_path, update_header, format_code)
+    elif file_path.endswith(".java"):
+        format_java_file(file_path, update_header, format_code)
+
+
+def update_file_header(file_contents, file_name, header_format, header_regex):
+    new_header = header_format(filename=os.path.basename(file_name))
+    header_match = header_regex.search(file_contents)
+    if header_match:
+        # Replace the old header with the new one
+        old_header = header_match.group()
+        file_contents = file_contents.replace(old_header, new_header)
+    else:
+        # Add new header
+        file_contents = new_header + file_contents
+    return file_contents
+
+
+def format_java_file(file_path, update_header, format_code):
+    if not file_path.endswith(".java"):
+        return
+
+    if update_header:
+        with open(file_path, 'r') as f:
+            file_contents = f.read()
+        file_contents = update_file_header(file_contents,
+                                           os.path.basename(file_path),
+                                           JAVA_HEADER_FORMAT,
+                                           JAVA_HEADER_REGEX)
+        with open(file_path, 'w') as f:
+            f.write(file_contents)
+
+    if format_code:
+        if not os.path.exists(JAVA_JAR_PATH):
+            controller_dir = os.path.join(OTTERTUNE_DIR, 'controller')
+            subprocess.check_output(["gradle", "downloadJars"], cwd=controller_dir)
+        subprocess.check_output(["java", "-jar", JAVA_JAR_PATH, "-r", file_path])
+
+
+def format_python_file(file_path, update_header, format_code):
     if not file_path.endswith(".py"):
         return
 
@@ -73,15 +126,10 @@ def format_file(file_path, update_header, format_code):
         file_contents = f.read()
 
     if update_header:
-        new_header = HEADER_FORMAT(filename=os.path.basename(file_path))
-        header_match = HEADER_REGEX.search(file_contents)
-        if header_match:
-            # Replace the old header with the new one
-            old_header = header_match.group()
-            file_contents = file_contents.replace(old_header, new_header)
-        else:
-            # Add new header
-            file_contents = new_header + file_contents
+        file_contents = update_file_header(file_contents,
+                                           os.path.basename(file_path),
+                                           PYTHON_HEADER_FORMAT,
+                                           PYTHON_HEADER_REGEX)
 
     if format_code:
         LOG.info('formatting')

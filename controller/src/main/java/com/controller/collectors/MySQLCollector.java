@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 /**
  *
@@ -46,6 +47,7 @@ public class MySQLCollector extends DBCollector {
             while (out.next()) {
                 dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
             }
+            conn.close();
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: " + e.getMessage());
             e.printStackTrace();
@@ -81,11 +83,10 @@ public class MySQLCollector extends DBCollector {
         try {
             stringer.object();
             stringer.key(JSON_GLOBAL_KEY);
-            // create global objects for two views: "pg_stat_archiver" and "pg_stat_bgwriter"
             JSONObject jobGlobal = new JSONObject();
             JSONObject job = new JSONObject();
-            for(String k : dbMetrics.keySet()) {
-                job.put(k, dbMetrics.get(k));
+            for (Map.Entry<String, String> entry : dbMetrics.entrySet()) {
+            	job.put(entry.getKey(), entry.getValue());
             }
             // "global" is a a placeholder
             jobGlobal.put("global",job);

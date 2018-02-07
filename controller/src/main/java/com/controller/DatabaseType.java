@@ -13,24 +13,10 @@ public enum DatabaseType {
      * Parameters:
      * (1) JDBC Driver String
      */
-    DB2("com.ibm.db2.jcc.DB2Driver"),
     MYSQL("com.mysql.jdbc.Driver"),
     MYROCKS("com.mysql.jdbc.Driver"),
     POSTGRES("org.postgresql.Driver"),
-    ORACLE("oracle.jdbc.driver.OracleDriver"),
-    SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver"),
-    SQLITE("org.sqlite.JDBC"),
-    AMAZONRDS(null),
-    SQLAZURE(null),
-    ASSCLOWN(null),
-    HSQLDB("org.hsqldb.jdbcDriver"),
-    H2("org.h2.Driver"),
-    MONETDB("nl.cwi.monetdb.jdbc.MonetDriver"),
-    NUODB("com.nuodb.jdbc.Driver"),
-    TIMESTEN("com.timesten.jdbc.TimesTenDriver"),
-    PELOTON("org.postgresql.Driver"),
-    SAPHANA("com.sap.db.jdbc.Driver")
-    ;
+    SAPHANA("com.sap.db.jdbc.Driver");
 
     private DatabaseType(String driver) {
         this.driver = driver;

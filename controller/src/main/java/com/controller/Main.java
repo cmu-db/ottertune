@@ -7,6 +7,7 @@ import com.controller.collectors.SAPCollector;
 import com.controller.util.JSONUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
@@ -27,71 +28,78 @@ import java.util.Map;
  * @author Shuli
  */
 public class Main {
-    final static Logger logger = Logger.getLogger(Main.class);
+    final static Logger LOG = Logger.getLogger(Main.class);
 
-    private static final int DEFAULT_TIME = 300;  //default observation time: 300 s
+    // Default output directory name
+    private static final String DEFAULT_DIRECTORY = "output";
+
+    // Default observation period time (5 minutes)
+    private static final int DEFAULT_TIME_SECONDS = 300;
+
     private static final int TO_MILLISECONDS = 1000;
+
     public static void main(String[] args) {
+    	// Initialize log4j
         PropertyConfigurator.configure("log4j.properties");
-        int time = DEFAULT_TIME; // set time to default
-        String outputDirName = "output"; // default output directory
+
+        // Create the command line parser
         CommandLineParser parser = new PosixParser();
         Options options = new Options();
-        options.addOption("t", "time", true, "experiment time");
-        options.addOption("c", "config", true, "config file path");
-        options.addOption("o", "output", true, "output directory name");
+        options.addOption("c", "config", true, "[required] Controller configuration file");
+        options.addOption("t", "time", true, "The observation time in seconds, default is 300");
+        options.addOption("d", "directory", true, "Base directory for the result files, default is 'output'");
+        options.addOption("h", "help", true, "Print this help");
         String configFilePath = null;
-        try {
-            CommandLine argsLine = parser.parse(options, args);
-            // parse time
-            if(argsLine.hasOption("t")) {
-                time = Integer.parseInt(argsLine.getOptionValue("t"));
-                logger.info("Experiment time is set to: " + time);
-            }
-            if(argsLine.hasOption("o")) {
-                outputDirName = argsLine.getOptionValue("o");
-                logger.info("Experiment output directory is set to: " + outputDirName);
-            }
 
-            // parse config file
-            if(!argsLine.hasOption("c")) {
-                logger.error("Must have a valid path to a config file. See the `config` directory.");
-                throw new MalformedParametersException("lack config file");
-            }
-            else {
-                configFilePath = argsLine.getOptionValue("c");
-            }
+        // Parse the command line arguments
+        CommandLine argsLine;
+        try {
+            argsLine = parser.parse(options, args);
         } catch (ParseException e) {
-            logger.error("Unable to Parse command line argument");
-            e.printStackTrace();
+        	LOG.error("Unable to Parse command line arguments");
+        	printUsage(options);
+        	return;
         }
 
-        // Parse input config file
-        HashMap<String, String> input = ConfigFileParser.getInputFromConfigFile(configFilePath);
-        ControllerConfiguration controllerConfiguration = new ControllerConfiguration(DatabaseType.get(input.get("database_type")),
-                input.get("username"), input.get("password"), input.get("database_url"), input.get("upload_code"), input.get("upload_url"),
+        if (argsLine.hasOption("h")) {
+        	printUsage(options);
+        	return;
+        } else if (argsLine.hasOption("c") == false) {
+        	LOG.error("Missing configuration file");
+        	printUsage(options);
+        	return;
+        }
+
+        int time = DEFAULT_TIME_SECONDS;
+        if(argsLine.hasOption("t")) {
+            time = Integer.parseInt(argsLine.getOptionValue("t"));
+            LOG.info("Experiment time is set to: " + time);
+        }
+
+        String outputDirectory = DEFAULT_DIRECTORY;
+        if(argsLine.hasOption("o")) {
+            outputDirectory = argsLine.getOptionValue("o");
+            LOG.info("Experiment output directory is set to: " + outputDirectory);
+        }
+
+        // Parse controller configuration file
+        String configFile = argsLine.getOptionValue("c");
+        HashMap<String, String> input = ConfigFileParser.getInputFromConfigFile(configFile);
+        ControllerConfiguration controllerConfiguration = new ControllerConfiguration(
+        		DatabaseType.get(input.get("database_type")),
+                input.get("username"),
+                input.get("password"),
+                input.get("database_url"),
+                input.get("upload_code"),
+                input.get("upload_url"),
                 input.get("workload_name"));
 
-        DBCollector collector = null;
-        switch (controllerConfiguration.getDbtype()) {
-            case POSTGRES:
-                collector = new PostgresCollector(controllerConfiguration.getDatabaseUrl(), controllerConfiguration.getUsername(), controllerConfiguration.getPassword());
-                break;
-            case MYSQL:
-                collector = new MySQLCollector(controllerConfiguration.getDatabaseUrl(), controllerConfiguration.getUsername(), controllerConfiguration.getPassword());
-                break;
-            case SAPHANA:
-                collector = new SAPCollector(controllerConfiguration.getDatabaseUrl(), controllerConfiguration.getUsername(), controllerConfiguration.getPassword());
-                break;
-            default:
-                logger.error("Invalid database type");
-                throw new MalformedParametersException("invalid database type");
-        }
+        DBCollector collector = getCollector(controllerConfiguration);
         String outputDir = input.get("database_type");
         String dbtype = input.get("database_type");
 
-        new File(outputDirName).mkdir();
-        new File(outputDirName + "/" + outputDir).mkdir();
+        new File(outputDirectory).mkdir();
+        new File(outputDirectory + "/" + outputDir).mkdir();
 
         try {
             // summary json obj
@@ -100,24 +108,24 @@ public class Main {
             summary.put("database_type", dbtype);
             summary.put("database_version", collector.collectVersion());
 
-            logger.info("First collection of metrics before experiment");
+            LOG.info("First collection of metrics before experiment");
             // first collection (before queries)
-            PrintWriter metricsWriter = new PrintWriter(outputDirName + "/" + outputDir+ "/metrics_before.json", "UTF-8");
+            PrintWriter metricsWriter = new PrintWriter(outputDirectory + "/" + outputDir+ "/metrics_before.json", "UTF-8");
             metricsWriter.println(collector.collectMetrics());
             metricsWriter.flush();
             metricsWriter.close();
-            PrintWriter knobsWriter = new PrintWriter(outputDirName + "/"+ outputDir + "/knobs.json", "UTF-8");
+            PrintWriter knobsWriter = new PrintWriter(outputDirectory + "/"+ outputDir + "/knobs.json", "UTF-8");
             knobsWriter.println(collector.collectParameters());
             knobsWriter.flush();
             knobsWriter.close();
 
             // record start time
             summary.put("start_time", System.currentTimeMillis());
-            logger.info("Start the experiment ...");
+            LOG.info("Start the experiment ...");
 
             // go to sleep
             Thread.sleep(time * TO_MILLISECONDS);
-            logger.info("Experiment ends");
+            LOG.info("Experiment ends");
 
             // record end time
             summary.put("end_time", System.currentTimeMillis());
@@ -126,27 +134,52 @@ public class Main {
             summary.put("workload_name", controllerConfiguration.getWorkloadName());
 
             // write summary JSONObject into a JSON file
-            PrintWriter summaryout = new PrintWriter(outputDirName + "/" + outputDir + "/summary.json","UTF-8");
+            PrintWriter summaryout = new PrintWriter(outputDirectory + "/" + outputDir + "/summary.json","UTF-8");
             summaryout.println(JSONUtil.format(summary.toString()));
             summaryout.flush();
+            summaryout.close();
 
-            logger.info("Second collection of metrics after experiment");
+            LOG.info("Second collection of metrics after experiment");
             // second collection (after queries)
-            PrintWriter metricsWriterFinal = new PrintWriter(outputDirName + "/" + outputDir + "/metrics_after.json", "UTF-8");
+            PrintWriter metricsWriterFinal = new PrintWriter(outputDirectory + "/" + outputDir + "/metrics_after.json", "UTF-8");
             metricsWriterFinal.println(collector.collectMetrics());
             metricsWriterFinal.flush();
             metricsWriterFinal.close();
         } catch (FileNotFoundException | UnsupportedEncodingException | InterruptedException e) {
-            logger.error("Failed to produce output files");
+            LOG.error("Failed to produce output files");
             e.printStackTrace();
         }
 
         Map<String, String> outfiles = new HashMap<>();
-        outfiles.put("knobs", outputDirName + "/" + outputDir + "/knobs.json");
-        outfiles.put("metrics_before", outputDirName + "/"+ outputDir + "/metrics_before.json");
-        outfiles.put("metrics_after", outputDirName + "/"+outputDir+"metrics_after.json");
-        outfiles.put("summary", outputDirName + "/"+outputDir+"summary.json");
+        outfiles.put("knobs", outputDirectory + "/" + outputDir + "/knobs.json");
+        outfiles.put("metrics_before", outputDirectory + "/"+ outputDir + "/metrics_before.json");
+        outfiles.put("metrics_after", outputDirectory + "/"+outputDir+"metrics_after.json");
+        outfiles.put("summary", outputDirectory + "/"+outputDir+"summary.json");
         ResultUploader.upload(controllerConfiguration.getUploadURL(), controllerConfiguration.getUploadCode(), outfiles);
 
+    }
+
+    private static void printUsage(Options options) {
+    	HelpFormatter formatter = new HelpFormatter();
+    	formatter.printHelp("controller", options);
+    }
+    
+    private static DBCollector getCollector(ControllerConfiguration config) {
+    	DBCollector collector = null;
+        switch (config.getDBType()) {
+	        case POSTGRES:
+	            collector = new PostgresCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+	            break;
+	        case MYSQL:
+	            collector = new MySQLCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+	            break;
+	        case SAPHANA:
+	            collector = new SAPCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+	            break;
+	        default:
+	            LOG.error("Invalid database type");
+	            throw new MalformedParametersException("Invalid database type");
+        }
+        return collector;
     }
 }

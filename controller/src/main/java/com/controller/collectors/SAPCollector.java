@@ -78,6 +78,7 @@ public class SAPCollector extends DBCollector {
                 out = s.executeQuery("SELECT * FROM " + viewName + " where schema_name = 'SYSTEM' ");
                 pgMetrics.put(viewName, getMetrics(out));
             }
+            conn.close();
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: " + e.getMessage());
         }

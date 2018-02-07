@@ -17,14 +17,15 @@ public class ConfigFileParser {
         JSONParser jsonParser = new JSONParser();
         HashMap<String, String> input = new HashMap<>();
         try {
-            Object inputObj = jsonParser.parse(new FileReader(configFileName));
+        	FileReader reader = new FileReader(configFileName);
+            Object inputObj = jsonParser.parse(reader);
             JSONObject inputJSONObj = (JSONObject) inputObj;
             for(Object key : inputJSONObj.keySet()) {
                 String jsonKey = (String) key;
                 String jsonVal = (String) inputJSONObj.get(jsonKey);
                 input.put(jsonKey, jsonVal);
             }
-
+            reader.close();
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

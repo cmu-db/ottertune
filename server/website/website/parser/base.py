@@ -49,14 +49,12 @@ class BaseParser(object):
         pass
 
     def convert_bool(self, bool_value, metadata):
-        if (bool_value in self.valid_true_val and
-            bool_value not in self.valid_false_val):
+        if bool_value in self.valid_true_val:
             return BooleanType.TRUE
-        elif (bool_value in self.valid_false_val and
-              bool_value not in self.valid_true_val):
+        elif bool_value in self.valid_false_val:
               return BooleanType.FALSE
         else:
-            raise Exception("Invalid Boolean {}", bool_value)
+            raise Exception("Invalid Boolean {}".format(bool_value))
 
     def convert_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')

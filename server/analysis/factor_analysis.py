@@ -64,7 +64,7 @@ class FactorAnalysis(ModelBase):
         self.pvars_ = None
         self.pvars_noise_ = None
 
-    def fit(self, X, feature_labels=None, n_components = None, estimator_params=None):
+    def fit(self, X, feature_labels=None, n_components=None, estimator_params=None):
         """Fits an Sklearn FA model to X.
 
         Parameters
@@ -91,7 +91,7 @@ class FactorAnalysis(ModelBase):
             model = SklearnFactorAnalysis(n_components=n_components)
         else:
             model = SklearnFactorAnalysis()
-        self.model_ = model        
+        self.model_ = model
         if estimator_params is not None:
             # Update Sklearn estimator params
             assert isinstance(estimator_params, dict)

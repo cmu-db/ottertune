@@ -183,7 +183,7 @@ def run_workload_characterization(metric_data):
 
     # Fit factor analysis model
     fa_model = FactorAnalysis()
-    #For now we use 5 latent variables 
+    # For now we use 5 latent variables
     fa_model.fit(shuffled_matrix, nonconst_columnlabels, n_components=5)
 
     # Components: metrics * factors
@@ -197,7 +197,7 @@ def run_workload_characterization(metric_data):
                       sample_labels=nonconst_columnlabels,
                       estimator_params={'n_init': 50})
 
-    # Compute optimal # clusters, k, using gap statistics 
+    # Compute optimal # clusters, k, using gap statistics
     gapk = create_kselection_model("gap-statistic")
     gapk.fit(components, kmeans_models.cluster_map_)
 

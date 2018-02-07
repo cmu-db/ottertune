@@ -6,8 +6,17 @@ import com.controller.util.json.JSONObject;
 import com.controller.util.json.JSONStringer;
 import org.apache.log4j.Logger;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class SAPCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(SAPCollector.class);
@@ -41,8 +50,6 @@ public class SAPCollector extends DBCollector {
     	pgMetrics = new HashMap<>();
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
-//            Catalog.setSeparator(conn);
-
             Statement s = conn.createStatement();
 
             // Collect DBMS version

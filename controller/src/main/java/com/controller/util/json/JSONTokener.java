@@ -1,10 +1,4 @@
 /*
- * OtterTune - JSONTokener.java
- *
- * Copyright (c) 2017-18, Carnegie Mellon University Database Group
- */
-
-/*
 Copyright (c) 2002 JSON.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

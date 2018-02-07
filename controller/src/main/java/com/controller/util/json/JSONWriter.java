@@ -1,10 +1,4 @@
 /*
- * OtterTune - JSONWriter.java
- *
- * Copyright (c) 2017-18, Carnegie Mellon University Database Group
- */
-
-/*
 Copyright (c) 2006 JSON.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

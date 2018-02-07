@@ -1,9 +1,3 @@
-/*
- * OtterTune - JSONString.java
- *
- * Copyright (c) 2017-18, Carnegie Mellon University Database Group
- */
-
 package com.controller.util.json;
 /**
  * The <code>JSONString</code> interface allows a <code>toJSONString()</code> method so that a class

@@ -421,7 +421,7 @@ class GapStatistic(KSelection):
         self.log_wkbs_ = None
         self.khats_ = None
 
-    def fit(self, X, cluster_map, n_b=50):
+    def fit(self, X, cluster_map, n_B=50):
         """Estimates the optimal number of clusters (K) for a
            KMeans model trained on X.
 
@@ -434,7 +434,7 @@ class GapStatistic(KSelection):
                        A dictionary mapping each cluster size (K) to the KMeans
                        model fitted to X with K clusters
 
-        n_b : int
+        n_B : int
               The number of reference data sets to generate
 
 
@@ -775,7 +775,7 @@ def create_kselection_model(model_name):
     ----------
     model_name : string
                  Name of the KSelection model.
-                 One of ['gap-statistic', 'det-k']
+                 One of ['gap-statistic', 'det-k', 's-score']
 
 
     Returns
@@ -785,6 +785,7 @@ def create_kselection_model(model_name):
     kselection_map = {
         DetK.NAME_: DetK,
         GapStatistic.NAME_: GapStatistic,
+        Silhouette.NAME_:  Silhouette
     }
     if model_name not in kselection_map:
         raise Exception("KSelection model {} not supported!".format(model_name))

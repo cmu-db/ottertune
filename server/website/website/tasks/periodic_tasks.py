@@ -202,7 +202,7 @@ def run_workload_characterization(metric_data):
     gapk.fit(components, kmeans_models.cluster_map_)
 
     # Get pruned metrics, cloest samples of each cluster center
-    pruned_metrics = kmeans_models.cluster_map_[detk.optimal_num_clusters_].get_closest_samples()
+    pruned_metrics = kmeans_models.cluster_map_[gapk.optimal_num_clusters_].get_closest_samples()
 
     # Return pruned metrics
     return pruned_metrics

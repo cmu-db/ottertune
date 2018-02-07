@@ -86,6 +86,7 @@ ENV/
 .project
 .pydevproject
 .settings
+.classpath
 
 # Intellij and PyCharm #
 .idea

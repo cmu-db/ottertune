@@ -28,7 +28,8 @@ public enum DatabaseType {
     MONETDB("nl.cwi.monetdb.jdbc.MonetDriver"),
     NUODB("com.nuodb.jdbc.Driver"),
     TIMESTEN("com.timesten.jdbc.TimesTenDriver"),
-    PELOTON("org.postgresql.Driver")
+    PELOTON("org.postgresql.Driver"),
+    SAPHANA("com.sap.db.jdbc.Driver")
     ;
 
     private DatabaseType(String driver) {

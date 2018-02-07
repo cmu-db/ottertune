@@ -343,7 +343,9 @@ class BaseParser(object):
     def format_dbms_knobs(self, knobs):
         formatted_knobs = {}
         for knob_name, knob_value in knobs.iteritems():
-            metadata = self.knob_catalog_[knob_name]
+            metadata = self.knob_catalog_.get(knob_name, None)
+            if (metadata is None):
+                raise Excepton('Unknown knob {}'.format(knob_name))
             fvalue = None
             if metadata.vartype == VarType.BOOL:
                 fvalue = self.format_bool(knob_value, metadata)

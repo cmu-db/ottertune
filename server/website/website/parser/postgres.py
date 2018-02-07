@@ -32,8 +32,8 @@ class PostgresParser(BaseParser):
         (1000 * 60 * 60 * 24, 'd'),
         (1000 * 60 * 60, 'h'),
         (1000 * 60, 'min'),
-        (1, 'ms'),
         (1000, 's'),
+        (1, 'ms'),
     ]
 
     POSTGRES_BASE_KNOBS = {

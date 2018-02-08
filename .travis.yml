@@ -39,6 +39,7 @@ before_script:
 
 script:
   - cd controller && gradle build
+  - cd ../server && python -m unittest discover -s analysis/tests -v
   - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
   - cd ../.. && python script/validators/source_validator.py
 

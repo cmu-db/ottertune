@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
-public class SAPCollector extends DBCollector {
-  private static final Logger LOG = Logger.getLogger(SAPCollector.class);
+public class SAPHanaCollector extends DBCollector {
+  private static final Logger LOG = Logger.getLogger(SAPHanaCollector.class);
 
   private static final String VERSION_SQL = "SELECT VERSION from M_DATABASE";
 
@@ -58,7 +58,7 @@ public class SAPCollector extends DBCollector {
 
   private final Map<String, List<Map<String, String>>> pgMetrics;
 
-  public SAPCollector(String oriDBUrl, String username, String password) {
+  public SAPHanaCollector(String oriDBUrl, String username, String password) {
     pgMetrics = new HashMap<>();
     try {
       Connection conn = DriverManager.getConnection(oriDBUrl, username, password);

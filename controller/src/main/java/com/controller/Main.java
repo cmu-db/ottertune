@@ -9,7 +9,7 @@ package com.controller;
 import com.controller.collectors.DBCollector;
 import com.controller.collectors.MySQLCollector;
 import com.controller.collectors.PostgresCollector;
-import com.controller.collectors.SAPCollector;
+import com.controller.collectors.SAPHanaCollector;
 import com.controller.util.JSONUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -191,7 +191,7 @@ public class Main {
         break;
       case SAPHANA:
         collector =
-            new SAPCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+            new SAPHanaCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
         break;
       default:
         LOG.error("Invalid database type");

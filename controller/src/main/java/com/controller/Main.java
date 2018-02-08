@@ -191,7 +191,8 @@ public class Main {
         break;
       case SAPHANA:
         collector =
-            new SAPHanaCollector(config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+            new SAPHanaCollector(
+                config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
         break;
       default:
         LOG.error("Invalid database type");

@@ -8,13 +8,13 @@
       "type" : "string"
     },
     "database_url": {
-      "type" : "number"
+      "type" : "string"
     },
     "username" :{
-      "type" : "number"
+      "type" : "string"
     },
     "password": {
-      "type" : "number"
+      "type" : "string"
     },
     "upload_code": {
       "type" : "string"

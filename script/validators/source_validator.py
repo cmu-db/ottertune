@@ -23,7 +23,7 @@ import sys
 import json
 import functools
 from collections import namedtuple
-from fabric.api import local, settings, quiet
+from fabric.api import lcd, local, settings, quiet
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = -1
@@ -48,13 +48,16 @@ OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
 
 # Other directory paths used are relative to OTTERTUNE_DIR
 DEFAULT_DIRS = [
-    os.path.join(OTTERTUNE_DIR, "server")
+    os.path.join(OTTERTUNE_DIR)
 ]
 
 # Directories that should NOT be checked
 EXCLUDE_DIRECTORIES = [
     # Django-generated directories
     os.path.join(OTTERTUNE_DIR, "server/website/website/migrations"),
+
+    # Source code files from json.org
+    os.path.join(OTTERTUNE_DIR, "controller/src/main/java/com/controller/util/json")
 ]
 
 # Files that should NOT be checked
@@ -74,12 +77,21 @@ EXCLUDE_FILES = [
     os.path.join(OTTERTUNE_DIR, "server/website/website/parser/postgres.py"),
 ]
 
+CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR, "controller/build/libs/checkstyle-8.8-all.jar")
+
 # Regex patterns
 PYCODESTYLE_COMMENT_PATTERN = re.compile(r'#\s*pycodestyle:\s*disable\s*=\s*[\w\,\s]+$')
-ILLEGAL_PATTERNS = [
+
+PYTHON_ILLEGAL_PATTERNS = [
     (re.compile(r'^print[ (]'), "Do not use 'print'. Use the logging module instead.")
 ]
-HEADER_PATTERN = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
+
+JAVA_ILLEGAL_PATTERNS = [
+    (re.compile(r'^System.out.println'), "Do not use println. Use the logging module instead.")
+]
+
+PYTHON_HEADER_PATTERN = re.compile(r'#\n#.*\n#\n# Copyright.*\n#\n')
+JAVA_HEADER_PATTERN = re.compile(r'/\*\n \*.*\n \*\n \* Copyright.*\n \*/\n\n')
 
 # Stdout format strings
 SEPARATOR = 80 * '-'
@@ -133,24 +145,26 @@ def validate_validator(modules, config_path):
 
 # Validate the file passed as argument
 def validate_file(file_path):
-    if file_path in EXCLUDE_FILES or not file_path.endswith(".py"):
-        status = True
-    else:
-        LOG.debug("Validating file: %s", file_path)
-        status = True
-        output = []
-        failed_validators = []
-        for validator in VALIDATORS:
-            val_status, val_output = validator.validate_fn(
-                file_path, validator.config_path)
-            if not val_status:
-                status = False
-                output.append(VALIDATOR_FMT(name=validator.name,
-                                            u='-' * len(validator.name),
-                                            out=val_output))
-                failed_validators.append(validator.name)
-        if not status:
-            LOG.info(OUTPUT_FMT, file_path, ', '.join(failed_validators), '\n'.join(output))
+    if file_path in EXCLUDE_FILES:
+        return True
+    if not file_path.endswith(".py") and not file_path.endswith(".java"):
+        return True
+
+    LOG.debug("Validating file: %s", file_path)
+    status = True
+    output = []
+    failed_validators = []
+    for validator in VALIDATORS:
+        val_status, val_output = validator.validate_fn(
+            file_path, validator.config_path)
+        if not val_status:
+            status = False
+            output.append(VALIDATOR_FMT(name=validator.name,
+                                        u='-' * len(validator.name),
+                                        out=val_output))
+            failed_validators.append(validator.name)
+    if not status:
+        LOG.info(OUTPUT_FMT, file_path, ', '.join(failed_validators), '\n'.join(output))
     return status
 
 
@@ -176,6 +190,9 @@ def validate_dir(root_dir):
 # ==============================================
 
 def check_pylint(file_path, config_path=None):
+    if not file_path.endswith(".py"):
+        return True, None
+
     options = [
         '--output-format=json',
         '--reports=yes',
@@ -205,6 +222,9 @@ def check_pylint(file_path, config_path=None):
 
 def check_pycodestyle(file_path, config_path=None):
     import pycodestyle
+
+    if not file_path.endswith(".py"):
+        return True, None
 
     # A custom reporter class for pycodestyle that checks for disabled errors
     # and formats the style report output.
@@ -252,15 +272,52 @@ def check_pycodestyle(file_path, config_path=None):
     return status, output
 
 
+def check_java_checkstyle(file_path, config_path=None):
+    if not file_path.endswith(".java"):
+        return True, None
+
+    if not os.path.exists(CHECKSTYLE_JAR_PATH):
+        with lcd(os.path.join(OTTERTUNE_DIR, "controller")):  # pylint: disable=not-context-manager
+            local("gradle downloadJars")
+
+    options = '' if config_path is None else '-c ' + config_path
+    with quiet():
+        res = local("java -jar {} {} {}".format(CHECKSTYLE_JAR_PATH, options, file_path),
+                    capture=True)
+    lines = res.stdout.split('\n')
+    assert len(lines) >= 2 and lines[0] == "Starting audit..." and lines[-1] == "Audit done."
+    if len(lines) == 2:
+        return True, None
+    output = []
+    for line in lines[1:-1]:
+        parts = line.strip().split(':')
+        line_number = int(parts[1])
+        text, code = parts[-1].rsplit('[', 1)
+        text = text.strip()
+        code = code[:-1]
+        output.append(format_message(os.path.basename(file_path), line_number, text, code))
+    output = ''.join(output)
+    return False, output
+
+
 def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unused-argument
-    status = True
+    if file_path.endswith(".py"):
+        illegal_patterns = PYTHON_ILLEGAL_PATTERNS
+        comment = "#"
+    elif file_path.endswith(".java"):
+        illegal_patterns = JAVA_ILLEGAL_PATTERNS
+        comment = "//"
+    else:
+        return True, None
+
     line_num = 1
     output = []
+    status = True
     with open(file_path, 'r') as f:
         for line in f:
             line = line.strip()
-            for pattern_info in ILLEGAL_PATTERNS:
-                if not line.startswith('#') and pattern_info[0].search(line):
+            for pattern_info in illegal_patterns:
+                if not line.startswith(comment) and pattern_info[0].search(line):
                     output.append(format_message(filename=os.path.basename(file_path),
                                                  line=line_num,
                                                  message=pattern_info[1]))
@@ -271,12 +328,19 @@ def check_illegal_patterns(file_path, config_path=None):  # pylint: disable=unus
 
 
 def check_header(file_path, config_file=None):  # pylint: disable=unused-argument
+    if file_path.endswith(".py"):
+        header_pattern = PYTHON_HEADER_PATTERN
+    elif file_path.endswith(".java"):
+        header_pattern = JAVA_HEADER_PATTERN
+    else:
+        return True, None
+
     status = True
     output = None
     with open(file_path, 'r') as f:
         file_contents = f.read()
 
-    header_match = HEADER_PATTERN.search(file_contents)
+    header_match = header_pattern.search(file_contents)
     filename = os.path.basename(file_path)
     if header_match:
         if filename not in header_match.group(0):
@@ -307,10 +371,14 @@ VALIDATORS = [
     Validator('check_pycodestyle', check_pycodestyle, ['pycodestyle'],
               os.path.join(OTTERTUNE_DIR, "script/formatting/config/pycodestyle")),
 
-    # Checks that the python source files do not use illegal patterns
+    # Runs checkstyle on the java source
+    Validator("check_java_checkstyle", check_java_checkstyle, [],
+              os.path.join(OTTERTUNE_DIR, "script/formatting/config/google_checks.xml")),
+
+    # Checks that the python/java source files do not use illegal patterns
     Validator('check_illegal_patterns', check_illegal_patterns, [], None),
 
-    # Checks that the source files have headers
+    # Checks that the python/java source files have headers
     Validator('check_header', check_header, [], None)
 ]
 

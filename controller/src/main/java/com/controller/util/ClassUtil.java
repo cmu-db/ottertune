@@ -45,12 +45,12 @@ public abstract class ClassUtil {
     return (obj != null ? obj.getClass().isArray() : false);
   }
 
-  public static boolean[] isArray(final Object objs[]) {
-    boolean is_array[] = new boolean[objs.length];
+  public static boolean[] isArray(final Object[] objs) {
+    boolean[] isArray = new boolean[objs.length];
     for (int i = 0; i < objs.length; i++) {
-      is_array[i] = ClassUtil.isArray(objs[i]);
+      isArray[i] = ClassUtil.isArray(objs[i]);
     } // FOR
-    return (is_array);
+    return (isArray);
   }
 
   /**
@@ -63,9 +63,9 @@ public abstract class ClassUtil {
    * @return
    * @throws NoSuchFieldException
    */
-  public static <E extends Enum<?>> Field[] getFieldsFromMembersEnum(Class<?> clazz, E members[])
+  public static <E extends Enum<?>> Field[] getFieldsFromMembersEnum(Class<?> clazz, E[] members)
       throws NoSuchFieldException {
-    Field fields[] = new Field[members.length];
+    Field[] fields = new Field[members.length];
     for (int i = 0; i < members.length; i++) {
       fields[i] = clazz.getDeclaredField(members[i].name().toLowerCase());
     } // FOR
@@ -79,13 +79,13 @@ public abstract class ClassUtil {
    * @return
    */
   public static List<Class<?>> getGenericTypes(Field field) {
-    ArrayList<Class<?>> generic_classes = new ArrayList<Class<?>>();
+    ArrayList<Class<?>> genericClasses = new ArrayList<Class<?>>();
     Type gtype = field.getGenericType();
     if (gtype instanceof ParameterizedType) {
       ParameterizedType ptype = (ParameterizedType) gtype;
-      getGenericTypesImpl(ptype, generic_classes);
+      getGenericTypesImpl(ptype, genericClasses);
     }
-    return (generic_classes);
+    return (genericClasses);
   }
 
   private static void getGenericTypesImpl(ParameterizedType ptype, List<Class<?>> classes) {
@@ -108,19 +108,19 @@ public abstract class ClassUtil {
    * Return an ordered list of all the sub-classes for a given class Useful when dealing with
    * generics
    *
-   * @param element_class
+   * @param elementClass
    * @return
    */
-  public static List<Class<?>> getSuperClasses(Class<?> element_class) {
-    List<Class<?>> ret = ClassUtil.CACHE_getSuperClasses.get(element_class);
+  public static List<Class<?>> getSuperClasses(Class<?> elementClass) {
+    List<Class<?>> ret = ClassUtil.CACHE_getSuperClasses.get(elementClass);
     if (ret == null) {
       ret = new ArrayList<Class<?>>();
-      while (element_class != null) {
-        ret.add(element_class);
-        element_class = element_class.getSuperclass();
+      while (elementClass != null) {
+        ret.add(elementClass);
+        elementClass = elementClass.getSuperclass();
       } // WHILE
       ret = Collections.unmodifiableList(ret);
-      ClassUtil.CACHE_getSuperClasses.put(element_class, ret);
+      ClassUtil.CACHE_getSuperClasses.put(elementClass, ret);
     }
     return (ret);
   }
@@ -128,12 +128,12 @@ public abstract class ClassUtil {
   /**
    * Get a set of all of the interfaces that the element_class implements
    *
-   * @param element_class
+   * @param elementClass
    * @return
    */
   @SuppressWarnings("unchecked")
-  public static Collection<Class<?>> getInterfaces(Class<?> element_class) {
-    Set<Class<?>> ret = ClassUtil.CACHE_getInterfaceClasses.get(element_class);
+  public static Collection<Class<?>> getInterfaces(Class<?> elementClass) {
+    Set<Class<?>> ret = ClassUtil.CACHE_getInterfaceClasses.get(elementClass);
     if (ret == null) {
       //            ret = new HashSet<Class<?>>();
       //            Queue<Class<?>> queue = new LinkedList<Class<?>>();
@@ -145,86 +145,37 @@ public abstract class ClassUtil {
       //                    queue.add(i);
       //                } // FOR
       //            } // WHILE
-      ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(element_class));
-      if (element_class.isInterface()) ret.add(element_class);
+      ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(elementClass));
+      if (elementClass.isInterface()) {
+        ret.add(elementClass);
+      }
       ret = Collections.unmodifiableSet(ret);
-      ClassUtil.CACHE_getInterfaceClasses.put(element_class, ret);
+      ClassUtil.CACHE_getInterfaceClasses.put(elementClass, ret);
     }
     return (ret);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> T newInstance(String class_name, Object params[], Class<?> classes[]) {
-    return ((T) ClassUtil.newInstance(ClassUtil.getClass(class_name), params, classes));
+  public static <T> T newInstance(String className, Object[] params, Class<?>[] classes) {
+    return ((T) ClassUtil.newInstance(ClassUtil.getClass(className), params, classes));
   }
 
-  public static <T> T newInstance(Class<T> target_class, Object params[], Class<?> classes[]) {
+  public static <T> T newInstance(Class<T> targetClass, Object[] params, Class<?>[] classes) {
     //        Class<?> const_params[] = new Class<?>[params.length];
     //        for (int i = 0; i < params.length; i++) {
     //            const_params[i] = params[i].getClass();
     //            System.err.println("[" + i + "] " + params[i] + " " + params[i].getClass());
     //        } // FOR
 
-    Constructor<T> constructor = ClassUtil.getConstructor(target_class, classes);
+    Constructor<T> constructor = ClassUtil.getConstructor(targetClass, classes);
     T ret = null;
     try {
       ret = constructor.newInstance(params);
     } catch (Exception ex) {
       throw new RuntimeException(
-          "Failed to create new instance of " + target_class.getSimpleName(), ex);
+          "Failed to create new instance of " + targetClass.getSimpleName(), ex);
     }
     return (ret);
-  }
-
-  /**
-   * @param <T>
-   * @param target_class
-   * @param params
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  public static <T> Constructor<T> getConstructor(Class<T> target_class, Class<?>... params) {
-    NoSuchMethodException error = null;
-    try {
-      return (target_class.getConstructor(params));
-    } catch (NoSuchMethodException ex) {
-      // The first time we get this it can be ignored
-      // We'll try to be nice and find a match for them
-      error = ex;
-    }
-    assert (error != null);
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("TARGET CLASS:  " + target_class);
-      LOG.debug("TARGET PARAMS: " + Arrays.toString(params));
-    }
-
-    List<Class<?>> paramSuper[] = (List<Class<?>>[]) new List[params.length];
-    for (int i = 0; i < params.length; i++) {
-      paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
-      if (LOG.isDebugEnabled())
-        LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
-    } // FOR
-
-    for (Constructor<?> c : target_class.getConstructors()) {
-      Class<?> cTypes[] = c.getParameterTypes();
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("CANDIDATE: " + c);
-        LOG.debug("CANDIDATE PARAMS: " + Arrays.toString(cTypes));
-      }
-      if (params.length != cTypes.length) continue;
-
-      for (int i = 0; i < params.length; i++) {
-        List<Class<?>> cSuper = ClassUtil.getSuperClasses(cTypes[i]);
-        if (LOG.isDebugEnabled())
-          LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
-        if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
-          return ((Constructor<T>) c);
-        }
-      } // FOR (param)
-    } // FOR (constructors)
-    throw new RuntimeException(
-        "Failed to retrieve constructor for " + target_class.getSimpleName(), error);
   }
 
   /**
@@ -261,18 +212,73 @@ public abstract class ClassUtil {
   }
 
   /**
-   * @param class_name
+   * @param <T>
+   * @param targetClass
+   * @param params
    * @return
    */
-  public static Class<?> getClass(String class_name) {
-    Class<?> target_class = null;
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> getConstructor(Class<T> targetClass, Class<?>... params) {
+    NoSuchMethodException error = null;
+    try {
+      return (targetClass.getConstructor(params));
+    } catch (NoSuchMethodException ex) {
+      // The first time we get this it can be ignored
+      // We'll try to be nice and find a match for them
+      error = ex;
+    }
+    assert (error != null);
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("TARGET CLASS:  " + targetClass);
+      LOG.debug("TARGET PARAMS: " + Arrays.toString(params));
+    }
+
+    List<Class<?>>[] paramSuper = (List<Class<?>>[]) new List[params.length];
+    for (int i = 0; i < params.length; i++) {
+      paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
+      }
+    } // FOR
+
+    for (Constructor<?> c : targetClass.getConstructors()) {
+      Class<?>[] ctypes = c.getParameterTypes();
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("CANDIDATE: " + c);
+        LOG.debug("CANDIDATE PARAMS: " + Arrays.toString(ctypes));
+      }
+      if (params.length != ctypes.length) {
+        continue;
+      }
+
+      for (int i = 0; i < params.length; i++) {
+        List<Class<?>> csuper = ClassUtil.getSuperClasses(ctypes[i]);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("  SUPER[" + ctypes[i].getSimpleName() + "] => " + csuper);
+        }
+        if (CollectionUtils.intersection(paramSuper[i], csuper).isEmpty() == false) {
+          return ((Constructor<T>) c);
+        }
+      } // FOR (param)
+    } // FOR (constructors)
+    throw new RuntimeException(
+        "Failed to retrieve constructor for " + targetClass.getSimpleName(), error);
+  }
+
+  /**
+   * @param className
+   * @return
+   */
+  public static Class<?> getClass(String className) {
+    Class<?> targetClass = null;
     try {
       ClassLoader loader = ClassLoader.getSystemClassLoader();
-      target_class = (Class<?>) loader.loadClass(class_name);
+      targetClass = (Class<?>) loader.loadClass(className);
     } catch (Exception ex) {
-      throw new RuntimeException("Failed to retrieve class for " + class_name, ex);
+      throw new RuntimeException("Failed to retrieve class for " + className, ex);
     }
-    return (target_class);
+    return (targetClass);
   }
 
   /**

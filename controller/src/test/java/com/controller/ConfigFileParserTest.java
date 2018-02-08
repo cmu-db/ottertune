@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Test for ConfigFileParserTest
+ * Test for ConfigFileParserTest.
  *
  * @author Shuli
  */

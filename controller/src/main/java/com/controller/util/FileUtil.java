@@ -56,11 +56,13 @@ public abstract class FileUtil {
    */
   public static String getNextFilename(String basename) {
 
-    if (!exists(basename)) return basename;
+    if (!exists(basename)) {
+      return basename;
+    }
 
     File f = new File(basename);
     if (f != null && f.isFile()) {
-      String parts[] = EXT_SPLIT.split(basename);
+      String[] parts = EXT_SPLIT.split(basename);
 
       // Check how many files already exist
       int counter = 1;
@@ -97,7 +99,7 @@ public abstract class FileUtil {
 
   public static String getExtension(File f) {
     if (f != null && f.isFile()) {
-      String parts[] = EXT_SPLIT.split(f.getName());
+      String[] parts = EXT_SPLIT.split(f.getName());
       if (parts.length > 1) {
         return (parts[parts.length - 1]);
       }
@@ -112,7 +114,9 @@ public abstract class FileUtil {
    */
   public static void makeDirIfNotExists(String... paths) {
     for (String p : paths) {
-      if (p == null) continue;
+      if (p == null) {
+        continue;
+      }
       File f = new File(p);
       if (f.exists() == false) {
         f.mkdirs();
@@ -137,12 +141,18 @@ public abstract class FileUtil {
 
   public static File getTempFile(String prefix, String suffix, boolean deleteOnExit) {
     File tempFile;
-    if (suffix != null && suffix.startsWith(".") == false) suffix = "." + suffix;
-    if (prefix == null) prefix = "hstore";
+    if (suffix != null && suffix.startsWith(".") == false) {
+      suffix = "." + suffix;
+    }
+    if (prefix == null) {
+      prefix = "hstore";
+    }
 
     try {
       tempFile = File.createTempFile(prefix, suffix);
-      if (deleteOnExit) tempFile.deleteOnExit();
+      if (deleteOnExit) {
+        tempFile.deleteOnExit();
+      }
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
@@ -164,8 +174,8 @@ public abstract class FileUtil {
     return (temp);
   }
 
-  public static File writeStringToFile(String file_path, String content) throws IOException {
-    return (FileUtil.writeStringToFile(new File(file_path), content));
+  public static File writeStringToFile(String filePath, String content) throws IOException {
+    return (FileUtil.writeStringToFile(new File(filePath), content));
   }
 
   public static File writeStringToFile(File file, String content) throws IOException {
@@ -218,7 +228,7 @@ public abstract class FileUtil {
   }
 
   public static String readFile(File path) {
-    System.out.println(path);
+    LOG.debug(path);
     return (readFile(path.getAbsolutePath()));
   }
 
@@ -322,19 +332,20 @@ public abstract class FileUtil {
 
   private static final File find(String name, File current, boolean isdir) throws IOException {
     LOG.debug("Find Current Location = " + current);
-    boolean has_svn = false;
+    boolean hasSvn = false;
     for (File file : current.listFiles()) {
       if (file.getCanonicalPath().endsWith(File.separator + name) && file.isDirectory() == isdir) {
         return (file);
         // Make sure that we don't go to far down...
       } else if (file.getCanonicalPath().endsWith(File.separator + ".svn")) {
-        has_svn = true;
+        hasSvn = true;
       }
     } // FOR
     // If we didn't see an .svn directory, then we went too far down
-    if (!has_svn)
+    if (!hasSvn) {
       throw new RuntimeException(
           "Unable to find directory '" + name + "' [last_dir=" + current.getAbsolutePath() + "]");
+    }
     File next = new File(current.getCanonicalPath() + File.separator + "");
     return (FileUtil.find(name, next, isdir));
   }

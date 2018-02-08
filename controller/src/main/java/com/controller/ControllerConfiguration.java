@@ -34,6 +34,7 @@ public class ControllerConfiguration {
     this.uploadURL = uploadURL;
     this.workloadName = workloadName;
   }
+
   /* Mutators */
   public void setDBType(DatabaseType dbType) {
     this.dbType = dbType;

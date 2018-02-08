@@ -42,24 +42,38 @@ public class ValidationUtils {
   public static JsonSchema getSchemaNode(String schemaText)
       throws IOException, ProcessingException {
     final JsonNode schemaNode = getJsonNode(schemaText);
-    return _getSchemaNode(schemaNode);
+    return getSchemaNodeHelper(schemaNode);
   } // getSchemaNode(text) ends
 
   public static JsonSchema getSchemaNode(File schemaFile) throws IOException, ProcessingException {
     final JsonNode schemaNode = getJsonNode(schemaFile);
-    return _getSchemaNode(schemaNode);
+    return getSchemaNodeHelper(schemaNode);
   } // getSchemaNode(File) ends
 
   public static JsonSchema getSchemaNode(URL schemaFile) throws IOException, ProcessingException {
     final JsonNode schemaNode = getJsonNode(schemaFile);
-    return _getSchemaNode(schemaNode);
+    return getSchemaNodeHelper(schemaNode);
   } // getSchemaNode(URL) ends
 
   public static JsonSchema getSchemaNodeFromResource(String resource)
       throws IOException, ProcessingException {
     final JsonNode schemaNode = getJsonNodeFromResource(resource);
-    return _getSchemaNode(schemaNode);
+    return getSchemaNodeHelper(schemaNode);
   } // getSchemaNode() ends
+
+  public static void validateJson(String schemaText, String jsonText)
+      throws IOException, ProcessingException {
+    final JsonSchema schemaNode = getSchemaNode(schemaText);
+    final JsonNode jsonNode = getJsonNode(jsonText);
+    validateJson(schemaNode, jsonNode);
+  } // validateJson(text) ends
+
+  public static void validateJson(File schemaFile, File jsonFile)
+      throws IOException, ProcessingException {
+    final JsonSchema schemaNode = getSchemaNode(schemaFile);
+    final JsonNode jsonNode = getJsonNode(jsonFile);
+    validateJson(schemaNode, jsonNode);
+  } // validateJson(File) ends
 
   public static void validateJson(JsonSchema jsonSchemaNode, JsonNode jsonNode)
       throws ProcessingException {
@@ -70,6 +84,13 @@ public class ValidationUtils {
       }
     }
   } // validateJson(Node) ends
+
+  public static void validateJson(URL schemaDocument, URL jsonDocument)
+      throws IOException, ProcessingException {
+    final JsonSchema schemaNode = getSchemaNode(schemaDocument);
+    final JsonNode jsonNode = getJsonNode(jsonDocument);
+    validateJson(schemaNode, jsonNode);
+  } // validateJson(URL) ends
 
   public static boolean isJsonValid(JsonSchema jsonSchemaNode, JsonNode jsonNode)
       throws ProcessingException {
@@ -98,27 +119,6 @@ public class ValidationUtils {
     return isJsonValid(schemaNode, jsonNode);
   } // validateJson(Node) ends
 
-  public static void validateJson(String schemaText, String jsonText)
-      throws IOException, ProcessingException {
-    final JsonSchema schemaNode = getSchemaNode(schemaText);
-    final JsonNode jsonNode = getJsonNode(jsonText);
-    validateJson(schemaNode, jsonNode);
-  } // validateJson(text) ends
-
-  public static void validateJson(File schemaFile, File jsonFile)
-      throws IOException, ProcessingException {
-    final JsonSchema schemaNode = getSchemaNode(schemaFile);
-    final JsonNode jsonNode = getJsonNode(jsonFile);
-    validateJson(schemaNode, jsonNode);
-  } // validateJson(File) ends
-
-  public static void validateJson(URL schemaDocument, URL jsonDocument)
-      throws IOException, ProcessingException {
-    final JsonSchema schemaNode = getSchemaNode(schemaDocument);
-    final JsonNode jsonNode = getJsonNode(jsonDocument);
-    validateJson(schemaNode, jsonNode);
-  } // validateJson(URL) ends
-
   public static void validateJsonResource(String schemaResource, String jsonResource)
       throws IOException, ProcessingException {
     final JsonSchema schemaNode = getSchemaNode(schemaResource);
@@ -126,7 +126,7 @@ public class ValidationUtils {
     validateJson(schemaNode, jsonNode);
   } // validateJsonResource() ends
 
-  private static JsonSchema _getSchemaNode(JsonNode jsonNode) throws ProcessingException {
+  private static JsonSchema getSchemaNodeHelper(JsonNode jsonNode) throws ProcessingException {
     final JsonNode schemaIdentifier = jsonNode.get(JSON_SCHEMA_IDENTIFIER_ELEMENT);
     if (null == schemaIdentifier) {
       ((ObjectNode) jsonNode).put(JSON_SCHEMA_IDENTIFIER_ELEMENT, JSON_V4_SCHEMA_IDENTIFIER);
@@ -134,5 +134,5 @@ public class ValidationUtils {
 
     final JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
     return factory.getJsonSchema(jsonNode);
-  } // _getSchemaNode() ends
+  } // getSchemaNodeHelper() ends
 }

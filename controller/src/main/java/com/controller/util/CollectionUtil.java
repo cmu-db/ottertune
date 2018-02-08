@@ -36,12 +36,12 @@ public abstract class CollectionUtil {
    * @param array
    */
   public static <T> void toArray(
-      Collection<T> items, Object array[], boolean convert_to_primitive) {
+      Collection<T> items, Object[] array, boolean convertToPrimitive) {
     assert (items.size() == array.length);
 
     int i = 0;
     for (T t : items) {
-      if (convert_to_primitive) {
+      if (convertToPrimitive) {
         if (t instanceof Long) {
           array[i] = ((Long) t).longValue();
         } else if (t instanceof Integer) {
@@ -59,7 +59,7 @@ public abstract class CollectionUtil {
   }
 
   public static int[] toIntArray(Collection<Integer> items) {
-    int ret[] = new int[items.size()];
+    int[] ret = new int[items.size()];
     int idx = 0;
     for (Integer i : items) {
       assert (i != null);
@@ -80,6 +80,7 @@ public abstract class CollectionUtil {
     CollectionUtil.addAll(list, it);
     return (list);
   }
+
   /**
    * Put all of the values of an Enumeration into a new List
    *
@@ -90,6 +91,7 @@ public abstract class CollectionUtil {
   public static <T> List<T> list(Enumeration<T> e) {
     return (list(iterable(e)));
   }
+
   /**
    * Put all of the values of an Iterable into a new List
    *
@@ -113,6 +115,7 @@ public abstract class CollectionUtil {
     CollectionUtil.addAll(set, it);
     return (set);
   }
+
   /**
    * Put all of the values of an Iterable into a new Set
    *
@@ -133,7 +136,9 @@ public abstract class CollectionUtil {
    */
   public static <T> List<String> toStringList(Collection<T> data) {
     List<String> ret = new ArrayList<String>();
-    for (T t : data) ret.add(t.toString());
+    for (T t : data) {
+      ret.add(t.toString());
+    }
     return (ret);
   }
 
@@ -146,7 +151,9 @@ public abstract class CollectionUtil {
    */
   public static <T> Set<String> toStringSet(Collection<T> data) {
     Set<String> ret = new HashSet<String>();
-    for (T t : data) ret.add(t.toString());
+    for (T t : data) {
+      ret.add(t.toString());
+    }
     return (ret);
   }
 
@@ -200,15 +207,19 @@ public abstract class CollectionUtil {
     return (CollectionUtil.random(list, rand));
   }
 
-  public static <E extends Enum<?>> Set<E> getAllExcluding(E elements[], E... excluding) {
-    Set<E> exclude_set = new HashSet<E>();
-    for (E e : excluding) exclude_set.add(e);
+  public static <E extends Enum<?>> Set<E> getAllExcluding(E[] elements, E... excluding) {
+    Set<E> excludeSet = new HashSet<E>();
+    for (E e : excluding) {
+      excludeSet.add(e);
+    }
 
-    Set<E> elements_set = new HashSet<E>();
+    Set<E> elementsSet = new HashSet<E>();
     for (int i = 0; i < elements.length; i++) {
-      if (!exclude_set.contains(elements[i])) elements_set.add(elements[i]);
+      if (!excludeSet.contains(elements[i])) {
+        elementsSet.add(elements[i]);
+      }
     } // FOR
-    return (elements_set);
+    return (elementsSet);
     //      Crappy java....
     //        Object new_elements[] = new Object[elements_set.size()];
     //        elements_set.toArray(new_elements);
@@ -275,17 +286,17 @@ public abstract class CollectionUtil {
    * @return
    */
   public static <T, U extends Comparable<U>> T getGreatest(Map<T, U> map) {
-    T max_key = null;
-    U max_value = null;
+    T maxKey = null;
+    U maxValue = null;
     for (Entry<T, U> e : map.entrySet()) {
       T key = e.getKey();
       U value = e.getValue();
-      if (max_value == null || value.compareTo(max_value) > 0) {
-        max_value = value;
-        max_key = key;
+      if (maxValue == null || value.compareTo(maxValue) > 0) {
+        maxValue = value;
+        maxKey = key;
       }
     } // FOR
-    return (max_key);
+    return (maxKey);
   }
 
   /**
@@ -337,7 +348,9 @@ public abstract class CollectionUtil {
     }
     int ctr = 0;
     for (T t : items) {
-      if (ctr++ == idx) return (t);
+      if (ctr++ == idx) {
+        return (t);
+      }
     }
     return (null);
   }
@@ -407,7 +420,7 @@ public abstract class CollectionUtil {
     });
   }
 
-  public static <T> Iterable<T> iterable(final T values[]) {
+  public static <T> Iterable<T> iterable(final T[] values) {
     return (new Iterable<T>() {
       @Override
       public Iterator<T> iterator() {
@@ -421,7 +434,9 @@ public abstract class CollectionUtil {
 
           @Override
           public T next() {
-            if (this.idx == values.length) throw new NoSuchElementException();
+            if (this.idx == values.length) {
+              throw new NoSuchElementException();
+            }
             return values[this.idx++];
           }
 

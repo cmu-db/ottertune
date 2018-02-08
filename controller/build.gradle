@@ -65,7 +65,7 @@ task downloadJars(type: Download) {
         'https://sourceforge.net/projects/checkstyle/files/checkstyle/8.8/checkstyle-8.8-all.jar'
     ])
     dest libsDir
-    overwrite true
+    overwrite false
 }
 
 //buildscript{

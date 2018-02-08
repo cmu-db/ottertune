@@ -93,7 +93,7 @@ public class PostgresCollector extends DBCollector {
         res.put(key, mapin.get(key));
       }
     } catch (JSONException je) {
-      System.out.println(je);
+      LOG.error(je);
     }
     return res;
   }
@@ -107,7 +107,7 @@ public class PostgresCollector extends DBCollector {
         thisViewObj.put(jsonkey, genMapJSONObj(dbmap));
       }
     } catch (JSONException je) {
-      System.out.println(je);
+      LOG.error(je);
     }
     return thisViewObj;
   }

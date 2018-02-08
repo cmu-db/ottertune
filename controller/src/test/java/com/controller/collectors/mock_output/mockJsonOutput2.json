@@ -1,7 +1,0 @@
-{
-  "global" : {
-    "global1" : {
-      "auto_generate_certs": "ON"
-    }
-  }
-}

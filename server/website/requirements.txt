@@ -6,6 +6,7 @@ django-debug-toolbar==1.5
 django-request-logging==0.4.6
 Fabric==1.13.1
 hurry.filesize==0.9
+matplotlib==2.0.0
 numpy==1.13.1
 poster==0.8.1
 pycodestyle==2.3.1
@@ -16,4 +17,3 @@ scikit-learn==0.19.1
 scipy==1.0.0
 supervisor==3.3.1
 tensorflow==1.0.1
-matplotlib==1.4.0

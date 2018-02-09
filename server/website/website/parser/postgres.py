@@ -1,3 +1,8 @@
+#
+# OtterTune - postgres.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Dec 12, 2017
 
@@ -103,7 +108,7 @@ class PostgresParser(BaseParser):
 
     def parse_version_string(self, version_string):
         dbms_version = version_string.split(',')[0]
-        return re.search("\d+\.\d+(?=\.\d+)", dbms_version).group(0)
+        return re.search(r'\d+\.\d+(?=\.\d+)', dbms_version).group(0)
 
 
 class Postgres96Parser(PostgresParser):

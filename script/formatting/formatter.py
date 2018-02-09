@@ -132,7 +132,6 @@ def format_python_file(file_path, update_header, format_code):
                                            PYTHON_HEADER_REGEX)
 
     if format_code:
-        LOG.info('formatting')
         # Use the autopep8 module to format the source code. autopep8 uses
         # pycodestyle to detect the style errors it should fix and thus it
         # should fix all (or most) of them, however, it does not use pylint

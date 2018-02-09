@@ -1,3 +1,8 @@
+#
+# OtterTune - utils.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Jul 8, 2017
 
@@ -6,10 +11,10 @@ Created on Jul 8, 2017
 
 import json
 import logging
-import numpy as np
 import string
 from collections import OrderedDict
-from random import choice
+
+import numpy as np
 from django.utils.text import capfirst
 from djcelery.models import TaskMeta
 
@@ -45,7 +50,7 @@ class MediaUtil(object):
     @staticmethod
     def upload_code_generator(size=20,
                               chars=string.ascii_uppercase + string.digits):
-        new_upload_code = ''.join(choice(chars) for _ in range(size))
+        new_upload_code = ''.join(np.random.choice(chars) for _ in range(size))
         return new_upload_code
 
 
@@ -123,7 +128,7 @@ class DataUtil(object):
             # No duplicate rows
 
             # For consistency, tuple the rowlabels
-            rowlabels = list(map(lambda x: tuple([x]), rowlabels))
+            rowlabels = [tuple([x]) for x in rowlabels]
             return X_matrix, y_matrix, rowlabels
 
         # Combine duplicate rows
@@ -152,7 +157,7 @@ class ConversionUtil(object):
                 else:
                     try:
                         amount = int(value[:-len(suffix)])
-                    except:
+                    except ValueError:
                         continue
                 return amount * factor
         return None

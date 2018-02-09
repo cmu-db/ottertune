@@ -48,7 +48,7 @@ OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
 
 # Other directory paths used are relative to OTTERTUNE_DIR
 DEFAULT_DIRS = [
-    os.path.join(OTTERTUNE_DIR)
+    OTTERTUNE_DIR
 ]
 
 # Directories that should NOT be checked
@@ -57,24 +57,16 @@ EXCLUDE_DIRECTORIES = [
     os.path.join(OTTERTUNE_DIR, "server/website/website/migrations"),
 
     # Source code files from json.org
-    os.path.join(OTTERTUNE_DIR, "controller/src/main/java/com/controller/util/json")
+    os.path.join(OTTERTUNE_DIR, "controller/src/main/java/com/controller/util/json"),
+
+    # Django settings
+    os.path.join(OTTERTUNE_DIR, 'server/website/website/settings'),
 ]
 
 # Files that should NOT be checked
 EXCLUDE_FILES = [
     # Django-generated files
     os.path.join(OTTERTUNE_DIR, 'server/website/manage.py'),
-
-    # Untracked files
-    os.path.join(OTTERTUNE_DIR, 'server/website/website/settings/credentials.py'),
-
-    # TODO (dvanaken): remove this and format files after merging parser tests
-    os.path.join(OTTERTUNE_DIR, "server/website/website/utils.py"),
-
-    # TODO (dvanaken): remove these and format files after merging #62 (parser checks) and
-    # parser tests (for postgres.py only)
-    os.path.join(OTTERTUNE_DIR, "server/website/website/parser/base.py"),
-    os.path.join(OTTERTUNE_DIR, "server/website/website/parser/postgres.py"),
 ]
 
 CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR, "controller/build/libs/checkstyle-8.8-all.jar")

@@ -1,3 +1,8 @@
+#
+# OtterTune - base.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
 '''
 Created on Dec 12, 2017
 
@@ -14,6 +19,8 @@ from website.models import KnobCatalog, MetricCatalog
 from website.settings import CONFIG_DIR
 from website.types import BooleanType, MetricType, VarType
 
+
+# pylint: disable=no-self-use
 class BaseParser(object):
 
     __metaclass__ = ABCMeta
@@ -22,13 +29,13 @@ class BaseParser(object):
         self.dbms_id_ = dbms_id
         knobs = KnobCatalog.objects.filter(dbms__pk=self.dbms_id_)
         self.knob_catalog_ = {k.name: k for k in knobs}
-        self.tunable_knob_catalog_ = {k: v for k, v in \
-                self.knob_catalog_.iteritems() if v.tunable is True}
+        self.tunable_knob_catalog_ = {k: v for k, v in
+                                      self.knob_catalog_.iteritems() if v.tunable is True}
         metrics = MetricCatalog.objects.filter(dbms__pk=self.dbms_id_)
         self.metric_catalog_ = {m.name: m for m in metrics}
-        self.numeric_metric_catalog_ = {m: v for m, v in \
-                self.metric_catalog_.iteritems() if \
-                v.metric_type == MetricType.COUNTER}
+        self.numeric_metric_catalog_ = {m: v for m, v in
+                                        self.metric_catalog_.iteritems() if
+                                        v.metric_type == MetricType.COUNTER}
         self.valid_true_val = list()
         self.valid_false_val = list()
 
@@ -52,7 +59,7 @@ class BaseParser(object):
         if bool_value in self.valid_true_val:
             return BooleanType.TRUE
         elif bool_value in self.valid_false_val:
-              return BooleanType.FALSE
+            return BooleanType.FALSE
         else:
             raise Exception("Invalid Boolean {}".format(bool_value))
 
@@ -141,8 +148,8 @@ class BaseParser(object):
         return value in self.valid_true_val or value in self.valid_false_val
 
     def convert_dbms_metrics(self, metrics, observation_time):
-#         if len(metrics) != len(self.numeric_metric_catalog_):
-#             raise Exception('The number of metrics should be equal!')
+        #         if len(metrics) != len(self.numeric_metric_catalog_):
+        #             raise Exception('The number of metrics should be equal!')
         metric_data = {}
         for name, metadata in self.numeric_metric_catalog_.iteritems():
             value = metrics[name]
@@ -345,7 +352,7 @@ class BaseParser(object):
         for knob_name, knob_value in knobs.iteritems():
             metadata = self.knob_catalog_.get(knob_name, None)
             if (metadata is None):
-                raise Excepton('Unknown knob {}'.format(knob_name))
+                raise Exception('Unknown knob {}'.format(knob_name))
             fvalue = None
             if metadata.vartype == VarType.BOOL:
                 fvalue = self.format_bool(knob_value, metadata)
@@ -361,7 +368,7 @@ class BaseParser(object):
                 fvalue = self.format_timestamp(knob_value, metadata)
             else:
                 raise Exception('Unknown variable type for {}: {}'.format(
-                        knob_name, metadata.vartype))
+                    knob_name, metadata.vartype))
             if fvalue is None:
                 raise Exception('Cannot format value for {}: {}'.format(
                     knob_name, knob_value))
@@ -369,9 +376,11 @@ class BaseParser(object):
         return formatted_knobs
 
     def filter_numeric_metrics(self, metrics):
-        return OrderedDict([(k, v) for k, v in metrics.iteritems() if \
+        return OrderedDict([(k, v) for k, v in metrics.iteritems() if
                             k in self.numeric_metric_catalog_])
 
     def filter_tunable_knobs(self, knobs):
-        return OrderedDict([(k, v) for k, v in knobs.iteritems() if \
+        return OrderedDict([(k, v) for k, v in knobs.iteritems() if
                             k in self.tunable_knob_catalog_])
+
+# pylint: enable=no-self-use

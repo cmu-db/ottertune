@@ -13,6 +13,7 @@ import json
 import logging
 import string
 from collections import OrderedDict
+from random import choice
 
 import numpy as np
 from django.utils.text import capfirst
@@ -50,7 +51,7 @@ class MediaUtil(object):
     @staticmethod
     def upload_code_generator(size=20,
                               chars=string.ascii_uppercase + string.digits):
-        new_upload_code = ''.join(np.random.choice(chars) for _ in range(size))
+        new_upload_code = ''.join(choice(chars) for _ in range(size))
         return new_upload_code
 
 

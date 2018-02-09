@@ -128,7 +128,7 @@ class DataUtil(object):
             # No duplicate rows
 
             # For consistency, tuple the rowlabels
-            rowlabels = [tuple([x]) for x in rowlabels]
+            rowlabels = list(map(lambda x: tuple([x]), rowlabels))  # pylint: disable=bad-builtin,deprecated-lambda
             return X_matrix, y_matrix, rowlabels
 
         # Combine duplicate rows

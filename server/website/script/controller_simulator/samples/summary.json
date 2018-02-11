@@ -1,4 +1,5 @@
 {
+ "workload_name": "workload-0",
  "database_type": "postgres",
  "start_time": 1512076859887,
  "observation_time": 5,

@@ -152,13 +152,13 @@ class BaseParser(object):
         #             raise Exception('The number of metrics should be equal!')
         metric_data = {}
         for name, metadata in self.numeric_metric_catalog_.iteritems():
-            value = metrics[name]
-            if metadata.metric_type == MetricType.COUNTER:
-                converted = self.convert_integer(value, metadata)
-                metric_data[name] = float(converted) / observation_time
-            else:
+            value = metrics.get(name)
+            if value is None:
                 raise Exception(
-                    'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
+                    'Metric not found - {}: {}'.format(name, metadata.metric_type))
+            converted = self.convert_real(value, metadata)
+            metric_data[name] = float(converted) / observation_time
+
         if self.transactions_counter not in metric_data:
             raise Exception("Cannot compute throughput (no objective function)")
         metric_data['throughput_txn_per_sec'] = metric_data[self.transactions_counter]

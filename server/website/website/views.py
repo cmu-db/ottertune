@@ -826,7 +826,7 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         LOG.warning("Invalid upload code: %s", upload_code)
         return HttpResponse("Invalid upload code: " + upload_code)
     results = Result.objects.filter(session=session)
-    lastest_result = results[len(results)-1]
+    lastest_result = results[len(results) - 1]
 
     tasks = TaskUtil.get_tasks(lastest_result.task_ids)
     overall_status, _ = TaskUtil.get_task_status(tasks)

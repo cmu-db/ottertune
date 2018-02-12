@@ -39,7 +39,7 @@ def main():
         elif 'not ready' in response:
             time.sleep(query_interval)
             timer += query_interval
-            print str(timer) + ' s'
+            LOG.info('%s s\n', str(timer))
         else:
             next_conf_f = open('next_config', 'w')
             next_conf_f.write(response)

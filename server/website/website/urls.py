@@ -53,7 +53,6 @@ urlpatterns = [
     url(r'^get_data/', website_views.get_timeline_data),
     url(r'^get_result_data_file/', website_views.download_next_config),
 
-
     # Admin URLs
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

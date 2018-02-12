@@ -615,6 +615,17 @@ def workload_view(request, project_id, session_id, wkld_id):  # pylint: disable=
 
 
 @login_required(login_url=reverse_lazy('login'))
+def download_next_config(request):
+    data = request.GET
+    result_id = data['id']
+    res = Result.objects.get(pk=result_id)
+    response = HttpResponse(res.next_configuration,
+                            content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=result_' + str(result_id) + '.cnf'
+    return response
+
+
+@login_required(login_url=reverse_lazy('login'))
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
 

@@ -817,8 +817,9 @@ def get_timeline_data(request):
 
     return HttpResponse(JSONUtil.dumps(data_package), content_type='application/json')
 
+
 # get the lastest result
-def give_result(request, upload_code):
+def give_result(request, upload_code):  # pylint: disable=unused-argument
     try:
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
@@ -826,9 +827,9 @@ def give_result(request, upload_code):
         return HttpResponse("Invalid upload code: " + upload_code)
     results = Result.objects.filter(session=session)
     lastest_result = results[len(results)-1]
-    
+
     tasks = TaskUtil.get_tasks(lastest_result.task_ids)
-    overall_status, num_completed = TaskUtil.get_task_status(tasks)
+    overall_status, _ = TaskUtil.get_task_status(tasks)
 
     if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
         return HttpResponse("Result not ready")

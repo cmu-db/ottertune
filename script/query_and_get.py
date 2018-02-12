@@ -12,6 +12,13 @@ Created on Feb 11, 2018
 import urllib2
 import sys
 import time
+import logging
+
+# Logging
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.StreamHandler())
+LOG.setLevel(logging.INFO)
+
 
 # take 3 arguments, save result to next_config in working directory
 # base_url: for instance, http://0.0.0.0:8000/
@@ -27,7 +34,7 @@ def main():
     while True:
         response = urllib2.urlopen(request).read()
         if 'Fail' in response:
-            print 'Tuning failed'
+            LOG.info('Tuning failed\n')
             break
         elif 'not ready' in response:
             time.sleep(query_interval)
@@ -39,7 +46,8 @@ def main():
             next_conf_f.close()
             break
     elapsed_time = time.time() - start
-    print 'Elapsed time: ' + str(elapsed_time)
+    LOG.info('Elapsed time: %s\n', str(elapsed_time))
+
 
 if __name__ == "__main__":
     main()

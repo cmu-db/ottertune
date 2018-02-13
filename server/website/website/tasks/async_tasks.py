@@ -87,10 +87,11 @@ def aggregate_target_results(result_id):
         raise Exception("No previous data available. Implement me!")
 
     # Aggregate all knob config results tried by the target so far in this
-    # tuning session.
+    # tuning session and this tuning workload.
     newest_result = Result.objects.get(pk=result_id)
     target_results = Result.objects.filter(
-        session=newest_result.session, dbms=newest_result.dbms)
+        session=newest_result.session, dbms=newest_result.dbms, 
+        workload=newest_result.workload)
     if len(target_results) == 0:
         raise Exception('Cannot find any results for session_id={}, dbms_id={}'
                         .format(newest_result.session, newest_result.dbms))

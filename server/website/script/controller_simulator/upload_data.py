@@ -57,7 +57,7 @@ def main():
     parser.add_argument('upload_code', type=str, nargs=1,
                         help='The website\'s upload code')
     args = parser.parse_args()
-    upload(args.datadir, args.upload_code)
+    upload(args.datadir[0], args.upload_code[0])
 
 
 if __name__ == "__main__":

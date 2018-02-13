@@ -64,7 +64,10 @@ class TaskUtil(object):
         task_ids = tasks.split(',')
         res = []
         for task_id in task_ids:
-            res.append(TaskMeta.objects.filter(task_id=task_id)[0])
+            task = TaskMeta.objects.filter(task_id=task_id)
+            if len(task) == 0:
+                continue #Task Not Finished
+            res.append(task[0])
         return res
    
     @staticmethod

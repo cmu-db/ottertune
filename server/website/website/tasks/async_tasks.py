@@ -87,10 +87,11 @@ def aggregate_target_results(result_id):
         raise Exception("No previous data available. Implement me!")
 
     # Aggregate all knob config results tried by the target so far in this
-    # tuning session.
+    # tuning session and this tuning workload.
     newest_result = Result.objects.get(pk=result_id)
-    target_results = Result.objects.filter(
-        session=newest_result.session, dbms=newest_result.dbms)
+    target_results = Result.objects.filter(session=newest_result.session,
+                                           dbms=newest_result.dbms,
+                                           workload=newest_result.workload)
     if len(target_results) == 0:
         raise Exception('Cannot find any results for session_id={}, dbms_id={}'
                         .format(newest_result.session, newest_result.dbms))
@@ -341,14 +342,16 @@ def map_workload(target_data):
     for workload_id, workload_entry in workload_data.iteritems():
         predictions = np.empty_like(y_target)
         X_workload = workload_entry['X_matrix']
+        X_scaled = X_scaler.transform(X_workload)
         y_workload = workload_entry['y_matrix']
-        for j, y_col in enumerate(y_workload.T):
+        y_scaled = y_scaler.transform(y_workload)
+        for j, y_col in enumerate(y_scaled.T):
             # Using this workload's data, train a Gaussian process model
             # and then predict the performance of each metric for each of
             # the knob configurations attempted so far by the target.
             y_col = y_col.reshape(-1, 1)
             model = GPR()
-            model.fit(X_workload, y_col, ridge=0.01)
+            model.fit(X_scaled, y_col, ridge=0.01)
             predictions[:, j] = model.predict(X_target).ypreds.ravel()
         # Bin each of the predicted metric columns by deciles and then
         # compute the score (i.e., distance) between the target workload

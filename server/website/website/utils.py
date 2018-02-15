@@ -62,13 +62,8 @@ class TaskUtil(object):
         if not tasks:
             return []
         task_ids = tasks.split(',')
-        res = []
-        for task_id in task_ids:
-            task = TaskMeta.objects.filter(task_id=task_id)
-            if len(task) == 0:
-                continue  # Task Not Finished
-            res.append(task[0])
-        return res
+        tasks = list(TaskMeta.objects.filter(task_id__in=task_ids))
+        return tasks
 
     @staticmethod
     def get_task_status(tasks):

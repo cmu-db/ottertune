@@ -11,7 +11,7 @@ Created on Jul 25, 2017
 
 from django import forms
 
-from .models import Session, Project
+from .models import Session, Project, MetricCatalog
 
 
 class NewResultForm(forms.Form):
@@ -47,6 +47,22 @@ class SessionForm(forms.ModelForm):
         super(SessionForm, self).__init__(*args, **kwargs)
         self.fields['description'].required = False
         self.fields['target_objective'].required = False
+
+    def clean(self):
+        super(SessionForm, self).clean()
+
+        tuning_session = self.cleaned_data['tuning_session']
+        target_objective = self.cleaned_data['target_objective']
+        if tuning_session and not target_objective:
+            raise forms.ValidationError('Please, inform a target objective \
+                                         if tuning is session is enabled')
+
+        if 'dbms' in self.cleaned_data:
+            dbms = self.cleaned_data['dbms']
+            metric_meta = MetricCatalog.objects.get_metric_meta(dbms, True)
+
+            if tuning_session and target_objective not in metric_meta:
+                raise forms.ValidationError('%s is an invalid target objective' % target_objective)
 
     class Meta:  # pylint: disable=old-style-class,no-init
         model = Session

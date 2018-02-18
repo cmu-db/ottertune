@@ -15,7 +15,7 @@ function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
     if($("input[name='workload']:checked").val() === "grid") { return false; }
     if (neighbor) {
         result_id = neighbor.data[3];
-        window.location = "/result/?id=" + result_id;
+        window.location = "/projects/" + defaults.project + "/sessions/" + defaults.session + "/results/" + result_id;
     }
 }
 

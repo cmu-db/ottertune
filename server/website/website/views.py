@@ -184,12 +184,19 @@ def session_view(request, project_id, session_id):
     # Group the session's results by DBMS & workload
     dbmss = {}
     workloads = {}
+    dbmss_ids = set()
+    workloads_ids = set()
     for res in results:
-        dbmss[res.dbms.key] = res.dbms
-        workload_name = res.workload.name
-        if workload_name not in workloads:
-            workloads[workload_name] = set()
-        workloads[workload_name].add(res.workload)
+        if res.dbms_id not in dbmss_ids:
+            dbmss_ids.add(res.dbms_id)
+            res_dbms = res.dbms
+            dbmss[res_dbms.key] = res_dbms
+        
+        if res.workload_id not in workloads_ids:
+            workloads_ids.add(res.workload_id)
+            res_workload = res.workload
+            workloads[res_workload.name] = set()
+            workloads[res_workload.name].add(res_workload)
 
     # Sort so names will be ordered in the sidebar
     workloads = OrderedDict([(k, sorted(list(v))) for

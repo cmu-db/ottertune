@@ -191,7 +191,7 @@ def session_view(request, project_id, session_id):
             dbmss_ids.add(res.dbms_id)
             res_dbms = res.dbms
             dbmss[res_dbms.key] = res_dbms
-        
+
         if res.workload_id not in workloads_ids:
             workloads_ids.add(res.workload_id)
             res_workload = res.workload

@@ -9,7 +9,8 @@ from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler
 
-from analysis.gp_tf import GPR, GPRGD
+from analysis.gp_tf import GPRGD
+from analysis.gp import GPRNP
 from analysis.preprocessing import Bin
 from website.models import PipelineData, PipelineRun, Result, Workload
 from website.parser import Parser
@@ -350,7 +351,7 @@ def map_workload(target_data):
             # and then predict the performance of each metric for each of
             # the knob configurations attempted so far by the target.
             y_col = y_col.reshape(-1, 1)
-            model = GPR()
+            model = GPRNP()
             model.fit(X_scaled, y_col, ridge=0.01)
             predictions[:, j] = model.predict(X_target).ypreds.ravel()
         # Bin each of the predicted metric columns by deciles and then

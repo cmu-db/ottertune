@@ -26,7 +26,7 @@ class TestGPRNP(unittest.TestCase):
 
     def test_gprnp_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
-        expected_ypreds = [0.018, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
+        expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_gprnp_sigmas(self):

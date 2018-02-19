@@ -11,7 +11,8 @@ Created on Feb 18, 2018
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances as ed
 from scipy import special
-from gp_tf import GPRResult
+from analysis.gp_tf import GPRResult
+
 
 # numpy version of Gaussian Process Regression, not using Tensorflow
 class GPRNP(object):
@@ -83,7 +84,7 @@ class GPRNP(object):
         X_train, y_train = GPRNP.check_X_y(X_train, y_train)
         if X_train.ndim != 2 or y_train.ndim != 2:
             raise Exception("X_train or y_train should have 2 dimensions! X_dim:{}, y_dim:{}"
-                            .format(X_train.ndim,y_train.ndim))
+                            .format(X_train.ndim, y_train.ndim))
         self.X_train = np.float32(X_train)
         self.y_train = np.float32(y_train)
         sample_size = self.X_train.shape[0]
@@ -91,8 +92,9 @@ class GPRNP(object):
             ridge = np.ones(sample_size) * ridge
         assert isinstance(ridge, np.ndarray)
         assert ridge.ndim == 1
-        K = self.magnitude * np.exp(-ed(self.X_train, self.X_train)/self.length_scale) + np.diag(ridge)
-        K_inv = np.linalg.inv(K)   
+        K = self.magnitude * np.exp(-ed(self.X_train, self.X_train) / self.length_scale) \
+            + np.diag(ridge)
+        K_inv = np.linalg.inv(K)
         self.K = K
         self.K_inv = K_inv
         self.y_best = np.min(y_train)
@@ -100,7 +102,7 @@ class GPRNP(object):
 
     def predict(self, X_test):
         self.check_fitted()
-        if X_test.ndim != 2 or y_train.ndim != 2:
+        if X_test.ndim != 2:
             raise Exception("X_test should have 2 dimensions! X_dim:{}"
                             .format(X_test.ndim))
         X_test = np.float32(GPRNP.check_array(X_test))
@@ -115,13 +117,13 @@ class GPRNP(object):
                 end_offset = test_size
             else:
                 end_offset = arr_offset + GPRNP.BATCH_SIZE
-            
             xt_ = X_test[arr_offset:end_offset]
-            K2 = self.magnitude * np.exp(-ed(self.X_train, xt_) / length_scale);
-            K3 = self.magnitude * np.exp(-ed(xt_, xt_) / length_scale);
+            K2 = self.magnitude * np.exp(-ed(self.X_train, xt_) / length_scale)
+            K3 = self.magnitude * np.exp(-ed(xt_, xt_) / length_scale)
             K2_trans = np.transpose(K2)
-            yhat =  np.matmul(K2_trans, np.matmul(self.K_inv, y_train))
-            sigma = np.sqrt(np.diag(K3 - np.matmul(K2_trans, np.matmul(self.K_inv, K2)))).reshape(xt_.shape[0],1)
+            yhat = np.matmul(K2_trans, np.matmul(self.K_inv, self.y_train))
+            sigma = np.sqrt(np.diag(K3 - np.matmul(K2_trans, np.matmul(self.K_inv, K2)))) \
+                .reshape(xt_.shape[0], 1)
             u = (self.y_best - yhat) / sigma
             phi1 = 0.5 * special.erf(u / np.sqrt(2.0)) + 0.5
             phi2 = (1.0 / np.sqrt(2.0 * np.pi)) * np.exp(np.square(u) * (-0.5))
@@ -130,7 +132,6 @@ class GPRNP(object):
             sigmas[arr_offset:end_offset] = sigma
             eips[arr_offset:end_offset] = eip
             arr_offset = end_offset
-        
         GPRNP.check_output(yhats)
         GPRNP.check_output(sigmas)
         return GPRResult(yhats, sigmas)

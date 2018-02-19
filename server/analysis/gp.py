@@ -9,7 +9,7 @@ Created on Feb 18, 2018
 @author: Bohan Zhang
 '''
 import numpy as np
-from sklearn.metrics.pairwise import euclidean_distances as ed
+from scipy.spatial.distance import cdist as ed
 from scipy import special
 from analysis.gp_tf import GPRResult
 

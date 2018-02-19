@@ -834,3 +834,26 @@ def get_timeline_data(request):
             data_package['timelines'].append(data)
 
     return HttpResponse(JSONUtil.dumps(data_package), content_type='application/json')
+
+
+# get the lastest result
+def give_result(request, upload_code):  # pylint: disable=unused-argument
+    try:
+        session = Session.objects.get(upload_code=upload_code)
+    except Session.DoesNotExist:
+        LOG.warning("Invalid upload code: %s", upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code)
+    results = Result.objects.filter(session=session)
+    lastest_result = results[len(results) - 1]
+
+    tasks = TaskUtil.get_tasks(lastest_result.task_ids)
+    overall_status, _ = TaskUtil.get_task_status(tasks)
+
+    if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
+        return HttpResponse("Result not ready")
+    # unclear behaviors for REVOKED and RETRY, treat as failure
+    elif overall_status in ['FAILURE', 'REVOKED', 'RETRY']:
+        return HttpResponse("Fail")
+
+    # success
+    return redirect('/get_result_data_file/?id=' + str(lastest_result.pk) + '&type=next_conf')

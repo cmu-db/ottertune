@@ -19,6 +19,7 @@
 bin/
 build/
 out/
+output/
 
 # lib
 lib/

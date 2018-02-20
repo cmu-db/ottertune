@@ -370,4 +370,14 @@ public abstract class FileUtil {
         };
     return (Arrays.asList(dir.listFiles(filter)));
   }
+
+  public static String getAbsPath(String dirPath) {
+    String current = null;
+    try {
+      current = new java.io.File(dirPath).getCanonicalPath();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return current;
+  }
 }

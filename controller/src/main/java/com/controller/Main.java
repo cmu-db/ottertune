@@ -10,9 +10,9 @@ import com.controller.collectors.DBCollector;
 import com.controller.collectors.MySQLCollector;
 import com.controller.collectors.PostgresCollector;
 import com.controller.collectors.SAPHanaCollector;
+import com.controller.types.JSONSchemaType;
 import com.controller.util.FileUtil;
 import com.controller.util.JSONUtil;
-import com.controller.util.ValidationUtils;
 import com.controller.util.json.JSONException;
 import com.controller.util.json.JSONObject;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.MalformedParametersException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -32,7 +31,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-//import org.json.simple.JSONObject;
 
 /**
  * Controller main.
@@ -101,17 +99,11 @@ public class Main {
     // Parse controller configuration file
     String configPath = argsLine.getOptionValue("c");
     File configFile = new File(configPath);
-    File schemaFile = new File(FileUtil.joinPath(SCHEMA_PATH, "config_schema.json"));
 
     // Check config format
-    try {
-      if (!ValidationUtils.isJsonValid(schemaFile, configFile)) {
-        LOG.error("Invalid configuration file format");
-        return;
-      }
-    } catch (IOException | ProcessingException e) {
-      LOG.error("Error parsing configuration file: " + configPath);
-      e.printStackTrace();
+    if (!JSONSchemaType.isValidJson(JSONSchemaType.CONFIG, configFile)) {
+      LOG.error("Invalid configuration JSON format");
+      return;
     }
 
     // Load configuration file
@@ -132,15 +124,26 @@ public class Main {
 
     DBCollector collector = getCollector(config);
     try {
-      LOG.info("First collection of metrics before experiment");
       // first collection (before queries)
-      PrintWriter metricsWriter =
+      LOG.info("First collection of metrics before experiment");
+      String metricsBefore = collector.collectMetrics();
+      if (!JSONSchemaType.isValidJson(JSONSchemaType.OUTPUT, metricsBefore)) {
+        LOG.error("Invalid output JSON format (metrics_before)");
+        return;
+      }
+      PrintWriter metricsWriter = 
           new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_before.json"), "UTF-8");
-      metricsWriter.println(collector.collectMetrics());
+      metricsWriter.println(metricsBefore);
       metricsWriter.close();
+
+      String knobs = collector.collectParameters();
+      if (!JSONSchemaType.isValidJson(JSONSchemaType.OUTPUT, knobs)) {
+        LOG.error("Invalid output JSON format (knobs)");
+        return;
+      }
       PrintWriter knobsWriter =
           new PrintWriter(FileUtil.joinPath(subDirectory, "knobs.json"), "UTF-8");
-      knobsWriter.println(collector.collectParameters());
+      knobsWriter.println(knobs);
       knobsWriter.close();
 
       // record start time
@@ -165,6 +168,10 @@ public class Main {
       } catch (JSONException e) {
         e.printStackTrace();
       }
+      if (!JSONSchemaType.isValidJson(JSONSchemaType.SUMMARY, summary.toString())) {
+        LOG.error("Invalid summary JSON format");
+        return;
+      }
 
       // write summary JSONObject into a JSON file
       PrintWriter summaryout =
@@ -175,9 +182,14 @@ public class Main {
       // second collection (after workload execution)
       LOG.info("Second collection of metrics after experiment");
       collector = getCollector(config);
+      String metricsAfter = collector.collectMetrics();
+      if (!JSONSchemaType.isValidJson(JSONSchemaType.OUTPUT, metricsAfter)) {
+        LOG.error("Invalid output JSON format (metrics_after)");
+        return;
+      }
       PrintWriter metricsWriterFinal =
           new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_after.json"), "UTF-8");
-      metricsWriterFinal.println(collector.collectMetrics());
+      metricsWriterFinal.println(metricsAfter);
       metricsWriterFinal.close();
     } catch (FileNotFoundException | UnsupportedEncodingException | InterruptedException e) {
       LOG.error("Failed to produce output files");
@@ -218,7 +230,7 @@ public class Main {
         break;
       default:
         LOG.error("Invalid database type");
-        throw new MalformedParametersException("Invalid database type");
+        throw new RuntimeException("Invalid database type");
     }
     return collector;
   }

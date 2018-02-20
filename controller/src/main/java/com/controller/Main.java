@@ -61,7 +61,7 @@ public class Main {
     CommandLineParser parser = new PosixParser();
     Options options = new Options();
     options.addOption("c", "config", true, "[required] Controller configuration file");
-    options.addOption("t", "time", true, "The observation time in seconds, default is 300");
+    options.addOption("t", "time", true, "The observation time in seconds, default is 300s");
     options.addOption(
         "d", "directory", true, "Base directory for the result files, default is 'output'");
     options.addOption("h", "help", true, "Print this help");

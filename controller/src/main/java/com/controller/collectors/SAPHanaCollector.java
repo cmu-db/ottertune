@@ -101,6 +101,7 @@ public class SAPHanaCollector extends DBCollector {
       }
       conn.close();
     } catch (SQLException e) {
+      e.printStackTrace();
       LOG.error("Error while collecting DB parameters: " + e.getMessage());
     }
   }

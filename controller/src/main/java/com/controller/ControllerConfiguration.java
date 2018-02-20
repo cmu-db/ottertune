@@ -9,9 +9,10 @@ package com.controller;
 /** Controller Configuration. */
 public class ControllerConfiguration {
   private DatabaseType dbType;
+  private String dbName;
   private String dbUsername;
   private String dbPassword;
-  private String dbDriver;
+  private String dbURL;
   private String uploadCode;
   private String uploadURL;
   private String workloadName;
@@ -19,17 +20,18 @@ public class ControllerConfiguration {
   public ControllerConfiguration() {}
 
   public ControllerConfiguration(
-      DatabaseType dbType,
+      String dbName,
       String dbUsername,
       String dbPassword,
-      String dbDriver,
+      String dbURL,
       String uploadCode,
       String uploadURL,
       String workloadName) {
-    this.dbType = dbType;
+    this.dbType = DatabaseType.get(dbName);
+    this.dbName = dbName;
     this.dbUsername = dbUsername;
     this.dbPassword = dbPassword;
-    this.dbDriver = dbDriver;
+    this.dbURL = dbURL;
     this.uploadCode = uploadCode;
     this.uploadURL = uploadURL;
     this.workloadName = workloadName;
@@ -40,6 +42,10 @@ public class ControllerConfiguration {
     this.dbType = dbType;
   }
 
+  public void setDBName(String dbName) {
+    this.dbName = dbName;
+  }
+
   public void setDBUsername(String dbUsername) {
     this.dbUsername = dbUsername;
   }
@@ -48,8 +54,8 @@ public class ControllerConfiguration {
     this.dbPassword = dbPassword;
   }
 
-  public void setDBDriver(String dbDriver) {
-    this.dbDriver = dbDriver;
+  public void setDBURL(String dbURL) {
+    this.dbURL = dbURL;
   }
 
   public void setUploadCode(String uploadCode) {
@@ -69,6 +75,10 @@ public class ControllerConfiguration {
     return this.dbType;
   }
 
+  public String getDBName() {
+    return this.dbName;
+  }
+
   public String getDBUsername() {
     return this.dbUsername;
   }
@@ -77,8 +87,8 @@ public class ControllerConfiguration {
     return this.dbPassword;
   }
 
-  public String getDBDriver() {
-    return this.dbDriver;
+  public String getDBURL() {
+    return this.dbURL;
   }
 
   public String getUploadCode() {

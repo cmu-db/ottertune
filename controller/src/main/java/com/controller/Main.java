@@ -10,9 +10,15 @@ import com.controller.collectors.DBCollector;
 import com.controller.collectors.MySQLCollector;
 import com.controller.collectors.PostgresCollector;
 import com.controller.collectors.SAPHanaCollector;
+import com.controller.util.FileUtil;
 import com.controller.util.JSONUtil;
+import com.controller.util.ValidationUtils;
+import com.controller.util.json.JSONException;
+import com.controller.util.json.JSONObject;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.MalformedParametersException;
@@ -26,7 +32,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.json.simple.JSONObject;
+//import org.json.simple.JSONObject;
 
 /**
  * Controller main.
@@ -41,6 +47,9 @@ public class Main {
 
   // Default observation period time (5 minutes)
   private static final int DEFAULT_TIME_SECONDS = 300;
+
+  // Path to JSON schema directory
+  private static final String SCHEMA_PATH = "src/main/java/com/controller/json_validation_schema";
 
   private static final int TO_MILLISECONDS = 1000;
 
@@ -80,82 +89,95 @@ public class Main {
     int time = DEFAULT_TIME_SECONDS;
     if (argsLine.hasOption("t")) {
       time = Integer.parseInt(argsLine.getOptionValue("t"));
-      LOG.info("Experiment time is set to: " + time);
     }
+    LOG.info("Experiment time is set to: " + time);
 
     String outputDirectory = DEFAULT_DIRECTORY;
-    if (argsLine.hasOption("o")) {
-      outputDirectory = argsLine.getOptionValue("o");
-      LOG.info("Experiment output directory is set to: " + outputDirectory);
+    if (argsLine.hasOption("d")) {
+      outputDirectory = argsLine.getOptionValue("d");
     }
+    LOG.info("Experiment output directory is set to: " + outputDirectory);
 
     // Parse controller configuration file
-    String configFile = argsLine.getOptionValue("c");
-    HashMap<String, String> input = ConfigFileParser.getInputFromConfigFile(configFile);
-    ControllerConfiguration controllerConfiguration =
-        new ControllerConfiguration(
-            DatabaseType.get(input.get("database_type")),
-            input.get("username"),
-            input.get("password"),
-            input.get("database_url"),
-            input.get("upload_code"),
-            input.get("upload_url"),
-            input.get("workload_name"));
+    String configPath = argsLine.getOptionValue("c");
+    File configFile = new File(configPath);
+    File schemaFile = new File(FileUtil.joinPath(SCHEMA_PATH, "config_schema.json"));
 
-    DBCollector collector = getCollector(controllerConfiguration);
-    String outputDir = input.get("database_type");
-    String dbtype = input.get("database_type");
-
-    new File(outputDirectory).mkdir();
-    new File(outputDirectory + "/" + outputDir).mkdir();
-
+    // Check config format
     try {
-      // summary json obj
-      JSONObject summary = new JSONObject();
-      summary.put("observation_time", time);
-      summary.put("database_type", dbtype);
-      summary.put("database_version", collector.collectVersion());
+      if (!ValidationUtils.isJsonValid(schemaFile, configFile)) {
+        LOG.error("Invalid configuration file format");
+        return;
+      }
+    } catch (IOException | ProcessingException e) {
+      LOG.error("Error parsing configuration file: " + configPath);
+      e.printStackTrace();
+    }
 
+    // Load configuration file
+    ControllerConfiguration config = null;
+    try {
+      JSONObject input = new JSONObject(FileUtil.readFile(configFile));
+      config = new ControllerConfiguration(
+          input.getString("database_type"), input.getString("username"),
+          input.getString("password"), input.getString("database_url"),
+          input.getString("upload_code"), input.getString("upload_url"),
+          input.getString("workload_name"));
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    String subDirectory = FileUtil.joinPath(outputDirectory, config.getDBName());
+    FileUtil.makeDirIfNotExists(outputDirectory, subDirectory);
+
+    DBCollector collector = getCollector(config);
+    try {
       LOG.info("First collection of metrics before experiment");
       // first collection (before queries)
       PrintWriter metricsWriter =
-          new PrintWriter(outputDirectory + "/" + outputDir + "/metrics_before.json", "UTF-8");
+          new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_before.json"), "UTF-8");
       metricsWriter.println(collector.collectMetrics());
-      metricsWriter.flush();
       metricsWriter.close();
       PrintWriter knobsWriter =
-          new PrintWriter(outputDirectory + "/" + outputDir + "/knobs.json", "UTF-8");
+          new PrintWriter(FileUtil.joinPath(subDirectory, "knobs.json"), "UTF-8");
       knobsWriter.println(collector.collectParameters());
-      knobsWriter.flush();
       knobsWriter.close();
 
       // record start time
-      summary.put("start_time", System.currentTimeMillis());
-      LOG.info("Start the experiment ...");
+      long startTime = System.currentTimeMillis();
+      LOG.info("Starting the experiment ...");
 
       // go to sleep
       Thread.sleep(time * TO_MILLISECONDS);
-      LOG.info("Experiment ends");
+      long endTime = System.currentTimeMillis();
+      LOG.info("Done running the experiment");
 
-      // record end time
-      summary.put("end_time", System.currentTimeMillis());
-
-      // record workload_name
-      summary.put("workload_name", controllerConfiguration.getWorkloadName());
+      // summary json obj
+      JSONObject summary = null;
+      try {
+        summary = new JSONObject();
+        summary.put("start_time", startTime);
+        summary.put("end_time", endTime);
+        summary.put("observation_time", time);
+        summary.put("database_type", config.getDBName());
+        summary.put("database_version", collector.collectVersion());
+        summary.put("workload_name", config.getWorkloadName());
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
 
       // write summary JSONObject into a JSON file
       PrintWriter summaryout =
-          new PrintWriter(outputDirectory + "/" + outputDir + "/summary.json", "UTF-8");
+          new PrintWriter(FileUtil.joinPath(subDirectory, "summary.json"), "UTF-8");
       summaryout.println(JSONUtil.format(summary.toString()));
-      summaryout.flush();
       summaryout.close();
 
+      // second collection (after workload execution)
       LOG.info("Second collection of metrics after experiment");
-      // second collection (after queries)
+      collector = getCollector(config);
       PrintWriter metricsWriterFinal =
-          new PrintWriter(outputDirectory + "/" + outputDir + "/metrics_after.json", "UTF-8");
+          new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_after.json"), "UTF-8");
       metricsWriterFinal.println(collector.collectMetrics());
-      metricsWriterFinal.flush();
       metricsWriterFinal.close();
     } catch (FileNotFoundException | UnsupportedEncodingException | InterruptedException e) {
       LOG.error("Failed to produce output files");
@@ -163,12 +185,12 @@ public class Main {
     }
 
     Map<String, String> outfiles = new HashMap<>();
-    outfiles.put("knobs", outputDirectory + "/" + outputDir + "/knobs.json");
-    outfiles.put("metrics_before", outputDirectory + "/" + outputDir + "/metrics_before.json");
-    outfiles.put("metrics_after", outputDirectory + "/" + outputDir + "metrics_after.json");
-    outfiles.put("summary", outputDirectory + "/" + outputDir + "summary.json");
+    outfiles.put("knobs", FileUtil.joinPath(subDirectory, "knobs.json"));
+    outfiles.put("metrics_before", FileUtil.joinPath(subDirectory, "metrics_before.json"));
+    outfiles.put("metrics_after", FileUtil.joinPath(subDirectory, "metrics_after.json"));
+    outfiles.put("summary", FileUtil.joinPath(subDirectory, "summary.json"));
     ResultUploader.upload(
-        controllerConfiguration.getUploadURL(), controllerConfiguration.getUploadCode(), outfiles);
+        config.getUploadURL(), config.getUploadCode(), outfiles);
   }
 
   private static void printUsage(Options options) {
@@ -182,17 +204,17 @@ public class Main {
       case POSTGRES:
         collector =
             new PostgresCollector(
-                config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+                config.getDBURL(), config.getDBUsername(), config.getDBPassword());
         break;
       case MYSQL:
         collector =
             new MySQLCollector(
-                config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+                config.getDBURL(), config.getDBUsername(), config.getDBPassword());
         break;
       case SAPHANA:
         collector =
             new SAPHanaCollector(
-                config.getDBDriver(), config.getDBUsername(), config.getDBPassword());
+                config.getDBURL(), config.getDBUsername(), config.getDBPassword());
         break;
       default:
         LOG.error("Invalid database type");

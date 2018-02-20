@@ -25,5 +25,14 @@
     "workload_name": {
       "type" : "string"
     }
-  }
+  },
+  "required": [
+    "database_type",
+    "database_url",
+    "username",
+    "password",
+    "upload_code",
+    "upload_url",
+    "workload_name"
+  ]
 }

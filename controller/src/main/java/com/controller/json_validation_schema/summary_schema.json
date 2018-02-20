@@ -19,5 +19,12 @@
     "database_version": {
       "type" : "string"
     }
-  }
+  },
+  "required": [
+    "database_type",
+    "start_time",
+    "observation_time",
+    "end_time",
+    "database_version"
+  ]
 }

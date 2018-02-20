@@ -4,6 +4,6 @@
   "username" : "root",
   "password" : "",
   "upload_code" : "9O186I9W3JVXL3BIHERL",
-  "upload_url" : "http://localhost:8000",
+  "upload_url" : "http://localhost:8000/new_result/",
   "workload_name" : "workload_name"
 }

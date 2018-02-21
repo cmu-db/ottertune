@@ -759,7 +759,8 @@ def get_timeline_data(request):
     results_per_page = int(request.GET['nres'])
 
     # Get all results related to the selected session, sort by time
-    results = Result.objects.filter(session=session)
+    results = Result.objects.filter(session=session) \
+                    .select_related('knob_data', 'metric_data', 'workload')
     results = sorted(results, cmp=lambda x, y: int(
         (x.observation_end_time - y.observation_end_time).total_seconds()))
 

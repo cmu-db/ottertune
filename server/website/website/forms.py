@@ -67,6 +67,8 @@ class SessionForm(forms.ModelForm):
             if tuning_session and target_objective not in metric_meta:
                 raise forms.ValidationError('%s is an invalid target objective' % target_objective)
 
+        return self.cleaned_data
+
     class Meta:  # pylint: disable=old-style-class,no-init
         model = Session
 

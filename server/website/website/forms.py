@@ -51,6 +51,9 @@ class SessionForm(forms.ModelForm):
     def clean(self):
         super(SessionForm, self).clean()
 
+        if not self.is_valid():
+           return self.cleaned_data
+
         tuning_session = self.cleaned_data['tuning_session']
         target_objective = self.cleaned_data['target_objective']
         if tuning_session and not target_objective:

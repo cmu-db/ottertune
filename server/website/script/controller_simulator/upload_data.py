@@ -26,7 +26,7 @@ LOG.addHandler(logging.StreamHandler())
 LOG.setLevel(logging.INFO)
 
 
-def upload(basedir, upload_code):
+def upload(basedir, upload_code, server):
     for wkld_dir in sorted(glob.glob(os.path.join(basedir, '*'))):
         LOG.info('Uploading sample for workload %s...', wkld_dir)
         sample_idx = 0
@@ -45,7 +45,7 @@ def upload(basedir, upload_code):
             }
 
             datagen, headers = multipart_encode(params)
-            request = urllib2.Request("http://0.0.0.0:8000/new_result/", datagen, headers)
+            request = urllib2.Request(server + "/new_result/", datagen, headers)
             LOG.info("Response: %s\n", urllib2.urlopen(request).read())
             sample_idx += 1
 
@@ -56,8 +56,10 @@ def main():
                         help='Directory containing the generated data')
     parser.add_argument('upload_code', type=str, nargs=1,
                         help='The website\'s upload code')
+    parser.add_argument('server', type=str, default='http://0.0.0.0:8000',
+                        nargs='?', help='The server\'s address (ip:port)')
     args = parser.parse_args()
-    upload(args.datadir[0], args.upload_code[0])
+    upload(args.datadir[0], args.upload_code[0], args.server)
 
 
 if __name__ == "__main__":

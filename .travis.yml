@@ -9,6 +9,14 @@ services:
   - rabbitmq
   - mysql
 
+addons:
+  apt:
+    sources:
+      - mysql-5.7-trusty
+    packages:
+      - mysql-server
+      - mysql-client
+
 env:
   global:
     - DBNAME=ottertune
@@ -38,8 +46,8 @@ before_script:
   - python ${WEBSITE_ROOT}/manage.py migrate
 
 script:
-  - cd controller && gradle build
-  - cd ../server && python -m unittest discover -s analysis/tests -v
+  - cd ./client/controller && gradle build
+  - cd ../../server && python -m unittest discover -s analysis/tests -v
   - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
   - cd ../.. && python script/validators/source_validator.py
 

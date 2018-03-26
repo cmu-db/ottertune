@@ -82,7 +82,7 @@ def start_celery(detached=True):
     if detached:
         local(SUPERVISOR_CMD(action='start'))
     else:
-        local(PREFIX + 'python manage.py celery worker -l info')
+        local(PREFIX + 'python manage.py celery worker --loglevel=info --pool=threads')
 
 
 @task

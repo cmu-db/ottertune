@@ -8,7 +8,9 @@ from collections import OrderedDict
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import redirect, render, get_object_or_404
@@ -61,6 +63,23 @@ def signup_view(request):
     token.update(csrf(request))
     token['form'] = form
     return render(request, 'signup.html', token)
+
+
+def change_password_view(request):
+    if not request.user.is_authenticated():
+        return redirect(reverse('home_project'))
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            return redirect(reverse('home_projects'))
+    else:
+        form = PasswordChangeForm(request.user)
+    token = {}
+    token.update(csrf(request))
+    token['form'] = form
+    return render(request, 'change_password.html', token)
 
 
 def login_view(request):
@@ -184,12 +203,19 @@ def session_view(request, project_id, session_id):
     # Group the session's results by DBMS & workload
     dbmss = {}
     workloads = {}
+    dbmss_ids = set()
+    workloads_ids = set()
     for res in results:
-        dbmss[res.dbms.key] = res.dbms
-        workload_name = res.workload.name
-        if workload_name not in workloads:
-            workloads[workload_name] = set()
-        workloads[workload_name].add(res.workload)
+        if res.dbms_id not in dbmss_ids:
+            dbmss_ids.add(res.dbms_id)
+            res_dbms = res.dbms
+            dbmss[res_dbms.key] = res_dbms
+
+        if res.workload_id not in workloads_ids:
+            workloads_ids.add(res.workload_id)
+            res_workload = res.workload
+            workloads[res_workload.name] = set()
+            workloads[res_workload.name].add(res_workload)
 
     # Sort so names will be ordered in the sidebar
     workloads = OrderedDict([(k, sorted(list(v))) for
@@ -367,10 +393,12 @@ def handle_result_files(session, files):
     workload_name = summary['workload_name']
     observation_time = summary['observation_time']
     start_time = datetime.fromtimestamp(
-        int(summary['start_time']) / 1000,
+        # int(summary['start_time']), # unit: seconds
+        int(summary['start_time']) / 1000,  # unit: ms
         timezone("UTC"))
     end_time = datetime.fromtimestamp(
-        int(summary['end_time']) / 1000,
+        # int(summary['end_time']), # unit: seconds
+        int(summary['end_time']) / 1000,  # unit: ms
         timezone("UTC"))
     try:
         # Check that we support this DBMS and version
@@ -404,7 +432,7 @@ def handle_result_files(session, files):
         dbms.pk, initial_metric_dict, final_metric_dict)
     initial_metric_diffs.extend(final_metric_diffs)
     numeric_metric_dict = Parser.convert_dbms_metrics(
-        dbms.pk, metric_dict, observation_time)
+        dbms.pk, metric_dict, observation_time, session.target_objective)
     metric_data = MetricData.objects.create_metric_data(
         session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
         JSONUtil.dumps(numeric_metric_dict, pprint=True, sort=True), dbms)
@@ -441,14 +469,15 @@ def handle_result_files(session, files):
     if session.tuning_session is False:
         return HttpResponse("Result stored successfully!")
 
+    result_id = result.pk
     response = chain(aggregate_target_results.s(result.pk),
                      map_workload.s(),
                      configuration_recommendation.s()).apply_async()
     taskmeta_ids = [response.parent.parent.id, response.parent.id, response.id]
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
-    return HttpResponse("Result stored successfully! Running tuner... (status={})".format(
-        response.status))
+    return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "
+                        .format(response.status, result_id))
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -752,7 +781,8 @@ def get_timeline_data(request):
     results_per_page = int(request.GET['nres'])
 
     # Get all results related to the selected session, sort by time
-    results = Result.objects.filter(session=session)
+    results = Result.objects.filter(session=session)\
+        .select_related('knob_data', 'metric_data', 'workload')
     results = sorted(results, cmp=lambda x, y: int(
         (x.observation_end_time - y.observation_end_time).total_seconds()))
 
@@ -827,3 +857,27 @@ def get_timeline_data(request):
             data_package['timelines'].append(data)
 
     return HttpResponse(JSONUtil.dumps(data_package), content_type='application/json')
+
+
+# get the lastest result
+def give_result(request, upload_code):  # pylint: disable=unused-argument
+    try:
+        session = Session.objects.get(upload_code=upload_code)
+    except Session.DoesNotExist:
+        LOG.warning("Invalid upload code: %s", upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code)
+    results = Result.objects.filter(session=session)
+    lastest_result = results[len(results) - 1]
+
+    tasks = TaskUtil.get_tasks(lastest_result.task_ids)
+    overall_status, _ = TaskUtil.get_task_status(tasks)
+
+    if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
+        return HttpResponse("Result not ready")
+    # unclear behaviors for REVOKED and RETRY, treat as failure
+    elif overall_status in ['FAILURE', 'REVOKED', 'RETRY']:
+        return HttpResponse("Fail")
+
+    # success
+    res = Result.objects.get(pk=lastest_result.pk)
+    return HttpResponse(JSONUtil.dumps(res.next_configuration), content_type='application/json')

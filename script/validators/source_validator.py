@@ -57,7 +57,7 @@ EXCLUDE_DIRECTORIES = [
     os.path.join(OTTERTUNE_DIR, "server/website/website/migrations"),
 
     # Source code files from json.org
-    os.path.join(OTTERTUNE_DIR, "controller/src/main/java/com/controller/util/json"),
+    os.path.join(OTTERTUNE_DIR, "client/controller/src/main/java/com/controller/util/json"),
 
     # Django settings
     os.path.join(OTTERTUNE_DIR, 'server/website/website/settings'),
@@ -69,7 +69,8 @@ EXCLUDE_FILES = [
     os.path.join(OTTERTUNE_DIR, 'server/website/manage.py'),
 ]
 
-CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR, "controller/build/libs/checkstyle-8.8-all.jar")
+CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR,
+                                   "client/controller/build/libs/checkstyle-8.8-all.jar")
 
 # Regex patterns
 PYCODESTYLE_COMMENT_PATTERN = re.compile(r'#\s*pycodestyle:\s*disable\s*=\s*[\w\,\s]+$')
@@ -269,7 +270,7 @@ def check_java_checkstyle(file_path, config_path=None):
         return True, None
 
     if not os.path.exists(CHECKSTYLE_JAR_PATH):
-        with lcd(os.path.join(OTTERTUNE_DIR, "controller")):  # pylint: disable=not-context-manager
+        with lcd(os.path.join(OTTERTUNE_DIR, "client/controller")):  # pylint: disable=not-context-manager
             local("gradle downloadJars")
 
     options = '' if config_path is None else '-c ' + config_path

@@ -71,7 +71,7 @@ python manage.py loaddata ./preload/*
 
 ```
 sudo rabbitmq-server -detached
-python manage.py celery worker --loglevel=info
+python manage.py celery worker --loglevel=info --pool=threads
 python manage.py runserver 0.0.0.0:8000
 python manage.py celerybeat --verbosity=2 --loglevel=info 
 

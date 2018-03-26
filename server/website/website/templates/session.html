@@ -114,11 +114,22 @@
 <div id="metric">
     <div><h4>Plot Metrics</h4></div>
     <div class="checkbox boxbody">
-        <ul>
-        {% for metric in metrics %}
-        <li><label><input type="checkbox" name="metric" value="{{ metric }}" /> {{ metric_meta|get_item:metric|get_attr:"pprint" }}</label></li>
-        {% endfor %}
-        </ul>
+        <table id="metrictable" class="metric_table">
+            <thead style="display:none;">
+                <tr>
+                    <th >Metrics</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for metric in metrics %}
+                <tr>
+                    <td style="background-color: white">
+                    <input type="checkbox" name="metric" value="{{ metric }}" > {{ metric_meta|get_item:metric|get_attr:"pprint" }}
+                    </td>
+                </tr>
+                {% endfor %}  
+            </tbody>
+        </table>
     </div>
 </div>
 </div>
@@ -138,7 +149,7 @@
     </div>
 </div>
 
-<div id="content">
+<div id="content" class="col-sm-10">
     <div id="plotgrid" class="plotcontainer row"></div>
     <div id="result_table">
         <h4>Filtered Results</h4>

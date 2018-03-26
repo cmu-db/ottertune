@@ -1,0 +1,9 @@
+{
+  "database_type" : "saphana",
+  "database_url" : "jdbc:sap://localhost:39015",
+  "username" : "SYSTEM",
+  "password" : "17Ad4907@",
+  "upload_code" : "MY_UPLOAD_CODE",
+  "upload_url" : "http://localhost:8000/new_result/",
+  "workload_name" : "workload_name"
+}

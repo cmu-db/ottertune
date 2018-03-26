@@ -452,31 +452,26 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(test_adj_metrics['pg_stat_user_indexes.relid'], 0)
 
     def test_create_knob_configuration(self):
-        import os
-        from website.settings import CONFIG_DIR
+        empty_config = self.test_dbms.create_knob_configuration({})
+        self.assertEqual(empty_config, {})
 
-        tuning_knobs = {}
-        custom_knobs = {}
+        tuning_knobs = {"global.autovacuum": "on",
+                        "global.log_planner_stats": "on",
+                        "global.cpu_tuple_cost": 0.5,
+                        "global.FAKE_KNOB": 20,
+                        "pg_stat_archiver.last_failed_wal": "today"}
 
-        categories = set()
-        for (k, v) in self.test_dbms.knob_catalog_.iteritems():
-            if (v.category not in categories):
-                categories.add(v.category)
-                tuning_knobs.update({k: v.default})
+        test_config = self.test_dbms.create_knob_configuration(tuning_knobs)
 
-        config_res = self.test_dbms.create_knob_configuration(tuning_knobs, custom_knobs)
-        config_path = os.path.join(CONFIG_DIR, self.test_dbms.knob_configuration_filename)
-        with open(config_path, 'r') as f:
-            config_header = f.read()
+        actual_keys = [("autovacuum", "on"),
+                       ("log_planner_stats", "on"),
+                       ("cpu_tuple_cost", 0.5),
+                       ("FAKE_KNOB", 20)]
 
-        self.assertTrue(config_header in config_res)
+        self.assertTrue(len(test_config.keys()), 4)
 
-        for k in tuning_knobs:
-            line = k[len('global.'):] + ' = \'' + str(tuning_knobs[k]) + '\''
-            self.assertTrue(line in config_res)
-
-        with self.assertRaises(Exception):
-            self.test_dbms.create_knob_configuration(tuning_knobs, {"FAKE_KNOB": 1})
+        for k, v in actual_keys:
+            self.assertEqual(test_config.get(k), v)
 
     def test_format_integer(self):
         test_dbms = PostgresParser(2)

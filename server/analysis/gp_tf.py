@@ -334,9 +334,13 @@ class GPRGD(GPR):
         self.max_iter = max_iter
         self.sigma_multiplier = sigma_multiplier
         self.mu_multiplier = mu_multiplier
+        self.X_min = None
+        self.X_max = None
 
-    def fit(self, X_train, y_train, ridge=DEFAULT_RIDGE):
+    def fit(self, X_train, y_train, X_min, X_max, ridge=DEFAULT_RIDGE):  # pylint: disable=arguments-differ
         super(GPRGD, self).fit(X_train, y_train, ridge)
+        self.X_min = X_min
+        self.X_max = X_max
 
         with tf.Session(graph=self.graph,
                         config=tf.ConfigProto(
@@ -446,6 +450,11 @@ class GPRGD(GPR):
                             LOG.info("    loss:  %s", str(losses_it[step]))
                             LOG.info("    conf:  %s", str(confs_it[step]))
                         sess.run(train)
+                        # constraint Projected Gradient Descent
+                        xt = sess.run(xt_)
+                        xt_valid = np.minimum(xt, self.X_max)
+                        xt_valid = np.maximum(xt_valid, self.X_min)
+                        sess.run(assign_op, feed_dict={xt_ph: xt_valid})
 #                             if constraint_helper is not None:
 #                                 xt_valid = constraint_helper.apply_constraints(sess.run(xt_))
 #                                 sess.run(assign_op, feed_dict={xt_ph:xt_valid})

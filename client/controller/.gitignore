@@ -1,0 +1,28 @@
+# Mac OS X hidden file
+.DS_Store
+
+# workspace configuration files
+.settings/
+.metadata/
+
+# Gradle
+.gradle/
+/gradlew.bat
+/gradlew
+/settings.gradle
+
+# Intellij
+.idea
+/dbcollector.iml
+
+# generated files
+bin/
+build/
+out/
+output/
+
+# lib
+lib/
+
+# log file
+*.log

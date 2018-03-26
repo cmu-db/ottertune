@@ -1,0 +1,13 @@
+{
+  "database_type" : "postgres",
+  "database_name" : "tpcc",
+  "database_disk": "/dev/mapper/ottertune--dev--vg-root",
+  "database_conf": "/etc/postgresql/9.3/main/postgresql.conf",
+  "username" : "bohan",
+  "password" : "bohan",
+  "oltpbench_home": "/home/bohan/oltpbench",
+  "oltpbench_config": "config/tpcc_config_postgres_small.xml",
+  "oltpbench_workload": "tpcc",
+  "upload_url" : "https://ottertune.cs.cmu.edu/new_result/",
+  "upload_code" : "15OMZPAPGG7AMP9KXLKM"
+}

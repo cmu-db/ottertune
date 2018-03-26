@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import argparse
 import logging
 import os
 import urllib2
@@ -85,8 +86,14 @@ class ResultUploader(object):
 
 
 def main():
-    url = 'http://0.0.0.0:8000/new_result/'
-    upload_code = 'O50GE1HC8S1BHU8L6F8D'
+    parser = argparse.ArgumentParser(description="Upload generated data to the website")
+    parser.add_argument('upload_code', type=str, nargs=1,
+                        help='The website\'s upload code')
+    parser.add_argument('server', type=str, default='http://0.0.0.0:8000',
+                        nargs='?', help='The server\'s address (ip:port)')
+    args = parser.parse_args()
+    url = args.server + '/new_result/'
+    upload_code = args.upload_code[0]
     uploader = ResultUploader(upload_code, url)
     dirnames = glob.glob(os.path.join(os.path.expanduser(
         '~'), 'Dropbox/Apps/ottertune/data/sample_data/exps_*'))[:2]

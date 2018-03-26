@@ -9,10 +9,12 @@ Created on Dec 12, 2017
 @author: dvanaken
 '''
 
-from .myrocks import MyRocks56Parser
-from .postgres import Postgres96Parser
+
 from website.models import DBMSCatalog
 from website.types import DBMSType
+
+from .myrocks import MyRocks56Parser
+from .postgres import Postgres96Parser
 
 
 class Parser(object):
@@ -31,8 +33,7 @@ class Parser(object):
         try:
             if dbms_id is None:
                 return Parser.__DBMS_UTILS_IMPLS
-            else:
-                return Parser.__DBMS_UTILS_IMPLS[dbms_id]
+            return Parser.__DBMS_UTILS_IMPLS[dbms_id]
         except KeyError:
             raise NotImplementedError(
                 'Implement me! ({})'.format(dbms_id))
@@ -53,9 +54,9 @@ class Parser(object):
         return Parser.__utils(dbms_id).convert_dbms_knobs(knobs)
 
     @staticmethod
-    def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time):
+    def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time, target_objective=None):
         return Parser.__utils(dbms_id).convert_dbms_metrics(
-            numeric_metrics, observation_time)
+            numeric_metrics, observation_time, target_objective)
 
     @staticmethod
     def parse_dbms_knobs(dbms_id, knobs):
@@ -70,9 +71,8 @@ class Parser(object):
         return Parser.__utils(dbms_id).get_nondefault_knob_settings(knobs)
 
     @staticmethod
-    def create_knob_configuration(dbms_id, tuning_knobs, custom_knobs):
-        return Parser.__utils(dbms_id).create_knob_configuration(
-            tuning_knobs, custom_knobs)
+    def create_knob_configuration(dbms_id, tuning_knobs):
+        return Parser.__utils(dbms_id).create_knob_configuration(tuning_knobs)
 
     @staticmethod
     def format_dbms_knobs(dbms_id, knobs):

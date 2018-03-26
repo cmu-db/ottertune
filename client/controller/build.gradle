@@ -53,7 +53,7 @@ dependencies {
 }
 
 run {
-    args = ["-c", "config/sample_postgres_config.json", "-t", "15"]
+    args = ["-c","$config","-t","$time","-d","$dir"]
 }
 
 findbugs {

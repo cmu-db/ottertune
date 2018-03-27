@@ -53,7 +53,12 @@ dependencies {
 }
 
 run {
-    args = ["-c","$config","-t","$time","-d","$dir"]
+    if (project.hasProperty("appArgs")) {
+        args(appArgs.split(' '))
+    }
+    // Below is another way to add args but this causes gradle to
+    // always invoke the run application task
+    // args = ["-c","$config","-t","$time","-d","$dir"]
 }
 
 findbugs {

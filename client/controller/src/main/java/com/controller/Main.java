@@ -95,6 +95,7 @@ public class Main {
       outputDirectory = argsLine.getOptionValue("d");
     }
     LOG.info("Experiment output directory is set to: " + outputDirectory);
+    FileUtil.makeDirIfNotExists(outputDirectory);
 
     // Parse controller configuration file
     String configPath = argsLine.getOptionValue("c");
@@ -119,9 +120,6 @@ public class Main {
       e.printStackTrace();
     }
 
-    String subDirectory = FileUtil.joinPath(outputDirectory, config.getDBName());
-    FileUtil.makeDirIfNotExists(outputDirectory, subDirectory);
-
     DBCollector collector = getCollector(config);
     try {
       // first collection (before queries)
@@ -132,7 +130,7 @@ public class Main {
         return;
       }
       PrintWriter metricsWriter = 
-          new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_before.json"), "UTF-8");
+          new PrintWriter(FileUtil.joinPath(outputDirectory, "metrics_before.json"), "UTF-8");
       metricsWriter.println(metricsBefore);
       metricsWriter.close();
 
@@ -142,7 +140,7 @@ public class Main {
         return;
       }
       PrintWriter knobsWriter =
-          new PrintWriter(FileUtil.joinPath(subDirectory, "knobs.json"), "UTF-8");
+          new PrintWriter(FileUtil.joinPath(outputDirectory, "knobs.json"), "UTF-8");
       knobsWriter.println(knobs);
       knobsWriter.close();
 
@@ -175,7 +173,7 @@ public class Main {
 
       // write summary JSONObject into a JSON file
       PrintWriter summaryout =
-          new PrintWriter(FileUtil.joinPath(subDirectory, "summary.json"), "UTF-8");
+          new PrintWriter(FileUtil.joinPath(outputDirectory, "summary.json"), "UTF-8");
       summaryout.println(JSONUtil.format(summary.toString()));
       summaryout.close();
 
@@ -188,21 +186,24 @@ public class Main {
         return;
       }
       PrintWriter metricsWriterFinal =
-          new PrintWriter(FileUtil.joinPath(subDirectory, "metrics_after.json"), "UTF-8");
+          new PrintWriter(FileUtil.joinPath(outputDirectory, "metrics_after.json"), "UTF-8");
       metricsWriterFinal.println(metricsAfter);
       metricsWriterFinal.close();
     } catch (FileNotFoundException | UnsupportedEncodingException | InterruptedException e) {
       LOG.error("Failed to produce output files");
       e.printStackTrace();
     }
-
-    Map<String, String> outfiles = new HashMap<>();
-    outfiles.put("knobs", FileUtil.joinPath(subDirectory, "knobs.json"));
-    outfiles.put("metrics_before", FileUtil.joinPath(subDirectory, "metrics_before.json"));
-    outfiles.put("metrics_after", FileUtil.joinPath(subDirectory, "metrics_after.json"));
-    outfiles.put("summary", FileUtil.joinPath(subDirectory, "summary.json"));
-    ResultUploader.upload(
-        config.getUploadURL(), config.getUploadCode(), outfiles);
+    if (config.getUploadURL() != null && !config.getUploadURL().equals("")) {
+      Map<String, String> outfiles = new HashMap<>();
+      outfiles.put("knobs", FileUtil.joinPath(outputDirectory, "knobs.json"));
+      outfiles.put("metrics_before", FileUtil.joinPath(outputDirectory, "metrics_before.json"));
+      outfiles.put("metrics_after", FileUtil.joinPath(outputDirectory, "metrics_after.json"));
+      outfiles.put("summary", FileUtil.joinPath(outputDirectory, "summary.json"));
+      ResultUploader.upload(
+          config.getUploadURL(), config.getUploadCode(), outfiles);
+    } else {
+      LOG.warn("Empty upload URL. Skipping upload...");
+    }
   }
 
   private static void printUsage(Options options) {

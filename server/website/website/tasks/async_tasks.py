@@ -5,6 +5,7 @@
 #
 import random
 import numpy as np
+import Queue as Q
 
 from celery.task import task, Task
 from celery.utils.log import get_task_logger
@@ -18,7 +19,7 @@ from website.models import PipelineData, PipelineRun, Result, Workload, KnobCata
 from website.parser import Parser
 from website.types import PipelineTaskType
 from website.utils import DataUtil, JSONUtil
-from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, MAX_ITER  # pylint: disable=no-name-in-module
+from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, MAX_ITER, TOP_NUM_CONFIG # pylint: disable=no-name-in-module
 
 from website.types import VarType
 
@@ -303,6 +304,16 @@ def configuration_recommendation(target_data):
     # Use gradient descent to minimize -throughput
     if not lessisbetter:
         y_scaled = -y_scaled
+
+    q = Q.PriorityQueue()
+
+    for x in range(0, y_scaled.shape[0]):
+        q.put((y[x][0],x))
+    i = 0
+    while i < TOP_NUM_CONFIG:
+        item = q.get()
+        X_samples = np.vstack((X_samples, X_scaled[item[1]]))
+        i = i + 1
 
     model = GPRGD(max_iter=MAX_ITER)
     model.fit(X_scaled, y_scaled, X_min, X_max, ridge)

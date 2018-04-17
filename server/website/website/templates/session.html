@@ -45,7 +45,13 @@
     {% if session.tuning_session %}
     <tr>
         <td><div class="text-right">{{ labels.target_objective }}</div></td>
-        <td>{{ metric_meta|get_item:session.target_objective|get_attr:"pprint" }}</td>
+        {% if session.target_objective in metric_meta %}
+            <td>{{ metric_meta|get_item:session.target_objective|get_attr:"pprint" }}</td>
+        {% elif session.target_objective %}
+            <td><strong>'{{session.target_objective}}' is invalid target objective</strong>
+        {% else %}
+            <td>&nbsp;</td>
+        {% endif %}
     </tr>
     {% endif %}
     </tbody>

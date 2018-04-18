@@ -24,7 +24,7 @@ LOG = get_task_logger(__name__)
 
 
 # Run the background tasks every 5 minutes
-@periodic_task(run_every=30, name="run_background_tasks")
+@periodic_task(run_every=300, name="run_background_tasks")
 def run_background_tasks():
     # Find all unique workloads that we have data for
     unique_workloads = Workload.objects.all()

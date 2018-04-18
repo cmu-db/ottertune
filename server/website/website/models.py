@@ -194,6 +194,7 @@ class Session(BaseModel):
     tuning_session = models.BooleanField()
 
     actual_run_time = models.IntegerField(default=0)
+    incremental_knobs = models.BooleanField(default=False)
     TARGET_OBJECTIVES = [
         ('throughput_txn_per_sec', 'Throughput'),
         ('99th_lat_ms', '99 Percentile Latency')

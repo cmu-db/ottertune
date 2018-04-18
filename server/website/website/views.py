@@ -409,7 +409,7 @@ def handle_result_files(session, files):
         return HttpResponse('{} v{} is not yet supported.'.format(
             dbms_type, dbms_version))
 
-    result_run_time = (int(summary['end_time']) - int(summary['start_time']))/ 1000
+    result_run_time = (int(summary['end_time']) - int(summary['start_time'])) / 1000
     session.actual_run_time += result_run_time
     if dbms != session.dbms:
         return HttpResponse('The DBMS must match the type and version '
@@ -670,7 +670,6 @@ def tuner_status_view(request, project_id, session_id, result_id):  # pylint: di
         completion_time = 'N/A'
         total_runtime = 'N/A'
     else:
-        print("len tasks: " + str(len(tasks)))
         completion_time = tasks[-1].date_done
         total_runtime = (completion_time - res.creation_time).total_seconds()
         total_runtime = '{0:.2f} seconds'.format(total_runtime)

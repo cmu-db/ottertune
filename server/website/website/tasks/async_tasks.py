@@ -23,8 +23,9 @@ from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG 
 from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               MAX_TRAIN_SIZE, BATCH_SIZE, NUM_THREADS,
                               DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
-                              DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
-                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER)
+                              DEFAULT_EPSILON, MAX_ITER,
+                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
+                              TIME_PER_ITER, KNOB_NUM_TO_ADD_PER_ITER, MAX_KNOB_NUM)
 from website.types import VarType
 
 LOG = get_task_logger(__name__)
@@ -208,12 +209,15 @@ def configuration_recommendation(target_data):
         pipeline_run=latest_pipeline_run,
         workload=mapped_workload,
         task_type=PipelineTaskType.RANKED_KNOBS)
-    
+
     # use magic number here
     knob_num = IMPORTANT_KNOB_NUMBER
-    # num_knob_to_add = (newest_result.session.actual_run_time // 360) * 2
-    # num_knob_to_add = min(num_knob_to_add, 14)
-    # print("-----------number of knob to tune: " + str(num_knob_to_add))
+    if newest_result.session.incremental_knobs is True:
+        num_knob_to_add = (
+            newest_result.session.actual_run_time // TIME_PER_ITER) * KNOB_NUM_TO_ADD_PER_ITER
+        num_knob_to_add = min(num_knob_to_add, MAX_KNOB_NUM)
+        knob_num += num_knob_to_add
+
     ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:knob_num]
     ranked_knob_idxs = [i for i, cl in enumerate(X_columnlabels) if cl in ranked_knobs]
     X_workload = X_workload[:, ranked_knob_idxs]

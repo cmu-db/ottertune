@@ -193,6 +193,7 @@ class Session(BaseModel):
     upload_code = models.CharField(max_length=30, unique=True)
     tuning_session = models.BooleanField()
 
+    actual_run_time = models.IntegerField(default=0)
     TARGET_OBJECTIVES = [
         ('throughput_txn_per_sec', 'Throughput'),
         ('99th_lat_ms', '99 Percentile Latency')

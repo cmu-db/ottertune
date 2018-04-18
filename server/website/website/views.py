@@ -383,6 +383,7 @@ def new_result(request):
 
 def handle_result_files(session, files):
     from celery import chain
+    tuning_start_time = now()
     # Combine into contiguous files
     files = {k: b''.join(v.chunks()).decode() for k, v in list(files.items())}
 
@@ -408,6 +409,8 @@ def handle_result_files(session, files):
         return HttpResponse('{} v{} is not yet supported.'.format(
             dbms_type, dbms_version))
 
+    result_run_time = (int(summary['end_time']) - int(summary['start_time']))/ 1000
+    session.actual_run_time += result_run_time
     if dbms != session.dbms:
         return HttpResponse('The DBMS must match the type and version '
                             'specified when creating the session. '
@@ -476,6 +479,8 @@ def handle_result_files(session, files):
     taskmeta_ids = [response.parent.parent.id, response.parent.id, response.id]
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
+    tuning_end_time = now()
+    session.actual_run_time += (tuning_end_time - tuning_start_time).total_seconds()
     return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "
                         .format(response.status, result_id))
 

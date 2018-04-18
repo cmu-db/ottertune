@@ -65,7 +65,7 @@ def status_rabbitmq():
 def start_celery():
     if status_rabbitmq() == STATUS.STOPPED:
         start_rabbitmq()
-    local('python manage.py celery worker --detach --loglevel=info --pool=threads')
+    local('python manage.py celery worker --loglevel=info --pool=threads')
 
 
 @task

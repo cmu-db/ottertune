@@ -208,7 +208,13 @@ def configuration_recommendation(target_data):
         pipeline_run=latest_pipeline_run,
         workload=mapped_workload,
         task_type=PipelineTaskType.RANKED_KNOBS)
-    ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:IMPORTANT_KNOB_NUMBER]
+    
+    # use magic number here
+    knob_num = IMPORTANT_KNOB_NUMBER
+    # num_knob_to_add = (newest_result.session.actual_run_time // 360) * 2
+    # num_knob_to_add = min(num_knob_to_add, 14)
+    # print("-----------number of knob to tune: " + str(num_knob_to_add))
+    ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:knob_num]
     ranked_knob_idxs = [i for i, cl in enumerate(X_columnlabels) if cl in ranked_knobs]
     X_workload = X_workload[:, ranked_knob_idxs]
     X_target = X_target[:, ranked_knob_idxs]

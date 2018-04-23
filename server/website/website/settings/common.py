@@ -12,7 +12,9 @@ import os
 from os.path import abspath, dirname, exists, join
 import sys
 
+
 import djcelery
+
 
 # ==============================================
 # PATH CONFIGURATION
@@ -333,7 +335,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # ==============================================
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
-
 
 # Import and override defaults with custom configuration options
 # pylint: disable=wildcard-import,wrong-import-position,unused-wildcard-import

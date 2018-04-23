@@ -19,7 +19,8 @@ import numpy as np
 from django.utils.text import capfirst
 from djcelery.models import TaskMeta
 
-from .types import LabelStyleType
+from .types import LabelStyleType, VarType
+from .models import KnobCatalog
 
 LOG = logging.getLogger(__name__)
 
@@ -151,6 +152,41 @@ class DataUtil(object):
                 y_unique[i, :] = np.median(y_matrix[dup_idxs, :], axis=0)
                 rowlabels_unique[i] = tuple(rowlabels[dup_idxs])
         return X_unique, y_unique, rowlabels_unique
+
+    @staticmethod
+    def dummy_encoder_helper(featured_knobs):
+        n_values = []
+        cat_knob_indices = []
+        cat_knob_names = []
+        noncat_knob_names = []
+
+        for i, knob_name in enumerate(featured_knobs):
+            # TODO/FIX: what if different DBMS have knobs with same name?
+            knobs = KnobCatalog.objects.filter(name=knob_name)
+            if len(knobs) == 0:
+                raise Exception(
+                    "KnobCatalog found {} occurences of knob {}".format(len(knobs), knob_name))
+            knob = knobs[0]
+            # check if knob is categorical, with more than 2 levels
+            if knob.vartype == VarType.ENUM:
+                # enumvals is a comma delimited list
+                enumvals = knob.enumvals.split(",")
+                if len(enumvals) > 2:
+                    n_values.append(len(enumvals))
+                    cat_knob_indices.append(i)
+                    cat_knob_names.append(knob_name)
+                else:
+                    noncat_knob_names.append(knob_name)
+            else:
+                noncat_knob_names.append(knob_name)
+
+        n_values = np.array(n_values)
+        cat_knob_indices = np.array(cat_knob_indices)
+        categorical_info = {'n_values': n_values,
+                            'categorical_features': cat_knob_indices,
+                            'cat_columnlabels': cat_knob_names,
+                            'noncat_columnlabels': noncat_knob_names}
+        return categorical_info
 
 
 class ConversionUtil(object):

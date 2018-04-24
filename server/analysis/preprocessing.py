@@ -279,122 +279,95 @@ class PolynomialFeatures(Preprocess):
 # ==========================================================
 class DummyEncoder(Preprocess):
 
-    def __init__(self, n_values, feature_indices):
-        import warnings
+    def __init__(self, n_values, categorical_features, cat_columnlabels, noncat_columnlabels):
         from sklearn.preprocessing import OneHotEncoder
 
         if not isinstance(n_values, np.ndarray):
             n_values = np.array(n_values)
-        if not isinstance(feature_indices, np.ndarray):
-            feature_indices = np.array(feature_indices)
-        assert feature_indices.size > 0
-        assert feature_indices.shape == n_values.shape
+        if not isinstance(categorical_features, np.ndarray):
+            categorical_features = np.array(categorical_features)
+        # assert categorical_features.size > 0
+        assert categorical_features.shape == n_values.shape
         for nv in n_values:
             if nv <= 2:
                 raise Exception("Categorical features must have 3+ labels")
 
-        self.feature_indices = feature_indices
-        self.n_values = n_values
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            self.encoder = OneHotEncoder(n_values=n_values, sparse=False)
-        self.columnlabels = None
-        self.xform_start_indices = None
+        self.cat_columnlabels = cat_columnlabels
+        self.noncat_columnlabels = noncat_columnlabels
+        self.encoder = OneHotEncoder(
+            n_values=n_values, categorical_features=categorical_features, sparse=False)
+        self.new_labels = None
+        self.cat_idxs_old = categorical_features
 
     def fit(self, matrix):
-        return self.fit_with_columnlabels(matrix, columnlabels=None)
-
-    def fit_with_columnlabels(self, matrix, columnlabels=None):
-        assert isinstance(matrix, np.ndarray)
-        X_cat = matrix[:, self.feature_indices]
-        self.encoder.fit(X_cat)
-
-        self.xform_start_indices = np.empty_like(self.feature_indices)
-        for i, (idx, nvals) in enumerate(zip(self.feature_indices, self.n_values)):
-            start_idx = idx + np.sum(self.n_values[:i]) - np.sum(self.n_values[:i].size)
-            self.xform_start_indices[i] = start_idx
-
-        if columnlabels is not None:
-            labels = []
-            cat_index = 0
-            for i in range(matrix.shape[1]):
-                orig_label = columnlabels[i]
-                if i in self.feature_indices:
-                    assert self.feature_indices[cat_index] == i
-                    nvals = self.n_values[cat_index]
-                    labels.extend(["{}#{}".format(orig_label, v)
-                                   for v in range(nvals)])
-                    cat_index += 1
-                else:
-                    labels.append(orig_label)
-            self.columnlabels = np.array(labels)
-        return self
+        self.encoder.fit(matrix)
+        # determine new columnlabels
+        # categorical variables are done in order specified by categorical_features
+        new_labels = []
+        for i, cat_label in enumerate(self.cat_columnlabels):
+            low = self.encoder.feature_indices_[i]
+            high = self.encoder.feature_indices_[i + 1]
+            for j in range(low, high):
+                # eg the categorical variable named cat_var with 5 possible values
+                # turns into 0/1 variables named cat_var____0, ..., cat_var____4
+                new_labels.append(cat_label + "____" + str(j - low))
+        # according to sklearn documentation,
+        # "non-categorical features are always stacked to the right of the matrix"
+        # by observation, it looks like the non-categorical features' relative order is preserved
+        # BUT: there is no guarantee made about that behavior!
+        # We either trust OneHotEncoder to be sensible, or look for some other way
+        new_labels += self.noncat_columnlabels
+        self.new_labels = new_labels
 
     def transform(self, matrix, copy=True):
-        num_cat_feats = self.feature_indices.size
-        X_cat = matrix[:, self.feature_indices]
-        X_enc = self.encoder.transform(X_cat)
-        assert X_enc.shape[1] == np.sum(self.n_values)
+        # actually transform the matrix
+        matrix_encoded = self.encoder.transform(matrix)
+        return matrix_encoded
 
-        nfeats = matrix.shape[1] - num_cat_feats + np.sum(self.n_values)
-        offset = 0
-        cat_index = 0
-        new_matrix = []
-        for i in range(matrix.shape[1]):
-            if i in self.feature_indices:
-                assert self.feature_indices[cat_index] == i
-                nvals = self.n_values[cat_index]
-                new_matrix.append(X_enc[:, offset: offset + nvals])
-                offset += nvals
-                cat_index += 1
-            else:
-                new_matrix.append(matrix[:, i].reshape(matrix.shape[0], 1))
-
-        new_matrix = np.hstack(new_matrix)
-        assert new_matrix.shape == (matrix.shape[0], nfeats)
-        return new_matrix
+    def fit_transform(self, matrix, copy=True):
+        self.fit(matrix)
+        return self.transform(matrix)
 
     def inverse_transform(self, matrix, copy=True):
-        assert matrix.ndim == 2
-        n_cat_feats = self.n_values.size
+        n_values = self.encoder.n_values_
+        n_features = matrix.shape[-1] - self.encoder.feature_indices_[-1] + len(n_values)
+        noncat_start_idx = self.encoder.feature_indices_[-1]
+        inverted_matrix = np.empty((matrix.shape[0], n_features))
         cat_idx = 0
-        current_idx = 0
-        nsamples = matrix.shape[0]
-        nfeats = matrix.shape[1] - np.sum(self.n_values) + n_cat_feats
-        new_matrix = np.empty((nsamples, nfeats))
-        for i in range(nfeats):
-            if cat_idx < n_cat_feats and current_idx == self.xform_start_indices[cat_idx]:
-                new_col = np.ones((nsamples,)) * np.nan
-                nvals = self.n_values[cat_idx]
-                for n in range(nvals):
-                    col = matrix[:, current_idx + n]
-                    new_col[col == 1] = n
-                assert np.all(np.isfinite(new_col))
-                current_idx += nvals
+        noncat_idx = 0
+        for i in range(n_features):
+            if i in self.cat_idxs_old:
+                new_col = np.ones((matrix.shape[0],))
+                start_idx = self.encoder.feature_indices_[cat_idx]
+                for j in range(n_values[cat_idx]):
+                    col = matrix[:, start_idx + j]
+                    new_col[col == 1] = j
                 cat_idx += 1
             else:
-                new_col = np.array(matrix[:, current_idx])
-                current_idx += 1
-            new_matrix[:, i] = new_col
-        return new_matrix
+                new_col = np.array(matrix[:, noncat_start_idx + noncat_idx])
+                noncat_idx += 1
+            inverted_matrix[:, i] = new_col
+        return inverted_matrix
 
 
-def dummy_encoder_helper(config_mgr, featured_knobs):
-    # Note: this function will not work without a config manager.
-    # It just needs the type information about each of the knobs
-    # being passed in.
-    cat_knob_indices = []
-    n_values = []
-    params = []
-    for i, knob_name in enumerate(featured_knobs):
-        knob = config_mgr._find_param(knob_name)  # pylint: disable=protected-access
-        params.append(knob)
-        if knob.iscategorical and knob.data_type != "boolean":
-            cat_knob_indices.append(i)
-            n_values.append(len(knob.valid_values))
-    cat_knob_indices = np.array(cat_knob_indices)
-    n_values = np.array(n_values)
-    return n_values, cat_knob_indices, params
+def consolidate_columnlabels(columnlabels):
+    import re
+    # use this to check if a label was created by dummy encoder
+    p = re.compile(r'(.*)____\d+')
+
+    consolidated_columnlabels = []
+    cat_seen = set()  # avoid duplicate cat_labels
+    for lab in columnlabels:
+        m = p.match(lab)
+        # m.group(1) is the original column name
+        if m:
+            if m.group(1) not in cat_seen:
+                cat_seen.add(m.group(1))
+                consolidated_columnlabels.append(m.group(1))
+        else:
+            # non-categorical variable
+            consolidated_columnlabels.append(lab)
+    return consolidated_columnlabels
 
 
 def fix_scaler(scaler, encoder, params):
@@ -505,96 +478,3 @@ class MinMaxScaler(Preprocess):
         if matrix.ndim == 1:
             matrix = matrix.reshape(1, -1)
         return self.scaler_.inverse_transform(matrix)
-
-
-# ==========================================================
-#   Testing
-# ==========================================================
-
-# def test_preprocess_module():
-#     import warnings
-#     from .util import arrays_share_data
-#
-#     warnings.filterwarnings('error')
-#
-#     assert issubclass(Bin, Preprocess)
-#     assert isinstance(Bin(bin_start=1), Preprocess)
-#     assert issubclass(PolynomialFeatures, Preprocess)
-#     assert isinstance(PolynomialFeatures(), Preprocess)
-#
-#     x1 = np.array([[2, 7, 9],
-#                    [6, 9, 2],
-#                    [4, 0, 2],
-#                    [7, 2, 5]], dtype="float64")
-#
-#     print "Testing 'Bin'..."
-#     decile_range = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-#     deciles_exp = np.percentile(x1, decile_range)
-#     deciles_exp[-1] = np.Inf
-#     bin_pp = Bin(bin_start=1)
-#     x1_binned = bin_pp.fit_transform(x1)
-#     assert np.array_equal(deciles_exp, bin_pp.deciles_)
-#     assert is_numeric_matrix(x1)
-#     assert not is_lexical_matrix(x1)
-#
-#     x1_binned_exp = np.array([[1, 8, 10],
-#                               [7, 10, 1],
-#                               [5, 1, 1],
-#                               [8, 1, 6]], dtype="float64")
-#     assert np.array_equal(x1_binned_exp, x1_binned)
-#     assert not arrays_share_data(x1, x1_binned)
-#
-#     # Test transform with floats out of original range
-#     x2 = np.array([-1., 6., 20.])
-#     x2_binned_exp = np.array([1, 7, 10])
-#     x2_binned = bin_pp.transform(x2)
-#     assert np.array_equal(x2_binned_exp, x2_binned)
-#
-#     # Test empty array
-#     x_empty = np.array([], dtype="float64")
-#     bin_pp = Bin(0)
-#     try:
-#         bin_pp.fit_transform(x_empty)
-#         print "Bin: failed empty array test"
-#     except AssertionError:
-#         print "Bin: passed empty array test"
-#
-#     print "Passed all tests for 'Bin'"
-#     print ""
-#     print "Testing 'PolynomialFeatures'..."
-#
-#     x1_poly_exp = np.array([[1, 8, 10, 1, 8, 10, 64, 80, 100],
-#                             [7, 10, 1, 49, 70, 7, 100, 10, 1],
-#                             [5, 1, 1, 25, 5, 5, 1, 1, 1],
-#                             [8, 1, 6, 64, 8, 48, 1, 6, 36]], dtype="float64")
-#
-#     x1_poly_inter_exp = np.array([[1, 8, 10, 8, 10, 80],
-#                                   [7, 10, 1, 70, 7, 10],
-#                                   [5, 1, 1, 5, 5, 1],
-#                                   [8, 1, 6, 8, 48, 6]], dtype="float64")
-#
-#     poly_pp = PolynomialFeatures(include_bias=False)
-#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
-#     assert np.array_equal(x1_poly_exp, x1_poly)
-#     poly_pp = PolynomialFeatures(include_bias=True)
-#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
-#     x1_poly_bias_exp = np.hstack([np.ones((x1_binned_exp.shape[0], 1)), x1_poly_exp])
-#     assert np.array_equal(x1_poly_bias_exp, x1_poly)
-#     poly_pp = PolynomialFeatures(include_bias=False, interaction_only=True)
-#     x1_poly = poly_pp.fit_transform(x1_binned_exp)
-#     assert np.array_equal(x1_poly_inter_exp, x1_poly)
-#
-#     x_alpha = np.array([['a', 'b', 'c']], dtype=object)
-#     x_alpha_exp = np.array([['', 'a', 'b', 'c', 'aa', 'ab', 'ac', 'bb', 'bc', 'cc']])
-#     assert not is_numeric_matrix(x_alpha)
-#     assert is_lexical_matrix(x_alpha)
-#     poly_pp = PolynomialFeatures()
-#     x_alpha_poly = poly_pp.fit_transform(x_alpha)
-#     assert np.array_equal(x_alpha_exp, x_alpha_poly)
-#
-#     print "Passed all tests for 'PolynomialFeatures'"
-#     print ""
-
-
-# if __name__ == '__main__':
-#     test_preprocess_module()

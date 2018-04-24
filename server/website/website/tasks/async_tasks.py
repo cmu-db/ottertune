@@ -14,7 +14,8 @@ from sklearn.preprocessing import StandardScaler
 
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
-from analysis.preprocessing import Bin
+from analysis.preprocessing import Bin, DummyEncoder
+from analysis.constraints import ParamConstraintHelper
 from website.models import PipelineData, PipelineRun, Result, Workload, KnobCatalog, MetricCatalog
 from website.parser import Parser
 from website.types import PipelineTaskType
@@ -25,6 +26,7 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER)
+from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
 
 LOG = get_task_logger(__name__)
@@ -253,8 +255,18 @@ def configuration_recommendation(target_data):
     y_workload = y_workload[dups_filter, :]
     rowlabels_workload = rowlabels_workload[dups_filter]
 
-    # Combine target & workload Xs then scale
+    # Combine target & workload Xs for preprocessing
     X_matrix = np.vstack([X_target, X_workload])
+
+    # Dummy encode categorial variables
+    categorical_info = DataUtil.dummy_encoder_helper(X_columnlabels)
+    dummy_encoder = DummyEncoder(categorical_info['n_values'],
+                                 categorical_info['categorical_features'],
+                                 categorical_info['cat_columnlabels'],
+                                 categorical_info['noncat_columnlabels'])
+    X_matrix = dummy_encoder.fit_transform(X_matrix)
+
+    # Scale to N(0, 1)
     X_scaler = StandardScaler()
     X_scaled = X_scaler.fit_transform(X_matrix)
     if y_target.shape[0] < 5:  # FIXME
@@ -278,6 +290,13 @@ def configuration_recommendation(target_data):
             y_target_scaler = None
             y_workload_scaler = StandardScaler()
             y_scaled = y_workload_scaler.fit_transform(y_target)
+
+    # Set up constraint helper
+    constraint_helper = ParamConstraintHelper(scaler=X_scaler,
+                                              encoder=dummy_encoder,
+                                              binary_vars=categorical_info['binary_vars'],
+                                              init_flip_prob=INIT_FLIP_PROB,
+                                              flip_prob_decay=FLIP_PROB_DECAY)
 
     # FIXME (dva): check if these are good values for the ridge
     # ridge = np.empty(X_scaled.shape[0])
@@ -351,11 +370,13 @@ def configuration_recommendation(target_data):
                   sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
                   mu_multiplier=DEFAULT_MU_MULTIPLIER)
     model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
-    res = model.predict(X_samples)
+    res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())
     best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
+    # Decode one-hot encoding into categorical knobs
+    best_config = dummy_encoder.inverse_transform(best_config)
 
     # Although we have max/min limits in the GPRGD training session, it may
     # lose some precisions. e.g. 0.99..99 >= 1.0 may be True on the scaled data,

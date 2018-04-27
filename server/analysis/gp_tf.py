@@ -451,26 +451,23 @@ class GPRGD(GPR):
                         xt_valid = np.minimum(xt, self.X_max)
                         xt_valid = np.maximum(xt_valid, self.X_min)
                         sess.run(assign_op, feed_dict={xt_ph: xt_valid})
-#                             if constraint_helper is not None:
-#                                 xt_valid = constraint_helper.apply_constraints(sess.run(xt_))
-#                                 sess.run(assign_op, feed_dict={xt_ph:xt_valid})
-#
-#                                 if categorical_feature_method == 'hillclimbing':
-#                                     if step % categorical_feature_steps == 0:
-#                                         current_xt = sess.run(xt_)
-#                                         current_loss = sess.run(loss)
-#                                         new_xt = \
-#                                             constraint_helper.randomize_categorical_features(
-#                                                 current_xt)
-#                                         sess.run(assign_op, feed_dict={xt_ph:new_xt})
-#                                         new_loss = sess.run(loss)
-#                                         if current_loss < new_loss:
-#                                             sess.run(assign_op, feed_dict={xt_ph:current_xt})
-#                                 else:
-#                                     raise Exception("Unknown categorical feature method: {}"
-#                                     .format(categorical_feature_method))
-#                         except:
-#                             break
+                        if constraint_helper is not None:
+                            xt_valid = constraint_helper.apply_constraints(sess.run(xt_))
+                            sess.run(assign_op, feed_dict={xt_ph: xt_valid})
+                            if categorical_feature_method == 'hillclimbing':
+                                if step % categorical_feature_steps == 0:
+                                    current_xt = sess.run(xt_)
+                                    current_loss = sess.run(loss)
+                                    new_xt = \
+                                        constraint_helper.randomize_categorical_features(
+                                            current_xt)
+                                    sess.run(assign_op, feed_dict={xt_ph: new_xt})
+                                    new_loss = sess.run(loss)
+                                    if current_loss < new_loss:
+                                        sess.run(assign_op, feed_dict={xt_ph: new_xt})
+                            else:
+                                raise Exception("Unknown categorial feature method: {}".format(
+                                    categorical_feature_method))
                     if step == self.max_iter - 1:
                         # Record results from final iteration
                         yhats_it[-1] = sess.run(yhat_gd)[0][0]

@@ -136,7 +136,7 @@ class TaskUtilTest(TestCase):
 
 class DataUtilTest(TestCase):
 
-    fixtures = ['test_website.json']
+    fixtures = ['test_website.json', 'postgres-96_knobs.json']
 
     def test_aggregate(self):
 
@@ -219,6 +219,31 @@ class DataUtilTest(TestCase):
             self.assertTrue(tuple(i) not in rowys)
             self.assertTrue(i in test_y_matrix)
             rowys.add(tuple(i))
+
+    def test_no_featured_categorical(self):
+        featured_knobs = ['global.backend_flush_after',
+                          'global.bgwriter_delay',
+                          'global.wal_writer_delay',
+                          'global.work_mem']
+        categorical_info = DataUtil.dummy_encoder_helper(featured_knobs)
+        self.assertEqual(len(categorical_info['n_values']), 0)
+        self.assertEqual(len(categorical_info['categorical_features']), 0)
+        self.assertEqual(categorical_info['cat_columnlabels'], [])
+        self.assertEqual(categorical_info['noncat_columnlabels'], featured_knobs)
+
+    def test_featured_categorical(self):
+        featured_knobs = ['global.backend_flush_after',
+                          'global.bgwriter_delay',
+                          'global.wal_writer_delay',
+                          'global.work_mem',
+                          'global.wal_sync_method']  # last knob categorical
+        categorical_info = DataUtil.dummy_encoder_helper(featured_knobs)
+        self.assertEqual(len(categorical_info['n_values']), 1)
+        self.assertEqual(categorical_info['n_values'][0], 4)
+        self.assertEqual(len(categorical_info['categorical_features']), 1)
+        self.assertEqual(categorical_info['categorical_features'][0], 4)
+        self.assertEqual(categorical_info['cat_columnlabels'], ['global.wal_sync_method'])
+        self.assertEqual(categorical_info['noncat_columnlabels'], featured_knobs[:-1])
 
 
 class ConversionUtilTest(TestCase):

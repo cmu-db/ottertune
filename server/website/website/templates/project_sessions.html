@@ -13,6 +13,7 @@
         <th>{{ labels.dbms }}</th>
         <th>{{ labels.hardware }}</th>
         <th>{{ labels.tuning_session }}</th>
+        <th>{{ labels.incremental_knobs }}</th>
         <th>{{ labels.creation_time }}</th>
         <th>{{ labels.last_update }}</th>
     </tr>
@@ -23,6 +24,7 @@
             <td style="vertical-align:middle">{{ session.dbms.full_name }}</td>
             <td style="vertical-align:middle">{{ session.hardware.name }}</td>
             <td style="vertical-align:middle">{{ session.tuning_session }}</td>
+            <td style="vertical-align:middle">{{ session.incremental_knobs }}</td>
             <td style="vertical-align:middle">{{ session.creation_time }}</td>
             <td style="vertical-align:middle">{{ session.last_update }}</td>
         </tr>

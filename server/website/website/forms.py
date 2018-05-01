@@ -51,13 +51,16 @@ class SessionForm(forms.ModelForm):
     class Meta:  # pylint: disable=old-style-class,no-init
         model = Session
 
-        fields = ('name', 'description', 'tuning_session', 'dbms', 'hardware', 'target_objective')
+        fields = (
+            'name', 'description', 'tuning_session',
+            'incremental_knobs', 'dbms', 'hardware', 'target_objective')
 
         widgets = {
             'name': forms.TextInput(attrs={'required': True}),
             'description': forms.Textarea(attrs={'maxlength': 500,
                                                  'rows': 5}),
             'tuning_session': forms.CheckboxInput(attrs={'onclick': 'show_content();'}),
+            'incremental_knobs': forms.CheckboxInput(),
         }
         labels = {
             'dbms': 'DBMS',

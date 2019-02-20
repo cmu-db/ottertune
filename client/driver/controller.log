@@ -1,0 +1,16 @@
+:compileJava
+:processResources UP-TO-DATE
+:classes
+:run
+02:27:45,104 (Main.java:104) INFO  - Experiment time is set to: -1
+02:27:45,185 (Main.java:110) INFO  - Experiment output directory is set to: output/
+02:27:49,742 (Main.java:157) INFO  - Output the process pid to pid.txt
+02:27:56,690 (Main.java:164) INFO  - First collection of metrics before experiment
+02:27:57,277 (Main.java:190) INFO  - Starting the experiment ...
+02:28:57,352 (Main.java:204) INFO  - Done running the experiment
+02:28:57,359 (Main.java:231) INFO  - Second collection of metrics after experiment
+02:29:00,192 (Main.java:256) WARN  - Failed to upload results from the controller
+
+BUILD SUCCESSFUL
+
+Total time: 1 mins 46.675 secs

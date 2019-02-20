@@ -66,7 +66,11 @@ def check_memory_usage():
 @task
 def restart_database():
     if CONF['database_type'] == 'postgres':
-        cmd = 'sudo service postgresql restart'
+        cmd = 'service postgresql-9.6.service restart'
+    if CONF['database_type'] == 'oracle':
+        cmd = 'sh shutdownOracle.sh'
+        local(cmd)
+        cmd = 'sh startupOracle.sh'
     else:
         raise Exception("Database Type {} Not Implemented !".format(CONF['database_type']))
     local(cmd)
@@ -97,6 +101,8 @@ def change_conf():
     next_conf = 'next_config'
     if CONF['database_type'] == 'postgres':
         cmd = 'sudo python3 PostgresConf.py {} {}'.format(next_conf, CONF['database_conf'])
+    if CONF['database_type'] == 'postgres':
+        cmd = 'sudo python3 OracleConf.py {} {}'.format(next_conf, CONF['database_conf'])
     else:
         raise Exception("Database Type {} Not Implemented !".format(CONF['database_type']))
     local(cmd)
@@ -128,7 +134,7 @@ def run_oltpbench_bg():
 
 @task
 def run_controller():
-    cmd = 'sudo gradle run -PappArgs="-c {} -d output/" --no-daemon > {}'.\
+    cmd = 'gradle run -PappArgs="-c {} -d output/" --no-daemon > {}'.\
           format(CONF['controller_config'], CONF['controller_log'])
     with lcd("../controller"):  # pylint: disable=not-context-manager
         local(cmd)

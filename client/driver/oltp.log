@@ -1,0 +1,22 @@
+02:27:54,087 (DBWorkload.java:262) INFO  - ======================================================================
+
+Benchmark:     TPCC {com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark}
+Configuration: /home/oracle/oltpbench/config/sample_oratpcc_config.xml
+Type:          ORACLE
+Driver:        oracle.jdbc.driver.OracleDriver
+URL:           jdbc:oracle:thin:@localhost:1521:orcldb
+Isolation:     TRANSACTION_SERIALIZABLE
+Scale Factor:  1.0
+
+02:27:54,097 (DBWorkload.java:263) INFO  - ======================================================================
+02:27:54,169 (DBWorkload.java:820) INFO  - Creating 1 virtual terminals...
+02:27:55,794 (DBWorkload.java:825) INFO  - Launching the TPCC Benchmark with 1 Phase...
+02:27:55,830 (ThreadBench.java:327) INFO  - [0;1mPHASE START[0;0m :: [Workload=TPCC] [Serial=false] [Time=60] [WarmupTime=0] [Rate=500] [Arrival=REGULAR] [Ratios=[20.0, 20.0, 20.0, 20.0, 20.0]] [ActiveWorkers=1]
+02:27:55,833 (ThreadBench.java:478) INFO  - [0;1mMEASURE[0;0m :: Warmup complete, starting measurements.
+02:28:55,839 (ThreadBench.java:433) INFO  - [0;1mTERMINATE[0;0m :: Waiting for all terminals to finish ..
+02:28:55,902 (ThreadBench.java:233) INFO  - Starting WatchDogThread
+02:28:55,920 (DBWorkload.java:831) INFO  - ======================================================================
+02:28:55,920 (DBWorkload.java:832) INFO  - Rate limited reqs/s: Results(nanoSeconds=60000003156, measuredRequests=9530) = 158.83332497870046 requests/sec
+02:28:55,945 (DBWorkload.java:686) INFO  - Output Raw data into file: results/outputfile.40.csv
+02:28:56,575 (DBWorkload.java:743) INFO  - Output into file: results/outputfile.39.res
+02:28:56,575 (DBWorkload.java:746) INFO  - Grouped into Buckets of 5 seconds

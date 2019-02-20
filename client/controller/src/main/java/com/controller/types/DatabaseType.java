@@ -9,6 +9,7 @@ package com.controller;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+//import org.apache.log4j.Logger;
 
 /** Database Type. */
 public enum DatabaseType {
@@ -17,11 +18,12 @@ public enum DatabaseType {
   MYSQL("com.mysql.jdbc.Driver"),
   MYROCKS("com.mysql.jdbc.Driver"),
   POSTGRES("org.postgresql.Driver"),
-  SAPHANA("com.sap.db.jdbc.Driver");
+  SAPHANA("com.sap.db.jdbc.Driver"),
+  ORACLE("oracle.jdbc.driver.OracleDriver");
 
   private DatabaseType(String driver) {
     this.driver = driver;
-  }
+   }
 
   /**
    * This is the suggested driver string to use in the configuration xml This corresponds to the
@@ -60,6 +62,7 @@ public enum DatabaseType {
 
   public static DatabaseType get(String name) {
     DatabaseType ret = DatabaseType.name_lookup.get(name.toUpperCase());
+    //LOG.error(name);
     return (ret);
   }
 }

@@ -1,0 +1,20 @@
+{
+  "database_type" : "postgres",
+  "database_name" : "tpcc",
+  "database_disk": "/dev/mapper/centos-root",
+  "database_conf": "/var/lib/pgsql/9.6/data/postgresql.conf",
+  "database_save_path": "/home/oracle/ottertune",
+  "username" : "postgres",
+  "password" : "postgres",
+  "oltpbench_home": "/home/oracle/oltpbench",
+  "oltpbench_config": "/home/oracle/oltpbench/config/sample_pgtpcc_upload.xml",
+  "oltpbench_workload": "tpcc",
+  "oltpbench_log" : "/home/oracle/ottertune/client/driver/oltp.log",
+  "controller_config": "/home/oracle/ottertune/client/controller/config/sample_postgres_config.json",
+  "controller_log" : "/home/oracle/ottertune/client/driver/controller.log",
+  "save_path": "/home/oracle/ottertune/result",
+  "upload_url" : "http://127.0.0.1:8000",
+  "upload_code" : "AIS6RSGX3RRDYA293JZZ",
+  "lhs_knob_path" : "/home/oracle/ottertune/client/driver/knobs/postgres-96.json",
+  "lhs_save_path" : "/home/oracle/ottertune/client/driver/configs"
+}

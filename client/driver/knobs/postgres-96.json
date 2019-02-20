@@ -2,17 +2,17 @@
     {
         "name": "effective_cache_size",
         "tuning_range": {
-            "minval": "4GB",
-            "maxval": "16GB"
+            "minval": "1GB",
+            "maxval": "2GB"
         },
-        "default": "4GB",
+        "default": "1GB",
         "type": "bytes"
     },
     {
         "name": "shared_buffers",
         "tuning_range": {
             "minval": "128MB",
-            "maxval": "12GB"
+            "maxval": "2GB"
         },
         "default": "128MB",
         "type": "bytes"
@@ -39,7 +39,7 @@
         "name": "bgwriter_lru_maxpages",
         "tuning_range": {
             "minval": 0,
-            "maxval": 1000
+            "maxval": 100
         },
         "default": 10,
         "type": "integer"
@@ -84,9 +84,9 @@
         "name": "max_wal_size",
         "tuning_range": {
             "minval": "256MB",
-            "maxval": "16GB"
+            "maxval": "2GB"
         },
-        "default": "1GB",
+        "default": "256MB",
         "type": "bytes"
     },
     {

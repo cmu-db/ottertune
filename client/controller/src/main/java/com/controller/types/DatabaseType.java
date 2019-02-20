@@ -9,7 +9,6 @@ package com.controller;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-//import org.apache.log4j.Logger;
 
 /** Database Type. */
 public enum DatabaseType {
@@ -62,7 +61,6 @@ public enum DatabaseType {
 
   public static DatabaseType get(String name) {
     DatabaseType ret = DatabaseType.name_lookup.get(name.toUpperCase());
-    //LOG.error(name);
     return (ret);
   }
 }

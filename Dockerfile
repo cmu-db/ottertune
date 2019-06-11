@@ -15,7 +15,7 @@ RUN apt-get update \
 WORKDIR /app/ottertune/server/website
 
 RUN touch website/settings/credentials.py \
-    && echo "SECRET_KEY = 'p99qo4VkGvLTlt0JuXgjMdZ8kCfAbrxo'\nDATABASES = {'default': {'ENGINE': 'django.db.backends.mysql','NAME':'ottertune','USER':'root','PASSWORD':'','HOST':'','PORT':'','OPTIONS':{'init_command':'SET sql_mode=\'STRICT_TRANS_TABLES\',innodb_strict_mode=1',},}}\nDEBUG = True\nADMINS = ()\nMANAGERS = ADMINS\nALLOWED_HOSTS = []" >> website/settings/credentials.py \
+    && echo "import secrets\nSECRET_KEY = secrets.token_hex(16)\nDATABASES = {'default': {'ENGINE': 'django.db.backends.mysql','NAME':'ottertune','USER':'root','PASSWORD':'','HOST':'','PORT':'','OPTIONS':{'init_command':'SET sql_mode=\'STRICT_TRANS_TABLES\',innodb_strict_mode=1',},}}\nDEBUG = True\nADMINS = ()\nMANAGERS = ADMINS\nALLOWED_HOSTS = []" >> website/settings/credentials.py \
     && pip3 install -r requirements.txt \
     && service mysql start \
     && mysqladmin create ottertune \

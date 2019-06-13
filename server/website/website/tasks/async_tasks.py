@@ -162,13 +162,13 @@ def gen_random_data(knobs, mem_max):
             raise Exception(
                 'Unknown variable type: {}'.format(metadata.vartype))
 
-    while used_mem > mem_max: # ensures that the memory configuration is valid for postgres
+    while used_mem > mem_max:  # Ensures that the memory configuration is valid for postgres
         used_mem = 0
         for name, metadata in list(memoryknobs.items()):
-            n = random_knob_result[name] = random.randint(int(metadata.minval), \
-                    min(mem_max, int(metadata.maxval)))
+            n = random_knob_result[name] = random.randint(int(metadata.minval),
+                                                          min(mem_max, int(metadata.maxval)))
             used_mem += n
-    random_knob_result['global.shared_buffers'] = random_knob_result['global.shared_buffers'] // 8192
+    random_knob_result['global.shared_buffers'] //= 8192
     return random_knob_result
 
 

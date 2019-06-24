@@ -108,7 +108,7 @@ def aggregate_target_results(result_id):
         knobs = {k: v for k, v in
                  list(knobs_catalog.items())}
         # generate a config randomly
-        random_knob_result = gen_random_data(knobs)
+        random_knob_result = gen_random_data(knobs, newest_result.workload.hardware.memory)
         agg_data = DataUtil.aggregate_data(result)
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
@@ -129,8 +129,11 @@ def aggregate_target_results(result_id):
     return agg_data
 
 
-def gen_random_data(knobs):
+def gen_random_data(knobs, mem_max):
     random_knob_result = {}
+    mem_max = int(mem_max * 1073741824)
+    used_mem = 0
+    memoryknobs = dict()
     for name, metadata in list(knobs.items()):
         if metadata.vartype == VarType.BOOL:
             flag = random.randint(0, 1)
@@ -145,6 +148,9 @@ def gen_random_data(knobs):
             random_knob_result[name] = rand_idx
         elif metadata.vartype == VarType.INTEGER:
             random_knob_result[name] = random.randint(int(metadata.minval), int(metadata.maxval))
+            if metadata.resource == 1:
+                used_mem += random_knob_result[name]
+                memoryknobs[name] = metadata
         elif metadata.vartype == VarType.REAL:
             random_knob_result[name] = random.uniform(
                 float(metadata.minval), float(metadata.maxval))
@@ -155,6 +161,14 @@ def gen_random_data(knobs):
         else:
             raise Exception(
                 'Unknown variable type: {}'.format(metadata.vartype))
+
+    while used_mem > mem_max:  # Ensures that the memory configuration is valid for postgres
+        used_mem = 0
+        for name, metadata in list(memoryknobs.items()):
+            n = random_knob_result[name] = random.randint(int(metadata.minval),
+                                                          min(mem_max, int(metadata.maxval)))
+            used_mem += n
+    random_knob_result['global.shared_buffers'] //= 8192
     return random_knob_result
 
 

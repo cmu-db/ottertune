@@ -106,7 +106,7 @@ class BaseParserTests(object, metaclass=ABCMeta):
     def test_parse_dbms_variables(self):
         test_dbms_vars = {'global': {'GlobalView1':
                                      {'cpu_tuple_cost': 0.01,
-                                      'random_page_cost': 0.22},
+                                      'random_page_cost': 1.22},
                                      'GlobalView2':
                                      {'cpu_tuple_cost': 0.05,
                                       'random_page_cost': 0.25}},
@@ -123,7 +123,7 @@ class BaseParserTests(object, metaclass=ABCMeta):
 
         self.assertEqual(len(list(test_parse.keys())), 6)
         self.assertEqual(test_parse.get('GlobalView1.cpu_tuple_cost'), [0.01])
-        self.assertEqual(test_parse.get('GlobalView1.random_page_cost'), [0.22])
+        self.assertEqual(test_parse.get('GlobalView1.random_page_cost'), [1.22])
         self.assertEqual(test_parse.get('GlobalView2.cpu_tuple_cost'), [0.05])
         self.assertEqual(test_parse.get('GlobalView2.random_page_cost'), [0.25])
         self.assertEqual(test_parse.get('LocalView1.cpu_tuple_cost'), [0.5])
@@ -131,7 +131,7 @@ class BaseParserTests(object, metaclass=ABCMeta):
 
         test_scope = {'unknownScope': {'GlobalView1':
                                        {'cpu_tuple_cost': 0.01,
-                                        'random_page_cost': 0.22},
+                                        'random_page_cost': 1.22},
                                        'GlobalView2':
                                        {'cpu_tuple_cost': 0.05,
                                         'random_page_cost': 0.25}}}
@@ -226,23 +226,25 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         super(Postgres96ParserTests, self).test_convert_dbms_knobs()
 
         test_knobs = {'global.wal_sync_method': 'open_sync',  # Enum
-                      'global.random_page_cost': 0.22,  # Real
+                      'global.random_page_cost': 1.22,  # Real
                       'global.archive_command': 'archive',  # String
                       'global.cpu_tuple_cost': 0.55,  # Real
                       'global.force_parallel_mode': 'regress',  # Enum
                       'global.enable_hashjoin': 'on',  # Bool
                       'global.geqo_effort': 5,  # Int
                       'global.wal_buffers': 1024,  # Int
+                      'global.bgwriter_lru_maxpages': 100,  # Int
+                      'global.checkpoint_completion_target': .6,  # Real
                       'global.FAKE_KNOB': 20}
 
         test_convert_knobs = self.test_dbms.convert_dbms_knobs(test_knobs)
         self.assertEqual(len(list(test_convert_knobs.keys())), 3)
-        self.assertEqual(test_convert_knobs['global.random_page_cost'], 0.22)
+        self.assertEqual(test_convert_knobs['global.random_page_cost'], 1.22)
 
-        self.assertEqual(test_convert_knobs['global.wal_sync_method'], 2)
-        self.assertEqual(test_convert_knobs['global.wal_buffers'], 1024)
+        self.assertEqual(test_convert_knobs['global.bgwriter_lru_maxpages'], 100)
+        self.assertEqual(test_convert_knobs['global.checkpoint_completion_target'], .6)
 
-        test_except_knobs = {'global.wal_sync_method': '3'}
+        test_except_knobs = {'global.random_page_cost': -1}
         with self.assertRaises(Exception):
             self.test_dbms.convert_dbms_knobs(test_except_knobs)
 
@@ -318,8 +320,8 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(len(test_empty_diff), num_tunable_knobs)
 
         test_vars = {'global.wal_sync_method': 'fsync',
-                     'global.random_page_cost': 0.22,
-                     'global.Wal_buffers': 1024,
+                     'global.Random_page_cost': 1.22,
+                     'global.wal_buffers': 1024,
                      'global.archive_command': 'archive',
                      'global.GEQO_EFFORT': 5,
                      'global.enable_hashjoin': 'on',
@@ -330,25 +332,25 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         tune_extract, tune_diff = self.test_dbms.extract_valid_variables(
             test_vars, self.test_dbms.tunable_knob_catalog_)
 
-        self.assertTrue(('miscapitalized', 'global.wal_buffers',
-                         'global.Wal_buffers', 1024) in tune_diff)
+        self.assertTrue(('miscapitalized', 'global.random_page_cost',
+                         'global.Random_page_cost', 1.22) in tune_diff)
         self.assertTrue(('extra', None, 'global.GEQO_EFFORT', 5) in tune_diff)
         self.assertTrue(('extra', None, 'global.enable_hashjoin', 'on') in tune_diff)
-        self.assertTrue(('missing', 'global.deadlock_timeout', None, None) in tune_diff)
+        self.assertTrue(('missing', 'global.bgwriter_lru_maxpages', None, None) in tune_diff)
         self.assertTrue(('missing', 'global.temp_buffers', None, None) in tune_diff)
         self.assertTrue(tune_extract.get('global.temp_buffers') is not None)
-        self.assertTrue(tune_extract.get('global.deadlock_timeout') is not None)
+        self.assertTrue(tune_extract.get('global.bgwriter_lru_maxpages') is not None)
 
-        self.assertEqual(tune_extract.get('global.wal_buffers'), 1024)
-        self.assertEqual(tune_extract.get('global.Wal_buffers'), None)
+        self.assertEqual(tune_extract.get('global.random_page_cost'), 1.22)
+        self.assertEqual(tune_extract.get('global.Random_page_cost'), None)
 
         self.assertEqual(len(tune_extract), len(self.test_dbms.tunable_knob_catalog_))
 
         nontune_extract, nontune_diff = self.test_dbms.extract_valid_variables(
             test_vars, self.test_dbms.knob_catalog_)
 
-        self.assertTrue(('miscapitalized', 'global.wal_buffers',
-                         'global.Wal_buffers', 1024) in nontune_diff)
+        self.assertTrue(('miscapitalized', 'global.random_page_cost',
+                         'global.Random_page_cost', 1.22) in nontune_diff)
         self.assertTrue(('miscapitalized', 'global.geqo_effort',
                          'global.GEQO_EFFORT', 5) in nontune_diff)
         self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in nontune_diff)
@@ -500,7 +502,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         super(Postgres96ParserTests, self).test_format_dbms_knobs()
 
         test_knobs = {'global.wal_sync_method': 2,  # Enum
-                      'global.random_page_cost': 0.22,  # Real
+                      'global.random_page_cost': 1.22,  # Real
                       'global.archive_command': "archive",  # String
                       'global.cpu_tuple_cost': 0.55,  # Real
                       'global.force_parallel_mode': 2,  # Enum
@@ -511,7 +513,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         test_formatted_knobs = self.test_dbms.format_dbms_knobs(test_knobs)
 
         self.assertEqual(test_formatted_knobs.get('global.wal_sync_method'), 'open_sync')
-        self.assertEqual(test_formatted_knobs.get('global.random_page_cost'), 0.22)
+        self.assertEqual(test_formatted_knobs.get('global.random_page_cost'), 1.22)
         self.assertEqual(test_formatted_knobs.get('global.archive_command'), "archive")
         self.assertEqual(test_formatted_knobs.get('global.cpu_tuple_cost'), 0.55)
         self.assertEqual(test_formatted_knobs.get('global.force_parallel_mode'), 'regress')
@@ -559,13 +561,15 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
                       'global.enable_hashjoin': 3,
                       'global.geqo_effort': 2,
                       'global.wal_buffers': 2,
+                      'global.bgwriter_lru_maxpages': 100,
+                      'global.checkpoint_completion_target': .6,
                       'global.FAKE_KNOB': 2}
 
         filtered_knobs = self.test_dbms.filter_tunable_knobs(test_knobs)
 
         self.assertEqual(len(list(filtered_knobs.keys())), 3)
-        self.assertEqual(filtered_knobs.get('global.wal_sync_method'), 5)
-        self.assertEqual(filtered_knobs.get('global.wal_buffers'), 2)
+        self.assertEqual(filtered_knobs.get('global.bgwriter_lru_maxpages'), 100)
+        self.assertEqual(filtered_knobs.get('global.checkpoint_completion_target'), .6)
         self.assertEqual(filtered_knobs.get('global.random_page_cost'), 3)
         self.assertEqual(filtered_knobs.get('global.cpu_tuple_cost'), None)
         self.assertEqual(filtered_knobs.get('global.FAKE_KNOB'), None)
@@ -574,7 +578,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         super(Postgres96ParserTests, self).test_parse_helper()
 
         test_view_vars = {'global': {'wal_sync_method': 'open_sync',
-                                     'random_page_cost': 0.22},
+                                     'random_page_cost': 1.22},
                           'local': {'FAKE_KNOB': 'FAKE'}}
         valid_vars = {}
         test_scope = 'global'
@@ -582,13 +586,13 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
 
         self.assertEqual(len(list(test_parse.keys())), 3)
         self.assertEqual(test_parse.get('global.wal_sync_method'), ['open_sync'])
-        self.assertEqual(test_parse.get('global.random_page_cost'), [0.22])
+        self.assertEqual(test_parse.get('global.random_page_cost'), [1.22])
         self.assertEqual(test_parse.get('local.FAKE_KNOB'), ['FAKE'])
 
     def test_parse_dbms_knobs(self):
         test_knobs = {'global': {'global':
                                  {'wal_sync_method': 'fsync',
-                                  'random_page_cost': 0.22,
+                                  'random_page_cost': 1.22,
                                   'wal_buffers': 1024,
                                   'archive_command': 'archive',
                                   'geqo_effort': 5,
@@ -605,7 +609,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(len(list(test_parse_dict.keys())),
                          len(list(self.test_dbms.knob_catalog_.keys())))
         self.assertEqual(test_parse_dict['global.wal_sync_method'], 'fsync')
-        self.assertEqual(test_parse_dict['global.random_page_cost'], 0.22)
+        self.assertEqual(test_parse_dict['global.random_page_cost'], 1.22)
 
     def test_parse_dbms_metrics(self):
         test_metrics = {'global':

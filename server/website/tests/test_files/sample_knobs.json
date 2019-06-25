@@ -174,7 +174,7 @@
             "autovacuum_vacuum_cost_limit": "-1", 
             "track_activity_query_size": "1024", 
             "geqo_selection_bias": "2", 
-            "work_mem": "10GB", 
+            "work_mem": "32MB", 
             "geqo_generations": "0", 
             "bonjour": "off", 
             "vacuum_freeze_min_age": "50000000", 

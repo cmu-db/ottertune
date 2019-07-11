@@ -168,7 +168,6 @@ def gen_random_data(knobs, mem_max):
             n = random_knob_result[name] = random.randint(int(metadata.minval),
                                                           min(mem_max, int(metadata.maxval)))
             used_mem += n
-    random_knob_result['global.shared_buffers'] //= 8192
     return random_knob_result
 
 

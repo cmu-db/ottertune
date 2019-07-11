@@ -209,10 +209,8 @@ def restore_database():
     db_file_path = '{}/{}.dump'.format(CONF['database_save_path'], CONF['database_name'])
     drop_database()
     create_database()
-    cmd = 'PGPASSWORD={} pg_restore -U {} -j 8 -F c -d {} {}'.format(CONF['password'],
-                                                                     CONF['username'],
-                                                                     CONF['database_name'],
-                                                                     db_file_path)
+    cmd = 'PGPASSWORD={} pg_restore -U {} -n public -j 8 -F c -d {} {}'.\
+            format(CONF['password'], CONF['username'], CONF['database_name'], db_file_path)
     LOG.info('Start restoring database')
     local(cmd)
     LOG.info('Finish restoring database')

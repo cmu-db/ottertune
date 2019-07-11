@@ -210,7 +210,7 @@ def restore_database():
     drop_database()
     create_database()
     cmd = 'PGPASSWORD={} pg_restore -U {} -n public -j 8 -F c -d {} {}'.\
-            format(CONF['password'], CONF['username'], CONF['database_name'], db_file_path)
+          format(CONF['password'], CONF['username'], CONF['database_name'], db_file_path)
     LOG.info('Start restoring database')
     local(cmd)
     LOG.info('Finish restoring database')

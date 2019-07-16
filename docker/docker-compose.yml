@@ -1,0 +1,75 @@
+version: "3"
+services:
+    web:
+        build: .
+        image: ottertune
+        container_name: ottertune
+        expose:
+          - "8000"
+        ports:
+          - "8000:8000"
+        links:
+          - mysql
+          - rabbitmq
+        depends_on:
+          - mysql
+          - rabbitmq
+        command: ["./wait-for-it.sh"]
+        environment:
+          DEBUG: 'True'
+          ADMIN_PASSWORD: 'changeme'
+          MYSQL_USER: 'root'
+          MYSQL_PASSWORD: 'ottertune'
+          MYSQL_HOST: 'mysql'
+        labels:
+          NAME: "ottertune"
+        volumes:
+          - media_data:/app/ottertune/server/website/media
+        networks:
+          - ottertune-net
+
+    mysql:
+        image: mysql:5.7
+        container_name: mysql
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: 'ottertune'
+          MYSQL_PASSWORD: 'ottertune'
+          MYSQL_DATABASE: 'ottertune'
+        expose:
+          - "3306"
+        ports:
+          - "3306:3306"
+        labels:
+          NAME: "mysql"
+        volumes:
+          - mysql_data:/var/lib/mysql
+        networks:
+          - ottertune-net
+
+    rabbitmq:
+        image: "rabbitmq:3-management"
+        container_name: rabbitmq
+        restart: always
+        hostname: "rabbitmq"
+        environment:
+           RABBITMQ_DEFAULT_USER: "guest"
+           RABBITMQ_DEFAULT_PASS: "guest"
+           RABBITMQ_DEFAULT_VHOST: "/"
+        expose:
+           - "15672"
+           - "5672"
+        ports:
+           - "15672:15672"
+           - "5672:5672"
+        labels:
+           NAME: "rabbitmq"
+        networks:
+          - ottertune-net
+volumes:
+   mysql_data:
+   media_data:
+networks:
+   ottertune-net:
+      driver: bridge
+

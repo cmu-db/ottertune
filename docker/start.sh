@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Wait for MySQL connection
 /bin/bash wait-for-it.sh
 
 ## Needs a connection to a DB so migrations go here

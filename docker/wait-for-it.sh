@@ -1,8 +1,7 @@
 #!/bin/sh
 # wait until MySQL is really available
-maxcounter=45
-
-echo "Trying to connect to mysql"
+maxcounter=${MAX_DB_CONN_ATTEMPTS:-45}
+echo "Trying to connect to mysql, max attempts="$maxcounter
  
 counter=1
 while ! mysql --host="$MYSQL_HOST" --protocol TCP -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "show databases;" > /dev/null 2>&1; do

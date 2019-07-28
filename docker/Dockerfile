@@ -4,8 +4,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV DJANGO_SETTINGS_MODULE=website.settings
 ENV C_FORCE_ROOT=true
 
-EXPOSE 8000
-
 WORKDIR /app
 
 RUN apt-get update \
@@ -28,5 +26,6 @@ RUN sed s/'@localhost'/'@rabbitmq'/g ./website/settings/common.py > tmp \
     && mv tmp ./website/settings/common.py
 
 VOLUME ["/app/ottertune/server/website/website/migrations"]
+VOLUME ["/app/ottertune/server/website/media"]
 ENTRYPOINT ["./start.sh"]
 

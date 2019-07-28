@@ -14,13 +14,14 @@ services:
         depends_on:
           - mysql
           - rabbitmq
-        command: ["./wait-for-it.sh"]
         environment:
           DEBUG: 'True'
           ADMIN_PASSWORD: 'changeme'
+          ADMIN_EMAIL: 'admin@example.com'
           MYSQL_USER: 'root'
           MYSQL_PASSWORD: 'ottertune'
           MYSQL_HOST: 'mysql'
+          MAX_DB_CONN_ATTEMPTS: 15
         labels:
           NAME: "ottertune"
         volumes:

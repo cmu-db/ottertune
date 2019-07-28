@@ -8,16 +8,19 @@ django.setup()
 
 from django.contrib.auth.models import User
 
+username = os.environ.get('ADMIN_USER', 'admin')
 password = os.environ.get('ADMIN_PASSWORD')
 email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
 
 if password:
-  if not User.objects.filter(username='admin').exists():
-     print('Creating admin user...')
-     User.objects.create_superuser('admin', password)
-     print('Admin user created!')
+  if not User.objects.filter(username=username).exists():
+     print(f"Creating '{username}' user...")
+     User.objects.create_superuser(username=username,
+                                   password=password,
+                                   email=email)
+     print(f"'{username}' user created!")
   else:
-     print('Admin user already exists! Setting admin password')
-     u = User.objects.get(username='admin')
+     print(f"'{username}' user already exists! Setting '{username}' password")
+     u = User.objects.get(username=username)
      u.set_password(password)
      u.save()

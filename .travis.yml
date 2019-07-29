@@ -15,6 +15,8 @@ env:
     - DBUSER=root
     - WEBSITE_ROOT=server/website
     - COLON=":"
+    - GRADLE_VERSION=gradle-5.5.1
+    - GRADLE_HOME=/opt/gradle-5.5.1
 
 before_install:
   - sudo apt-get -qq update
@@ -25,6 +27,10 @@ before_install:
 install:
   - pip install -r ${WEBSITE_ROOT}/requirements.txt
   - pip install coverage codecov
+  - wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip
+  - sudo unzip ${GRADLE_VERSION}-bin.zip -d /opt
+  - export PATH=${GRADLE_HOME}/bin:${PATH}
+  - gradle --version
 
 before_script:
   - cp ${WEBSITE_ROOT}/website/settings/credentials_TEMPLATE.py

@@ -16,7 +16,8 @@ env:
     - WEBSITE_ROOT=server/website
     - COLON=":"
     - GRADLE_VERSION=gradle-5.5.1
-    - GRADLE_HOME=/opt/gradle-5.5.1
+    - GRADLE_HOME=/opt/${GRADLE_VERSION}
+    - PATH=${GRADLE_HOME}/bin:${PATH}
 
 before_install:
   - sudo apt-get -qq update
@@ -29,7 +30,6 @@ install:
   - pip install coverage codecov
   - wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip
   - sudo unzip ${GRADLE_VERSION}-bin.zip -d /opt
-  - export PATH=${GRADLE_HOME}/bin:${PATH}
   - gradle --version
 
 before_script:

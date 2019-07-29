@@ -1,10 +1,10 @@
 plugins {
     id "de.undercouch.download" version "3.3.0"
+    id "com.github.spotbugs" version "2.0.0"
 }
 
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'findbugs'
 apply plugin: 'application'
 apply plugin: 'project-report'
 
@@ -61,14 +61,16 @@ run {
     // args = ["-c","$config","-t","$time","-d","$dir"]
 }
 
-findbugs {
+spotbugs {
+    toolVersion = '4.0.0-beta3'
     ignoreFailures = true
 }
 
-tasks.withType(FindBugs) {
+// Note (07-29-2019): the HTML report for spotbugs is currently broken
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.enabled true
+        html.enabled false
     }
 }
 

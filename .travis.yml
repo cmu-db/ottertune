@@ -1,53 +1,41 @@
-dist: trusty
 sudo: required
 
-language: python
-python:
-  - "3.5.5"
-
 services:
-  - rabbitmq
-  - mysql
+  - docker
 
 env:
-  global:
-    - DBNAME=ottertune
-    - DBUSER=root
-    - WEBSITE_ROOT=server/website
-    - COLON=":"
-    - GRADLE_VERSION=gradle-5.5.1
-    - GRADLE_HOME=/opt/${GRADLE_VERSION}
-    - PATH=${GRADLE_HOME}/bin:${PATH}
+  - DOCKER_COMPOSE_VERSION=1.24.1
 
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y python-pip python-dev python-mysqldb python-tk
-  - mysql -e "CREATE DATABASE IF NOT EXISTS ${DBNAME};"
-  - mysql -e "CREATE DATABASE IF NOT EXISTS test_${DBNAME};"
+  # Install latest versions of docker and docker-compose
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker --version
+  - docker-compose --version
 
 install:
-  - pip install -r ${WEBSITE_ROOT}/requirements.txt
-  - pip install coverage codecov
-  - wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip
-  - sudo unzip ${GRADLE_VERSION}-bin.zip -d /opt
-  - gradle --version
-
-before_script:
-  - cp ${WEBSITE_ROOT}/website/settings/credentials_TEMPLATE.py
-       ${WEBSITE_ROOT}/website/settings/credentials.py
-  - sed -i
-        -e "s/^DEBUG.*/DEBUG = True/"
-        -e "s/'USER'${COLON} 'ADD ME\!\!'/'USER'${COLON} '${DBUSER}'/"
-        -e "s/'PASSWORD'${COLON} 'ADD ME\!\!'/'PASSWORD'${COLON} ''/"
-        ${WEBSITE_ROOT}/website/settings/credentials.py
-  - cat ${WEBSITE_ROOT}/website/settings/credentials.py
-  - python ${WEBSITE_ROOT}/manage.py migrate
+  - cd $TRAVIS_BUILD_DIR/docker
+  - sudo service mysql stop || true
+  - docker-compose -f docker-compose.test.yml build
+  - docker-compose -f docker-compose.test.yml up -d
 
 script:
-  - cd ./client/controller && gradle build
-  - cd ../../server && python -m unittest discover -s analysis/tests -v
-  - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
-  - cd ../.. && python script/validators/source_validator.py
+  - cd $TRAVIS_BUILD_DIR/docker
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm test python3 -m unittest discover -s analysis/tests -v
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm test python3 manage.py test --noinput -v 2
+  - docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+after_script:
+  # Cleanup docker containers, images, and volumes
+  - docker-compose stop
+  - docker-compose rm -f -v
+  - docker system prune -a -f
+  - docker volume prune -f
+

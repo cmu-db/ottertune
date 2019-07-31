@@ -9,23 +9,24 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y git python3.6 python3-pip python3-tk \
        mysql-client libmysqlclient-dev python-mysqldb \
-    && git clone https://github.com/cmu-db/ottertune.git
+    && python3 --version \
+    && pip3 --version
 
-WORKDIR /app/ottertune/server/website
+COPY ./server /app
+
+WORKDIR /app/website
 
 RUN pip3 install -r requirements.txt 
 
-COPY ./credentials.txt ./website/settings/credentials.py
-COPY ./start.sh /app/ottertune/server/website
-COPY ./createadmin.txt /app/ottertune/server/website/createadmin.py
-COPY ./wait-for-it.sh /app/ottertune/server/website
+COPY ./docker/credentials.py ./website/settings
+COPY ./docker/start.sh .
+COPY ./docker/createadmin.py .
+COPY ./docker/wait-for-it.sh .
 
-RUN chmod +x /app/ottertune/server/website/start.sh
+RUN chmod +x /app/website/*.sh
 
 RUN sed s/'@localhost'/'@rabbitmq'/g ./website/settings/common.py > tmp \
     && mv tmp ./website/settings/common.py
 
-VOLUME ["/app/ottertune/server/website/website/migrations"]
-VOLUME ["/app/ottertune/server/website/media"]
 ENTRYPOINT ["./start.sh"]
 

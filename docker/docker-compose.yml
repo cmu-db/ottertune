@@ -1,7 +1,9 @@
 version: "3"
 services:
     web:
-        build: .
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile
         image: ottertune
         container_name: ottertune
         expose:
@@ -25,7 +27,7 @@ services:
         labels:
           NAME: "ottertune"
         volumes:
-          - media_data:/app/ottertune/server/website/media
+          - media_data:/app/server/website/media
         networks:
           - ottertune-net
 

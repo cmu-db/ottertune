@@ -4,17 +4,10 @@ services:
 sudo: required
 
 env:
-  - DOCKER_COMPOSE_VERSION: 1.18.0
+  - DOCKER_COMPOSE_VERSION: 1.17.1
 
 before_install:
   - sudo apt-get update
-  - docker-compose --version
-  # Install docker-compose and pull opensuse/portus:head. Instructions taken
-  # from: https://elliot.land/post/using-docker-compose-on-travis-ci
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-  - sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
   - docker-compose --version
 
 script:

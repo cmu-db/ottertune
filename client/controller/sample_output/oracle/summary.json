@@ -1,0 +1,8 @@
+{
+ "start_time": 1563264802685,
+ "end_time": 1563265002918,
+ "observation_time": 200,
+ "database_type": "oracle",
+ "database_version": "19.0.0.0.0",
+ "workload_name": "tpcc"
+}

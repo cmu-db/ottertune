@@ -1,0 +1,83 @@
+[
+    {
+        "name": "SHARED_POOL_SIZE",
+        "tuning_range": {
+            "minval": "500MB",
+            "maxval": "2500MB"
+        },
+        "default": "1500MB",
+        "type": "bytes"
+    },
+    {
+        "name": "DB_CACHE_SIZE",
+        "tuning_range": {
+            "minval": "10GB",
+            "maxval": "24GB"
+        },
+        "default": "14GB",
+        "type": "bytes"
+    },
+    {
+        "name": "LOG_BUFFER",
+        "tuning_range": {
+            "minval": "10MB",
+            "maxval": "1000MB"
+        },
+        "default": "20MB",
+        "type": "bytes"
+    },
+    {
+        "name": "LARGE_POOL_SIZE",
+        "tuning_range": {
+            "minval": "10MB",
+            "maxval": "1000MB"
+        },
+        "default": "100MB",
+        "type": "bytes"
+    },
+    {
+        "name": "STREAMS_POOL_SIZE",
+        "tuning_range": {
+            "minval": "10MB",
+            "maxval": "1000MB"
+        },
+        "default": "100MB",
+        "type": "bytes"
+    },
+    {
+        "name": "bitmap_merge_area_size",
+        "tuning_range": {
+            "minval": "1000000",
+            "maxval": "20000000"
+        },
+        "default": "1MB",
+        "type": "integer"
+    },
+    {
+        "name": "create_bitmap_area_size",
+        "tuning_range": {
+            "minval": "1000000",
+            "maxval": "100000000"
+        },
+        "default": "8MB",
+        "type": "integer"
+    },
+    {
+        "name": "hash_area_size",
+        "tuning_range": {
+            "minval": "65536",
+            "maxval": "1000000"
+        },
+        "default": "65536",
+        "type": "integer"
+    },
+    {
+        "name": "sort_area_size",
+        "tuning_range": {
+            "minval": "128000",
+            "maxval": "2000000"
+        },
+        "default": "128000",
+        "type": "integer"
+    }
+]

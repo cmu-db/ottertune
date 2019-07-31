@@ -562,7 +562,7 @@ for pname, pinfo in sorted(PARAMS.items()):
 with open("postgres-96_knobs.json", "w") as f:
     json.dump(JSON_SETTINGS, f, indent=4)
 
-shutil.copy("postgres-96_knobs.json", "../../../preload/postgres-96_knobs.json")
+shutil.copy("postgres-96_knobs.json", "../../../../website/fixtures/postgres-96_knobs.json")
 
 # sorted_knobs = [{
 #     'model': 'website.PipelineResult',

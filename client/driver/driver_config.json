@@ -16,5 +16,6 @@
   "upload_url" : "http://127.0.0.1:8000",
   "upload_code" : "I5I10PXK3PK27FM86YYS",
   "lhs_knob_path" : "/home/ubuntu/ottertune/client/driver/knobs/postgres-96.json",
-  "lhs_save_path" : "/home/ubuntu/ottertune/client/driver/configs"
+  "lhs_save_path" : "/home/ubuntu/ottertune/client/driver/configs",
+  "oracle_awr_enabled": false
 }

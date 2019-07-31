@@ -94,7 +94,7 @@ def main():
     with open('postgres-96_metrics.json', 'w') as f:
         json.dump(final_metrics, f, indent=4)
 
-    shutil.copy('postgres-96_metrics.json', '../../../preload/postgres-96_metrics.json')
+    shutil.copy('postgres-96_metrics.json', '../../../../website/fixtures/postgres-96_metrics.json')
 
     with open('postgres-96_numeric_metric_names.json', 'w') as f:
         json.dump(numeric_metric_names, f, indent=4)

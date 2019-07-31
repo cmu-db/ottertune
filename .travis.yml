@@ -1,53 +1,22 @@
-dist: trusty
+services:
+  - docker
+
 sudo: required
 
-language: python
-python:
-  - "3.5.5"
-
-services:
-  - rabbitmq
-  - mysql
-
 env:
-  global:
-    - DBNAME=ottertune
-    - DBUSER=root
-    - WEBSITE_ROOT=server/website
-    - COLON=":"
-    - GRADLE_VERSION=gradle-5.5.1
-    - GRADLE_HOME=/opt/${GRADLE_VERSION}
-    - PATH=${GRADLE_HOME}/bin:${PATH}
+  - DOCKER_COMPOSE_VERSION: 1.18.0
 
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y python-pip python-dev python-mysqldb python-tk
-  - mysql -e "CREATE DATABASE IF NOT EXISTS ${DBNAME};"
-  - mysql -e "CREATE DATABASE IF NOT EXISTS test_${DBNAME};"
-
-install:
-  - pip install -r ${WEBSITE_ROOT}/requirements.txt
-  - pip install coverage codecov
-  - wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip
-  - sudo unzip ${GRADLE_VERSION}-bin.zip -d /opt
-  - gradle --version
-
-before_script:
-  - cp ${WEBSITE_ROOT}/website/settings/credentials_TEMPLATE.py
-       ${WEBSITE_ROOT}/website/settings/credentials.py
-  - sed -i
-        -e "s/^DEBUG.*/DEBUG = True/"
-        -e "s/'USER'${COLON} 'ADD ME\!\!'/'USER'${COLON} '${DBUSER}'/"
-        -e "s/'PASSWORD'${COLON} 'ADD ME\!\!'/'PASSWORD'${COLON} ''/"
-        ${WEBSITE_ROOT}/website/settings/credentials.py
-  - cat ${WEBSITE_ROOT}/website/settings/credentials.py
-  - python ${WEBSITE_ROOT}/manage.py migrate
+  - sudo apt-get update
+  - docker-compose --version
+  # Install docker-compose and pull opensuse/portus:head. Instructions taken
+  # from: https://elliot.land/post/using-docker-compose-on-travis-ci
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+  - docker-compose --version
 
 script:
-  - cd ./client/controller && gradle build
-  - cd ../../server && python -m unittest discover -s analysis/tests -v
-  - cd ../${WEBSITE_ROOT} && coverage run manage.py test --noinput -v 2
-  - cd ../.. && python script/validators/source_validator.py
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - docker_compose -f docker-compose.test.yml -p ottertune-ci build
+  - docker_compose -f docker-compose.test.yml -p ottertune-ci up

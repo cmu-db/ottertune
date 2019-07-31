@@ -32,7 +32,7 @@ services:
     mysql:
         image: mysql:5.7
         container_name: mysql
-        restart: always
+        restart: "no"
         environment:
           MYSQL_ROOT_PASSWORD: 'ottertune'
           MYSQL_PASSWORD: 'ottertune'
@@ -51,7 +51,7 @@ services:
     rabbitmq:
         image: "rabbitmq:3-management"
         container_name: rabbitmq
-        restart: always
+        restart: "no"
         hostname: "rabbitmq"
         environment:
            RABBITMQ_DEFAULT_USER: "guest"
@@ -67,6 +67,24 @@ services:
            NAME: "rabbitmq"
         networks:
           - ottertune-net
+    test:
+        build: .
+        image: ottertune
+        entrypoint: ./test.sh
+        environment:
+           DEBUG: 'True'
+           ADMIN_PASSWORD: 'changeme'
+           ADMIN_EMAIL: 'admin@example.com'
+           MYSQL_USER: 'root'
+           MYSQL_PASSWORD: 'ottertune'
+           MYSQL_HOST: 'mysql'
+           MAX_DB_CONN_ATTEMPTS: 3  
+        links:
+           - mysql
+        depends_on:
+           - mysql
+        networks:
+           - ottertune-net
 volumes:
    mysql_data:
    media_data:

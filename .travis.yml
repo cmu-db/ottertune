@@ -26,10 +26,11 @@ install:
   - docker-compose -f docker-compose.test.yml up -d
 
 script:
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
   - cd $TRAVIS_BUILD_DIR/docker
   - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
   - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm test python3 -m unittest discover -s analysis/tests -v
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm test python3 manage.py test --noinput -v 2
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && coverage run manage.py test --noinput -v 2 && codecov"
   - docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py
 
 after_script:

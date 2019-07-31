@@ -20,23 +20,27 @@ before_install:
   - docker-compose --version
 
 install:
-  - cd $TRAVIS_BUILD_DIR/docker
   - sudo service mysql stop || true
-  - docker-compose -f docker-compose.test.yml build
-  - docker-compose -f docker-compose.test.yml up -d
 
 script:
-  - ci_env=`bash <(curl -s https://codecov.io/env)`
   - cd $TRAVIS_BUILD_DIR/docker
+  # Build master images and run the webserver
+  - docker-compose build
+  - docker-compose up -d
+  - docker logs ottertune
+  - docker-compose rm -f -s -v
+  # Build test images and run tests
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
+  - docker-compose -f docker-compose.test.yml build
+  - docker-compose -f docker-compose.test.yml up -d
   - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm $ci_env test bash -c "coverage run --omit=tests -m unittest discover -s analysis/tests -v && (codecov -F analysis || (sleep 5 && codecov -F analysis) || (sleep 5 && codecov -F analysis))"
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm $ci_env test bash -c "coverage run --omit=\"*/tests/*\" -m unittest discover -s analysis/tests -v && (codecov -F analysis || (sleep 5 && codecov -F analysis) || (sleep 5 && codecov -F analysis))"
   - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && coverage run --source=website manage.py test --noinput -v 2 && (codecov -F website || (sleep 5 && codecov -F website) || (sleep 5 && codecov -F website))"
   - docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py
 
 after_script:
   # Cleanup docker containers, images, and volumes
-  - docker-compose stop
-  - docker-compose rm -f -v
+  - docker-compose rm -f -s -v
   - docker system prune -a -f
   - docker volume prune -f
 

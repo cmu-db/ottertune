@@ -1,0 +1,5 @@
+*.swp
+.git*
+*.md
+.travis.yml
+LICENSE

@@ -1,5 +1,14 @@
 version: "3"
 services:
+    base:
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile.base
+        image: ottertune-base
+        container_name: ottertune-base
+        labels:
+          NAME: "ottertune-base"
+
     web:
         build:
           context: ../
@@ -14,6 +23,7 @@ services:
           - mysql
           - rabbitmq
         depends_on:
+          - base
           - mysql
           - rabbitmq
         environment:

@@ -7,9 +7,10 @@ env:
   - DOCKER_COMPOSE_VERSION: 1.17.1
 
 before_install:
-  - sudo apt-get update
   - docker-compose --version
 
 script:
-  - docker_compose -f docker-compose.test.yml -p ottertune-ci build
-  - docker_compose -f docker-compose.test.yml -p ottertune-ci up
+  # TODO: setup docker-compose on $PATH
+  - /usr/local/bin/docker-compose -f docker-compose.test.yml -p sapl-ci build
+  - /usr/local/bin/docker-compose -f docker-compose.test.yml -p sapl-ci up
+

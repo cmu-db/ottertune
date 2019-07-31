@@ -67,24 +67,6 @@ services:
            NAME: "rabbitmq"
         networks:
           - ottertune-net
-    test:
-        build: .
-        image: ottertune
-        entrypoint: ./test.sh
-        environment:
-           DEBUG: 'True'
-           ADMIN_PASSWORD: 'changeme'
-           ADMIN_EMAIL: 'admin@example.com'
-           MYSQL_USER: 'root'
-           MYSQL_PASSWORD: 'ottertune'
-           MYSQL_HOST: 'mysql'
-           MAX_DB_CONN_ATTEMPTS: 3  
-        links:
-           - mysql
-        depends_on:
-           - mysql
-        networks:
-           - ottertune-net
 volumes:
    mysql_data:
    media_data:

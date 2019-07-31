@@ -15,8 +15,11 @@ $GRADLE_HOME/bin/gradle --version
 /bin/bash wait-for-it.sh
 
 cd ../../client/controller && $GRADLE_HOME/bin/gradle build
+
 cd $HOME_DIR
 cd ../../server && python3 -m unittest discover -s analysis/tests -v
+
 cd $HOME_DIR
 coverage run manage.py test --noinput -v 2
 cd ../.. && python3 script/validators/source_validator.py
+

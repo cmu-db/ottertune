@@ -1,0 +1,25 @@
+sut:
+   build: .
+   dockerfile: Dockerfile.test
+   environment:
+          DEBUG: 'True'
+          ADMIN_PASSWORD: 'changeme'
+          ADMIN_EMAIL: 'admin@example.com'
+          MYSQL_USER: 'root'
+          MYSQL_PASSWORD: 'ottertune'
+          MYSQL_HOST: 'mysql'
+          MAX_DB_CONN_ATTEMPTS: 3
+   links:
+     - mysql
+
+mysql:
+   image: mysql:5.7
+   container_name: mysql
+   restart: "no"
+   environment:
+      MYSQL_ROOT_PASSWORD: 'ottertune'
+      MYSQL_PASSWORD: 'ottertune'
+      MYSQL_DATABASE: 'ottertune'
+   labels:
+      NAME: "mysql"
+

@@ -46,7 +46,10 @@ script:
   - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
   - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm $ci_env test bash -c "coverage run --omit=\"*/tests/*\" -m unittest discover -s analysis/tests -v && (codecov -F analysis || (sleep 5 && codecov -F analysis) || (sleep 5 && codecov -F analysis))"
   - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && coverage run --source=website manage.py test --noinput -v 2 && (codecov -F website || (sleep 5 && codecov -F website) || (sleep 5 && codecov -F website))"
-  - docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py
+  # Only run source validation once (on ubuntu 18.04)
+  - if [ $DOCKER_OS == ubuntu-18.04 ]; then
+      docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py;
+    fi
 
 after_script:
   # Cleanup docker containers, images, and volumes

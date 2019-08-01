@@ -4,7 +4,11 @@ services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.24.1
+  global:
+    - DOCKER_COMPOSE_VERSION=1.24.1
+  matrix:
+    - DOCKER_OS=ubuntu-18.04
+    - DOCKER_OS=centos-7
 
 before_install:
   # Install latest versions of docker and docker-compose
@@ -21,6 +25,11 @@ before_install:
 
 install:
   - sudo service mysql stop || true
+
+before_script:
+  # Set correct dockerfile
+  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS" docker-compose.yml
+  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS" docker-compose.test.yml
 
 script:
   - cd $TRAVIS_BUILD_DIR/docker

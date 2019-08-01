@@ -3,7 +3,7 @@ services:
     base:
         build:
           context: ../
-          dockerfile: ./docker/Dockerfile.base
+          dockerfile: ./docker/Dockerfile.base-ubuntu-18.04
         image: ottertune-base
         container_name: ottertune-base
         labels:

@@ -1,5 +1,7 @@
 *.swp
+*~
 .git*
+*.pyc
 *.md
 .travis.yml
 LICENSE

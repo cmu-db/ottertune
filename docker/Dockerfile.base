@@ -14,6 +14,7 @@ RUN apt-get update \
         openjdk-11-jdk git unzip wget curl \
     && wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip \
     && unzip ${GRADLE_VERSION}-bin.zip -d /opt \
+    && rm ${GRADLE_VERSION}-bin.zip \
     && python3 --version \
     && pip3 --version \
     && javac --version \

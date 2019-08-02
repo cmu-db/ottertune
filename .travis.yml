@@ -1,3 +1,4 @@
+dist: bionic
 sudo: required
 
 services:
@@ -23,14 +24,12 @@ before_install:
   - docker --version
   - docker-compose --version
 
-install:
-  - sudo service mysql stop || true
-
 before_script:
   # Set correct dockerfile
   - cd $TRAVIS_BUILD_DIR/docker
   - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.yml
   - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.test.yml
+  - sudo service mysql stop || true
 
 script:
   - cd $TRAVIS_BUILD_DIR/docker

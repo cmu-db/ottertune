@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block body %}
+<header id="home">
+  <div class="bg-img" style="background-image: url('{{ STATIC_URL }}img/otter.jpg')">
+    <div class="overlay"></div>
+  </div>
+
+  <div class="home-wrapper">
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-10 col-md-offset-1">
+          <div class="home-content">
+            <h1 class="white-text">OtterTune</h1>
+            <ul class="white-text">
+                <li>Automatically tune your database management system's configuration</li>
+                <li>Supported Systems: MySQL, Postgres, Vector</li>
+            </ul>
+            <p><a class="btn btn-primary btn-lg" role="button"
+               href="https://goo.gl/forms/dXivgwdw2HBmK24H3">Sign-up &raquo;</a>
+               <a class="btn btn-primary btn-lg" role="button"
+               href="https://github.com/cmu-db/ottertune">Source Code &raquo;</a>
+            <a class="btn btn-primary btn-lg" role="button"
+               href="https://aws.amazon.com/blogs/ai/tuning-your-dbms-automatically-with-machine-learning/">Learn More &raquo;</a></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-4067813-27"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-4067813-27');
+</script>
+
+
+<div class="footer-copyright">
+    <p>Copyright &copy; 2019 <a href="https://db.cs.cmu.edu">Carnegie Mellon University Database Group</a> &mdash; Designed by <a href="https://colorlib.com" target="_blank">Colorlib</a></p>
+</div>
+{% endblock body %}
+
+
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+
+
+</body>
+</html>

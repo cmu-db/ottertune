@@ -1,0 +1,8 @@
+{
+ "start_time": 1535653369274,
+ "end_time": 1535653559607,
+ "observation_time": 190,
+ "database_type": "mysql",
+ "database_version": "5.7.20",
+ "workload_name": "workload_name"
+}

@@ -1,0 +1,110 @@
+[
+    {
+        "name": "effective_cache_size",
+        "tuning_range": {
+            "minval": "4GB",
+            "maxval": "16GB"
+        },
+        "default": "4GB",
+        "type": "bytes"
+    },
+    {
+        "name": "shared_buffers",
+        "tuning_range": {
+            "minval": "128MB",
+            "maxval": "12GB"
+        },
+        "default": "128MB",
+        "type": "bytes"
+    },
+    {
+        "name": "max_parallel_workers_per_gather",
+        "tuning_range": {
+            "minval": 0,
+            "maxval": 8
+        },
+        "default": 0,
+        "type": "integer"
+    },
+    {
+        "name": "default_statistics_target",
+        "tuning_range": {
+            "minval": 100,
+            "maxval": 2048
+        },
+        "default": 100,
+        "type": "integer"
+    },
+    {
+        "name": "bgwriter_lru_maxpages",
+        "tuning_range": {
+            "minval": 0,
+            "maxval": 1000
+        },
+        "default": 10,
+        "type": "integer"
+    },
+    {
+        "name": "checkpoint_timeout",
+        "tuning_range": {
+            "minval": "10ms",
+            "maxval": "1min"
+        },
+        "default": "200ms",
+        "type": "time"
+    },
+    {
+        "name": "random_page_cost",
+        "tuning_range": {
+            "minval": 1,
+            "maxval": 10
+        },
+        "default": 4.0,
+        "type": "float"
+    },
+    {
+        "name": "checkpoint_completion_target",
+        "tuning_range": {
+            "minval": 0.1,
+            "maxval": 0.9
+        },
+        "default": 0.5,
+        "type": "float"
+    },
+    {
+        "name": "checkpoint_timeout",
+        "tuning_range": {
+            "minval": "1min",
+            "maxval": "30min"
+        },
+        "default": "5min",
+        "type": "time"
+    },
+    {
+        "name": "max_wal_size",
+        "tuning_range": {
+            "minval": "256MB",
+            "maxval": "16GB"
+        },
+        "default": "1GB",
+        "type": "bytes"
+    },
+    {
+        "name": "temp_buffers",
+        "tuning_range": {
+            "minval": "8MB",
+            "maxval": "1GB"
+        },
+        "default": "8MB",
+        "type": "bytes"
+    },
+    {
+        "name": "work_mem",
+        "tuning_range": {
+            "minval": "4MB",
+            "maxval": "1GB"
+        },
+        "default": "4MB",
+        "type": "bytes"
+    }
+]

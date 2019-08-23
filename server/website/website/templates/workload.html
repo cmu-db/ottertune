@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% load util_functions %}
+
+{% block body %}
+
+<div id="workload_info" class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4>{{ labels.title }}</h4></caption>
+    <tbody>
+    <tr>
+        <td><div class="text-right">{{ labels.dbms }}</div></td>
+        <td>{{ workload.dbms }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.name }}</div></td>
+        <td>{{ workload.name }}</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+<hr>
+
+<div class="container">
+<div class="row">
+
+<div id="sidebar" class="col-md-3">
+<div id="dbs">
+    <div><h4>DBMS Knob Configs</h4></div>
+    <div class="boxbody checkbox">
+        <ul>
+        {% for conf_name, data in knob_confs.items %}
+        <li><label><input type="checkbox" name="db_{{ data.0.pk }}" value="{{ data.0.pk }}"/>{{ conf_name }}</label></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+<div id="metric">
+    <div><h4>Plot Metrics</h4></div>
+    <div class="checkbox boxbody">
+        <ul>
+        {% for metric, metric_info in metric_meta.items %}
+        <li><label><input type="checkbox" name="metric" value="{{ metric }}" /> {{ metric_info|get_attr:"pprint" }}</label></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+</div>
+
+<div class="col-md-9">
+<div id="content">
+    <div id="plotgrid" class="plotcontainer"></div>
+    <div id="chartpseudotooltip"></div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.pointLabels.min.js"></script>
+
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/benchmark_bar.js"></script>
+<script language="javascript">
+$(function() {
+    $('.selectpicker').selectpicker();
+    BenchmarkBar.init({
+        workload: {{ workload.pk }},
+        default_knob_confs: [{% for kd in knob_data %}"{{ kd.pk }}", {% endfor %}],
+        metrics: [{% for metric in default_metrics %}"{{ metric }}", {% endfor %}],
+        session_id: {{ session_id }},
+    });
+});
+</script>
+{% endblock body %}

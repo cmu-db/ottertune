@@ -1,0 +1,25 @@
+column_name,data_type,metric_type,description
+blk_read_time,double precision,counter,"Time spent reading data file blocks by backends in this database, in milliseconds"
+blks_hit,bigint,counter,"Number of times disk blocks were found already in the buffer cache, so that a read was not necessary (this only includes hits in the PostgreSQL buffer cache, not the operating system's file system cache)"
+blks_read,bigint,counter,Number of disk blocks read in this database
+blk_write_time,double precision,counter,"Time spent writing data file blocks by backends in this database, in milliseconds"
+conflicts,bigint,counter,"Number of queries canceled due to conflicts with recovery in this database. (Conflicts occur only on standby servers; see pg_stat_database_conflicts for details.)"
+datid,oid,info,OID of a database
+datname,name,info,Name of this database
+deadlocks,bigint,counter,Number of deadlocks detected in this database
+numbackends,integer,info,Number of backends currently connected to this database. This is the only column in this view that returns a value reflecting current state; all other columns return the accumulated values since the last reset.
+stats_reset,timestamp with time zone,info,Time at which these statistics were last reset
+temp_bytes,bigint,counter,"Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting."
+temp_files,bigint,counter,"Number of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the log_temp_files setting."
+tup_deleted,bigint,counter,Number of rows deleted by queries in this database
+tup_fetched,bigint,counter,Number of rows fetched by queries in this database
+tup_inserted,bigint,counter,Number of rows inserted by queries in this database
+tup_returned,bigint,counter,Number of rows returned by queries in this database
+tup_updated,bigint,counter,Number of rows updated by queries in this database
+xact_commit,bigint,counter,Number of transactions in this database that have been committed
+xact_rollback,bigint,counter,Number of transactions in this database that have been rolled back
+confl_tablespace,bigint,counter,Number of queries in this database that have been canceled due to dropped tablespaces
+confl_lock,bigint,counter,Number of queries in this database that have been canceled due to lock timeouts
+confl_snapshot,bigint,counter,Number of queries in this database that have been canceled due to old snapshots
+confl_bufferpin,bigint,counter,Number of queries in this database that have been canceled due to pinned buffers
+confl_deadlock,bigint,counter,Number of queries in this database that have been canceled due to deadlocks

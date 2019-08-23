@@ -1,0 +1,9 @@
+{
+  "database_type" : "mysql",
+  "database_url" : "jdbc:mysql://localhost:3306/mysqldb",
+  "username" : "MY_DATABASE_USERNAME",
+  "password" : "MY_DATABASE_PASSWORD",
+  "upload_code" : "DEPRECATED",
+  "upload_url" : "DEPRECATED",
+  "workload_name" : "workload_name"
+}

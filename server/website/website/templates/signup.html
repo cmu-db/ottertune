@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block body %}
+
+<div class="container">
+	<form class="gray-border form-horizontal " action="{% url 'signup' %}" method="post" id="contact_form">{% csrf_token %}
+		<fieldset>
+
+			<!-- Form Name -->
+			<h2 class="text-center"><b>Create Your Account</b></h2>
+
+<!--             <div class="form-group text-center h2" style="margin-bottom:30px">Create Your Account</div> -->
+            
+			<div class="form-group" >
+				<label class="col-xs-3 control-label">Username</label>
+				<div class="col-xs-6 input-group">
+					<input name="username" placeholder="catsby" class="form-control" type="text">
+				</div>
+			</div>
+
+
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-xs-3 control-label">E-Mail Address</label>
+				<div class="col-xs-6 input-group">
+					<input name="email" placeholder="catsby@cs.cmu.edu" class="form-control" type="email">
+				</div>
+			</div>
+
+			<!-- Text input-->
+
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Password</label>
+				<div class="col-xs-6 input-group">
+					<input name="password1" placeholder="iheartcatnip" class="form-control" type="password">
+				</div>
+			</div>
+
+			<!-- Text input-->
+
+			<div class="form-group">
+				<label class="col-xs-3 control-label">Confirm Password</label>
+				<div class="col-xs-6 input-group">
+					<input name="password2" placeholder="iheartcatnip" class="form-control" type="password">
+				</div>
+			</div>
+
+			<!-- Button -->
+			<div class="form-group text-center">
+				<button type="submit" class="btn btn-success" name="submit" value="submit-value">Sign up <span class="glyphicon glyphicon-send"></span></button>
+			</div>
+
+		</fieldset>
+	</form>
+</div>
+
+{% endblock body %}

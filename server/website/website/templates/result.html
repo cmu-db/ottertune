@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% load util_functions %}
+
+{% block body %}
+
+<div class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4>{{ labels.title }}</h4></caption>
+    <tbody>
+    <tr>
+        <td><div class="text-right">{{ labels.id }}</div></td>
+        <td>{{ result.pk }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.session }}</div></td>
+        <td>{{ result.session.name }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.workload }}</div></td>
+        <td><a href="{% url 'workload' project_id session_id result.workload.pk %}">{{ result.workload.name }}</a></td>
+    </tr>
+    <tr>
+        <td><div class="text-top text-right">{{ labels.knob_data }}</div></td>
+        <td><a href="{% url 'knob_data' project_id session_id result.knob_data.pk %}">{{ result.knob_data.name }}</a></td>
+    </tr>
+    <tr>
+        <td><div class="text-top text-right">{{ labels.metric_data }}</div></td>
+        <td><a href="{% url 'metric_data' project_id session_id result.metric_data.pk %}">{{ result.metric_data.name }}</a></td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.creation_time }}</div></td>
+        <td>{{ result.creation_time }}</td>
+    </tr>
+    {% for key, value in default_metrics.items %}
+    <tr>
+        <td><div class="text-right">{{ metric_meta|get_item:key|get_attr:"pprint" }}</div></td>
+        <td>{{ value|floatformat:2 }} {{ metric_meta|get_item:key|get_attr:"unit" }}</td>
+    </tr>
+    {% endfor %}
+    {% if status %}
+    <tr>
+        <td><div class="text-right">{{ labels.status }}</div></td>
+        <td><a href="{% url 'tuner_status' project_id session_id result.pk %}">{{ status }}</td>
+        
+    </tr>
+    {% endif %}
+    {% if next_conf_available %}
+    <tr>
+        <td><div class="text-right">{{ labels.next_conf_available }}</div></td>
+        <td><a href="/get_result_data_file/?id={{ result.pk }}&type=next_conf">Download</a></td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+</div>
+
+<!-- <hr>
+
+
+<div class="container">
+<div class="row">
+
+
+<div id="sidebar" class="col-md-3">
+<div id="same">
+    <div><h4>Same-Configuration Runs</h4></div>
+    <div class="checkbox boxbody">
+        <ul>
+        {% for run in same_runs%}
+        <li><label><input type="checkbox" name="same_run" value="{{ run.pk }}" /> {{ run.pk }}@{{ run.timestamp }}<a href="{% url 'result' project_id session_id run.pk %}">(view)</a></label></li>
+ 	{% endfor %}
+</ul>
+    </div>
+    <div class="pagination">
+    <a href="#" class="first" data-action="first">&laquo;</a>
+    <a href="#" class="previous" data-action="previous">&lsaquo;</a>
+    <input type="text" readonly="readonly" data-max-page="40" />
+    <a href="#" class="next" data-action="next">&rsaquo;</a>
+    <a href="#" class="last" data-action="last">&raquo;</a>
+    </div>
+
+</div>
+<div id="similar">
+    <div><h4>Similar-Configuration Runs (<a href="/update_similar/?id={{ result.pk }}">update</a>)</h4></div>
+    <div class="checkbox boxbody">
+        <ul  >
+       {% for run in similar_runs %}
+        <li><label><input type="checkbox" name="same_run" value="{{ run.pk }}" /> {{ run.pk }}@{{ run.timestamp }}<a href="{% url 'result' project_id session_id run.pk %}">(view)</a></label></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+<div id="metric">
+    <div><h4>Plot Metrics</h4></div>
+    <div class="checkbox boxbody">
+        <ul>
+        {% for metric, metric_info in metric_meta.items %}
+        <li><label><input type="checkbox" name="metric" value="{{ metric }}" /> {{ metric_info|get_attr:"pprint" }}</label></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+</div>
+
+<div class="col-md-9">
+    <div id="content">
+        <div id="plotgrid" class="plotcontainer"></div>
+    </div>
+</div>
+
+
+</div>
+</div> -->
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.barRenderer.min.js"></script>
+
+<script type="text/javascript" src="{{ STATIC_URL }}js/result10.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.jqpagination.min.js"></script>
+
+<!--  <script type="text/javascript">
+ $(function() {
+   ResultTimeline.init({
+        result: {{ result.pk }},
+        data: {{ data|safe }},
+        all_metrics: {{metric_meta|keys|safe}}, 
+        metrics: [{% for metric in default_metrics %}"{{ metric }}", {% endfor %}],
+    });
+}); 
+</script> -->
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+    $table_rows = $("#same  li");
+    var table_row_limit = 10;
+    var page_table  = function(page) {
+
+        var offset = (page - 1) * table_row_limit,
+            limit = page * table_row_limit;
+
+        $table_rows.hide();
+
+        $table_rows.slice(offset, limit).show();
+
+    }
+    $('.pagination').jqPagination({
+        max_page: Math.ceil($table_rows.length / table_row_limit),
+        paged : page_table
+
+    });
+    page_table(1);
+
+});
+</script>
+
+{% endblock body %}

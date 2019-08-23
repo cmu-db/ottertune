@@ -1,0 +1,8 @@
+{
+ "start_time": 1535653369274,
+ "end_time": 1535653559607,
+ "observation_time": 190,
+ "database_type": "saphana",
+ "database_version": "2.00.023.00.1513691289",
+ "workload_name": "workload_name"
+}

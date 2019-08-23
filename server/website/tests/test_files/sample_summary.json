@@ -1,0 +1,8 @@
+{
+    "workload_name": "workload-0", 
+    "observation_time": 300, 
+    "database_type": "postgres", 
+    "end_time": 1513113439011, 
+    "start_time": 1513113139011, 
+    "database_version": "9.6"
+}

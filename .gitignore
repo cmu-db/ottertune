@@ -1,0 +1,104 @@
+# Byte-compiled / optimized / DLL files #
+#########################################
+__pycache__/
+*.py[cod]
+*$py.class
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Distribution / packaging #
+############################
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# PyInstaller #
+###############
+*.manifest
+*.spec
+
+# Installer logs #
+##################
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports #
+################################
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# Env #
+#######
+.python-version
+.env
+venv/
+ENV/
+
+# Eclipse #
+###########
+.project
+.pydevproject
+.settings
+.classpath
+
+# Intellij and PyCharm #
+.idea
+*.iml
+*.iws
+out/
+
+# vim #
+*~
+*.swp
+*.swo
+
+# Text editor configs #
+#######################
+.vimrc

@@ -1,0 +1,11 @@
+column_name,data_type,metric_type,description
+idx_blks_hit,bigint,counter,Number of buffer hits in this index
+idx_blks_read,bigint,counter,Number of disk blocks read from this index
+idx_scan,bigint,counter,Number of index scans initiated on this index
+idx_tup_fetch,bigint,counter,Number of live table rows fetched by simple index scans using this index
+idx_tup_read,bigint,counter,Number of index entries returned by scans on this index
+indexrelid,oid,info,OID of this index
+indexrelname,name,info,Name of this index
+relid,oid,info,OID of the table for this index
+relname,name,info,Name of the table for this index
+schemaname,name,info,Name of the schema this index is in

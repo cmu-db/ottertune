@@ -1,0 +1,21 @@
+{
+  "database_type" : "postgres",
+  "database_name" : "tpcc",
+  "database_disk": "/dev/xvda1",
+  "database_conf": "/etc/postgresql/9.6/main/postgresql.conf",
+  "database_save_path": "/home/ubuntu/ottertune",
+  "username" : "bohan",
+  "password" : "bohan",
+  "oltpbench_home": "/home/ubuntu/oltpbench",
+  "oltpbench_config": "/home/ubuntu/oltpbench/config/tpcc_config_postgres.xml",
+  "oltpbench_workload": "tpcc",
+  "oltpbench_log" : "/home/ubuntu/ottertune/client/driver/oltp.log",
+  "controller_config": "/home/ubuntu/ottertune/client/controller/config/sample_postgres_config.json",
+  "controller_log" : "/home/ubuntu/ottertune/client/driver/controller.log",
+  "save_path": "/home/ubuntu/results",
+  "upload_url" : "http://127.0.0.1:8000",
+  "upload_code" : "I5I10PXK3PK27FM86YYS",
+  "lhs_knob_path" : "/home/ubuntu/ottertune/client/driver/knobs/postgres-96.json",
+  "lhs_save_path" : "/home/ubuntu/ottertune/client/driver/configs",
+  "oracle_awr_enabled": false
+}

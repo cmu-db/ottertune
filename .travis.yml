@@ -1,0 +1,58 @@
+dist: bionic
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.24.1
+  matrix:
+    - DOCKER_OS=ubuntu-18.04
+    - DOCKER_OS=centos-7
+
+before_install:
+  # Install latest versions of docker and docker-compose
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker --version
+  - docker-compose --version
+
+before_script:
+  # Set correct dockerfile
+  - cd $TRAVIS_BUILD_DIR/docker
+  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.yml
+  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.test.yml
+  - sudo service mysql stop || true
+
+script:
+  - cd $TRAVIS_BUILD_DIR/docker
+  # Build master images and run the webserver
+  - docker-compose build
+  - docker-compose up -d
+  - docker logs ottertune
+  - docker-compose rm -f -s -v
+  # Build test images and run tests
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
+  - docker-compose -f docker-compose.test.yml build
+  - docker-compose -f docker-compose.test.yml up -d
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm $ci_env test bash -c "coverage run --omit=\"*/tests/*\" -m unittest discover -s analysis/tests -v && (codecov -F analysis || (sleep 5 && codecov -F analysis) || (sleep 5 && codecov -F analysis))"
+  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && coverage run --source=website manage.py test --noinput -v 2 && (codecov -F website || (sleep 5 && codecov -F website) || (sleep 5 && codecov -F website))"
+  # Only run source validation once (on ubuntu 18.04)
+  - if [ $DOCKER_OS == ubuntu-18.04 ]; then
+      docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test python3 script/validators/source_validator.py;
+    fi
+
+after_script:
+  # Cleanup docker containers, images, and volumes
+  - docker-compose rm -f -s -v
+  - docker system prune -a -f
+  - docker volume prune -f
+

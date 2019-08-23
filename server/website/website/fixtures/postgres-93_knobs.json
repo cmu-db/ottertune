@@ -1,0 +1,4622 @@
+[
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.client_min_messages",
+            "minval": "",
+            "default": "notice",
+            "tunable": false,
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,log,notice,warning,error",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 100.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_vacuum_scale_factor",
+            "minval": 0.0,
+            "default": 0.2,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bonjour_name",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 2000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_freeze_table_age",
+            "minval": 0,
+            "default": 150000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.syslog_facility",
+            "minval": "",
+            "default": "local0",
+            "tunable": false,
+            "enumvals": "local0,local1,local2,local3,local4,local5,local6,local7",
+            "vartype": 5,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.transaction_read_only",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": 2199023254528,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_temp_files",
+            "minval": -1,
+            "default": -1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": 600000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.authentication_timeout",
+            "minval": 1000,
+            "default": 60000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.gin_fuzzy_search_limit",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_lock_waits",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.archive_mode",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "always,on,off",
+            "vartype": 5,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": 2147483000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_receiver_status_interval",
+            "minval": 0,
+            "default": 10000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.track_functions",
+            "minval": "",
+            "default": "none",
+            "tunable": false,
+            "enumvals": "none,pl,all",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Master Server",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.synchronous_standby_names",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_hashjoin",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.event_source",
+            "minval": "",
+            "default": "PostgreSQL",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_monetary",
+            "minval": "",
+            "default": "C",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 1.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_seed",
+            "minval": 0.0,
+            "default": 0.0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.DateStyle",
+            "minval": "",
+            "default": "ISO, MDY",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_analyze_threshold",
+            "minval": 0,
+            "default": 50,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 2147483000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_naptime",
+            "minval": 1000,
+            "default": 60000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints",
+            "maxval": 1.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.checkpoint_completion_target",
+            "minval": 0.0,
+            "default": 0.5,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Sending Servers",
+            "maxval": 262143,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_wal_senders",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Asynchronous Behavior",
+            "maxval": 1000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.effective_io_concurrency",
+            "minval": 0,
+            "default": 1,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.quote_all_identifiers",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_checkpoints",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Monitoring",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_statement_stats",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 8192,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_block_size",
+            "minval": 8192,
+            "default": 8192,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 1073741824,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.segment_size",
+            "minval": 1073741824,
+            "default": 1073741824,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_hashagg",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.track_counts",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Lock Management",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.deadlock_timeout",
+            "minval": 1,
+            "default": 1000,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Shared Library Preloading",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.shared_preload_libraries",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.statement_timeout",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.dynamic_library_path",
+            "minval": "",
+            "default": "$libdir",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.backslash_quote",
+            "minval": "",
+            "default": "safe_encoding",
+            "tunable": false,
+            "enumvals": "safe_encoding,on,off",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": 2147483640000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_rotation_age",
+            "minval": 0,
+            "default": 86400000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 100,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_function_args",
+            "minval": 100,
+            "default": 100,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints",
+            "maxval": 2147483647000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.checkpoint_warning",
+            "minval": 0,
+            "default": 30000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_truncate_on_rotation",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options",
+            "maxval": 1.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.cursor_tuple_fraction",
+            "minval": 0.0,
+            "default": 0.1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_pool_size",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Monitoring",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_parser_stats",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 262143,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_max_workers",
+            "minval": 1,
+            "default": 3,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.fsync",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Error Handling",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.restart_after_crash",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": 2147000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.post_auth_delay",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "backend",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 90603,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.server_version_num",
+            "minval": 90603,
+            "default": 90603,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 1.79769e+308,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.cpu_index_tuple_cost",
+            "minval": 0.0,
+            "default": 0.005,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_ctype",
+            "minval": "",
+            "default": "C",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_ciphers",
+            "minval": "",
+            "default": "HIGH:MEDIUM:+3DES:!aNULL",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 1.79769e+308,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.cpu_operator_cost",
+            "minval": 0.0,
+            "default": 0.0025,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_with_oids",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_bitmapscan",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.from_collapse_limit",
+            "minval": 1,
+            "default": 8,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_cost_page_hit",
+            "minval": 0,
+            "default": 1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.join_collapse_limit",
+            "minval": 1,
+            "default": 8,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints",
+            "maxval": 86400000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.checkpoint_timeout",
+            "minval": 30000,
+            "default": 300000,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_collate",
+            "minval": "",
+            "default": "C",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 2199023254528,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_stack_depth",
+            "minval": 102400,
+            "default": 102400,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_destination",
+            "minval": "",
+            "default": "stderr",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.standard_conforming_strings",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": 60000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.pre_auth_delay",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 262143,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_prepared_transactions",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_mergejoin",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Checkpoints",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.checkpoint_segments",
+            "minval": 1,
+            "default": 3,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": 65535,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.port",
+            "minval": 1,
+            "default": 5432,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Sending Servers",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_sender_timeout",
+            "minval": 0,
+            "default": 60000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Sending Servers",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_keep_segments",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.stats_temp_directory",
+            "minval": "",
+            "default": "pg_stat_tmp",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": 262143,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.superuser_reserved_connections",
+            "minval": 0,
+            "default": 3,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_connections",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser-backend",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": 3,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.extra_float_digits",
+            "minval": -15,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving",
+            "maxval": 1073741823000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.archive_timeout",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_min_error_statement",
+            "minval": "",
+            "default": "error",
+            "tunable": false,
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_error_verbosity",
+            "minval": "",
+            "default": "default",
+            "tunable": false,
+            "enumvals": "terse,default,verbose",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": 262143,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_connections",
+            "minval": 1,
+            "default": 100,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 8796093014016,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.shared_buffers",
+            "minval": 131072,
+            "default": 8388608,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.xmlbinary",
+            "minval": "",
+            "default": "base64",
+            "tunable": false,
+            "enumvals": "base64,hex",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.logging_collector",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.debug_print_parse",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": 1000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.commit_siblings",
+            "minval": 0,
+            "default": 5,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_time",
+            "minval": "",
+            "default": "C",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.krb_server_keyfile",
+            "minval": "",
+            "default": "FILE:/etc/postgresql-common/krb5.keytab",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_level",
+            "minval": "",
+            "default": "minimal",
+            "tunable": false,
+            "enumvals": "minimal,replica,logical",
+            "vartype": 5,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 2000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_multixact_freeze_table_age",
+            "minval": 0,
+            "default": 150000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 1000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_multixact_freeze_min_age",
+            "minval": 0,
+            "default": 5000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "File Locations",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.hba_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_cert_file",
+            "minval": "",
+            "default": "server.crt",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.sql_inheritance",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_messages",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_nestloop",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_statement",
+            "minval": "",
+            "default": "none",
+            "tunable": false,
+            "enumvals": "none,ddl,mod,all",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.trace_sort",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.unix_socket_group",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_cost_limit",
+            "minval": 1,
+            "default": 200,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_threshold",
+            "minval": 2,
+            "default": 12,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 1.79769e+308,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.random_page_cost",
+            "minval": 0.0,
+            "default": 4.0,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.tcp_keepalives_count",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 32,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_index_keys",
+            "minval": 32,
+            "default": 32,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Kernel Resources",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_files_per_process",
+            "minval": 25,
+            "default": 1000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Monitoring",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_planner_stats",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.allow_system_table_mods",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.debug_print_plan",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_min_messages",
+            "minval": "",
+            "default": "warning",
+            "tunable": false,
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_disconnections",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser-backend",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.db_user_namespace",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.trace_recovery_messages",
+            "minval": "",
+            "default": "log",
+            "tunable": false,
+            "enumvals": "debug5,debug4,debug3,debug2,debug1,log,notice,warning,error",
+            "vartype": 5,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_duration",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_vacuum_threshold",
+            "minval": 0,
+            "default": 50,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.xmloption",
+            "minval": "",
+            "default": "content",
+            "tunable": false,
+            "enumvals": "content,document",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Process Title",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.update_process_title",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.password_encryption",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 8192,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.block_size",
+            "minval": 8192,
+            "default": 8192,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_renegotiation_limit",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": 511,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_file_mode",
+            "minval": 0,
+            "default": 384,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.data_checksums",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.hot_standby",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lc_numeric",
+            "minval": "",
+            "default": "C",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.timezone_abbreviations",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_line_prefix",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.transaction_deferrable",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer",
+            "maxval": 1000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bgwriter_lru_maxpages",
+            "minval": 0,
+            "default": 100,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Archiving",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.archive_command",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_text_search_config",
+            "minval": "",
+            "default": "pg_catalog.simple",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.zero_damaged_pages",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "File Locations",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.data_directory",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 100.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_analyze_scale_factor",
+            "minval": 0.0,
+            "default": 0.1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "File Locations",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ident_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay",
+            "maxval": 100,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_cost_delay",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_transaction_deferrable",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lo_compat_privileges",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults",
+            "maxval": 2147483647000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.tcp_keepalives_idle",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.session_replication_role",
+            "minval": "",
+            "default": "origin",
+            "tunable": false,
+            "enumvals": "origin,replica,local",
+            "vartype": 5,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Monitoring",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_executor_stats",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_directory",
+            "minval": "",
+            "default": "pg_log",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.listen_addresses",
+            "minval": "",
+            "default": "localhost",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_receiver_timeout",
+            "minval": 0,
+            "default": 60000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.unix_socket_directories",
+            "minval": "",
+            "default": "/var/run/postgresql",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.search_path",
+            "minval": "",
+            "default": "\"$user\", public",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 8796093014016,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.temp_buffers",
+            "minval": 819200,
+            "default": 8388608,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.constraint_exclusion",
+            "minval": "",
+            "default": "partition",
+            "tunable": false,
+            "enumvals": "partition,on,off",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_vacuum_cost_limit",
+            "minval": -1,
+            "default": -1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 102400,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.track_activity_query_size",
+            "minval": 100,
+            "default": 1024,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 2199023254528,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.work_mem",
+            "minval": 65536,
+            "default": 4194304,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_generations",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bonjour",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 1000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_freeze_min_age",
+            "minval": 0,
+            "default": 50000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_tablespace",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Master Server",
+            "maxval": 1000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_defer_cleanup_age",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Other Planner Options",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_statistics_target",
+            "minval": 1,
+            "default": 100,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.track_activities",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "File Locations",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.external_pid_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.synchronous_commit",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "local,remote_write,remote_apply,on,off",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.krb_caseins_users",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Memory",
+            "maxval": 2199023254528,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.maintenance_work_mem",
+            "minval": 1048576,
+            "default": 67108864,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Statistics / Query and Index Statistics Collector",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.track_io_timing",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 17592186036224,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.effective_cache_size",
+            "minval": 8192,
+            "default": 4294967296,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_ca_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.application_name",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.debug_print_rewritten",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_tidscan",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.lock_timeout",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Other Defaults",
+            "maxval": 2147483647000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.tcp_keepalives_interval",
+            "minval": 0,
+            "default": 0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / When to Log",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_min_duration_statement",
+            "minval": -1,
+            "default": -1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.server_encoding",
+            "minval": "",
+            "default": "SQL_ASCII",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 2.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_selection_bias",
+            "minval": 1.5,
+            "default": 2.0,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_transaction_read_only",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 2000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_multixact_freeze_max_age",
+            "minval": 10000,
+            "default": 400000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_cost_page_dirty",
+            "minval": 0,
+            "default": 20,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.default_transaction_isolation",
+            "minval": "",
+            "default": "read committed",
+            "tunable": false,
+            "enumvals": "serializable,repeatable read,read committed,read uncommitted",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.IntervalStyle",
+            "minval": "",
+            "default": "postgres",
+            "tunable": false,
+            "enumvals": "postgres,postgres_verbose,sql_standard,iso_8601",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Shared Library Preloading",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.local_preload_libraries",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.TimeZone",
+            "minval": "",
+            "default": "GMT",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": 2147482624,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_rotation_size",
+            "minval": 0,
+            "default": 10485760,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_timezone",
+            "minval": "",
+            "default": "GMT",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.full_page_writes",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Cost-Based Vacuum Delay",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.vacuum_cost_page_miss",
+            "minval": 0,
+            "default": 10,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_seqscan",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ignore_system_indexes",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "backend",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.temp_tablespaces",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.array_nulls",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ignore_checksum_failure",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_writer_delay",
+            "minval": 1,
+            "default": 200,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_indexonlyscan",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Error Handling",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.exit_on_error",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.debug_assertions",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_material",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_hostname",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.check_function_bodies",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 1.79769e+308,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.cpu_tuple_cost",
+            "minval": 0.0,
+            "default": 0.01,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.escape_string_warning",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bytea_output",
+            "minval": "",
+            "default": "hex",
+            "tunable": false,
+            "enumvals": "escape,hex",
+            "vartype": 5,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_standby_archive_delay",
+            "minval": -1,
+            "default": 30000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer",
+            "maxval": 10.0,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bgwriter_lru_multiplier",
+            "minval": 0.0,
+            "default": 2.0,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Previous PostgreSQL Versions",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.synchronize_seqscans",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Developer Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.trace_notify",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": 2147475456,
+            "dbms": 3,
+            "resource": 1,
+            "name": "global.wal_buffers",
+            "minval": -1,
+            "default": -1,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_standby_streaming_delay",
+            "minval": -1,
+            "default": 30000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": 100000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.commit_delay",
+            "minval": 0,
+            "default": 0,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Locale and Formatting",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.client_encoding",
+            "minval": "",
+            "default": "SQL_ASCII",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.integer_datetimes",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "File Locations",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.config_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Write-Ahead Log / Settings",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_sync_method",
+            "minval": "",
+            "default": "fdatasync",
+            "tunable": true,
+            "enumvals": "fsync,fdatasync,open_sync,open_datasync",
+            "vartype": 5,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_filename",
+            "minval": "",
+            "default": "postgresql-%Y-%m-%d_%H%M%S.log",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Replication / Standby Servers",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.hot_standby_feedback",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Connection Settings",
+            "maxval": 511,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.unix_socket_permissions",
+            "minval": 0,
+            "default": 511,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Lock Management",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_pred_locks_per_transaction",
+            "minval": 10,
+            "default": 64,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 16777216,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.wal_segment_size",
+            "minval": 16777216,
+            "default": 16777216,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Lock Management",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_locks_per_transaction",
+            "minval": 10,
+            "default": 64,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_key_file",
+            "minval": "",
+            "default": "server.key",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Version and Platform Compatibility / Other Platforms and Clients",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.transform_null_equals",
+            "minval": "",
+            "default": "off",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.ssl_crl_file",
+            "minval": "",
+            "default": "",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.debug_pretty_print",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.server_version",
+            "minval": "",
+            "default": "9.6.3",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Disk",
+            "maxval": 2199023254528,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.temp_file_limit",
+            "minval": -1,
+            "default": -1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "superuser",
+            "scope": "global",
+            "summary": "",
+            "unit": 1,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Preset Options",
+            "maxval": 63,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.max_identifier_length",
+            "minval": 63,
+            "default": 63,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "internal",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Cost Constants",
+            "maxval": 1.79769e+308,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.seq_page_cost",
+            "minval": 0.0,
+            "default": 1.0,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 3,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Client Connection Defaults / Statement Behavior",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.transaction_isolation",
+            "minval": "",
+            "default": "default",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / Where to Log",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.syslog_ident",
+            "minval": "",
+            "default": "postgres",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Reporting and Logging / What to Log",
+            "maxval": 2147483647,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.log_autovacuum_min_duration",
+            "minval": -1,
+            "default": -1,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Resource Usage / Background Writer",
+            "maxval": 10000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.bgwriter_delay",
+            "minval": 10,
+            "default": 200,
+            "tunable": true,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 100,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_vacuum_cost_delay",
+            "minval": -1,
+            "default": 20,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 2,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Genetic Query Optimizer",
+            "maxval": 10,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.geqo_effort",
+            "minval": 1,
+            "default": 5,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_indexscan",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Autovacuum",
+            "maxval": 2000000000,
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.autovacuum_freeze_max_age",
+            "minval": 100000,
+            "default": 200000000,
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 2,
+            "context": "postmaster",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Query Tuning / Planner Method Configuration",
+            "maxval": "",
+            "dbms": 3,
+            "resource": 4,
+            "name": "global.enable_sort",
+            "minval": "",
+            "default": "on",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 4,
+            "context": "user",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    },
+    {
+        "fields": {
+            "category": "Connections and Authentication / Security and Authentication",
+            "maxval": "",
+            "dbms": 2,
+            "resource": 4,
+            "name": "global.krb_srvname",
+            "minval": "",
+            "default": "postgres",
+            "tunable": false,
+            "enumvals": "",
+            "vartype": 1,
+            "context": "sighup",
+            "scope": "global",
+            "summary": "",
+            "unit": 3,
+            "description": ""
+        },
+        "model": "website.KnobCatalog"
+    }
+]

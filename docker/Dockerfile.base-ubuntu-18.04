@@ -1,0 +1,24 @@
+FROM ubuntu:18.04
+
+ARG GRADLE_VERSION=gradle-5.5.1
+  
+ENV DEBIAN_FRONTEND=noninteractive
+ENV GRADLE_HOME=/opt/${GRADLE_VERSION}
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
+
+COPY ./server/website/requirements.txt /
+
+RUN apt-get update \
+    && apt-get install -y python3.6 python3-pip python3-tk \
+        mysql-client libmysqlclient-dev python-mysqldb \
+        openjdk-11-jdk git unzip wget curl \
+    && wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip \
+    && unzip ${GRADLE_VERSION}-bin.zip -d /opt \
+    && rm ${GRADLE_VERSION}-bin.zip \
+    && python3 --version \
+    && pip3 --version \
+    && javac --version \
+    && gradle --version \
+    && pip3 install -r /requirements.txt \
+    && rm /requirements.txt 
+

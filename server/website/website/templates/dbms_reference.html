@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+
+<style>
+dl.inner {
+    border-bottom:1px solid #E8E8E8;
+    border-spacing:7px;
+    padding:0 0 0 0;
+    margin: 0 0 0 0;
+}
+</style>
+
+{% endblock %}
+
+{% block body %}
+
+<div id="dbms_reference" class="container">
+    <h3 class="text-right" style="margin-right:15px; margin-top:0px"><span class="label label-primary">{{ dbms }}</span></h3>
+    <dl class="row inner" style="margin-bottom:0">
+        {% if is_used %}
+        <dd class="h2">{{ title }}<small style="color:green;padding-left:30px"><span class="glyphicon glyphicon-ok"></span> {{used_label}}</small></dd>
+        {% else %}
+        <dd class="h2">{{ title }}<small style="color:red;padding-left:30px"><span class="glyphicon glyphicon-remove"></span> {{used_label}}</small></dd>
+        {% endif %}
+    </dl>
+    {% for label, value in list_items.items %}
+    <dl class="row inner">
+        <dt class="col-sm-3">{{ label }}</dt>
+        <dd class="col-sm-9">{{ value }}</dd>
+    </dl>
+    {% endfor %}
+    </div>
+</div>
+
+{% endblock body %}

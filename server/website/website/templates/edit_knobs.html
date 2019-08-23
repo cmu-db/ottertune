@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load util_functions %}
+
+{% block body %}
+<div class="container">
+    <caption><h4>Edit Knobs</h4></caption>
+    <table class="table table-striped table-bordered table-hover table-nonfluid"
+           style="display:block; overflow-y:scroll; height:500px">
+        <tr>
+            <td>Name</td>
+	    <td>Min</td>
+            <td>Max</td>
+            <td>Tunable</td>
+            <td></td>
+        </tr>
+        {% for form in forms %}
+            <form action="{% url 'edit_knobs' project.pk session.pk %}" method="POST">
+                {% csrf_token %}
+                <tr>
+                    <td>{{ form.name }}</td>
+                    <td>{{ form.minval }}</td>
+                    <td>{{ form.maxval }}</td>
+                    <td>{{ form.tunable }}</td>
+                    <td><button type="submit">Save</button></td>
+                </tr>
+            </form>
+   	{% endfor %}
+    </table>
+    <a class="btn btn-default" href="{% url 'session' project.pk session.pk %}">Done</a>
+</div>
+
+<script language="javascript">
+function show_content() {
+	console.log("In show_content()")
+	//$("#target_obj_row").toggle()
+}
+
+</script>
+
+{% endblock body %}

@@ -1,0 +1,262 @@
+name,setting,unit,category,short_desc,extra_desc,context,vartype,source,min_val,max_val,enumvals,boot_val,reset_val,sourcefile,sourceline,pending_restart
+allow_system_table_mods,off,,Developer Options,Allows modifications of the structure of system tables.,,postmaster,bool,default,,,,off,off,,,f
+application_name,psql,,Reporting and Logging / What to Log,Sets the application name to be reported in statistics and logs.,,user,string,client,,,,"",psql,,,f
+archive_command,(disabled),,Write-Ahead Log / Archiving,Sets the shell command that will be called to archive a WAL file.,,sighup,string,default,,,,"","",,,f
+archive_mode,off,,Write-Ahead Log / Archiving,Allows archiving of WAL files using archive_command.,,postmaster,enum,default,,,"{always,on,off}",off,off,,,f
+archive_timeout,0,s,Write-Ahead Log / Archiving,Forces a switch to the next xlog file if a new file has not been started within N seconds.,,sighup,integer,default,0,1073741823,,0,0,,,f
+array_nulls,on,,Version and Platform Compatibility / Previous PostgreSQL Versions,Enable input of NULL elements in arrays.,"When turned on, unquoted NULL in an array input value means a null value; otherwise it is taken literally.",user,bool,default,,,,on,on,,,f
+authentication_timeout,60,s,Connections and Authentication / Security and Authentication,Sets the maximum allowed time to complete client authentication.,,sighup,integer,default,1,600,,60,60,,,f
+autovacuum,on,,Autovacuum,Starts the autovacuum subprocess.,,sighup,bool,default,,,,on,on,,,f
+autovacuum_analyze_scale_factor,0.1,,Autovacuum,"Number of tuple inserts, updates, or deletes prior to analyze as a fraction of reltuples.",,sighup,real,default,0,100,,0.1,0.1,,,f
+autovacuum_analyze_threshold,50,,Autovacuum,"Minimum number of tuple inserts, updates, or deletes prior to analyze.",,sighup,integer,default,0,2147483647,,50,50,,,f
+autovacuum_freeze_max_age,200000000,,Autovacuum,Age at which to autovacuum a table to prevent transaction ID wraparound.,,postmaster,integer,default,100000,2000000000,,200000000,200000000,,,f
+autovacuum_max_workers,3,,Autovacuum,Sets the maximum number of simultaneously running autovacuum worker processes.,,postmaster,integer,default,1,262143,,3,3,,,f
+autovacuum_multixact_freeze_max_age,400000000,,Autovacuum,Multixact age at which to autovacuum a table to prevent multixact wraparound.,,postmaster,integer,default,10000,2000000000,,400000000,400000000,,,f
+autovacuum_naptime,60,s,Autovacuum,Time to sleep between autovacuum runs.,,sighup,integer,default,1,2147483,,60,60,,,f
+autovacuum_vacuum_cost_delay,20,ms,Autovacuum,"Vacuum cost delay in milliseconds, for autovacuum.",,sighup,integer,default,-1,100,,20,20,,,f
+autovacuum_vacuum_cost_limit,-1,,Autovacuum,"Vacuum cost amount available before napping, for autovacuum.",,sighup,integer,default,-1,10000,,-1,-1,,,f
+autovacuum_vacuum_scale_factor,0.2,,Autovacuum,Number of tuple updates or deletes prior to vacuum as a fraction of reltuples.,,sighup,real,default,0,100,,0.2,0.2,,,f
+autovacuum_vacuum_threshold,50,,Autovacuum,Minimum number of tuple updates or deletes prior to vacuum.,,sighup,integer,default,0,2147483647,,50,50,,,f
+autovacuum_work_mem,-1,kB,Resource Usage / Memory,Sets the maximum memory to be used by each autovacuum worker process.,,sighup,integer,default,-1,2147483647,,-1,-1,,,f
+backend_flush_after,0,8kB,Resource Usage / Asynchronous Behavior,Number of pages after which previously performed writes are flushed to disk.,,user,integer,default,0,256,,0,0,,,f
+backslash_quote,safe_encoding,,Version and Platform Compatibility / Previous PostgreSQL Versions,"Sets whether ""\'"" is allowed in string literals.",,user,enum,default,,,"{safe_encoding,on,off}",safe_encoding,safe_encoding,,,f
+bgwriter_delay,200,ms,Resource Usage / Background Writer,Background writer sleep time between rounds.,,sighup,integer,default,10,10000,,200,200,,,f
+bgwriter_flush_after,64,8kB,Resource Usage / Background Writer,Number of pages after which previously performed writes are flushed to disk.,,sighup,integer,default,0,256,,64,64,,,f
+bgwriter_lru_maxpages,100,,Resource Usage / Background Writer,Background writer maximum number of LRU pages to flush per round.,,sighup,integer,default,0,1000,,100,100,,,f
+bgwriter_lru_multiplier,2,,Resource Usage / Background Writer,Multiple of the average buffer usage to free per round.,,sighup,real,default,0,10,,2,2,,,f
+block_size,8192,,Preset Options,Shows the size of a disk block.,,internal,integer,default,8192,8192,,8192,8192,,,f
+bonjour,off,,Connections and Authentication / Connection Settings,Enables advertising the server via Bonjour.,,postmaster,bool,default,,,,off,off,,,f
+bonjour_name,"",,Connections and Authentication / Connection Settings,Sets the Bonjour service name.,,postmaster,string,default,,,,"","",,,f
+bytea_output,hex,,Client Connection Defaults / Statement Behavior,Sets the output format for bytea.,,user,enum,default,,,"{escape,hex}",hex,hex,,,f
+check_function_bodies,on,,Client Connection Defaults / Statement Behavior,Check function bodies during CREATE FUNCTION.,,user,bool,default,,,,on,on,,,f
+checkpoint_completion_target,0.5,,Write-Ahead Log / Checkpoints,"Time spent flushing dirty buffers during checkpoint, as fraction of checkpoint interval.",,sighup,real,default,0,1,,0.5,0.5,,,f
+checkpoint_flush_after,32,8kB,Write-Ahead Log / Checkpoints,Number of pages after which previously performed writes are flushed to disk.,,sighup,integer,default,0,256,,32,32,,,f
+checkpoint_timeout,300,s,Write-Ahead Log / Checkpoints,Sets the maximum time between automatic WAL checkpoints.,,sighup,integer,default,30,86400,,300,300,,,f
+checkpoint_warning,30,s,Write-Ahead Log / Checkpoints,Enables warnings if checkpoint segments are filled more frequently than this.,Write a message to the server log if checkpoints caused by the filling of checkpoint segment files happens more frequently than this number of seconds. Zero turns off the warning.,sighup,integer,default,0,2147483647,,30,30,,,f
+client_encoding,UTF8,,Client Connection Defaults / Locale and Formatting,Sets the client's character set encoding.,,user,string,client,,,,SQL_ASCII,UTF8,,,f
+client_min_messages,notice,,Reporting and Logging / When to Log,Sets the message levels that are sent to the client.,"Each level includes all the levels that follow it. The later the level, the fewer messages are sent.",user,enum,default,,,"{debug5,debug4,debug3,debug2,debug1,log,notice,warning,error}",notice,notice,,,f
+cluster_name,9.6/main,,Process Title,"Sets the name of the cluster, which is included in the process title.",,postmaster,string,configuration file,,,,"",9.6/main,/etc/postgresql/9.6/main/postgresql.conf,463,f
+commit_delay,0,,Write-Ahead Log / Settings,Sets the delay in microseconds between transaction commit and flushing WAL to disk.,,superuser,integer,default,0,100000,,0,0,,,f
+commit_siblings,5,,Write-Ahead Log / Settings,Sets the minimum concurrent open transactions before performing commit_delay.,,user,integer,default,0,1000,,5,5,,,f
+config_file,/etc/postgresql/9.6/main/postgresql.conf,,File Locations,Sets the server's main configuration file.,,postmaster,string,override,,,,,/etc/postgresql/9.6/main/postgresql.conf,,,f
+constraint_exclusion,partition,,Query Tuning / Other Planner Options,Enables the planner to use constraints to optimize queries.,Table scans will be skipped if their constraints guarantee that no rows match the query.,user,enum,default,,,"{partition,on,off}",partition,partition,,,f
+cpu_index_tuple_cost,0.005,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of processing each index entry during an index scan.,,user,real,default,0,1.79769e+308,,0.005,0.005,,,f
+cpu_operator_cost,0.0025,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of processing each operator or function call.,,user,real,default,0,1.79769e+308,,0.0025,0.0025,,,f
+cpu_tuple_cost,0.01,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of processing each tuple (row).,,user,real,default,0,1.79769e+308,,0.01,0.01,,,f
+cursor_tuple_fraction,0.1,,Query Tuning / Other Planner Options,Sets the planner's estimate of the fraction of a cursor's rows that will be retrieved.,,user,real,default,0,1,,0.1,0.1,,,f
+data_checksums,off,,Preset Options,Shows whether data checksums are turned on for this cluster.,,internal,bool,override,,,,off,off,,,f
+data_directory,/var/lib/postgresql/9.6/main,,File Locations,Sets the server's data directory.,,postmaster,string,override,,,,,/var/lib/postgresql/9.6/main,,,f
+DateStyle,"ISO, MDY",,Client Connection Defaults / Locale and Formatting,Sets the display format for date and time values.,Also controls interpretation of ambiguous date inputs.,user,string,configuration file,,,,"ISO, MDY","ISO, MDY",/etc/postgresql/9.6/main/postgresql.conf,552,f
+db_user_namespace,off,,Connections and Authentication / Security and Authentication,Enables per-database user names.,,sighup,bool,default,,,,off,off,,,f
+deadlock_timeout,1000,ms,Lock Management,Sets the time to wait on a lock before checking for deadlock.,,superuser,integer,default,1,2147483647,,1000,1000,,,f
+debug_assertions,off,,Preset Options,Shows whether the running server has assertion checks enabled.,,internal,bool,default,,,,off,off,,,f
+debug_pretty_print,on,,Reporting and Logging / What to Log,Indents parse and plan tree displays.,,user,bool,default,,,,on,on,,,f
+debug_print_parse,off,,Reporting and Logging / What to Log,Logs each query's parse tree.,,user,bool,default,,,,off,off,,,f
+debug_print_plan,off,,Reporting and Logging / What to Log,Logs each query's execution plan.,,user,bool,default,,,,off,off,,,f
+debug_print_rewritten,off,,Reporting and Logging / What to Log,Logs each query's rewritten parse tree.,,user,bool,default,,,,off,off,,,f
+default_statistics_target,100,,Query Tuning / Other Planner Options,Sets the default statistics target.,This applies to table columns that have not had a column-specific target set via ALTER TABLE SET STATISTICS.,user,integer,default,1,10000,,100,100,,,f
+default_tablespace,"",,Client Connection Defaults / Statement Behavior,Sets the default tablespace to create tables and indexes in.,An empty string selects the database's default tablespace.,user,string,default,,,,"","",,,f
+default_text_search_config,pg_catalog.english,,Client Connection Defaults / Locale and Formatting,Sets default text search configuration.,,user,string,configuration file,,,,pg_catalog.simple,pg_catalog.english,/etc/postgresql/9.6/main/postgresql.conf,574,f
+default_transaction_deferrable,off,,Client Connection Defaults / Statement Behavior,Sets the default deferrable status of new transactions.,,user,bool,default,,,,off,off,,,f
+default_transaction_isolation,read committed,,Client Connection Defaults / Statement Behavior,Sets the transaction isolation level of each new transaction.,,user,enum,default,,,"{serializable,""repeatable read"",""read committed"",""read uncommitted""}",read committed,read committed,,,f
+default_transaction_read_only,off,,Client Connection Defaults / Statement Behavior,Sets the default read-only status of new transactions.,,user,bool,default,,,,off,off,,,f
+default_with_oids,off,,Version and Platform Compatibility / Previous PostgreSQL Versions,Create new tables with OIDs by default.,,user,bool,default,,,,off,off,,,f
+dynamic_library_path,$libdir,,Client Connection Defaults / Other Defaults,Sets the path for dynamically loadable modules.,"If a dynamically loadable module needs to be opened and the specified name does not have a directory component (i.e., the name does not contain a slash), the system will search this path for the specified file.",superuser,string,default,,,,$libdir,$libdir,,,f
+dynamic_shared_memory_type,posix,,Resource Usage / Memory,Selects the dynamic shared memory implementation used.,,postmaster,enum,configuration file,,,"{posix,sysv,mmap,none}",posix,posix,/etc/postgresql/9.6/main/postgresql.conf,127,f
+effective_cache_size,524288,8kB,Query Tuning / Planner Cost Constants,Sets the planner's assumption about the size of the disk cache.,"That is, the portion of the kernel's disk cache that will be used for PostgreSQL data files. This is measured in disk pages, which are normally 8 kB each.",user,integer,default,1,2147483647,,524288,524288,,,f
+effective_io_concurrency,1,,Resource Usage / Asynchronous Behavior,Number of simultaneous requests that can be handled efficiently by the disk subsystem.,"For RAID arrays, this should be approximately the number of drive spindles in the array.",user,integer,default,0,1000,,1,1,,,f
+enable_bitmapscan,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of bitmap-scan plans.,,user,bool,default,,,,on,on,,,f
+enable_hashagg,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of hashed aggregation plans.,,user,bool,default,,,,on,on,,,f
+enable_hashjoin,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of hash join plans.,,user,bool,default,,,,on,on,,,f
+enable_indexonlyscan,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of index-only-scan plans.,,user,bool,default,,,,on,on,,,f
+enable_indexscan,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of index-scan plans.,,user,bool,default,,,,on,on,,,f
+enable_material,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of materialization.,,user,bool,default,,,,on,on,,,f
+enable_mergejoin,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of merge join plans.,,user,bool,default,,,,on,on,,,f
+enable_nestloop,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of nested-loop join plans.,,user,bool,default,,,,on,on,,,f
+enable_seqscan,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of sequential-scan plans.,,user,bool,default,,,,on,on,,,f
+enable_sort,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of explicit sort steps.,,user,bool,default,,,,on,on,,,f
+enable_tidscan,on,,Query Tuning / Planner Method Configuration,Enables the planner's use of TID scan plans.,,user,bool,default,,,,on,on,,,f
+escape_string_warning,on,,Version and Platform Compatibility / Previous PostgreSQL Versions,Warn about backslash escapes in ordinary string literals.,,user,bool,default,,,,on,on,,,f
+event_source,PostgreSQL,,Reporting and Logging / Where to Log,Sets the application name used to identify PostgreSQL messages in the event log.,,postmaster,string,default,,,,PostgreSQL,PostgreSQL,,,f
+exit_on_error,off,,Error Handling,Terminate session on any error.,,user,bool,default,,,,off,off,,,f
+external_pid_file,/var/run/postgresql/9.6-main.pid,,File Locations,Writes the postmaster PID to the specified file.,,postmaster,string,configuration file,,,,,/var/run/postgresql/9.6-main.pid,/etc/postgresql/9.6/main/postgresql.conf,49,f
+extra_float_digits,0,,Client Connection Defaults / Locale and Formatting,Sets the number of digits displayed for floating-point values.,"This affects real, double precision, and geometric data types. The parameter value is added to the standard number of digits (FLT_DIG or DBL_DIG as appropriate).",user,integer,default,-15,3,,0,0,,,f
+force_parallel_mode,off,,Query Tuning / Other Planner Options,Forces use of parallel query facilities.,"If possible, run query using a parallel worker and with parallel restrictions.",user,enum,default,,,"{off,on,regress}",off,off,,,f
+from_collapse_limit,8,,Query Tuning / Other Planner Options,Sets the FROM-list size beyond which subqueries are not collapsed.,The planner will merge subqueries into upper queries if the resulting FROM list would have no more than this many items.,user,integer,default,1,2147483647,,8,8,,,f
+fsync,on,,Write-Ahead Log / Settings,Forces synchronization of updates to disk.,The server will use the fsync() system call in several places to make sure that updates are physically written to disk. This insures that a database cluster will recover to a consistent state after an operating system or hardware crash.,sighup,bool,default,,,,on,on,,,f
+full_page_writes,on,,Write-Ahead Log / Settings,Writes full pages to WAL when first modified after a checkpoint.,"A page write in process during an operating system crash might be only partially written to disk.  During recovery, the row changes stored in WAL are not enough to recover.  This option writes pages when first modified after a checkpoint to WAL so full recovery is possible.",sighup,bool,default,,,,on,on,,,f
+geqo,on,,Query Tuning / Genetic Query Optimizer,Enables genetic query optimization.,This algorithm attempts to do planning without exhaustive searching.,user,bool,default,,,,on,on,,,f
+geqo_effort,5,,Query Tuning / Genetic Query Optimizer,GEQO: effort is used to set the default for other GEQO parameters.,,user,integer,default,1,10,,5,5,,,f
+geqo_generations,0,,Query Tuning / Genetic Query Optimizer,GEQO: number of iterations of the algorithm.,Zero selects a suitable default value.,user,integer,default,0,2147483647,,0,0,,,f
+geqo_pool_size,0,,Query Tuning / Genetic Query Optimizer,GEQO: number of individuals in the population.,Zero selects a suitable default value.,user,integer,default,0,2147483647,,0,0,,,f
+geqo_seed,0,,Query Tuning / Genetic Query Optimizer,GEQO: seed for random path selection.,,user,real,default,0,1,,0,0,,,f
+geqo_selection_bias,2,,Query Tuning / Genetic Query Optimizer,GEQO: selective pressure within the population.,,user,real,default,1.5,2,,2,2,,,f
+geqo_threshold,12,,Query Tuning / Genetic Query Optimizer,Sets the threshold of FROM items beyond which GEQO is used.,,user,integer,default,2,2147483647,,12,12,,,f
+gin_fuzzy_search_limit,0,,Client Connection Defaults / Other Defaults,Sets the maximum allowed result for exact search by GIN.,,user,integer,default,0,2147483647,,0,0,,,f
+gin_pending_list_limit,4096,kB,Client Connection Defaults / Statement Behavior,Sets the maximum size of the pending list for GIN index.,,user,integer,default,64,2147483647,,4096,4096,,,f
+hba_file,/etc/postgresql/9.6/main/pg_hba.conf,,File Locations,"Sets the server's ""hba"" configuration file.",,postmaster,string,override,,,,,/etc/postgresql/9.6/main/pg_hba.conf,,,f
+hot_standby,off,,Replication / Standby Servers,Allows connections and queries during recovery.,,postmaster,bool,default,,,,off,off,,,f
+hot_standby_feedback,off,,Replication / Standby Servers,Allows feedback from a hot standby to the primary that will avoid query conflicts.,,sighup,bool,default,,,,off,off,,,f
+huge_pages,try,,Resource Usage / Memory,Use of huge pages on Linux.,,postmaster,enum,default,,,"{off,on,try}",try,try,,,f
+ident_file,/etc/postgresql/9.6/main/pg_ident.conf,,File Locations,"Sets the server's ""ident"" configuration file.",,postmaster,string,override,,,,,/etc/postgresql/9.6/main/pg_ident.conf,,,f
+idle_in_transaction_session_timeout,0,ms,Client Connection Defaults / Statement Behavior,Sets the maximum allowed duration of any idling transaction.,A value of 0 turns off the timeout.,user,integer,default,0,2147483647,,0,0,,,f
+ignore_checksum_failure,off,,Developer Options,Continues processing after a checksum failure.,"Detection of a checksum failure normally causes PostgreSQL to report an error, aborting the current transaction. Setting ignore_checksum_failure to true causes the system to ignore the failure (but still report a warning), and continue processing. This behavior could cause crashes or other serious problems. Only has an effect if checksums are enabled.",superuser,bool,default,,,,off,off,,,f
+ignore_system_indexes,off,,Developer Options,Disables reading from system indexes.,"It does not prevent updating the indexes, so it is safe to use.  The worst consequence is slowness.",backend,bool,default,,,,off,off,,,f
+integer_datetimes,on,,Preset Options,Datetimes are integer based.,,internal,bool,default,,,,on,on,,,f
+IntervalStyle,postgres,,Client Connection Defaults / Locale and Formatting,Sets the display format for interval values.,,user,enum,default,,,"{postgres,postgres_verbose,sql_standard,iso_8601}",postgres,postgres,,,f
+join_collapse_limit,8,,Query Tuning / Other Planner Options,Sets the FROM-list size beyond which JOIN constructs are not flattened.,The planner will flatten explicit JOIN constructs into lists of FROM items whenever a list of no more than this many items would result.,user,integer,default,1,2147483647,,8,8,,,f
+krb_caseins_users,off,,Connections and Authentication / Security and Authentication,Sets whether Kerberos and GSSAPI user names should be treated as case-insensitive.,,sighup,bool,default,,,,off,off,,,f
+krb_server_keyfile,FILE:/etc/postgresql-common/krb5.keytab,,Connections and Authentication / Security and Authentication,Sets the location of the Kerberos server key file.,,sighup,string,default,,,,FILE:/etc/postgresql-common/krb5.keytab,FILE:/etc/postgresql-common/krb5.keytab,,,f
+lc_collate,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Shows the collation order locale.,,internal,string,override,,,,C,en_US.UTF-8,,,f
+lc_ctype,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Shows the character classification and case conversion locale.,,internal,string,override,,,,C,en_US.UTF-8,,,f
+lc_messages,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Sets the language in which messages are displayed.,,superuser,string,configuration file,,,,"",en_US.UTF-8,/etc/postgresql/9.6/main/postgresql.conf,567,f
+lc_monetary,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Sets the locale for formatting monetary amounts.,,user,string,configuration file,,,,C,en_US.UTF-8,/etc/postgresql/9.6/main/postgresql.conf,569,f
+lc_numeric,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Sets the locale for formatting numbers.,,user,string,configuration file,,,,C,en_US.UTF-8,/etc/postgresql/9.6/main/postgresql.conf,570,f
+lc_time,en_US.UTF-8,,Client Connection Defaults / Locale and Formatting,Sets the locale for formatting date and time values.,,user,string,configuration file,,,,C,en_US.UTF-8,/etc/postgresql/9.6/main/postgresql.conf,571,f
+listen_addresses,localhost,,Connections and Authentication / Connection Settings,Sets the host name or IP address(es) to listen to.,,postmaster,string,default,,,,localhost,localhost,,,f
+lo_compat_privileges,off,,Version and Platform Compatibility / Previous PostgreSQL Versions,Enables backward compatibility mode for privilege checks on large objects.,"Skips privilege checks when reading or modifying large objects, for compatibility with PostgreSQL releases prior to 9.0.",superuser,bool,default,,,,off,off,,,f
+local_preload_libraries,"",,Client Connection Defaults / Shared Library Preloading,Lists unprivileged shared libraries to preload into each backend.,,user,string,default,,,,"","",,,f
+lock_timeout,0,ms,Client Connection Defaults / Statement Behavior,Sets the maximum allowed duration of any wait for a lock.,A value of 0 turns off the timeout.,user,integer,default,0,2147483647,,0,0,,,f
+log_autovacuum_min_duration,-1,ms,Reporting and Logging / What to Log,Sets the minimum execution time above which autovacuum actions will be logged.,Zero prints all actions. -1 turns autovacuum logging off.,sighup,integer,default,-1,2147483647,,-1,-1,,,f
+log_checkpoints,off,,Reporting and Logging / What to Log,Logs each checkpoint.,,sighup,bool,default,,,,off,off,,,f
+log_connections,off,,Reporting and Logging / What to Log,Logs each successful connection.,,superuser-backend,bool,default,,,,off,off,,,f
+log_destination,stderr,,Reporting and Logging / Where to Log,Sets the destination for server log output.,"Valid values are combinations of ""stderr"", ""syslog"", ""csvlog"", and ""eventlog"", depending on the platform.",sighup,string,default,,,,stderr,stderr,,,f
+log_directory,pg_log,,Reporting and Logging / Where to Log,Sets the destination directory for log files.,Can be specified as relative to the data directory or as absolute path.,sighup,string,default,,,,pg_log,pg_log,,,f
+log_disconnections,off,,Reporting and Logging / What to Log,"Logs end of a session, including duration.",,superuser-backend,bool,default,,,,off,off,,,f
+log_duration,off,,Reporting and Logging / What to Log,Logs the duration of each completed SQL statement.,,superuser,bool,default,,,,off,off,,,f
+log_error_verbosity,default,,Reporting and Logging / What to Log,Sets the verbosity of logged messages.,,superuser,enum,default,,,"{terse,default,verbose}",default,default,,,f
+log_executor_stats,off,,Statistics / Monitoring,Writes executor performance statistics to the server log.,,superuser,bool,default,,,,off,off,,,f
+log_file_mode,0600,,Reporting and Logging / Where to Log,Sets the file permissions for log files.,The parameter value is expected to be a numeric mode specification in the form accepted by the chmod and umask system calls. (To use the customary octal format the number must start with a 0 (zero).),sighup,integer,default,0,511,,384,384,,,f
+log_filename,postgresql-%Y-%m-%d_%H%M%S.log,,Reporting and Logging / Where to Log,Sets the file name pattern for log files.,,sighup,string,default,,,,postgresql-%Y-%m-%d_%H%M%S.log,postgresql-%Y-%m-%d_%H%M%S.log,,,f
+log_hostname,off,,Reporting and Logging / What to Log,Logs the host name in the connection logs.,"By default, connection logs only show the IP address of the connecting host. If you want them to show the host name you can turn this on, but depending on your host name resolution setup it might impose a non-negligible performance penalty.",sighup,bool,default,,,,off,off,,,f
+log_line_prefix,%m [%p] %q%u@%d ,,Reporting and Logging / What to Log,Controls information prefixed to each log line.,"If blank, no prefix is used.",sighup,string,configuration file,,,,"",%m [%p] %q%u@%d ,/etc/postgresql/9.6/main/postgresql.conf,431,f
+log_lock_waits,off,,Reporting and Logging / What to Log,Logs long lock waits.,,superuser,bool,default,,,,off,off,,,f
+log_min_duration_statement,-1,ms,Reporting and Logging / When to Log,Sets the minimum execution time above which statements will be logged.,Zero prints all queries. -1 turns this feature off.,superuser,integer,default,-1,2147483647,,-1,-1,,,f
+log_min_error_statement,error,,Reporting and Logging / When to Log,Causes all statements generating error at or above this level to be logged.,"Each level includes all the levels that follow it. The later the level, the fewer messages are sent.",superuser,enum,default,,,"{debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic}",error,error,,,f
+log_min_messages,warning,,Reporting and Logging / When to Log,Sets the message levels that are logged.,"Each level includes all the levels that follow it. The later the level, the fewer messages are sent.",superuser,enum,default,,,"{debug5,debug4,debug3,debug2,debug1,info,notice,warning,error,log,fatal,panic}",warning,warning,,,f
+log_parser_stats,off,,Statistics / Monitoring,Writes parser performance statistics to the server log.,,superuser,bool,default,,,,off,off,,,f
+log_planner_stats,off,,Statistics / Monitoring,Writes planner performance statistics to the server log.,,superuser,bool,default,,,,off,off,,,f
+log_replication_commands,off,,Reporting and Logging / What to Log,Logs each replication command.,,superuser,bool,default,,,,off,off,,,f
+log_rotation_age,1440,min,Reporting and Logging / Where to Log,Automatic log file rotation will occur after N minutes.,,sighup,integer,default,0,35791394,,1440,1440,,,f
+log_rotation_size,10240,kB,Reporting and Logging / Where to Log,Automatic log file rotation will occur after N kilobytes.,,sighup,integer,default,0,2097151,,10240,10240,,,f
+log_statement,none,,Reporting and Logging / What to Log,Sets the type of statements logged.,,superuser,enum,default,,,"{none,ddl,mod,all}",none,none,,,f
+log_statement_stats,off,,Statistics / Monitoring,Writes cumulative performance statistics to the server log.,,superuser,bool,default,,,,off,off,,,f
+log_temp_files,-1,kB,Reporting and Logging / What to Log,Log the use of temporary files larger than this number of kilobytes.,Zero logs all files. The default is -1 (turning this feature off).,superuser,integer,default,-1,2147483647,,-1,-1,,,f
+log_timezone,localtime,,Reporting and Logging / What to Log,Sets the time zone to use in log messages.,,sighup,string,configuration file,,,,GMT,localtime,/etc/postgresql/9.6/main/postgresql.conf,458,f
+log_truncate_on_rotation,off,,Reporting and Logging / Where to Log,Truncate existing log files of same name during log rotation.,,sighup,bool,default,,,,off,off,,,f
+logging_collector,off,,Reporting and Logging / Where to Log,Start a subprocess to capture stderr output and/or csvlogs into log files.,,postmaster,bool,default,,,,off,off,,,f
+maintenance_work_mem,65536,kB,Resource Usage / Memory,Sets the maximum memory to be used for maintenance operations.,This includes operations such as VACUUM and CREATE INDEX.,user,integer,default,1024,2147483647,,65536,65536,,,f
+max_connections,100,,Connections and Authentication / Connection Settings,Sets the maximum number of concurrent connections.,,postmaster,integer,configuration file,1,262143,,100,100,/etc/postgresql/9.6/main/postgresql.conf,64,f
+max_files_per_process,1000,,Resource Usage / Kernel Resources,Sets the maximum number of simultaneously open files for each server process.,,postmaster,integer,default,25,2147483647,,1000,1000,,,f
+max_function_args,100,,Preset Options,Shows the maximum number of function arguments.,,internal,integer,default,100,100,,100,100,,,f
+max_identifier_length,63,,Preset Options,Shows the maximum identifier length.,,internal,integer,default,63,63,,63,63,,,f
+max_index_keys,32,,Preset Options,Shows the maximum number of index keys.,,internal,integer,default,32,32,,32,32,,,f
+max_locks_per_transaction,64,,Lock Management,Sets the maximum number of locks per transaction.,The shared lock table is sized on the assumption that at most max_locks_per_transaction * max_connections distinct objects will need to be locked at any one time.,postmaster,integer,default,10,2147483647,,64,64,,,f
+max_parallel_workers_per_gather,0,,Resource Usage / Asynchronous Behavior,Sets the maximum number of parallel processes per executor node.,,user,integer,default,0,1024,,0,0,,,f
+max_pred_locks_per_transaction,64,,Lock Management,Sets the maximum number of predicate locks per transaction.,The shared predicate lock table is sized on the assumption that at most max_pred_locks_per_transaction * max_connections distinct objects will need to be locked at any one time.,postmaster,integer,default,10,2147483647,,64,64,,,f
+max_prepared_transactions,0,,Resource Usage / Memory,Sets the maximum number of simultaneously prepared transactions.,,postmaster,integer,default,0,262143,,0,0,,,f
+max_replication_slots,0,,Replication / Sending Servers,Sets the maximum number of simultaneously defined replication slots.,,postmaster,integer,default,0,262143,,0,0,,,f
+max_stack_depth,2048,kB,Resource Usage / Memory,"Sets the maximum stack depth, in kilobytes.",,superuser,integer,environment variable,100,2147483647,,100,2048,,,f
+max_standby_archive_delay,30000,ms,Replication / Standby Servers,Sets the maximum delay before canceling queries when a hot standby server is processing archived WAL data.,,sighup,integer,default,-1,2147483647,,30000,30000,,,f
+max_standby_streaming_delay,30000,ms,Replication / Standby Servers,Sets the maximum delay before canceling queries when a hot standby server is processing streamed WAL data.,,sighup,integer,default,-1,2147483647,,30000,30000,,,f
+max_wal_senders,0,,Replication / Sending Servers,Sets the maximum number of simultaneously running WAL sender processes.,,postmaster,integer,default,0,262143,,0,0,,,f
+max_wal_size,64,16MB,Write-Ahead Log / Checkpoints,Sets the WAL size that triggers a checkpoint.,,sighup,integer,default,2,2147483647,,64,64,,,f
+max_worker_processes,8,,Resource Usage / Asynchronous Behavior,Maximum number of concurrent worker processes.,,postmaster,integer,default,0,262143,,8,8,,,f
+min_parallel_relation_size,1024,8kB,Query Tuning / Planner Cost Constants,Sets the minimum size of relations to be considered for parallel scan.,,user,integer,default,0,715827882,,1024,1024,,,f
+min_wal_size,5,16MB,Write-Ahead Log / Checkpoints,Sets the minimum size to shrink the WAL to.,,sighup,integer,default,2,2147483647,,5,5,,,f
+old_snapshot_threshold,-1,min,Resource Usage / Asynchronous Behavior,Time before a snapshot is too old to read pages changed after the snapshot was taken.,A value of -1 disables this feature.,postmaster,integer,default,-1,86400,,-1,-1,,,f
+operator_precedence_warning,off,,Version and Platform Compatibility / Previous PostgreSQL Versions,Emit a warning for constructs that changed meaning since PostgreSQL 9.4.,,user,bool,default,,,,off,off,,,f
+parallel_setup_cost,1000,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of starting up worker processes for parallel query.,,user,real,default,0,1.79769e+308,,1000,1000,,,f
+parallel_tuple_cost,0.1,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of passing each tuple (row) from worker to master backend.,,user,real,default,0,1.79769e+308,,0.1,0.1,,,f
+password_encryption,on,,Connections and Authentication / Security and Authentication,Encrypt passwords.,"When a password is specified in CREATE USER or ALTER USER without writing either ENCRYPTED or UNENCRYPTED, this parameter determines whether the password is to be encrypted.",user,bool,default,,,,on,on,,,f
+port,5432,,Connections and Authentication / Connection Settings,Sets the TCP port the server listens on.,,postmaster,integer,configuration file,1,65535,,5432,5432,/etc/postgresql/9.6/main/postgresql.conf,63,f
+post_auth_delay,0,s,Developer Options,Waits N seconds on connection startup after authentication.,This allows attaching a debugger to the process.,backend,integer,default,0,2147,,0,0,,,f
+pre_auth_delay,0,s,Developer Options,Waits N seconds on connection startup before authentication.,This allows attaching a debugger to the process.,sighup,integer,default,0,60,,0,0,,,f
+quote_all_identifiers,off,,Version and Platform Compatibility / Previous PostgreSQL Versions,"When generating SQL fragments, quote all identifiers.",,user,bool,default,,,,off,off,,,f
+random_page_cost,4,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of a nonsequentially fetched disk page.,,user,real,default,0,1.79769e+308,,4,4,,,f
+replacement_sort_tuples,150000,,Resource Usage / Memory,Sets the maximum number of tuples to be sorted using replacement selection.,"When more tuples than this are present, quicksort will be used.",user,integer,default,0,2147483647,,150000,150000,,,f
+restart_after_crash,on,,Error Handling,Reinitialize server after backend crash.,,sighup,bool,default,,,,on,on,,,f
+row_security,on,,Connections and Authentication / Security and Authentication,Enable row security.,"When enabled, row security will be applied to all users.",user,bool,default,,,,on,on,,,f
+search_path,"""$user"", public",,Client Connection Defaults / Statement Behavior,Sets the schema search order for names that are not schema-qualified.,,user,string,default,,,,"""$user"", public","""$user"", public",,,f
+segment_size,131072,8kB,Preset Options,Shows the number of pages per disk file.,,internal,integer,default,131072,131072,,131072,131072,,,f
+seq_page_cost,1,,Query Tuning / Planner Cost Constants,Sets the planner's estimate of the cost of a sequentially fetched disk page.,,user,real,default,0,1.79769e+308,,1,1,,,f
+server_encoding,UTF8,,Client Connection Defaults / Locale and Formatting,Sets the server (database) character set encoding.,,internal,string,override,,,,SQL_ASCII,UTF8,,,f
+server_version,9.6.3,,Preset Options,Shows the server version.,,internal,string,default,,,,9.6.3,9.6.3,,,f
+server_version_num,90603,,Preset Options,Shows the server version as an integer.,,internal,integer,default,90603,90603,,90603,90603,,,f
+session_preload_libraries,"",,Client Connection Defaults / Shared Library Preloading,Lists shared libraries to preload into each backend.,,superuser,string,default,,,,"","",,,f
+session_replication_role,origin,,Client Connection Defaults / Statement Behavior,Sets the session's behavior for triggers and rewrite rules.,,superuser,enum,default,,,"{origin,replica,local}",origin,origin,,,f
+shared_buffers,16384,8kB,Resource Usage / Memory,Sets the number of shared memory buffers used by the server.,,postmaster,integer,configuration file,16,1073741823,,1024,16384,/etc/postgresql/9.6/main/postgresql.conf,113,f
+shared_preload_libraries,"",,Client Connection Defaults / Shared Library Preloading,Lists shared libraries to preload into server.,,postmaster,string,default,,,,"","",,,f
+sql_inheritance,on,,Version and Platform Compatibility / Previous PostgreSQL Versions,Causes subtables to be included by default in various commands.,,user,bool,default,,,,on,on,,,f
+ssl,on,,Connections and Authentication / Security and Authentication,Enables SSL connections.,,postmaster,bool,configuration file,,,,off,on,/etc/postgresql/9.6/main/postgresql.conf,79,f
+ssl_ca_file,"",,Connections and Authentication / Security and Authentication,Location of the SSL certificate authority file.,,postmaster,string,default,,,,"","",,,f
+ssl_cert_file,/etc/ssl/certs/ssl-cert-snakeoil.pem,,Connections and Authentication / Security and Authentication,Location of the SSL server certificate file.,,postmaster,string,configuration file,,,,server.crt,/etc/ssl/certs/ssl-cert-snakeoil.pem,/etc/postgresql/9.6/main/postgresql.conf,84,f
+ssl_ciphers,HIGH:MEDIUM:+3DES:!aNULL,,Connections and Authentication / Security and Authentication,Sets the list of allowed SSL ciphers.,,postmaster,string,default,,,,HIGH:MEDIUM:+3DES:!aNULL,HIGH:MEDIUM:+3DES:!aNULL,,,f
+ssl_crl_file,"",,Connections and Authentication / Security and Authentication,Location of the SSL certificate revocation list file.,,postmaster,string,default,,,,"","",,,f
+ssl_ecdh_curve,prime256v1,,Connections and Authentication / Security and Authentication,Sets the curve to use for ECDH.,,postmaster,string,default,,,,prime256v1,prime256v1,,,f
+ssl_key_file,/etc/ssl/private/ssl-cert-snakeoil.key,,Connections and Authentication / Security and Authentication,Location of the SSL server private key file.,,postmaster,string,configuration file,,,,server.key,/etc/ssl/private/ssl-cert-snakeoil.key,/etc/postgresql/9.6/main/postgresql.conf,85,f
+ssl_prefer_server_ciphers,on,,Connections and Authentication / Security and Authentication,Give priority to server ciphersuite order.,,postmaster,bool,default,,,,on,on,,,f
+standard_conforming_strings,on,,Version and Platform Compatibility / Previous PostgreSQL Versions,Causes '...' strings to treat backslashes literally.,,user,bool,default,,,,on,on,,,f
+statement_timeout,0,ms,Client Connection Defaults / Statement Behavior,Sets the maximum allowed duration of any statement.,A value of 0 turns off the timeout.,user,integer,default,0,2147483647,,0,0,,,f
+stats_temp_directory,/var/run/postgresql/9.6-main.pg_stat_tmp,,Statistics / Query and Index Statistics Collector,Writes temporary statistics files to the specified directory.,,sighup,string,configuration file,,,,pg_stat_tmp,/var/run/postgresql/9.6-main.pg_stat_tmp,/etc/postgresql/9.6/main/postgresql.conf,479,f
+superuser_reserved_connections,3,,Connections and Authentication / Connection Settings,Sets the number of connection slots reserved for superusers.,,postmaster,integer,default,0,262143,,3,3,,,f
+synchronize_seqscans,on,,Version and Platform Compatibility / Previous PostgreSQL Versions,Enable synchronized sequential scans.,,user,bool,default,,,,on,on,,,f
+synchronous_commit,on,,Write-Ahead Log / Settings,Sets the current transaction's synchronization level.,,user,enum,default,,,"{local,remote_write,remote_apply,on,off}",on,on,,,f
+synchronous_standby_names,"",,Replication / Master Server,Number of synchronous standbys and list of names of potential synchronous ones.,,sighup,string,default,,,,"","",,,f
+syslog_facility,local0,,Reporting and Logging / Where to Log,"Sets the syslog ""facility"" to be used when syslog enabled.",,sighup,enum,default,,,"{local0,local1,local2,local3,local4,local5,local6,local7}",local0,local0,,,f
+syslog_ident,postgres,,Reporting and Logging / Where to Log,Sets the program name used to identify PostgreSQL messages in syslog.,,sighup,string,default,,,,postgres,postgres,,,f
+syslog_sequence_numbers,on,,Reporting and Logging / Where to Log,Add sequence number to syslog messages to avoid duplicate suppression.,,sighup,bool,default,,,,on,on,,,f
+syslog_split_messages,on,,Reporting and Logging / Where to Log,Split messages sent to syslog by lines and to fit into 1024 bytes.,,sighup,bool,default,,,,on,on,,,f
+tcp_keepalives_count,0,,Client Connection Defaults / Other Defaults,Maximum number of TCP keepalive retransmits.,This controls the number of consecutive keepalive retransmits that can be lost before a connection is considered dead. A value of 0 uses the system default.,user,integer,default,0,2147483647,,0,0,,,f
+tcp_keepalives_idle,0,s,Client Connection Defaults / Other Defaults,Time between issuing TCP keepalives.,A value of 0 uses the system default.,user,integer,default,0,2147483647,,0,0,,,f
+tcp_keepalives_interval,0,s,Client Connection Defaults / Other Defaults,Time between TCP keepalive retransmits.,A value of 0 uses the system default.,user,integer,default,0,2147483647,,0,0,,,f
+temp_buffers,1024,8kB,Resource Usage / Memory,Sets the maximum number of temporary buffers used by each session.,,user,integer,default,100,1073741823,,1024,1024,,,f
+temp_file_limit,-1,kB,Resource Usage / Disk,Limits the total size of all temporary files used by each process.,-1 means no limit.,superuser,integer,default,-1,2147483647,,-1,-1,,,f
+temp_tablespaces,"",,Client Connection Defaults / Statement Behavior,Sets the tablespace(s) to use for temporary tables and sort files.,,user,string,default,,,,"","",,,f
+TimeZone,localtime,,Client Connection Defaults / Locale and Formatting,Sets the time zone for displaying and interpreting time stamps.,,user,string,configuration file,,,,GMT,localtime,/etc/postgresql/9.6/main/postgresql.conf,554,f
+timezone_abbreviations,Default,,Client Connection Defaults / Locale and Formatting,Selects a file of time zone abbreviations.,,user,string,default,,,,,Default,,,f
+trace_notify,off,,Developer Options,Generates debugging output for LISTEN and NOTIFY.,,user,bool,default,,,,off,off,,,f
+trace_recovery_messages,log,,Developer Options,Enables logging of recovery-related debugging information.,"Each level includes all the levels that follow it. The later the level, the fewer messages are sent.",sighup,enum,default,,,"{debug5,debug4,debug3,debug2,debug1,log,notice,warning,error}",log,log,,,f
+trace_sort,off,,Developer Options,Emit information about resource usage in sorting.,,user,bool,default,,,,off,off,,,f
+track_activities,on,,Statistics / Query and Index Statistics Collector,Collects information about executing commands.,"Enables the collection of information on the currently executing command of each session, along with the time at which that command began execution.",superuser,bool,default,,,,on,on,,,f
+track_activity_query_size,1024,,Resource Usage / Memory,"Sets the size reserved for pg_stat_activity.query, in bytes.",,postmaster,integer,default,100,102400,,1024,1024,,,f
+track_commit_timestamp,off,,Replication,Collects transaction commit time.,,postmaster,bool,default,,,,off,off,,,f
+track_counts,on,,Statistics / Query and Index Statistics Collector,Collects statistics on database activity.,,superuser,bool,default,,,,on,on,,,f
+track_functions,none,,Statistics / Query and Index Statistics Collector,Collects function-level statistics on database activity.,,superuser,enum,default,,,"{none,pl,all}",none,none,,,f
+track_io_timing,off,,Statistics / Query and Index Statistics Collector,Collects timing statistics for database I/O activity.,,superuser,bool,default,,,,off,off,,,f
+transaction_deferrable,off,,Client Connection Defaults / Statement Behavior,Whether to defer a read-only serializable transaction until it can be executed with no possible serialization failures.,,user,bool,override,,,,off,off,,,f
+transaction_isolation,read committed,,Client Connection Defaults / Statement Behavior,Sets the current transaction's isolation level.,,user,string,override,,,,default,default,,,f
+transaction_read_only,off,,Client Connection Defaults / Statement Behavior,Sets the current transaction's read-only status.,,user,bool,override,,,,off,off,,,f
+transform_null_equals,off,,Version and Platform Compatibility / Other Platforms and Clients,"Treats ""expr=NULL"" as ""expr IS NULL"".","When turned on, expressions of the form expr = NULL (or NULL = expr) are treated as expr IS NULL, that is, they return true if expr evaluates to the null value, and false otherwise. The correct behavior of expr = NULL is to always return null (unknown).",user,bool,default,,,,off,off,,,f
+unix_socket_directories,/var/run/postgresql,,Connections and Authentication / Connection Settings,Sets the directories where Unix-domain sockets will be created.,,postmaster,string,configuration file,,,,/var/run/postgresql,/var/run/postgresql,/etc/postgresql/9.6/main/postgresql.conf,66,f
+unix_socket_group,"",,Connections and Authentication / Connection Settings,Sets the owning group of the Unix-domain socket.,The owning user of the socket is always the user that starts the server.,postmaster,string,default,,,,"","",,,f
+unix_socket_permissions,0777,,Connections and Authentication / Connection Settings,Sets the access permissions of the Unix-domain socket.,Unix-domain sockets use the usual Unix file system permission set. The parameter value is expected to be a numeric mode specification in the form accepted by the chmod and umask system calls. (To use the customary octal format the number must start with a 0 (zero).),postmaster,integer,default,0,511,,511,511,,,f
+update_process_title,on,,Process Title,Updates the process title to show the active SQL command.,Enables updating of the process title every time a new SQL command is received by the server.,superuser,bool,default,,,,on,on,,,f
+vacuum_cost_delay,0,ms,Resource Usage / Cost-Based Vacuum Delay,Vacuum cost delay in milliseconds.,,user,integer,default,0,100,,0,0,,,f
+vacuum_cost_limit,200,,Resource Usage / Cost-Based Vacuum Delay,Vacuum cost amount available before napping.,,user,integer,default,1,10000,,200,200,,,f
+vacuum_cost_page_dirty,20,,Resource Usage / Cost-Based Vacuum Delay,Vacuum cost for a page dirtied by vacuum.,,user,integer,default,0,10000,,20,20,,,f
+vacuum_cost_page_hit,1,,Resource Usage / Cost-Based Vacuum Delay,Vacuum cost for a page found in the buffer cache.,,user,integer,default,0,10000,,1,1,,,f
+vacuum_cost_page_miss,10,,Resource Usage / Cost-Based Vacuum Delay,Vacuum cost for a page not found in the buffer cache.,,user,integer,default,0,10000,,10,10,,,f
+vacuum_defer_cleanup_age,0,,Replication / Master Server,"Number of transactions by which VACUUM and HOT cleanup should be deferred, if any.",,sighup,integer,default,0,1000000,,0,0,,,f
+vacuum_freeze_min_age,50000000,,Client Connection Defaults / Statement Behavior,Minimum age at which VACUUM should freeze a table row.,,user,integer,default,0,1000000000,,50000000,50000000,,,f
+vacuum_freeze_table_age,150000000,,Client Connection Defaults / Statement Behavior,Age at which VACUUM should scan whole table to freeze tuples.,,user,integer,default,0,2000000000,,150000000,150000000,,,f
+vacuum_multixact_freeze_min_age,5000000,,Client Connection Defaults / Statement Behavior,Minimum age at which VACUUM should freeze a MultiXactId in a table row.,,user,integer,default,0,1000000000,,5000000,5000000,,,f
+vacuum_multixact_freeze_table_age,150000000,,Client Connection Defaults / Statement Behavior,Multixact age at which VACUUM should scan whole table to freeze tuples.,,user,integer,default,0,2000000000,,150000000,150000000,,,f
+wal_block_size,8192,,Preset Options,Shows the block size in the write ahead log.,,internal,integer,default,8192,8192,,8192,8192,,,f
+wal_buffers,512,8kB,Write-Ahead Log / Settings,Sets the number of disk-page buffers in shared memory for WAL.,,postmaster,integer,override,-1,262143,,-1,512,,,f
+wal_compression,off,,Write-Ahead Log / Settings,Compresses full-page writes written in WAL file.,,superuser,bool,default,,,,off,off,,,f
+wal_keep_segments,0,,Replication / Sending Servers,Sets the number of WAL files held for standby servers.,,sighup,integer,default,0,2147483647,,0,0,,,f
+wal_level,minimal,,Write-Ahead Log / Settings,Set the level of information written to the WAL.,,postmaster,enum,default,,,"{minimal,replica,logical}",minimal,minimal,,,f
+wal_log_hints,off,,Write-Ahead Log / Settings,"Writes full pages to WAL when first modified after a checkpoint, even for a non-critical modifications.",,postmaster,bool,default,,,,off,off,,,f
+wal_receiver_status_interval,10,s,Replication / Standby Servers,Sets the maximum interval between WAL receiver status reports to the primary.,,sighup,integer,default,0,2147483,,10,10,,,f
+wal_receiver_timeout,60000,ms,Replication / Standby Servers,Sets the maximum wait time to receive data from the primary.,,sighup,integer,default,0,2147483647,,60000,60000,,,f
+wal_retrieve_retry_interval,5000,ms,Replication / Standby Servers,Sets the time to wait before retrying to retrieve WAL after a failed attempt.,,sighup,integer,default,1,2147483647,,5000,5000,,,f
+wal_segment_size,2048,8kB,Preset Options,Shows the number of pages per write ahead log segment.,,internal,integer,default,2048,2048,,2048,2048,,,f
+wal_sender_timeout,60000,ms,Replication / Sending Servers,Sets the maximum time to wait for WAL replication.,,sighup,integer,default,0,2147483647,,60000,60000,,,f
+wal_sync_method,fdatasync,,Write-Ahead Log / Settings,Selects the method used for forcing WAL updates to disk.,,sighup,enum,default,,,"{fsync,fdatasync,open_sync,open_datasync}",fdatasync,fdatasync,,,f
+wal_writer_delay,200,ms,Write-Ahead Log / Settings,Time between WAL flushes performed in the WAL writer.,,sighup,integer,default,1,10000,,200,200,,,f
+wal_writer_flush_after,128,8kB,Write-Ahead Log / Settings,Amount of WAL written out by WAL writer that triggers a flush.,,sighup,integer,default,0,2147483647,,128,128,,,f
+work_mem,4096,kB,Resource Usage / Memory,Sets the maximum memory to be used for query workspaces.,This much memory can be used by each internal sort operation and hash table before switching to temporary disk files.,user,integer,default,64,2147483647,,4096,4096,,,f
+xmlbinary,base64,,Client Connection Defaults / Statement Behavior,Sets how binary values are to be encoded in XML.,,user,enum,default,,,"{base64,hex}",base64,base64,,,f
+xmloption,content,,Client Connection Defaults / Statement Behavior,Sets whether XML data in implicit parsing and serialization operations is to be considered as documents or content fragments.,,user,enum,default,,,"{content,document}",content,content,,,f
+zero_damaged_pages,off,,Developer Options,Continues processing past damaged page headers.,"Detection of a damaged page header normally causes PostgreSQL to report an error, aborting the current transaction. Setting zero_damaged_pages to true causes the system to instead report a warning, zero out the damaged page, and continue processing. This behavior will destroy data, namely all the rows on the damaged page.",superuser,bool,default,,,,off,off,,,f

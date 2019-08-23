@@ -1,0 +1,20 @@
+#
+# OtterTune - utils.py
+#
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
+#
+TEST_USERNAME = 'user'
+
+TEST_PASSWORD = 'abcd123'
+
+TEST_PROJECT_ID = 1
+
+TEST_BASIC_SESSION_ID = 1
+
+TEST_TUNING_SESSION_ID = 2
+
+TEST_WORKLOAD_ID = 1
+
+TEST_BASIC_SESSION_UPLOAD_CODE = '1234567890'
+
+TEST_TUNING_SESSION_UPLOAD_CODE = '0987654321'

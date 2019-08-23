@@ -1,0 +1,21 @@
+FROM ottertune-base
+
+ENV DJANGO_SETTINGS_MODULE=website.settings
+ENV C_FORCE_ROOT=true
+
+RUN mkdir -p /app
+
+COPY . /app
+
+WORKDIR /app/server/website
+
+RUN pip3 install codecov
+
+COPY ./docker/credentials.py ./website/settings
+COPY ./docker/wait-for-it.sh . 
+
+RUN chmod +x ./*.sh
+
+RUN sed s/'@localhost'/'@rabbitmq'/g ./website/settings/common.py > tmp \
+    && mv tmp ./website/settings/common.py
+

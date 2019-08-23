@@ -1,0 +1,13 @@
+# Logs and settings #
+#####################
+log/
+*.log
+local_settings.py
+
+# celery beat schedule file #
+#############################
+celerybeat-schedule
+
+# Raw data files #
+##################
+data/media/*

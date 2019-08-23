@@ -1,0 +1,31 @@
+FROM centos:7
+
+ARG GRADLE_VERSION=gradle-5.5.1
+  
+ENV GRADLE_HOME=/opt/${GRADLE_VERSION}
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
+
+COPY ./server/website/requirements.txt /
+
+RUN yum update -y \
+    && yum install -y mariadb mariadb-devel \
+        https://centos7.iuscommunity.org/ius-release.rpm \
+    && yum install -y gcc git MySQL-python openldap-devel \
+        parallel python36u python36u-devel python36u-libs \
+        python36u-pip python36u-tkinter rabbitmq-server \
+        java-11-openjdk-devel wget which unzip curl \
+	&& yum -y autoremove \
+	&& yum clean metadata \
+    && yum clean all \
+    && ln -s `which python3.6` /usr/bin/python3 \
+    && ln -s `which pip3.6` /usr/bin/pip3 \
+    && wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip \
+    && unzip ${GRADLE_VERSION}-bin.zip -d /opt \
+    && rm ${GRADLE_VERSION}-bin.zip \
+    && python3 --version \
+    && pip3 --version \
+    && javac --version \
+    && gradle --version \
+    && pip3 install -r /requirements.txt \
+    && rm /requirements.txt 
+

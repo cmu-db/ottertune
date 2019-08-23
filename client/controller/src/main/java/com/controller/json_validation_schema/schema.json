@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "collector output",
+  "description": "Collected metrics or knobs info",
+  "type": "object",
+  "properties": {
+    "global" : {
+      "type": ["object", "null"],
+      "patternProperties" : {
+        "^[A-Za-z0-9 -_]" : {
+          "type" : "object",
+          "patternProperties" : {
+            "^[A-Za-z0-9 -_]" : {
+              "type" : "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "local" : {
+      "type": ["object", "null"],
+      "patternProperties" : {
+        "^[A-Za-z0-9 -_]" : {
+          "type" : "object",
+          "patternProperties" : {
+            "^[A-Za-z0-9 -_]" : {
+              "type" : "object",
+              "patternProperties" : {
+                "^[A-Za-z0-9 -_]" : {
+                  "type" : "object",
+                  "patternProperties" : {
+                    "^[A-Za-z0-9 -_]" : {
+                      "type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["global", "local"]
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "fields": {
+            "hardware": 16, 
+            "dbms": 1, 
+            "task_type": 1, 
+            "creation_timestamp": "2016-12-04 11:00", 
+            "value": "[\n    \"99th Percentile Latency (microseconds)\", \n    \"Maximum Latency (microseconds)\", \n    \"Throughput (requests/second)\", \n    \"pg_stat_bgwriter.buffers_alloc\", \n    \"pg_stat_bgwriter.buffers_checkpoint\", \n    \"pg_stat_bgwriter.checkpoints_req\", \n    \"pg_stat_bgwriter.maxwritten_clean\", \n    \"pg_stat_database.blks_hit\", \n    \"pg_stat_database.tup_deleted\", \n    \"pg_stat_database.tup_inserted\", \n    \"pg_stat_database.tup_returned\", \n    \"pg_stat_database.tup_updated\", \n    \"pg_stat_user_tables.autoanalyze_count\"\n]"
+        }, 
+        "model": "website.PipelineResult"
+    }
+]

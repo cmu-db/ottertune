@@ -1,0 +1,2559 @@
+NAME                                                                            
+----------------------------------------------------------------                
+OS CPU Qt wait time                                                             
+Requests to/from client                                                         
+logons cumulative                                                               
+logons current                                                                  
+opened cursors cumulative                                                       
+opened cursors current                                                          
+user commits                                                                    
+user rollbacks                                                                  
+user calls                                                                      
+recursive calls                                                                 
+recursive cpu usage                                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+pinned cursors current                                                          
+user logons cumulative                                                          
+user logouts cumulative                                                         
+session logical reads                                                           
+session logical reads in local numa group                                       
+session logical reads in remote numa group                                      
+session stored procedure space                                                  
+CPU used when call started                                                      
+CPU used by this session                                                        
+DB time                                                                         
+CPU used by LWTs for this session                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+DB time of LWTs for this session                                                
+cluster wait time                                                               
+concurrency wait time                                                           
+application wait time                                                           
+user I/O wait time                                                              
+scheduler wait time                                                             
+non-idle wait time                                                              
+non-idle wait count                                                             
+in call idle wait time                                                          
+session connect time                                                            
+process last non-idle time                                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+session uga memory                                                              
+session uga memory max                                                          
+messages sent                                                                   
+messages received                                                               
+background timeouts                                                             
+remote Oradebug requests                                                        
+session pga memory                                                              
+session pga memory max                                                          
+recursive system API invocations                                                
+enqueue timeouts                                                                
+enqueue waits                                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+enqueue deadlocks                                                               
+enqueue requests                                                                
+enqueue conversions                                                             
+enqueue releases                                                                
+global enqueue gets sync                                                        
+global enqueue gets async                                                       
+global enqueue get time                                                         
+global enqueue releases                                                         
+physical read total IO requests                                                 
+physical read total multi block requests                                        
+physical read requests optimized                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical read total bytes optimized                                             
+physical read partial requests                                                  
+physical read total bytes                                                       
+physical write requests optimized                                               
+physical write total bytes optimized                                            
+cell writes to flash cache                                                      
+cell overwrites in flash cache                                                  
+cell partial writes in flash cache                                              
+cell writes to flash cache for temp IO                                          
+physical write total IO requests                                                
+physical write total multi block requests                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical write total bytes                                                      
+cell physical IO interconnect bytes                                             
+spare statistic 1                                                               
+spare statistic 2                                                               
+spare statistic 3                                                               
+spare statistic 4                                                               
+spare statistic 5                                                               
+spare statistic 6                                                               
+spare statistic 7                                                               
+spare statistic 8                                                               
+spare statistic 9                                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+spare statistic 10                                                              
+spare statistic 11                                                              
+spare statistic 12                                                              
+spare statistic 13                                                              
+spare statistic 14                                                              
+spare statistic 15                                                              
+spare statistic 16                                                              
+spare statistic 17                                                              
+spare statistic 18                                                              
+spare statistic 19                                                              
+spare statistic 20                                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+spare statistic 21                                                              
+spare statistic 22                                                              
+spare statistic 23                                                              
+spare statistic 24                                                              
+spare statistic 25                                                              
+spare statistic 26                                                              
+spare statistic 27                                                              
+spare statistic 28                                                              
+spare statistic 29                                                              
+spare statistic 30                                                              
+spare statistic 31                                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+spare statistic 32                                                              
+spare statistic 33                                                              
+spare statistic 34                                                              
+spare statistic 35                                                              
+spare statistic 36                                                              
+spare statistic 37                                                              
+spare statistic 38                                                              
+spare statistic 39                                                              
+spare statistic 40                                                              
+IPC CPU used by this session                                                    
+physical read snap IO requests base                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical read snap IO requests copy                                             
+physical read snap IO requests no data                                          
+physical read snap bytes base                                                   
+physical read snap bytes copy                                                   
+physical write snap IO requests new allocations                                 
+gcs messages sent                                                               
+ges messages sent                                                               
+global enqueue CPU used by this session                                         
+gcs data block access records                                                   
+gcs data block access record drops                                              
+gcs stats management (SCM) process posts                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+gcs read-mostly lock grants                                                     
+gcs anti-locks created                                                          
+gcs read-mostly lock failures                                                   
+gcs affinity lock grants                                                        
+gcs affinity lock failures                                                      
+ka messages sent                                                                
+ka grants received                                                              
+ka local messages received                                                      
+ka local message waits                                                          
+ka wait due to timeout                                                          
+ka wait due to trigger                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+ka wait calls suppressed                                                        
+ka wait calls for invalid kga                                                   
+ka wait calls attempted                                                         
+ka wait calls other                                                             
+max cf enq hold time                                                            
+total cf enq hold time                                                          
+total number of cf enq holders                                                  
+db block gets                                                                   
+db block gets from cache                                                        
+db block gets from cache (fastpath)                                             
+db block gets direct                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+consistent gets                                                                 
+consistent gets from cache                                                      
+consistent gets pin                                                             
+consistent gets pin (fastpath)                                                  
+consistent gets examination                                                     
+consistent gets examination (fastpath)                                          
+consistent gets direct                                                          
+fastpath consistent get quota limit                                             
+logical read bytes from cache                                                   
+physical reads                                                                  
+physical reads cache                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical read flash cache hits                                                  
+physical reads direct                                                           
+physical read IO requests                                                       
+physical read bytes                                                             
+db block changes                                                                
+consistent changes                                                              
+recovery blocks read                                                            
+recovery blocks read for lost write detection                                   
+recovery blocks skipped lost write checks                                       
+physical writes                                                                 
+physical writes direct                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical writes from cache                                                      
+physical write IO requests                                                      
+flash cache inserts                                                             
+physical reads direct temporary tablespace                                      
+physical writes direct temporary tablespace                                     
+physical write bytes                                                            
+flash cache eviction: invalidated                                               
+flash cache eviction: buffer pinned                                             
+flash cache eviction: aged out                                                  
+flash cache insert skip: not current                                            
+flash cache insert skip: DBWR overloaded                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+flash cache insert skip: exists                                                 
+flash cache insert skip: not useful                                             
+flash cache insert skip: modification                                           
+flash cache insert skip: corrupt                                                
+db corrupt blocks detected                                                      
+db corrupt blocks recovered                                                     
+session referenced a buffer on dram                                             
+session referenced a buffer on xmem                                             
+physical writes non checkpoint                                                  
+summed dirty queue length                                                       
+DBWR checkpoint buffers written                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+DBWR thread checkpoint buffers written                                          
+DBWR tablespace checkpoint buffers written                                      
+DBWR parallel query checkpoint buffers written                                  
+DBWR object drop buffers written                                                
+DBWR transaction table writes                                                   
+DBWR undo block writes                                                          
+DBWR revisited being-written buffer                                             
+DBWR lru scans                                                                  
+DBWR checkpoints                                                                
+DBWR fusion writes                                                              
+prefetch clients - keep                                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+prefetch clients - recycle                                                      
+prefetch clients - default                                                      
+prefetch clients - 2k                                                           
+prefetch clients - 4k                                                           
+prefetch clients - 8k                                                           
+prefetch clients - 16k                                                          
+prefetch clients - 32k                                                          
+BPS commit wait                                                                 
+BPS redo wait                                                                   
+BPS session wait                                                                
+change write time                                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+exchange deadlocks                                                              
+free buffer requested                                                           
+dirty buffers inspected                                                         
+pinned buffers inspected                                                        
+hot buffers moved to head of LRU                                                
+free buffer inspected                                                           
+commit cleanout failures: write disabled                                        
+commit cleanout failures: block lost                                            
+commit cleanout failures: cannot pin                                            
+commit cleanout failures: hot backup in progress                                
+commit cleanout failures: buffer being written                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+commit cleanout failures: callback failure                                      
+commit cleanout failures: delayed log                                           
+commit cleanout failures: flashback                                             
+commit cleanouts                                                                
+commit cleanouts successfully completed                                         
+saved cleanout failures: write disabled                                         
+saved cleanout failures: cannot pin                                             
+saved cleanout failures: hot backup in progress                                 
+saved cleanout failures: buffer being written                                   
+saved cleanout failures: callback failure                                       
+saved cleanout failures: flashback                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+saved cleanout failures: delayed log                                            
+saved cleanouts                                                                 
+saved cleanouts successfully completed                                          
+recovery array reads                                                            
+recovery array read time                                                        
+CR blocks created                                                               
+private CR blocks created                                                       
+current blocks converted for CR                                                 
+switch current to new buffer                                                    
+switch current caused by our pin                                                
+write clones created in foreground                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+write clones created in background                                              
+write clones created for recovery                                               
+checkpoint clones created for ADG recovery                                      
+recovery block gets from cache                                                  
+physical reads cache prefetch                                                   
+physical reads prefetch warmup                                                  
+prefetched blocks aged out before use                                           
+prefetch warmup blocks aged out before use                                      
+prefetch warmup blocks flushed out before use                                   
+physical reads retry corrupt                                                    
+physical reads direct (lob)                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+physical writes direct (lob)                                                    
+cold recycle reads                                                              
+shared hash latch upgrades - no wait                                            
+shared hash latch upgrades - wait                                               
+physical reads for flashback new                                                
+flashback cache read optimizations for block new                                
+flashback direct read optimizations for block new                               
+flashback securefile cache read optimizations for block new                     
+flashback securefile direct read optimizations for block new                    
+physical reads cache for securefile flashback block new                         
+physical reads direct for securefile flashback block new                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+blocks encrypted                                                                
+blocks decrypted                                                                
+data warehousing scanned objects                                                
+data warehousing scanned blocks                                                 
+data warehousing scanned blocks - memory                                        
+data warehousing scanned blocks - flash                                         
+data warehousing scanned blocks - disk                                          
+data warehousing scanned blocks - offload                                       
+data warehousing evicted objects                                                
+data warehousing evicted objects - cooling                                      
+data warehousing evicted objects - replace                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+data warehousing cooling action                                                 
+dram clean buffers available and above threshold                                
+dram clean buffers available and is requested                                   
+xmem clean buffers available and used                                           
+xmem clean buffers not available so switch to main                              
+xmem buffer switch needed but no free dram buffer                               
+xmem: dram enforced but no free buffer                                          
+calls to kcmgcs                                                                 
+calls to kcmgrs                                                                 
+calls to kcmgas                                                                 
+SCN increments due to another database                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+calls to get snapshot scn: kcmgss                                               
+redo blocks read for recovery                                                   
+redo k-bytes read for recovery                                                  
+redo k-bytes read for terminal recovery                                         
+Streaming Stall Reap                                                            
+Streaming No-Stall Reap                                                         
+redo entries                                                                    
+redo size                                                                       
+redo entries for lost write detection                                           
+redo size for lost write detection                                              
+redo size for direct writes                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo buffer allocation retries                                                  
+redo wastage                                                                    
+redo write active strands                                                       
+redo writes                                                                     
+redo writes (group 0)                                                           
+redo writes (group 1)                                                           
+redo writes (group 2)                                                           
+redo writes (group 3)                                                           
+redo writes (group 4)                                                           
+redo writes (group 5)                                                           
+redo writes (group 6)                                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo writes (group 7)                                                           
+redo writes adaptive all                                                        
+redo writes adaptive worker                                                     
+redo writes coalesced                                                           
+redo blocks written                                                             
+redo blocks written (group 0)                                                   
+redo blocks written (group 1)                                                   
+redo blocks written (group 2)                                                   
+redo blocks written (group 3)                                                   
+redo blocks written (group 4)                                                   
+redo blocks written (group 5)                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo blocks written (group 6)                                                   
+redo blocks written (group 7)                                                   
+redo write size count (   4KB)                                                  
+redo write size count (   8KB)                                                  
+redo write size count (  16KB)                                                  
+redo write size count (  32KB)                                                  
+redo write size count (  64KB)                                                  
+redo write size count ( 128KB)                                                  
+redo write size count ( 256KB)                                                  
+redo write size count ( 512KB)                                                  
+redo write size count (1024KB)                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo write size count (inf)                                                     
+redo write time                                                                 
+redo write time (usec)                                                          
+redo write worker delay (usec)                                                  
+redo write worker delay count                                                   
+redo blocks checksummed by FG (exclusive)                                       
+redo blocks checksummed by LGWR                                                 
+redo log space requests                                                         
+redo log space wait time                                                        
+redo ordering marks                                                             
+redo subscn max counts                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo write broadcast ack time                                                   
+redo write broadcast ack count                                                  
+redo write broadcast lgwr post count                                            
+redo synch time                                                                 
+redo synch time (usec)                                                          
+redo synch time overhead (usec)                                                 
+redo synch time overhead count (  2ms)                                          
+redo synch time overhead count (  8ms)                                          
+redo synch time overhead count ( 32ms)                                          
+redo synch time overhead count (128ms)                                          
+redo synch time overhead count (inf)                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll sleep count                                                
+redo synch fast poll sleep (usec)                                               
+redo synch fast poll sleep (20us)                                               
+redo synch fast poll sleep (40us)                                               
+redo synch fast poll sleep (60us)                                               
+redo synch fast poll sleep (80us)                                               
+redo synch fast poll sleep (100us)                                              
+redo synch fast poll sleep (120us)                                              
+redo synch fast poll sleep (160us)                                              
+redo synch fast poll sleep (240us)                                              
+redo synch fast poll sleep (400us)                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll sleep (720us)                                              
+redo synch fast poll sleep (inf)                                                
+redo synch fast poll sleep o/h (usec)                                           
+redo synch fast poll sleep o/h (20us)                                           
+redo synch fast poll sleep o/h (40us)                                           
+redo synch fast poll sleep o/h (60us)                                           
+redo synch fast poll sleep o/h (80us)                                           
+redo synch fast poll sleep o/h (100us)                                          
+redo synch fast poll sleep o/h (120us)                                          
+redo synch fast poll sleep o/h (160us)                                          
+redo synch fast poll sleep o/h (240us)                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll sleep o/h (400us)                                          
+redo synch fast poll sleep o/h (720us)                                          
+redo synch fast poll sleep o/h (inf)                                            
+redo synch fast poll spin count                                                 
+redo synch fast poll spin (usec)                                                
+redo synch fast poll spin (20us)                                                
+redo synch fast poll spin (40us)                                                
+redo synch fast poll spin (60us)                                                
+redo synch fast poll spin (80us)                                                
+redo synch fast poll spin (100us)                                               
+redo synch fast poll spin (120us)                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll spin (160us)                                               
+redo synch fast poll spin (240us)                                               
+redo synch fast poll spin (400us)                                               
+redo synch fast poll spin (720us)                                               
+redo synch fast poll spin (inf)                                                 
+redo synch fast poll backoff count                                              
+redo synch fast poll backoff (usec)                                             
+redo synch fast poll backoff (20us)                                             
+redo synch fast poll backoff (40us)                                             
+redo synch fast poll backoff (60us)                                             
+redo synch fast poll backoff (80us)                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll backoff (100us)                                            
+redo synch fast poll backoff (120us)                                            
+redo synch fast poll backoff (160us)                                            
+redo synch fast poll backoff (240us)                                            
+redo synch fast poll backoff (400us)                                            
+redo synch fast poll backoff (720us)                                            
+redo synch fast poll backoff (inf)                                              
+redo synch fast poll backoff o/h (usec)                                         
+redo synch fast poll backoff o/h (20us)                                         
+redo synch fast poll backoff o/h (40us)                                         
+redo synch fast poll backoff o/h (60us)                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo synch fast poll backoff o/h (80us)                                         
+redo synch fast poll backoff o/h (100us)                                        
+redo synch fast poll backoff o/h (120us)                                        
+redo synch fast poll backoff o/h (160us)                                        
+redo synch fast poll backoff o/h (240us)                                        
+redo synch fast poll backoff o/h (400us)                                        
+redo synch fast poll backoff o/h (720us)                                        
+redo synch fast poll backoff o/h (inf)                                          
+redo synch writes                                                               
+redo synch long waits                                                           
+redo write gather time                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo write schedule time                                                        
+redo write issue time                                                           
+redo write finish time                                                          
+redo write total time                                                           
+redo synch poll writes                                                          
+redo synch polls                                                                
+redo write info find                                                            
+redo write info find fail                                                       
+file io service time                                                            
+file io wait time                                                               
+gc cr blocks served                                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc cr block flush time                                                          
+gc cr blocks flushed                                                            
+gc cr block build time                                                          
+gc cr blocks built                                                              
+gc read time waited                                                             
+gc read waits                                                                   
+gc read wait failures                                                           
+gc read wait timeouts                                                           
+gc current blocks served                                                        
+gc current block pin time                                                       
+gc current blocks pinned                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc current block flush time                                                     
+gc current blocks flushed                                                       
+gc cr blocks received                                                           
+gc cr block receive time                                                        
+gc current blocks received                                                      
+gc current block receive time                                                   
+gc undo block disk read                                                         
+gc ka grants received                                                           
+gc ka grant receive time                                                        
+gc cr multiblock grants received                                                
+gc cr multiblock grant time                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc status messages received                                                     
+gc status messages sent                                                         
+gc cluster flash cache reads served                                             
+gc cluster flash cache reads received                                           
+gc cluster flash cache received read time                                       
+gc cluster flash cache reads failure                                            
+gc flash cache reads served                                                     
+gc flash cache served read time                                                 
+gc local grants                                                                 
+gc remote grants                                                                
+gc kbytes sent                                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc kbytes saved                                                                 
+gc blocks compressed                                                            
+gc merge pi fg                                                                  
+gc merge pi bg                                                                  
+gc cleanout saved                                                               
+gc cleanout applied                                                             
+gc cleanout no space                                                            
+gc reader bypass grants                                                         
+gc reader bypass waits                                                          
+gc blocks lost                                                                  
+gc claim blocks lost                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc blocks corrupt                                                               
+gc send failures                                                                
+undo block recovery disk reads skipped                                          
+gc force cr read cr                                                             
+gc force cr read current                                                        
+gc no change made                                                               
+gc current blocks received with BPS                                             
+gc current blocks served with BPS                                               
+gc cr blocks received with BPS                                                  
+gc cr blocks served with BPS                                                    
+gc BPS array full                                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc cr bypass requests                                                           
+gc cr anti locks created                                                        
+gc cr anti locks expanded                                                       
+gc cr anti locks shrunk                                                         
+gc index split wait timeouts                                                    
+gc index split too many slots                                                   
+gc index split too many segments                                                
+gc index split slot collisions                                                  
+gc IM grants                                                                    
+gc IM blocks invalidated                                                        
+gc IM expands                                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+gc IM shrinks                                                                   
+gc remote read failure                                                          
+gc remote bucket being modified                                                 
+gc remote bucket checksum failure                                               
+gc remote bucket full                                                           
+gc remote block read                                                            
+gc remote disk read                                                             
+gc remote block being modified                                                  
+total number of slots                                                           
+Effective IO time                                                               
+Number of read IOs issued                                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+background checkpoints started                                                  
+background checkpoints completed                                                
+BA files created count                                                          
+BA files deleted count                                                          
+BA file bytes allocated                                                         
+BA au bytes allocated                                                           
+BA file bytes deleted                                                           
+BA non-flash bytes requested                                                    
+BA flash bytes requested                                                        
+BA bytes for file maps                                                          
+BA bytes read from flash                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+BA bytes read from disk                                                         
+BA count when 10% of buckets in pb                                              
+BA count when 25% of buckets in pb                                              
+BA count when 50% of buckets in pb                                              
+BA count when 75% of buckets in pb                                              
+BA count when 90% of buckets in pb                                              
+BA count - borrowed from other node                                             
+BA count - searched in pb                                                       
+BA count - total allocation requests                                            
+BA count - unable to short circuit in idn                                       
+BA count - short circuit in idn                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+BA count - cache miss                                                           
+BA count - cache denied                                                         
+BA spare statistic 1                                                            
+BA spare statistic 2                                                            
+BA spare statistic 3                                                            
+BA spare statistic 4                                                            
+ADG parselock X get attempts                                                    
+ADG parselock X get successes                                                   
+ADG global flush                                                                
+ADG objectlock get attempts                                                     
+ADG objectlock get successes                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+ADG objectlock timeout retries                                                  
+ADG objectlock fallbacks                                                        
+ADG objectlock exceed limit                                                     
+ADG objectlock PDB switch fail                                                  
+ADG segment statistics defer invalidation                                       
+ADG influx scn advance                                                          
+ADG query scn advance                                                           
+read-only violation count                                                       
+flashback log writes                                                            
+flashback log write bytes                                                       
+redo KB read                                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+redo KB read (memory)                                                           
+redo KB read for transport                                                      
+redo KB read (memory) for transport                                             
+redo non-durable records skipped                                                
+cell physical IO bytes saved during optimized file creation                     
+cell physical IO bytes saved during optimized RMAN file restore                 
+cell physical IO bytes eligible for predicate offload                           
+cell physical IO bytes eligible for smart IOs                                   
+cell physical IO bytes saved by columnar cache                                  
+cell physical IO bytes saved by storage index                                   
+cell physical IO bytes sent directly to DB node to balance CPU                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell physical IO bytes processed for IM capacity                                
+cell physical IO bytes processed for IM query                                   
+cell physical IO bytes processed for no memcompress                             
+cell num bytes in passthru due to quarantine                                    
+cell smart IO session cache lookups                                             
+cell smart IO session cache hits                                                
+cell smart IO session cache soft misses                                         
+cell smart IO session cache hard misses                                         
+cell smart IO session cache hwm                                                 
+cell num smart IO sessions in rdbms block IO due to user                        
+cell num smart IO sessions in rdbms block IO due to open fail                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell num smart IO sessions in rdbms block IO due to no cell mem                 
+cell num smart IO sessions in rdbms block IO due to big payload                 
+cell num smart IO sessions using passthru mode due to user                      
+cell num smart IO sessions using passthru mode due to cellsrv                   
+cell num smart IO sessions using passthru mode due to timezone                  
+cell num smart file creation sessions using rdbms block IO mode                 
+cell num block IOs due to a file instant restore in progress                    
+cell physical IO interconnect bytes returned by smart scan                      
+cell num bytes in passthru during predicate offload                             
+cell num bytes in block IO during predicate offload                             
+cell num fast response sessions                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell num fast response sessions continuing to smart scan                        
+cell num smartio automem buffer allocation attempts                             
+cell num smartio automem buffer allocation failures                             
+cell num smartio transient cell failures                                        
+cell num smartio permanent cell failures                                        
+cell num bytes of IO reissued due to relocation                                 
+cell physical write bytes saved by smart file initialization                    
+cell XT granules requested for predicate offload                                
+cell XT granule bytes requested for predicate offload                           
+cell interconnect bytes returned by XT smart scan                               
+cell XT granule predicate offload retries                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell XT granule IO bytes saved by storage index                                 
+cell num map elem cancellation                                                  
+cell statistics spare1                                                          
+cell XT granule IO bytes saved by HDFS tbs extent map scan                      
+Batched IO vector read count                                                    
+Batched IO vector block count                                                   
+Batched IO single block count                                                   
+Batched IO zero block count                                                     
+Batched IO block miss count                                                     
+Batched IO double miss count                                                    
+Batched IO (full) vector count                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+Batched IO (space) vector count                                                 
+Batched IO (bound) vector count                                                 
+Batched IO same unit count                                                      
+Batched IO buffer defrag count                                                  
+Batched IO slow jump count                                                      
+shared io pool buffer get success                                               
+shared io pool buffer get failure                                               
+physical reads for data transfer                                                
+data blocks sent for data transfer                                              
+data transfer blocks logged to redo                                             
+recovery marker                                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+recovery cvmap unavailable                                                      
+recovery recieve buffer unavailable                                             
+recovery imc influx scn lagging                                                 
+recovery local buffer freed                                                     
+recovery remote buffer received                                                 
+recovery remote buffer sent                                                     
+recovery logmerger catchup                                                      
+temp space allocated (bytes)                                                    
+serializable aborts                                                             
+transaction lock foreground requests                                            
+transaction lock foreground wait time                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+transaction lock background gets                                                
+transaction lock background get time                                            
+undo change vector size                                                         
+txn cache local read hits                                                       
+txn cache local read misses                                                     
+txn cache local loscn read misses                                               
+txn cache remote loscn read misses                                              
+txn cache local writes                                                          
+txn cache local usn hash write misses                                           
+txn cache local usn hash read misses                                            
+txn cache remote usn hash read misses                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+txn cache remote read hits                                                      
+txn cache remote read misses                                                    
+txn cache remote writes                                                         
+txn cache remote active read misses                                             
+txn cache local ac read misses                                                  
+txn cache redo sync reads                                                       
+txn cache remote copy hits                                                      
+txn cache remote copy misses                                                    
+txn cache remote ts/inst mismatch                                               
+txn cache remote proc misses                                                    
+txn cache local proc misses                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+txn cache upper bound misses                                                    
+txn cache local preset misses                                                   
+txn cache local slot misses                                                     
+txn cache remote slot misses                                                    
+txn cache local seq num misses                                                  
+txn cache remote seq num misses                                                 
+txn cache local empty slot misses                                               
+txn cache remote empty slot misses                                              
+txn cache local sync commit scn misses                                          
+txn cache remote sync commit scn misses                                         
+txn cache remote read msg sent                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+txn cache remote fetch double pass                                              
+txn cache remote prefetch count                                                 
+txn cache lookup usn exceeds max                                                
+txn cache lookup slot exceeds max                                               
+txn cache lookup fail read even version                                         
+txn cache lookup conflicting write exact                                        
+txn cache lookup conflicting write uppper                                       
+txn cache init usn slot mismatch                                                
+txn cache init usn exceeds max                                                  
+txn cache write usn exceeds max                                                 
+txn cache write slot mismatch                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+transaction tables consistent reads - undo records applied                      
+transaction tables consistent read rollbacks                                    
+data blocks consistent reads - undo records applied                             
+no work - consistent read gets                                                  
+cleanouts only - consistent read gets                                           
+rollbacks only - consistent read gets                                           
+cleanouts and rollbacks - consistent read gets                                  
+RowCR attempts                                                                  
+RowCR hits                                                                      
+RowCR - row contention                                                          
+RowCR - resume                                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+rollback changes - undo records applied                                         
+transaction rollbacks                                                           
+immediate (CURRENT) block cleanout applications                                 
+immediate (CR) block cleanout applications                                      
+deferred (CURRENT) block cleanout applications                                  
+commit txn count during cleanout                                                
+active txn count during cleanout                                                
+cleanout - number of ktugct calls                                               
+immediate CR cleanouts (index blocks)                                           
+deferred CUR cleanouts (index blocks)                                           
+Commit SCN cached                                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+Cached Commit SCN referenced                                                    
+Block Cleanout Optim referenced                                                 
+blocks cleaned out using minact                                                 
+min active SCN optimization applied on CR                                       
+auto extends on undo tablespace                                                 
+drop segment calls in space pressure                                            
+total number of undo segments dropped                                           
+doubling up with imu segment                                                    
+tune down retentions in space pressure                                          
+steps of tune down ret. in space pressure                                       
+space was found by tune down                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+space was not found by tune down                                                
+commit batch/immediate requested                                                
+commit batch requested                                                          
+commit immediate requested                                                      
+commit batch/immediate performed                                                
+commit batch performed                                                          
+commit immediate performed                                                      
+commit wait/nowait requested                                                    
+commit nowait requested                                                         
+commit wait requested                                                           
+commit wait/nowait performed                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+commit nowait performed                                                         
+commit wait performed                                                           
+global undo segment hints helped                                                
+global undo segment hints were stale                                            
+local undo segment hints helped                                                 
+local undo segment hints were stale                                             
+undo segment header was pinned                                                  
+KTURMA CPU Time (usec)                                                          
+KTURMA RMA Ops                                                                  
+KTURMA XID Lookups                                                              
+IMU commits                                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+IMU Flushes                                                                     
+IMU contention                                                                  
+IMU recursive-transaction flush                                                 
+IMU undo retention flush                                                        
+IMU ktichg flush                                                                
+IMU bind flushes                                                                
+IMU mbu flush                                                                   
+IMU pool not allocated                                                          
+IMU CR rollbacks                                                                
+IMU undo allocation size                                                        
+IMU Redo allocation size                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+IMU- failed to get a private strand                                             
+Misses for writing mapping                                                      
+tracked transactions                                                            
+foreground propagated tracked transactions                                      
+slave propagated tracked transactions                                           
+large tracked transactions                                                      
+very large tracked transactions                                                 
+fbda woken up                                                                   
+tracked rows                                                                    
+CLI Flush                                                                       
+CLI BG attempt Flush                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+CLI Client Flush                                                                
+CLI Imm Wrt                                                                     
+CLI Buf Wrt                                                                     
+CLI Thru Wrt                                                                    
+CLI Prvtz Lob                                                                   
+CLI SGA Alloc                                                                   
+CLI BG ENQ                                                                      
+CLI BG Fls done                                                                 
+CLI Flstask create                                                              
+CLI bytes fls to table                                                          
+CLI bytes fls to ext                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+Heatmap SegLevel - Write                                                        
+Heatmap SegLevel - Full Table Scan                                              
+Heatmap SegLevel - IndexLookup                                                  
+Heatmap SegLevel - TableLookup                                                  
+Heatmap SegLevel - Flush                                                        
+Heatmap SegLevel - Segments flushed                                             
+IM populate blocks invalid                                                      
+IM populate transactions check                                                  
+IM populate undo segheader rollback                                             
+IM populate undo records applied                                                
+IM populate transactions active                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM populate checkpoint time (ms)                                                
+IM populate direct read time (ms)                                               
+IM populate cache read time (ms)                                                
+IM repopulate blocks invalid                                                    
+IM repopulate transactions check                                                
+IM repopulate undo segheader rollback                                           
+IM repopulate undo records applied                                              
+IM repopulate transactions active                                               
+IM repopulate transactions copied                                               
+IM repopulate previous SMU invalid                                              
+IM repopulate checkpoints                                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate optimized                                                         
+IM repopulate old SMU nil                                                       
+IM repopulate invalid rows                                                      
+IM repopulate invalid blks                                                      
+IM repopulate blocks now valid                                                  
+IM repopulate optimized RAC/downgrade                                           
+IM repopulate invalidation transfer time                                        
+IM scan CUs rollback                                                            
+IM scan CUs no rollback                                                         
+IM scan CUs undo records applied                                                
+IM scan CUs cleanout                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan CUs no cleanout                                                         
+IM scan journal cleanout                                                        
+IM scan journal no cleanout                                                     
+IM scan journal                                                                 
+IM scan rows journal total                                                      
+IM scan found invalid CU                                                        
+IM repopulate smu colmap used                                                   
+IM scan smu colmap hit                                                          
+IM scan smu colmap miss due to inserts                                          
+IM scan smu colmap miss due to deletes                                          
+IM scan smu colmap miss due to invalid blocks                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan smu colmap miss due to update                                           
+IM scan fine grain colmap hit                                                   
+IM scan fine grain colmap miss due to inserts                                   
+IM scan fine grain colmap miss due to deletes                                   
+IM scan fine grain colmap miss due to invalid blocks                            
+IM scan fine grain colmap miss due to update                                    
+IM scan smu colmap miss due to untracked changes                                
+IM scan CUs low query scn                                                       
+IM scan CUs notfound dbclose                                                    
+IM scan CUs notfound lob                                                        
+IM scan CUs notfound                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan CUs invisible smu                                                       
+IM scan CUs ref-invis smu                                                       
+IM scan CUs drop-invis smu                                                      
+IM scan CUs previous                                                            
+IM scan CUs lowscn no previous                                                  
+IM scan CUs wait notvis                                                         
+IM scan CUs wait notvis (doublebuffer)                                          
+IM scan CUs previous current                                                    
+IM scan CUs current                                                             
+IM scan CUs maxretry done                                                       
+IM scan CUs no imcu                                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM transactions                                                                 
+IM transactions rows journaled                                                  
+IM transactions rows invalidated                                                
+IM transactions downgrade                                                       
+IM transactions blocks invalidated                                              
+IM transactions CU cleanout                                                     
+IM transactions journal cleanout                                                
+IM transactions found invalid CU                                                
+IM transactions self-cleanout no active                                         
+IM populate no checkpoint                                                       
+IM transactions full cleanout                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM transaction rows array-journal calls                                         
+IM transaction rows array-journaled                                             
+IM transaction wait ref-smu                                                     
+IM transactions CUs invalid                                                     
+IM rac blocks invalid                                                           
+IM rac CUs invalid                                                              
+IM populate via direct reads                                                    
+IM repopulate via direct reads                                                  
+IM ADG registration failure (quiesce)                                           
+IM ADG registration attempts                                                    
+IM scan CUs CR cache hit                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan CUs CR cache miss                                                       
+IM scan CUs CR Incremental                                                      
+IM scan CUs CR skipped large rowids                                             
+IM scan CUs readlist creation accumulated time                                  
+IM scan CUs readlist creation accumulated time (CR)                             
+IM scan CUs readlist creation number                                            
+IM scan CUs readlist creation number (CR)                                       
+IM scan uncommitted PJ granule                                                  
+IM repopulate (ADG) transactions copied                                         
+IM transactions block change blocks already invalid                             
+IM delta populate delta-SMU not created                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan delta - only base scan                                                  
+IM scan delta - previous delta scan                                             
+IM scan delta - current delta scan                                              
+IM scan delta - double delta scan                                               
+IM scan delta - double delta scan due to failure                                
+IM SMU Patch accumulated time                                                   
+IM SMU Patch accumulated time (CR)                                              
+IM SMU Patch accumulated time (RAC Locks)                                       
+IM SMU Patch total jobs                                                         
+IM SMU Patch total blocks patched                                               
+IM SMU Patch total rows patched                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM ADG corrupt undo blocks seen                                                 
+IM ADG inv pdb due to corrupt undo                                              
+IM ADG inv all due to corrupt undo                                              
+IM ADG blocks in flush                                                          
+IM ADG redo records seen                                                        
+IM ADG non-IMC transactions                                                     
+IM ADG number of query scn moves                                                
+IM ADG time for query scn moves (ms)                                            
+IM ADG transactions flushed                                                     
+IM ADG transactions compiled for flush                                          
+IM ADG nothing to flush                                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM ADG invalidated pdb partial transaction                                      
+IM ADG invalidated pdb DDL                                                      
+IM ADG invalidated object DDL                                                   
+IM ADG invalidated all objects                                                  
+IM ADG commit nodes added                                                       
+IM ADG commit nodes freed                                                       
+IM ADG commit journal destroy                                                   
+IM ADG commit journal emptied                                                   
+IM ADG journal sort                                                             
+IM ADG granule split                                                            
+segment dispenser load tasks                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+segment dispenser load empty                                                    
+segment dispenser allocations                                                   
+segment cfs allocations                                                         
+segment chunks allocation from dispenser                                        
+segment total chunk allocation                                                  
+TBS Extension: tasks created                                                    
+TBS Extension: tasks executed                                                   
+TBS Extension: files extended                                                   
+TBS Extension: bytes extended                                                   
+GDR: Active ranges cleared                                                      
+GDR: Active blocks cleared                                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+GDR: Inactive ranges cleared                                                    
+GDR: Inactive blocks cleared                                                    
+GDR: Unused ranges cleared                                                      
+GDR: Unused blocks cleared                                                      
+GDR: Total segments processed                                                   
+GDR: Total segments skipped                                                     
+GDR: Total blocks skipped                                                       
+GDR: Total files processed                                                      
+total number of times SMON posted                                               
+SMON posted for undo segment recovery                                           
+SMON posted for txn recovery for other instances                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+SMON posted for instance recovery                                               
+SMON posted for undo segment shrink                                             
+SMON posted for dropping temp segment                                           
+KTFB alloc req                                                                  
+KTFB alloc space (block)                                                        
+KTFB alloc time (ms)                                                            
+KTFB free req                                                                   
+KTFB free space (block)                                                         
+KTFB free time (ms)                                                             
+KTFB apply req                                                                  
+KTFB apply time (ms)                                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+KTFB commit req                                                                 
+KTFB commit time (ms)                                                           
+KTFB alloc myinst                                                               
+KTFB alloc steal                                                                
+KTFB alloc search FFB                                                           
+segment prealloc tasks                                                          
+segment prealloc ops                                                            
+segment prealloc bytes                                                          
+segment prealloc time (ms)                                                      
+segment prealloc ufs2cfs bytes                                                  
+Heatmap BlkLevel Tracked                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+Heatmap BlkLevel Not Tracked - Memory                                           
+Heatmap BlkLevel Not Updated - Repeat                                           
+Heatmap BlkLevel Flushed                                                        
+Heatmap BlkLevel Flushed to SYSAUX                                              
+Heatmap BlkLevel Flushed to BF                                                  
+Heatmap BlkLevel Ranges Flushed                                                 
+Heatmap BlkLevel Ranges Skipped                                                 
+Heatmap BlkLevel Flush Task Create                                              
+Heatmap Blklevel Flush Task Count                                               
+IM default area resized                                                         
+IM space CU extents allocated                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM space SMU extents allocated                                                  
+IM space CU bytes allocated                                                     
+IM space SMU bytes allocated                                                    
+IM space CU creations initiated                                                 
+IM space SMU creations initiated                                                
+IM space CU creations committed                                                 
+IM space SMU creations committed                                                
+IM space private journal extents allocated                                      
+IM space ADG extents allocated                                                  
+IM space private journal bytes allocated                                        
+IM space ADG bytes allocated                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM space shared journal extents allocated                                       
+IM space shared journal bytes allocated                                         
+IM space CU extents freed                                                       
+IM space SMU extents freed                                                      
+IM space CU bytes freed                                                         
+IM space SMU bytes freed                                                        
+IM space private journal extents freed                                          
+IM space ADG journal extents freed                                              
+IM space private journal bytes freed                                            
+IM space ADG bytes freed                                                        
+IM space shared journal extents freed                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM space shared journal bytes freed                                             
+IM space segments allocated                                                     
+IM space private journal segments allocated                                     
+IM space ADG segments allocated                                                 
+IM space shared journal segments allocated                                      
+IM space segments freed                                                         
+IM space private journal segments freed                                         
+IM space ADG segments freed                                                     
+IM space shared journal segments freed                                          
+ASSM gsp:use space reservation                                                  
+ASSM gsp:Alignment unavailable in space res                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+ASSM gsp:space reservation success                                              
+ASSM gsp:blocks requested by space reservation                                  
+ASSM gsp:blocks provided by space reservation                                   
+ASSM gsp:blocks rejected by access layer callback                               
+ASSM gsp:get free block                                                         
+ASSM gsp:get free critical block                                                
+ASSM gsp:get free data block                                                    
+ASSM gsp:get free lob block                                                     
+ASSM gsp:get free index block                                                   
+ASSM cbk:blocks examined                                                        
+ASSM cbk:blocks rejected                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+ASSM cbk:blocks accepted                                                        
+ASSM cbk:blocks marked full                                                     
+ASSM gsp:L1 bitmaps examined                                                    
+ASSM gsp:L2 bitmaps examined                                                    
+ASSM gsp:L3 bitmaps examined                                                    
+ASSM gsp:L2 bitmap full                                                         
+ASSM gsp:Search all                                                             
+ASSM gsp:Search hint                                                            
+ASSM gsp:Search steal                                                           
+ASSM gsp:bump HWM                                                               
+ASSM gsp:reject db                                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+ASSM gsp:reject L1                                                              
+ASSM gsp:reject L2                                                              
+ASSM gsp:reject L3                                                              
+ASSM gsp:Optimized reject DB                                                    
+ASSM gsp:Optimized reject l1                                                    
+ASSM gsp:Optimized reject l2                                                    
+ASSM gsp:good hint                                                              
+ASSM gsp:Optimized index block rejects                                          
+ASSM gsp:Optimized data block rejects                                           
+ASSM gsp:add extent                                                             
+ASSM wasted db state change                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+ASSM bg: segment fix monitor                                                    
+ASSM fg: submit segment fix task                                                
+ASSM bg:mark segment for fix                                                    
+ASSM bg:create segment fix task                                                 
+ASSM bg:slave fix one segment                                                   
+ASSM bg:slave compress block                                                    
+ASSM bg:slave fix state                                                         
+ASSM rsv:fill reserve                                                           
+ASSM rsv:alloc from reserve                                                     
+ASSM rsv:alloc from reserve fail                                                
+ASSM rsv:alloc from reserve succ                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+ASSM rsv:clear reserve                                                          
+table scans (short tables)                                                      
+table scans (long tables)                                                       
+table scans (rowid ranges)                                                      
+table scans (IM)                                                                
+table scans (cache partitions)                                                  
+table scans (direct read)                                                       
+table scan rows gotten                                                          
+table scan rs1                                                                  
+table scan rs2                                                                  
+table scan disk non-IMC rows gotten                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+table scan disk IMC fallback                                                    
+table scan blocks gotten                                                        
+table fetch by rowid                                                            
+table fetch continued row                                                       
+cluster key scans                                                               
+cluster key scan block gets                                                     
+rows fetched via callback                                                       
+cell scans                                                                      
+cell blocks processed by cache layer                                            
+cell blocks processed by txn layer                                              
+cell blocks processed by data layer                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell blocks processed by index layer                                            
+cell filtered blocks failed block check                                         
+cell commit cache queries                                                       
+cell transactions found in commit cache                                         
+cell blocks helped by commit cache                                              
+cell blocks helped by minscn optimization                                       
+cell chained rows skipped                                                       
+cell chained rows processed                                                     
+cell chained row pieces fetched                                                 
+cell chained rows rejected                                                      
+error count cleared by cell                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell blocks sent                                                                
+cell blocks pivoted                                                             
+cell blocks returned by data layer                                              
+cell blocks returned by index layer                                             
+cell index blocks sent                                                          
+cell IO uncompressed bytes                                                      
+cell scan CUs pcode aggregation pushdown                                        
+cell scan rows pcode aggregated                                                 
+cell scan CUs pcode selective done                                              
+cell scan CUs pcode pred evaled                                                 
+cell scan CUs pcode pred evaled using rowsets                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell simulated physical IO bytes eligible for predicate offload                 
+cell simulated physical IO bytes returned by predicate offload                  
+queue update without cp update                                                  
+index crx upgrade (prefetch)                                                    
+index crx upgrade (found)                                                       
+index crx upgrade (positioned)                                                  
+index cmph dm, split for cu migrate row                                         
+index cmph dm, cu migrate row                                                   
+index cmph dm, insert unpurge CU row                                            
+index cmpl ro, prefix change at block                                           
+index cmpl ro, prefix no change at block                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+index cmpl ro, blocks not compressed                                            
+index cmpl ro, reorg avoid load new block                                       
+index cmpl ro, reorg avoid split                                                
+index cmpl co, prefix mismatch                                                  
+index split cancel wait noclean                                                 
+index split cancel wait clean                                                   
+index split cancel op set                                                       
+index crx state invalidation                                                    
+leaf node splits                                                                
+leaf node 90-10 splits                                                          
+index cmph sp, leaf recompress                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+index cmph sp, leaf norecomp nospace                                            
+index cmph sp, leaf norecomp negcomp                                            
+index cmph sp, leaf norecomp oversize                                           
+index cmph sp, leaf norecomp zerocur                                            
+index cmph sp, leaf norecomp limit                                              
+index cmph sp, leaf norecomp notry                                              
+index cmph sp, deci norecomp max limit                                          
+index cmph sp, deci norecomp donotrecomp bit                                    
+index cmph sp, deci norecomp cusz threshold                                     
+index cmph sp, deci recomp free purge                                           
+index cmph sp, leaf 90_10 failed                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+branch node splits                                                              
+root node splits                                                                
+failed probes on index block reclamation                                        
+recursive aborts on index block reclamation                                     
+index reclamation/extension switch                                              
+lob reads                                                                       
+lob writes                                                                      
+lob writes unaligned                                                            
+cell index scans                                                                
+index fast full scans (full)                                                    
+index fast full scans (rowid ranges)                                            
+
+NAME                                                                            
+----------------------------------------------------------------                
+index fast full scans (direct read)                                             
+index fetch by key                                                              
+index range scans                                                               
+index cmph sc, ffs decomp buffers                                               
+index cmph sc, ffs decomp buffers rows avail                                    
+index cmph sc, ffs decomp buffers rows used                                     
+index cmph sc, ffs decomp failures                                              
+index cmph sc, ffs decomp buffers released and found valid                      
+queue splits                                                                    
+queue flush                                                                     
+queue position update                                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+queue single row                                                                
+queue ocp pages                                                                 
+queue qno pages                                                                 
+heap block compress                                                             
+HSC OLTP Space Saving                                                           
+HSC OLTP Compressed Blocks                                                      
+HSC IDL Compressed Blocks                                                       
+HSC Compressed Segment Block Changes                                            
+HSC Heap Segment Block Changes                                                  
+HSC OLTP Non Compressible Blocks                                                
+HSC OLTP positive compression                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+HSC OLTP negative compression                                                   
+HSC OLTP recursive compression                                                  
+HSC OLTP inline compression                                                     
+HSC OLTP partial compression                                                    
+HSC OLTP Drop Column                                                            
+HSC OLTP Compression skipped rows                                               
+HSC OLTP compression block checked                                              
+Heap Segment Array Inserts                                                      
+Heap Segment Array Updates                                                      
+HSC OLTP Compression wide compressed row pieces                                 
+Heap Segment Array Deletes                                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+securefile allocation bytes                                                     
+securefile allocation chunks                                                    
+securefile direct read bytes                                                    
+securefile direct write bytes                                                   
+securefile direct read ops                                                      
+securefile direct write ops                                                     
+securefile inode read time                                                      
+securefile inode write time                                                     
+securefile inode ioreap time                                                    
+securefile inode lhb redo                                                       
+securefile inode itree redo                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+securefile bytes non-transformed                                                
+securefile number of non-transformed flushes                                    
+securefile bytes encrypted                                                      
+securefile bytes cleartext                                                      
+securefile compressed bytes                                                     
+securefile uncompressed bytes                                                   
+securefile bytes deduplicated                                                   
+securefile create dedup set                                                     
+securefile destroy dedup set                                                    
+securefile add dedupd lob to set                                                
+securefile rmv from dedup set                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+securefile reject deduplication                                                 
+securefile dedup prefix hash match                                              
+securefile number of flushes                                                    
+securefile dedup flush too low                                                  
+securefile dedup callback oper final                                            
+securefile dedup hash collision                                                 
+securefile dedup fits inline                                                    
+securefile dedup wapp cache miss                                                
+HCC load direct CUs                                                             
+HCC load conventional CUs                                                       
+HCC load direct CUs query low                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC load direct CUs query high                                                  
+HCC load direct CUs archive high                                                
+HCC load direct CUs archive low                                                 
+HCC load conventional CUs query low                                             
+HCC load conventional CUs query high                                            
+HCC load conventional CUs archive high                                          
+HCC load conventional CUs archive low                                           
+HCC load conventional CUs tail blk enhanced                                     
+HCC load direct bytes compressed                                                
+HCC load conventional bytes compressed                                          
+HCC load direct bytes uncompressed                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC load conventional bytes uncompressed                                        
+HCC load direct rows                                                            
+HCC load conventional rows                                                      
+HCC load direct rows not compressed                                             
+HCC load conventional rows not compressed                                       
+HCC load direct CUs row pieces                                                  
+HCC load conventional CUs row pieces                                            
+HCC scan rdbms CUs decompressed                                                 
+HCC scan cell CUs decompressed                                                  
+HCC scan rdbms CUs query low                                                    
+HCC scan cell CUs query low                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC scan rdbms CUs query high                                                   
+HCC scan cell CUs query high                                                    
+HCC scan rdbms CUs archive high                                                 
+HCC scan cell CUs archive high                                                  
+HCC scan rdbms CUs archive low                                                  
+HCC scan cell CUs archive low                                                   
+HCC scan rdbms bytes compressed                                                 
+HCC scan cell bytes compressed                                                  
+HCC scan rdbms bytes decompressed                                               
+HCC scan cell bytes decompressed                                                
+HCC scan rdbms CUs columns accessed                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC scan cell CUs columns accessed                                              
+scan rdbms pivoted columns accessed                                             
+HCC scan rdbms columns theoretical max                                          
+HCC scan cell columns theoretical max                                           
+scan rdbms pivoted columns theoretical max                                      
+HCC scan rdbms rows                                                             
+HCC scan cell rows                                                              
+scan rdbms pivoted rows                                                         
+HCC scan rdbms CUs row pieces accessed                                          
+HCC scan cell CUs row pieces accessed                                           
+HCC scan rdbms CUs row pieces total                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC scan cell CUs row pieces total                                              
+HCC scan rdbms CUs decompression time                                           
+HCC scan cell CUs decompression time                                            
+HCC DML CUs                                                                     
+HCC scan rdbms CUs normal                                                       
+HCC scan rdbms CUs turbo                                                        
+scan rdbms pivoted blocks                                                       
+HCC fetch by rowid CUs                                                          
+HCC analyze table CUs                                                           
+HCC block dump CUs                                                              
+HCC block check CUs                                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC analyzer calls                                                              
+HCC usage ZFS                                                                   
+HCC usage pillar                                                                
+HCC usage cloud                                                                 
+HCC DML conventional                                                            
+cellmemory IM scan CUs processed for query                                      
+cellmemory IM scan CUs processed for capacity                                   
+cellmemory IM scan CUs processed no memcompress                                 
+cellmemory IM load CUs for query                                                
+cellmemory IM load CUs for capacity                                             
+cellmemory IM load CUs no memcompress                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+cellmemory IM scan CUs rejected for query                                       
+cellmemory IM scan CUs rejected for capacity                                    
+cellmemory IM scan CUs rejected no memcompress                                  
+cellmemory IM scan stat 1                                                       
+cellmemory IM scan stat 2                                                       
+cellmemory IM scan stat 3                                                       
+cellmemory IM scan stat 4                                                       
+cellmemory IM scan stat 5                                                       
+HCC block compressions completed                                                
+HCC block compressions attempted                                                
+HCC scan rdbms CUs predicates received                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC scan cell CUs predicates received                                           
+HCC scan rdbms CUs predicates optimized                                         
+HCC scan cell CUs predicates optimized                                          
+HCC scan rdbms CUs predicates applied                                           
+HCC scan cell CUs predicates applied                                            
+HCC scan rdbms CUs optimized read                                               
+HCC scan cell CUs optimized read                                                
+HCC scan rdbms CUs pruned                                                       
+HCC scan cell CUs pruned                                                        
+HCC scan cell CUs sent uncompressed                                             
+HCC scan cell CUs sent compressed                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+HCC scan cell CUs sent head piece                                               
+HCC scan cell CUs processed for uncompressed                                    
+HCC scan cell CUs processed for compressed                                      
+HCC scan CUs pcode aggregation pushdown                                         
+HCC scan rows pcode aggregated                                                  
+HCC scan CUs pcode selective done                                               
+HCC scan CUs pcode pred evaled                                                  
+HCC scan CUs pcode pred evaled using rowsets                                    
+SecureFiles DBFS Link Operations                                                
+SecureFiles Move to DBFS Link                                                   
+SecureFiles Copy from DBFS Link                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+SecureFiles Get DBFS Link Reference                                             
+SecureFiles Put DBFS Link Reference                                             
+SecureFiles Implicit Copy from DBFS Link                                        
+SecureFiles DBFS Link streaming reads                                           
+SecureFiles DBFS Link Overwrites                                                
+IM populate segments requested                                                  
+IM prepopulate segments requested                                               
+IM repopulate segments requested                                                
+IM populate process killed                                                      
+IM populate segments                                                            
+IM prepopulate segments                                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate segments                                                          
+IM populate CUs requested                                                       
+IM prepopulate CUs requested                                                    
+IM repopulate CUs requested                                                     
+IM repopulate (trickle) CUs requested                                           
+IM repopulate (scan) CUs requested                                              
+IM repopulate (incremental) CUs requested                                       
+IM repopulate (doublebuffering) CUs requested                                   
+IM repopulate (incremental) CUs old CU unavailable                              
+IM repopulate (incremental) CUs old CU empty                                    
+IM repopulate (incremental) CUs old CU defchg                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM populate CUs resubmitted                                                     
+IM prepopulate CUs resubmitted                                                  
+IM repopulate CUs resubmitted                                                   
+IM repopulate (trickle) CUs resubmitted                                         
+IM repopulate (scan) CUs resubmitted                                            
+IM populate CUs not                                                             
+IM prepopulate CUs not                                                          
+IM repopulate CUs not                                                           
+IM repopulate (trickle) CUs not                                                 
+IM repopulate (scan) CUs not                                                    
+IM populate CUs nop                                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM prepopulate CUs nop                                                          
+IM repopulate CUs nop                                                           
+IM repopulate (trickle) CUs nop                                                 
+IM repopulate (scan) CUs nop                                                    
+IM populate CUs no blocks                                                       
+IM prepopulate CUs no blocks                                                    
+IM populate CUs                                                                 
+IM prepopulate CUs                                                              
+IM repopulate CUs                                                               
+IM repopulate (trickle) CUs                                                     
+IM repopulate (scan) CUs                                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (incremental) CUs                                                 
+IM repopulate (doublebuffering) CUs                                             
+IM repopulate (incremental) CUs using population                                
+IM repopulate (delta) CUs requested                                             
+IM repopulate (delta) CUs resubmitted                                           
+IM repopulate (delta) CUs                                                       
+IM repopulate (delta) due to row-based formula                                  
+IM repopulate (delta) due to block-based formula                                
+IM populate bytes from storage                                                  
+IM prepopulate bytes from storage                                               
+IM repopulate bytes from storage                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (trickle) bytes from storage                                      
+IM repopulate due to row threshold hit                                          
+IM repopulate due to block threshold hit                                        
+IM populate accumulated time (ms)                                               
+IM populate segments wall clock time (ms)                                       
+IM prepopulate accumulated time (ms)                                            
+IM repopulate accumulated time (ms)                                             
+IM repopulate (trickle) accumulated time (ms)                                   
+IM repopulate (delta) accumulated time (ms)                                     
+IM repopulate read time (ms)                                                    
+IM populate buffer direct read time (ms)                                        
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM populate external table read time (ms)                                       
+IM populate CUs empty                                                           
+IM repopulate CUs empty                                                         
+IM prepopulate CUs empty                                                        
+IM repopulate (trickle) CUs empty                                               
+IM repopulate (delta) CUs empty                                                 
+IM populate CUs columns                                                         
+IM prepopulate CUs columns                                                      
+IM repopulate CUs columns                                                       
+IM repopulate (trickle) CUs columns                                             
+IM populate bytes in-memory data                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM prepopulate bytes in-memory data                                             
+IM repopulate bytes in-memory data                                              
+IM repopulate (trickle) bytes in-memory data                                    
+IM populate bytes uncompressed data                                             
+IM prepopulate bytes uncompressed data                                          
+IM repopulate bytes uncompressed data                                           
+IM repopulate (trickle) bytes uncompressed data                                 
+IM populate rows                                                                
+IM prepopulate rows                                                             
+IM repopulate rows                                                              
+IM repopulate (trickle) rows                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM populate CUs chain pieces                                                    
+IM prepopulate CUs chain pieces                                                 
+IM repopulate CUs chain pieces                                                  
+IM repopulate (trickle) CUs chain pieces                                        
+IM populate CUs no memcompress                                                  
+IM prepopulate CUs no memcompress                                               
+IM repopulate CUs no memcompress                                                
+IM repopulate (trickle) CUs no memcompress                                      
+IM populate CUs memcompress for dml                                             
+IM prepopulate CUs memcompress for dml                                          
+IM repopulate CUs memcompress for dml                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (trickle) CUs memcompress for dml                                 
+IM populate CUs memcompress for query low                                       
+IM prepopulate CUs memcompress for query low                                    
+IM repopulate CUs memcompress for query low                                     
+IM repopulate (trickle) CUs memcompress for query low                           
+IM populate CUs memcompress for query high                                      
+IM prepopulate CUs memcompress for query high                                   
+IM repopulate CUs memcompress for query high                                    
+IM repopulate (trickle) CUs memcompress for query high                          
+IM populate CUs memcompress for capacity low                                    
+IM prepopulate CUs memcompress for capacity low                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate CUs memcompress for capacity low                                  
+IM repopulate (trickle) CUs memcompress for capacity low                        
+IM populate CUs memcompress for capacity high                                   
+IM prepopulate CUs memcompress for capacity high                                
+IM repopulate CUs memcompress for capacity high                                 
+IM repopulate (trickle) CUs memcompress for capacity high                       
+IM XT populate rows                                                             
+IM XT populate CUs                                                              
+IM XT populate segments                                                         
+IM XT populate empty CU created                                                 
+IM scan CUs pcode aggregation pushdown                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan rows pcode aggregated                                                   
+IM scan CUs pcode selective done                                                
+IM scan CUs pcode pred evaled                                                   
+IM scan CUs pcode pred evaled using rowsets                                     
+IM scan CUs pcode aggregation IME                                               
+IM scan CUs skip IME base IM col                                                
+IM scan CUs skip IME long varchar lob col                                       
+IM scan dict engine results stored                                              
+IM scan dict engine results reused                                              
+IM faststart read data accumulated time (ms)                                    
+IM faststart read CUs problems                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM faststart read headers accumulated time (ms)                                 
+IM faststart read accumulated time (ms)                                         
+IM faststart read verify accumulated time (ms)                                  
+IM faststart read CUs requested                                                 
+IM faststart read CUs                                                           
+IM faststart read CUs not accessible                                            
+IM faststart read bytes                                                         
+IM faststart read CUs incompatible                                              
+IM faststart read CUs invalid                                                   
+IM faststart write bytes                                                        
+IM faststart write CUs                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM faststart write CUs requested                                                
+IM faststart write CUs problems                                                 
+IM faststart write accumulated time (ms)                                        
+IM faststart write CUs encryption mismatch                                      
+IM faststart write CUs evicted                                                  
+IM faststart write CUs too dirty                                                
+IM faststart write deferred CUs requested                                       
+IM faststart write deferred CUs                                                 
+IM faststart write deferred accumulated (ms)                                    
+IM faststart write deferred timeouts                                            
+IM faststart write deferred CUs not found                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM faststart write slave starts requested                                       
+IM faststart write slave starts                                                 
+IM faststart coordinator accumulated time (ms)                                  
+IM faststart coordinator cycle aborts                                           
+IM faststart coordinator cycle overruns                                         
+IM faststart coordinator runs                                                   
+IM faststart coordinator throttle down                                          
+IM faststart coordinator task submitted priority p1                             
+IM faststart coordinator task submitted priority p2                             
+IM faststart coordinator task submitted priority p3                             
+IM faststart coordinator task priority p1 to p2                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM faststart coordinator task priority p2 extended                              
+IM faststart coordinator task priority p2 to p3                                 
+IM faststart coordinator scheduler restarted                                    
+IM faststart delete CUs problem                                                 
+IM populate EUs requested                                                       
+IM populate EUs                                                                 
+IM prepopulate EUs requested                                                    
+IM prepopulate EUs                                                              
+IM repopulate EUs requested                                                     
+IM repopulate EUs                                                               
+IM repopulate (incremental) EUs requested                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (incremental) EUs                                                 
+IM repopulate (trickle) EUs requested                                           
+IM repopulate (trickle) EUs                                                     
+IM repopulate (scan) EUs requested                                              
+IM repopulate (scan) EUs                                                        
+IM populate EUs accumulated time (ms)                                           
+IM prepopulate EUs accumulated time (ms)                                        
+IM repopulate EUs accumulated time (ms)                                         
+IM repopulate (trickle) EUs accumulated time (ms)                               
+IM populate EUs columns                                                         
+IM prepopulate EUs columns                                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate EUs columns                                                       
+IM repopulate (trickle) EUs columns                                             
+IM populate bytes in-memory EU data                                             
+IM prepopulate bytes in-memory EU data                                          
+IM repopulate bytes in-memory EU data                                           
+IM repopulate (trickle) bytes in-memory EU data                                 
+IM populate bytes uncompressed EU data                                          
+IM prepopulate bytes uncompressed EU data                                       
+IM repopulate bytes uncompressed EU data                                        
+IM repopulate (trickle) bytes uncompressed EU data                              
+IM populate EUs no memcompress                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM prepopulate EUs no memcompress                                               
+IM repopulate EUs no memcompress                                                
+IM repopulate (trickle) EUs no memcompress                                      
+IM populate EUs memcompress for dml                                             
+IM prepopulate EUs memcompress for dml                                          
+IM repopulate EUs memcompress for dml                                           
+IM repopulate (trickle) EUs memcompress for dml                                 
+IM populate EUs memcompress for query low                                       
+IM prepopulate EUs memcompress for query low                                    
+IM repopulate EUs memcompress for query low                                     
+IM repopulate (trickle) EUs memcompress for query low                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM populate EUs memcompress for query high                                      
+IM prepopulate EUs memcompress for query high                                   
+IM repopulate EUs memcompress for query high                                    
+IM repopulate (trickle) EUs memcompress for query high                          
+IM populate EUs memcompress for capacity low                                    
+IM prepopulate EUs memcompress for capacity low                                 
+IM repopulate EUs memcompress for capacity low                                  
+IM repopulate (trickle) EUs memcompress for capacity low                        
+IM populate EUs memcompress for capacity high                                   
+IM prepopulate EUs memcompress for capacity high                                
+IM repopulate EUs memcompress for capacity high                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (trickle) EUs memcompress for capacity high                       
+IM scan CUs no memcompress                                                      
+IM scan CUs memcompress for dml                                                 
+IM scan CUs memcompress for query low                                           
+IM scan CUs memcompress for query high                                          
+IM scan CUs memcompress for capacity low                                        
+IM scan CUs memcompress for capacity high                                       
+IM scan EUs no memcompress                                                      
+IM scan EUs memcompress for dml                                                 
+IM scan EUs memcompress for query low                                           
+IM scan EUs memcompress for query high                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan EUs memcompress for capacity low                                        
+IM scan EUs memcompress for capacity high                                       
+IM scan CUs doublebuffering                                                     
+IM scan CUs delta                                                               
+session logical reads - IM                                                      
+IM scan segments disk                                                           
+IM scan bytes in-memory                                                         
+IM scan bytes uncompressed                                                      
+IM scan CUs columns accessed                                                    
+IM scan CUs columns decompressed                                                
+IM scan CUs columns theoretical max                                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan EU bytes in-memory                                                      
+IM scan EU bytes uncompressed                                                   
+IM scan EUs columns accessed                                                    
+IM scan EUs columns decompressed                                                
+IM scan EUs columns theoretical max                                             
+IM scan EU rows                                                                 
+IM scan rows                                                                    
+IM simd compare calls                                                           
+IM simd decode calls                                                            
+IM simd rle burst calls                                                         
+IM simd set membership calls                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM simd bloom filter calls                                                      
+IM simd xlate filter calls                                                      
+IM simd decode unpack calls                                                     
+IM simd decode symbol calls                                                     
+IM simd compare selective calls                                                 
+IM simd decode selective calls                                                  
+IM simd rle burst selective calls                                               
+IM simd set membership selective calls                                          
+IM simd bloom filter selective calls                                            
+IM simd xlate filter selective calls                                            
+IM simd decode unpack selective calls                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM simd decode symbol selective calls                                           
+IM simd compare HW offload calls                                                
+IM simd decode HW offload calls                                                 
+IM simd rle burst HW offload calls                                              
+IM simd set membership HW offload calls                                         
+IM simd decode unpack HW offload calls                                          
+IM scan rows valid                                                              
+IM scan rows delta                                                              
+IM scan rows range excluded                                                     
+IM scan rows discontinuous                                                      
+IM scan rows excluded                                                           
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan rows optimized                                                          
+IM scan rows projected                                                          
+IM scan rows cache delta exists                                                 
+IM scan rows cache populate                                                     
+IM scan rows cache no delta                                                     
+IM scan blocks cache                                                            
+IM scan fetches journal                                                         
+IM scan rows journal                                                            
+IM scan CUs split pieces                                                        
+IM scan EUs split pieces                                                        
+IM repopulate (incremental) total rows                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (trickle incremental) total rows                                  
+IM repopulate (incremental) fetched rows                                        
+IM repopulate (trickle incremental) fetched rows                                
+IM repopulate (incremental) valid CU rows                                       
+IM repopulate (trickle incremental) valid CU rows                               
+IM repopulate (incremental) invalid CU rows                                     
+IM repopulate (trickle incremental) invalid CU rows                             
+IM repopulate (incremental) CUs columns                                         
+IM repopulate (trickle incremental) CUs columns                                 
+IM repopulate (incremental) CUs columns dict reused                             
+IM repopulate (trickle incremental) CUs columns dict reused                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate (incremental) CUs columns reused                                  
+IM repopulate (trickle incremental) CUs columns reused                          
+IM repopulate (incremental) CU blocks                                           
+IM repopulate (trickle incremental) CU blocks                                   
+IM repopulate (incremental) blocks read                                         
+IM repopulate (trickle incremental) blocks read                                 
+IM repopulate (incremental) modified blocks                                     
+IM repopulate (trickle incremental) modified blocks                             
+IM repopulate (incremental) CUs valid columns optimized                         
+IM repopulate (trickle incremental) CUs valid columns optimized                 
+IM populate SMU/DLM locks fail                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM repopulate SMU/DLM locks fail                                                
+IM populate no contiguous inmemory space                                        
+IM repopulate no contiguous inmemory space                                      
+IM populate no space in PGA                                                     
+IM repopulate no space in PGA                                                   
+IM populate so cleanup                                                          
+IM repopulate so cleanup                                                        
+IM delta so cleanup                                                             
+IM scan CUs predicates received                                                 
+IM scan CUs predicates applied                                                  
+IM scan CUs predicates optimized                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan CUs optimized read                                                      
+IM scan CUs pruned                                                              
+IM scan CUs delta pruned                                                        
+IM scan segments minmax eligible                                                
+IM fetches by rowid from IMCU                                                   
+IM fetches by rowid from disk                                                   
+IM fetches by rowid from fetch list                                             
+IM fetches by rowid row invalid in IMCU                                         
+IM scan CUs column not in memory                                                
+IM scan extents invalid                                                         
+IM scan invalid all blocks                                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan CUs invalid or missing revert to on disk extent                         
+IM scan CUs failed to reget pin                                                 
+IM scan CUs no rows valid                                                       
+IM scan (dynamic) rows                                                          
+IM scan (dynamic) multi-threaded scans                                          
+IM scan (dynamic) max degree                                                    
+IM scan (dynamic) pending tasks                                                 
+IM scan (dynamic) executing tasks                                               
+IM scan (dynamic) task execution time                                           
+IM scan (dynamic) task submission time                                          
+IM scan (dynamic) task reap time                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM scan (dynamic) tasks processed by thread                                     
+IM scan (dynamic) tasks processed by parent                                     
+IM scan (dynamic) rs2 rowsets                                                   
+IM split CUs requested                                                          
+IM split CUs                                                                    
+IM split get smaller CUs                                                        
+IM split fail no space                                                          
+IM split CU too small                                                           
+IM split fail                                                                   
+IM zzzz spare1                                                                  
+IM zzzz spare2                                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM SubCU-MM bytes allocated                                                     
+IM SubCU-InvIdx bytes allocated                                                 
+IM SubCU-MM CUs                                                                 
+IM SubCU-InvIdx CUs                                                             
+IM SubCU-MM CUs Examined                                                        
+IM SubCU-MM CUs Selected                                                        
+IM SubCU-MM SubCUs Eliminated                                                   
+IM SubCU-MM SubCUs in Selected CUs                                              
+IM SubCU-Hist SubCUs Eliminated                                                 
+IM SubCU-Hist SubCUs in Selected CUs                                            
+IM SubCU-InvIdx CUs Examined                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+IM SubCU-InvIdx CUs Selected                                                    
+IM prepopulate CUs requested hwm                                                
+IM populate CUs requested hwm                                                   
+IM prepopulate CUs hwm                                                          
+IM populate CUs hwm                                                             
+IM repopulate CUs req cleandelta                                                
+IM CUs hwm expanded                                                             
+IM CUs hwm mismatch drop                                                        
+IM CUs hwm dropped                                                              
+index cmph ld, CU under-est                                                     
+index cmph ld, CU fit, add rows                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+index cmph ld, CU fit                                                           
+index cmph ld, CU over-est                                                      
+index cmph ld, retry in over-est                                                
+index cmph ld, CU negative comp                                                 
+index cmph ld, lf blks flushed                                                  
+index cmph ld, lf blks w/o CU                                                   
+index cmph ld, lf blks w/o unc r                                                
+index cmph ld, lf blks w/ und CU                                                
+index cmph ld, rows compressed                                                  
+index cmph ld, rows uncompressed                                                
+index cmph ld, infinite loop                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+index cmph ld, CU cmp subcol prefix                                             
+index cmph ld, CU cmp prefix rows                                               
+index cmph ld, CU cmp rowdir                                                    
+index cmph ld, CU cmp prowdir                                                   
+index cmph ld, CU cmp dedup keys                                                
+index cmph ld, CU cols prefix comp                                              
+index cmph ld, CU cols suffix comp                                              
+index cmph ld, CU cols length comp                                              
+index cmph ld, CU cols fixed length                                             
+index cmph ld, CU cols list comp                                                
+index cmph ld, CU cols bitmap comp                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+index cmph ld, CU cols cmp special length                                       
+index cmph ld, CU cols special length                                           
+index cmph ld, CU cols symtab comp                                              
+index cmph ld, CU cols prefix lenval                                            
+index cmph cu, uncomp sentinels                                                 
+index cmph sp, leaf recomp fewer ucs                                            
+index cmph sp, leaf recomp zero ucs                                             
+index cmph dm, cu lock expand                                                   
+index cmph dm, split for cu lock expand                                         
+index cmph dm, purge dummy CU                                                   
+memopt r fail to pin buffer                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt r entries deleted                                                        
+memopt r lookups                                                                
+memopt r hits                                                                   
+memopt r misses                                                                 
+memopt r tag collisions                                                         
+memopt r lookup skipped deleted rows                                            
+memopt r lookup skipped locked rows                                             
+memopt r lookup skipped chained rows                                            
+memopt r failed reads on buckets                                                
+memopt r failed reads on blocks                                                 
+memopt r lookup detected CR buffer                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt r puts                                                                   
+memopt r puts:buckets full                                                      
+memopt r successful puts                                                        
+memopt r successful puts:with evictions                                         
+memopt r successful puts:with cuckoo                                            
+memopt r successful puts:cuckoo deadend                                         
+memopt r successful puts:max cuckoo                                             
+memopt r failed puts                                                            
+memopt r failed puts:bucket in flux                                             
+memopt r failed puts:no space                                                   
+memopt r populate tasks accepted                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt r populate tasks not accepted                                            
+memopt r populate skipped locked rows                                           
+memopt r populate skipped deleted rows                                          
+memopt r populate skipped chained rows                                          
+memopt r rows populated                                                         
+memopt r populate                                                               
+memopt r blocks populated                                                       
+memopt r failed to get tbs drop EQ                                              
+memopt r failed to get tbs offline EQ                                           
+memopt r failed to get segment drop EQ                                          
+memopt r repopulate tasks accepted                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt r repopulate tasks not accepted                                          
+memopt r repopulate                                                             
+memopt r rows repopulated                                                       
+memopt r blocks repopulated                                                     
+memopt r repopulate skipped locked rows                                         
+memopt r repopulate skipped deleted rows                                        
+memopt r repopulate skipped chained rows                                        
+memopt r repopulate invalidated entries                                         
+memopt r cleanup                                                                
+memopt r NO IM tasks accepted                                                   
+memopt r NO IM tasks not accepted                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt r DROP IM tasks accepted                                                 
+memopt r DROP IM tasks not accepted                                             
+memopt w buffer gets                                                            
+memopt w rows written                                                           
+memopt w rows flushed                                                           
+memopt w flush tasks                                                            
+memopt w flush tasks deferred                                                   
+memopt w buffer miss space                                                      
+memopt w buffer miss latch                                                      
+memopt w buffer miss waits                                                      
+memopt w buffer miss spc nolatch                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+memopt w buffer miss wait unq                                                   
+memopt w buffer gotcur                                                          
+memopt w buffer miss spc unq nolat                                              
+memopt w buffer miss nobuf                                                      
+memopt w buffer hit bucket 0                                                    
+memopt w buffer wake post                                                       
+memopt w drain sleep work                                                       
+memopt w drain sleep                                                            
+memopt w drain sleep wake post                                                  
+sql area purged                                                                 
+sql area evicted                                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+CCursor + sql area evicted                                                      
+No. of Encrypt ops                                                              
+No. of Decrypt ops                                                              
+No. of XS Sessions Created                                                      
+No. of XS Sessions Attached                                                     
+No. of Namespaces Created                                                       
+No. of User Callbacks Executed                                                  
+No. of Roles Enabled or Disabled                                                
+No. of Principal Cache Misses                                                   
+No. of Principal Invalidations                                                  
+Number of NONE redactions                                                       
+
+NAME                                                                            
+----------------------------------------------------------------                
+Number of FULL redactions                                                       
+Number of PARTIAL redactions                                                    
+Number of FORMAT_PRESERVING redactions                                          
+Number of RANDOM redactions                                                     
+Number of REGEXP redactions                                                     
+Number of NULLIFY redactions                                                    
+Number of REGEXP_WIDTH redactions                                               
+DX/BB enqueue lock foreground requests                                          
+DX/BB enqueue lock foreground wait time                                         
+DX/BB enqueue lock background gets                                              
+DX/BB enqueue lock background get time                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+Clusterwide global transactions                                                 
+Clusterwide global transactions spanning RAC nodes                              
+Forwarded 2PC commands across RAC nodes                                         
+GTX processes spawned by autotune                                               
+GTX processes stopped by autotune                                               
+session cursor cache hits                                                       
+session cursor cache count                                                      
+cursor reload failures                                                          
+DML statements retried                                                          
+java call heap total size                                                       
+java call heap total size max                                                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+java call heap used size                                                        
+java call heap used size max                                                    
+java call heap live size                                                        
+java call heap live size max                                                    
+java call heap object count                                                     
+java call heap object count max                                                 
+java call heap live object count                                                
+java call heap live object count max                                            
+java call heap gc count                                                         
+java call heap collected count                                                  
+java call heap collected bytes                                                  
+
+NAME                                                                            
+----------------------------------------------------------------                
+java session heap used size                                                     
+java session heap used size max                                                 
+java session heap live size                                                     
+java session heap live size max                                                 
+java session heap object count                                                  
+java session heap object count max                                              
+java session heap live object count                                             
+java session heap live object count max                                         
+java session heap gc count                                                      
+java session heap collected count                                               
+java session heap collected bytes                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+cursor authentications                                                          
+queries parallelized                                                            
+DML statements parallelized                                                     
+DDL statements parallelized                                                     
+DFO trees parallelized                                                          
+Parallel operations not downgraded                                              
+Parallel operations downgraded to serial                                        
+Parallel operations downgraded 75 to 99 pct                                     
+Parallel operations downgraded 50 to 75 pct                                     
+Parallel operations downgraded 25 to 50 pct                                     
+Parallel operations downgraded 1 to 25 pct                                      
+
+NAME                                                                            
+----------------------------------------------------------------                
+PX local messages sent                                                          
+PX local messages recv'd                                                        
+PX remote messages sent                                                         
+PX remote messages recv'd                                                       
+buffer is pinned count                                                          
+buffer is not pinned count                                                      
+no buffer to keep pinned count                                                  
+workarea memory allocated                                                       
+workarea executions - optimal                                                   
+workarea executions - onepass                                                   
+workarea executions - multipass                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+key vector CUs filtered                                                         
+key vector CUs min/max filtered                                                 
+key vector CU codes processed                                                   
+key vector rows processed by value                                              
+key vector rows processed by code                                               
+key vector CUs processed using cached integer join keys                         
+key vector rows filtered                                                        
+key vector filtered on cell                                                     
+key vector probed on cell                                                       
+key vectors sent to cell                                                        
+key vectors sent to cell in lite mode due to layout                             
+
+NAME                                                                            
+----------------------------------------------------------------                
+key vectors sent to cell in lite mode due to quota                              
+key vector serializations for cell                                              
+key vector serializations in lite mode for cell                                 
+key vector queries                                                              
+key vectors created                                                             
+key vectors created (simple layout)                                             
+key vectors created (indirect layout)                                           
+key vectors created (offset layout)                                             
+key vectors created (doubly indirect layout)                                    
+key vectors created (hash layout)                                               
+key vectors created (paged)                                                     
+
+NAME                                                                            
+----------------------------------------------------------------                
+key vectors created (bit wide)                                                  
+key vectors created (nibble wide)                                               
+key vectors created (byte wide)                                                 
+key vectors created (2 byte wide)                                               
+key vectors created (4 byte wide)                                               
+key vectors created with payload                                                
+key vectors bypassed                                                            
+key vector stubs created                                                        
+key vector cas merge locking retrial                                            
+key vector cas merge abort                                                      
+key vector cas merge operations                                                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+key vector non cas merge operations                                             
+key vector dgk batch parcels                                                    
+key vector dgk range parcels                                                    
+key vector hash probes                                                          
+key vector hash inserts                                                         
+key vector hash cells scanned                                                   
+key vector hash locks encountered                                               
+key vector hash copied encountered                                              
+key vector efilters created                                                     
+vector group by operations sent to cell                                         
+vector group by operations not sent to cell due to key vector                   
+
+NAME                                                                            
+----------------------------------------------------------------                
+vector group by operations not sent to cell due to cardinality                  
+vector group by rows processed on cell                                          
+vector group by rows returned by cell                                           
+vector group by used                                                            
+vector group by rowsources adapted                                              
+vector group by accumspace cardinality                                          
+vector group by accumspace size                                                 
+vector group by out of line rows                                                
+vector group by out of line size                                                
+vector group by string allocations size                                         
+vector group by string allocations                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+vector group by string resizes                                                  
+vector group by rowsets processed on cell                                       
+vector encoded rows                                                             
+vector encoded rows decoded                                                     
+vector encoded row operations                                                   
+vector encoded rowsets                                                          
+vector encoded rowsets decoded                                                  
+vector encoded rowset operations                                                
+vector encoded arithmetic exceptions                                            
+vector encoded adaptively disabled                                              
+LOB table id lookup cache misses                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+parse time cpu                                                                  
+parse time elapsed                                                              
+parse count (total)                                                             
+parse count (hard)                                                              
+parse count (failures)                                                          
+parse count (describe)                                                          
+frame signature mismatch                                                        
+execute count                                                                   
+bytes sent via SQL*Net to client                                                
+bytes received via SQL*Net from client                                          
+SQL*Net roundtrips to/from client                                               
+
+NAME                                                                            
+----------------------------------------------------------------                
+bytes sent via SQL*Net to dblink                                                
+bytes received via SQL*Net from dblink                                          
+SQL*Net roundtrips to/from dblink                                               
+bytes via SQL*Net vector to client                                              
+bytes via SQL*Net vector from client                                            
+bytes via SQL*Net vector to dblink                                              
+bytes via SQL*Net vector from dblink                                            
+sorts (memory)                                                                  
+sorts (disk)                                                                    
+sorts (rows)                                                                    
+OTC commit optimization attempts                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+OTC commit optimization hits                                                    
+OTC commit optimization failure - setup                                         
+cumulative begin requests                                                       
+cumulative end requests                                                         
+cumulative user calls in requests                                               
+cumulative user calls protected by Application Continuity                       
+OLAP Paging Manager Cache Hit                                                   
+OLAP Paging Manager Cache Miss                                                  
+OLAP Paging Manager New Page                                                    
+OLAP Paging Manager Cache Write                                                 
+OLAP Session Cache Hit                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+OLAP Session Cache Miss                                                         
+OLAP Aggregate Function Calc                                                    
+OLAP Aggregate Function Precompute                                              
+OLAP Aggregate Function Logical NA                                              
+OLAP Paging Manager Pool Size                                                   
+OLAP Import Rows Pushed                                                         
+OLAP Import Rows Loaded                                                         
+OLAP Row Source Rows Processed                                                  
+OLAP Engine Calls                                                               
+OLAP Temp Segments                                                              
+OLAP Temp Segment Read                                                          
+
+NAME                                                                            
+----------------------------------------------------------------                
+OLAP Perm LOB Read                                                              
+OLAP Paging Manager Cache Changed Page                                          
+OLAP Fast Limit                                                                 
+OLAP GID Limit                                                                  
+OLAP Unique Key Attribute Limit                                                 
+OLAP INHIER Limit                                                               
+OLAP Full Limit                                                                 
+OLAP Custom Member Limit                                                        
+OLAP Row Id Limit                                                               
+OLAP Limit Time                                                                 
+OLAP Row Load Time                                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell flash cache read hits                                                      
+cell flash cache read hits for controlfile reads                                
+cell flash cache read hits for smart IO                                         
+cell flash cache read hits for temp IO                                          
+cell ram cache read hits                                                        
+cell persistent memory IO read requests - local                                 
+cell persistent memory IO read requests - remote                                
+cell persistent memory IO read requests - smart IO                              
+Workload Capture: size (in bytes) of recording                                  
+Workload Capture: dbtime                                                        
+Workload Capture: user calls                                                    
+
+NAME                                                                            
+----------------------------------------------------------------                
+Workload Capture: user calls flushed                                            
+Workload Capture: unreplayable user calls                                       
+Workload Capture: user txns                                                     
+Workload Capture: user logins                                                   
+Workload Capture: unsupported user calls                                        
+Workload Capture: errors                                                        
+Workload Capture: PL/SQL user subcalls                                          
+Workload Capture: PL/SQL user calls                                             
+Workload Capture: PL/SQL subcall size of recording                              
+Workload Capture: PL/SQL dbtime                                                 
+Workload Replay: dbtime                                                         
+
+NAME                                                                            
+----------------------------------------------------------------                
+Workload Replay: network time                                                   
+Workload Replay: think time                                                     
+Workload Replay: time gain                                                      
+Workload Replay: time loss                                                      
+Workload Replay: user calls                                                     
+Workload Replay: deadlocks resolved                                             
+Workload Replay: PL/SQL user calls                                              
+Workload Replay: PL/SQL user subcalls                                           
+Workload Replay: PL/SQL dbtime                                                  
+cell physical write IO bytes eligible for offload                               
+cell physical write IO host network bytes written during offloa                 
+
+NAME                                                                            
+----------------------------------------------------------------                
+cell logical write IO requests                                                  
+cell logical write IO requests eligible for offload                             
+Infiniband HCA Transmit Loadavg                                                 
+Infiniband HCA Receive Loadavg                                                  
+Infiniband HCA Max. Rate                                                        
+Infiniband HCA Transmit Data                                                    
+Infiniband HCA Receive Data                                                     
+backup pieces compressed locally                                                
+backup data compressed locally                                                  
+backup compressed data written locally                                          
+backup piece local processing time                                              
+
+NAME                                                                            
+----------------------------------------------------------------                
+backup pieces compressed remotely                                               
+backup data compressed remotely                                                 
+backup compressed data written remotely                                         
+backup piece remote processing time                                             
+OS User time used                                                               
+OS System time used                                                             
+OS Maximum resident set size                                                    
+OS Integral shared text size                                                    
+OS Integral unshared data size                                                  
+OS Integral unshared stack size                                                 
+OS Page reclaims                                                                
+
+NAME                                                                            
+----------------------------------------------------------------                
+OS Page faults                                                                  
+OS Swaps                                                                        
+OS Block input operations                                                       
+OS Block output operations                                                      
+OS Socket messages sent                                                         
+OS Socket messages received                                                     
+OS Signals received                                                             
+OS Voluntary context switches                                                   
+OS Involuntary context switches                                                 

@@ -1,0 +1,6096 @@
+[
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.aborted_clients",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.aborted_connects",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_bytes_written",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_cache_disk_use",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_cache_use",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_fsync_count",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_stmt_cache_disk_use",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.binlog_stmt_cache_use",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.bytes_received",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.bytes_sent",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_admin_commands",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_db",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_db_upgrade",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_event",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_function",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_procedure",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_server",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_tablespace",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_alter_user",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_analyze",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_assign_to_keycache",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_begin",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_binlog",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_call_procedure",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_change_db",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_change_master",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_check",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_checksum",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_commit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_db",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_event",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_function",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_index",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_native_proc",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_procedure",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_server",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_trigger",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_udf",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_user",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_create_view",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_dealloc_sql",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_delete",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_delete_multi",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_do",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_db",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_event",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_function",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_index",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_native_proc",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_procedure",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_server",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_trigger",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_user",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_drop_view",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_empty_query",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_execute_sql",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_find_gtid_position",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_flush",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_get_diagnostics",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_grant",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_ha_close",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_ha_open",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_ha_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_help",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_insert",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_insert_select",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_install_plugin",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_kill",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_load",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_lock_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_optimize",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_preload_keys",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_prepare_sql",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_purge",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_purge_before_date",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_purge_gtid",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_rbr_column_names",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_release_savepoint",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_rename_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_rename_user",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_repair",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_replace",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_replace_select",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_reset",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_resignal",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_revoke",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_revoke_all",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_rollback",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_rollback_to_savepoint",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_savepoint",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_select",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_set_option",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_binlog_cache",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_binlog_events",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_binlogs",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_charsets",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_collations",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_connection_attributes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_db",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_event",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_func",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_proc",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_create_trigger",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_databases",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_engine_logs",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_engine_mutex",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_engine_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_engine_trans",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_errors",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_events",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_fields",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_function_code",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_function_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_grants",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_gtid_executed",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_keys",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_master_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_memory_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_open_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_plugins",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_privileges",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_procedure_code",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_procedure_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_processlist",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_profile",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_profiles",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_relaylog_events",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_resource_counters",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_slave_hosts",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_slave_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_srv_sessions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_storage_engines",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_table_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_transaction_list",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_triggers",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_variables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_show_warnings",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_signal",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_slave_start",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_slave_stop",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_close",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_execute",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_fetch",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_prepare",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_reprepare",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_reset",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_stmt_send_long_data",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_truncate",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_uninstall_plugin",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_unlock_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_update",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_update_multi",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_commit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_end",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_prepare",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_recover",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_rollback",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.com_xa_start",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.command_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.command_slave_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.compressed_event_cache_hit_ratio",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.compression",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_accept",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_internal",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_max_connections",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_error_on_write",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_packet_too_large",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_packets_out_of_order",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_read_error",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_read_interrupted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_uncompress_error",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_net_er_net_write_interrupted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_peer_address",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_select",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connection_errors_tcpwrap",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.connections",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.created_tmp_disk_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.created_tmp_files",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.created_tmp_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.database_admission_control_aborted_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.database_admission_control_running_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.database_admission_control_waiting_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.delayed_errors",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.delayed_insert_threads",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.delayed_writes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.exec_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.flashcache_enabled",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.flush_commands",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.git_date",
+            "summary": "",
+            "vartype": 6,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.git_hash",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_commit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_delete",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_discover",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_external_lock",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_mrr_init",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_prepare",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_first",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_key",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_last",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_next",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_prev",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_rnd",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_read_rnd_next",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_rollback",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_savepoint",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_savepoint_rollback",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_update",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.handler_write",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_0-1",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_1-2",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_10-11",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_11-12",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_12-13",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_13-14",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_14-15",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_2-3",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_3-4",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_4-5",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_5-6",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_6-7",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_7-8",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_8-9",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.histogram_binlog_group_commit_9-10",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_blocks_not_flushed",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_blocks_unused",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_blocks_used",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_read_requests",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_reads",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_write_requests",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.key_writes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.last_evicted_page_age",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.last_query_cost",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.last_query_partial_plans",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_0-16ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_1008-2032ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_112-240ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_16-48ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_2032-4080ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_240-496ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_4080-8176ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_48-112ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_496-1008ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.latency_histogram_binlog_fsync_8176-16368ms",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.max_statement_time_exceeded",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.max_statement_time_set",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.max_statement_time_set_failed",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.max_used_connections",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.not_flushed_delayed_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.open_files",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.open_streams",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.open_table_definitions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.open_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.open_tables_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.opened_files",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.opened_table_definitions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.opened_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.parse_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.pre_exec_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.prepared_stmt_count",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_free_blocks",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_free_memory",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_hits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_inserts",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_lowmem_prunes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_not_cached",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_queries_in_cache",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.qcache_total_blocks",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.questions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rbr_unsafe_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.read_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.read_requests",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.read_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_bytes_written",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_io_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_io_connected",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_io_events",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_sql_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_sql_events",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.relay_log_sql_wait_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_add",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_add_failures",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_bytes_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_bytes_write",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_data_add",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_data_bytes_insert",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_data_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_data_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_filter_add",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_filter_bytes_evict",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_filter_bytes_insert",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_filter_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_filter_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_index_add",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_index_bytes_evict",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_index_bytes_insert",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_index_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_index_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cache_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cachecompressed_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_block_cachecompressed_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_bloom_filter_prefix_checked",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_bloom_filter_prefix_useful",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_bloom_filter_useful",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_bytes_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_bytes_written",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_compact_read_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_compact_write_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_compaction_key_drop_new",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_compaction_key_drop_obsolete",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_compaction_key_drop_user",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_covered_secondary_key_lookups",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_flush_write_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_get_hit_l0",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_get_hit_l1",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_get_hit_l2_and_up",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_getupdatessince_calls",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_git_date",
+            "summary": "",
+            "vartype": 6,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_git_hash",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_iter_bytes_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_memtable_hit",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_memtable_miss",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_memtable_total",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_memtable_unflushed",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_no_file_closes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_no_file_errors",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_no_file_opens",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_num_iterators",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_block_not_compressed",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_next",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_next_found",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_prev",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_prev_found",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_seek",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_db_seek_found",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_deletes_filtered",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_keys_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_keys_updated",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_keys_written",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_merge_failures",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_multiget_bytes_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_multiget_get",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_multiget_keys_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_reseeks_iteration",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_sst_entry_delete",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_sst_entry_merge",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_sst_entry_other",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_sst_entry_put",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_sst_entry_singledelete",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_stat_computes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_superversion_acquires",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_superversion_cleanups",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_number_superversion_releases",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_queries_point",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_queries_range",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rate_limit_delay_millis",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_deleted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_deleted_blind",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_expired",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_inserted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_rows_updated",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_snapshot_conflict_errors",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_l0_file_count_limit_slowdowns",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_l0_file_count_limit_stops",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_locked_l0_file_count_limit_slowdowns",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_locked_l0_file_count_limit_stops",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_memtable_limit_slowdowns",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_memtable_limit_stops",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_micros",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_pending_compaction_limit_slowdowns",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_pending_compaction_limit_stops",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_total_slowdowns",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_stall_total_stops",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_system_rows_deleted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_system_rows_inserted",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_system_rows_read",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_system_rows_updated",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_wal_bytes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_wal_group_syncs",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_wal_synced",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_write_other",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_write_self",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_write_timedout",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rocksdb_write_wal",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rows_examined",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rows_sent",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_append_block",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_begin_load_query",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_create_file",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_delete_file",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_delete_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_exec_load",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_execute_load_query",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_format_description",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_incident",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_intvar",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_load",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_new_load",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_other",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_pre_ga_delete_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_pre_ga_update_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_pre_ga_write_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_query",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_rand",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_rotate",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_slave",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_start_v3",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_stop",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_table_map",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_unknown",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_update_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_user_var",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_write_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_count_xid",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_append_block",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_begin_load_query",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_create_file",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_delete_file",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_delete_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_exec_load",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_execute_load_query",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_format_description",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_incident",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_intvar",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_load",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_new_load",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_other",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_pre_ga_delete_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_pre_ga_update_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_pre_ga_write_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_query",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_rand",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_rotate",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_slave",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_start_v3",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_stop",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_table_map",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_unknown",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_update_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_user_var",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_write_rows",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_seconds_xid",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_clients",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_net_avg_wait_time",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_net_wait_time",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_net_waits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_no_times",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_no_tx",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_status",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_timefunc_failures",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_0-500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_127500-255500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_1500-3500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_15500-31500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_255500-511500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_31500-63500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_3500-7500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_500-1500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_63500-127500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_trx_wait_histogram_7500-15500us",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_tx_avg_wait_time",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_tx_wait_time",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_tx_waits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_wait_pos_backtraverse",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_wait_sessions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_master_yes_tx",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rpl_semi_sync_slave_status",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.rsa_public_key",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.select_full_join",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.select_full_range_join",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.select_range",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.select_range_check",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.select_scan",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.skip_unique_check",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_dependency_free_size",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_dependency_size",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_heartbeat_period",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_last_heartbeat",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_open_temp_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_received_heartbeats",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_retried_transactions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slave_running",
+            "summary": "",
+            "vartype": 4,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slow_launch_threads",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.slow_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.sort_merge_passes",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.sort_range",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.sort_rows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.sort_scan",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_accept_renegotiates",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_accepts",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_callback_cache_hits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_cipher",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_cipher_list",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_client_connects",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_connect_renegotiates",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_ctx_verify_depth",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_ctx_verify_mode",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_default_timeout",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_finished_accepts",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_finished_connects",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_server_not_after",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_server_not_before",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_hits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_misses",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_mode",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_overflows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_size",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_session_cache_timeouts",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_sessions_reused",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_used_session_cache_entries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_verify_depth",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_verify_mode",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.ssl_version",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.statement_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.table_locks_immediate",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.table_locks_waited",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.table_open_cache_hits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.table_open_cache_misses",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.table_open_cache_overflows",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.tc_log_max_pages_used",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.tc_log_page_size",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.tc_log_page_waits",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_binlog_client",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_binlog_comp_event_client",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_cached",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_connected",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_created",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.threads_running",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.timer_in_use",
+            "summary": "",
+            "vartype": 1,
+            "metric_type": 2,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.tmp_table_bytes_written",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.total_queries_rejected",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.transaction_seconds",
+            "summary": "",
+            "vartype": 3,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.uptime",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.uptime_since_flush_status",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.write_queries",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.write_queries_rejected",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "session_status.write_queries_running",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "global"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.compaction_pending",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.cur_size_active_mem_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.cur_size_all_mem_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.mem_table_flush_pending",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.non_block_cache_sst_mem_usage",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.num_entries_active_mem_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.num_entries_imm_mem_tables",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.num_immutable_mem_table",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    },
+    {
+        "fields": {
+            "dbms": 9,
+            "name": "rocksdb_cfstats.num_live_versions",
+            "summary": "",
+            "vartype": 2,
+            "metric_type": 1,
+            "scope": "column_family"
+        },
+        "model": "website.MetricCatalog"
+    }
+]

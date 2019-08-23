@@ -1,0 +1,127 @@
+/*
+Theme Name:
+Author: yaminncco
+
+Colors:
+	Body 		  : #868F9B
+	Headers 	: #10161A
+	Primary 	: #6195FF
+	Dark      : #FCFCFF
+	Grey 		  : #F4F4F4 #FAFAFA #EEE
+
+Fonts: Montserrat Varela Round
+*/
+
+.bg-img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.bg-img .overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    opacity: .8;
+    background: #1C1D21;
+}
+
+/* --  Buttons  -- */
+
+.main-btn, .white-btn, .outline-btn {
+    display: inline-block;
+    padding: 10px 35px;
+    margin: 3px;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    -webkit-transition: 0.2s opacity;
+    transition: 0.2s opacity;
+}
+
+.main-btn {
+    background: #6195FF;
+    color: #FFF;
+}
+
+.white-btn {
+    background: #FFF;
+    color: #10161A !important;
+}
+
+.outline-btn {
+    background: transparent;
+    color: #6195FF !important;
+    border-color: #6195FF;
+}
+
+.main-btn:hover, .white-btn:hover, .outline-btn:hover {
+    opacity: 0.8;
+}
+
+.white-text {
+    color: #FFF;
+    list-style: none;
+    font-size: 20pt;
+}
+
+
+/* Home Content */
+
+#home {
+    height: 100vh;
+}
+
+#home .home-wrapper {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+.home-content h1 {
+  text-transform: uppercase;
+  font-size: 8em;
+}
+.home-content button {
+  margin-top: 20px;
+}
+
+.header-wrapper h2 {
+    display: inline-block;
+    margin-bottom: 0px;
+}
+
+.header-wrapper .breadcrumb {
+    float: right;
+    background: transparent;
+    margin-bottom: 0px;
+}
+
+.header-wrapper .breadcrumb .breadcrumb-item.active {
+    color: #868F9B;
+}
+
+.breadcrumb>li+li:before {
+    color: #868F9B;
+}
+
+/* Footer Copyright */
+
+.footer-copyright p {
+    text-align: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin: 0;
+}

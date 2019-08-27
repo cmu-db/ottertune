@@ -224,7 +224,7 @@ class Session(BaseModel):
 class SessionKnobManager(models.Manager):
     @staticmethod
     def get_knobs_for_session(session):
-            # Returns a dict of the knob
+        # Returns a dict of the knob
         knobs = KnobCatalog.objects.filter(dbms=session.dbms)
         knob_dicts = list(knobs.values())
         for i, _ in enumerate(knob_dicts):
@@ -422,12 +422,18 @@ class PipelineRun(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
 
+    def __unicode__(self):
+        return str(self.pk)
+
+    def __str__(self):
+        return self.__unicode__()
+
     class Meta:  # pylint: disable=old-style-class,no-init
         ordering = ["-id"]
 
 
 class PipelineData(models.Model):
-    pipeline_run = models.ForeignKey(PipelineRun)
+    pipeline_run = models.ForeignKey(PipelineRun, verbose_name='group')
     task_type = models.IntegerField(choices=PipelineTaskType.choices())
     workload = models.ForeignKey(Workload)
     data = models.TextField()

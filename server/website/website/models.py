@@ -21,7 +21,7 @@ class BaseModel(models.Model):
         return self.__unicode__()
 
     def __unicode__(self):
-        return self.name
+        return getattr(self, 'name', str(self.pk))
 
     @classmethod
     def get_labels(cls, style=LabelStyleType.DEFAULT_STYLE):
@@ -236,11 +236,13 @@ class SessionKnobManager(models.Manager):
         knob_dicts = [knob for knob in knob_dicts if knob["tunable"]]
         return knob_dicts
 
-    def __unicode__(self):
-        return self.session.name + " " + self.knob.name
-
 
 class SessionKnob(BaseModel):
+
+    @property
+    def name(self):
+        return self.knob.name
+
     objects = SessionKnobManager()
     session = models.ForeignKey(Session)
     knob = models.ForeignKey(KnobCatalog)

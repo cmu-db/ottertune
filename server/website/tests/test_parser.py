@@ -7,9 +7,9 @@
 from abc import ABCMeta, abstractmethod
 import mock
 from django.test import TestCase
-from website.parser.postgres import PostgresParser, Postgres96Parser
-from website.types import BooleanType, VarType, KnobUnitType, MetricType
-from website.models import KnobCatalog
+from website.parser.postgres import PostgresParser
+from website.types import BooleanType, DBMSType, VarType, KnobUnitType, MetricType
+from website.models import DBMSCatalog, KnobCatalog
 
 
 class BaseParserTests(object, metaclass=ABCMeta):
@@ -161,8 +161,10 @@ class BaseParserTests(object, metaclass=ABCMeta):
         mock_other_knob = mock.Mock(spec=KnobCatalog)
         mock_other_knob.unit = KnobUnitType.OTHER
 
-        self.assertEqual(self.test_dbms.format_bool(BooleanType.TRUE, mock_other_knob), 'on')
-        self.assertEqual(self.test_dbms.format_bool(BooleanType.FALSE, mock_other_knob), 'off')
+        self.assertEqual(self.test_dbms.format_bool(BooleanType.TRUE, mock_other_knob),
+                         self.test_dbms.true_value)
+        self.assertEqual(self.test_dbms.format_bool(BooleanType.FALSE, mock_other_knob),
+                         self.test_dbms.false_value)
 
     def test_format_enum(self):
         mock_enum_knob = mock.Mock(spec=KnobCatalog)
@@ -217,13 +219,15 @@ class BaseParserTests(object, metaclass=ABCMeta):
         pass
 
 
-class Postgres96ParserTests(BaseParserTests, TestCase):
+class PostgresParserTests(BaseParserTests, TestCase):
 
     def setUp(self):
-        self.test_dbms = Postgres96Parser(9.6)
+        dbms_obj = DBMSCatalog.objects.filter(
+            type=DBMSType.POSTGRES, version="9.6").first()
+        self.test_dbms = PostgresParser(dbms_obj)
 
     def test_convert_dbms_knobs(self):
-        super(Postgres96ParserTests, self).test_convert_dbms_knobs()
+        super().test_convert_dbms_knobs()
 
         test_knobs = {'global.wal_sync_method': 'open_sync',  # Enum
                       'global.random_page_cost': 0.22,  # Real
@@ -250,7 +254,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(self.test_dbms.convert_dbms_knobs(test_nontune_knobs), {})
 
     def test_convert_dbms_metrics(self):
-        super(Postgres96ParserTests, self).test_convert_dbms_metrics()
+        super().test_convert_dbms_metrics()
 
         test_metrics = {}
 
@@ -361,7 +365,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(nontune_extract.get('global.GEQO_EFFORT'), None)
 
     def test_convert_integer(self):
-        super(Postgres96ParserTests, self).test_convert_integer()
+        super().test_convert_integer()
 
         # Convert Integer
         knob_unit_bytes = KnobUnitType()
@@ -387,6 +391,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(self.test_dbms
                          .convert_integer('10min', knob_unit_time), 600000)
         self.assertEqual(self.test_dbms.convert_integer('1s', knob_unit_time), 1000)
+        self.assertEqual(self.test_dbms.convert_integer('5000ms', knob_unit_time), 5000)
 
         test_exceptions = [('A', knob_unit_other),
                            ('', knob_unit_other),
@@ -400,7 +405,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
                 self.test_dbms.convert_integer(failure_case, knob_unit)
 
     def test_calculate_change_in_metrics(self):
-        super(Postgres96ParserTests, self).test_calculate_change_in_metrics()
+        super().test_calculate_change_in_metrics()
 
         test_metric_start = {'pg_stat_bgwriter.buffers_alloc': 256,
                              'pg_stat_archiver.last_failed_wal': "today",
@@ -473,8 +478,6 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
             self.assertEqual(test_config.get(k), v)
 
     def test_format_integer(self):
-        test_dbms = PostgresParser(2)
-
         knob_unit_bytes = KnobUnitType()
         knob_unit_bytes.unit = 1
         knob_unit_time = KnobUnitType()
@@ -482,22 +485,22 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         knob_unit_other = KnobUnitType()
         knob_unit_other.unit = 3
 
-        self.assertEqual(test_dbms.format_integer(5, knob_unit_other), 5)
-        self.assertEqual(test_dbms.format_integer(0, knob_unit_other), 0)
-        self.assertEqual(test_dbms.format_integer(-1, knob_unit_other), -1)
+        self.assertEqual(self.test_dbms.format_integer(5, knob_unit_other), 5)
+        self.assertEqual(self.test_dbms.format_integer(0, knob_unit_other), 0)
+        self.assertEqual(self.test_dbms.format_integer(-1, knob_unit_other), -1)
 
-        self.assertEqual(test_dbms.format_integer(5120, knob_unit_bytes), '5kB')
-        self.assertEqual(test_dbms.format_integer(4194304, knob_unit_bytes), '4MB')
-        self.assertEqual(test_dbms.format_integer(4194500, knob_unit_bytes), '4MB')
+        self.assertEqual(self.test_dbms.format_integer(5120, knob_unit_bytes), '5kB')
+        self.assertEqual(self.test_dbms.format_integer(4194304, knob_unit_bytes), '4MB')
+        self.assertEqual(self.test_dbms.format_integer(4194500, knob_unit_bytes), '4MB')
 
-        self.assertEqual(test_dbms.format_integer(86400000, knob_unit_time), '1d')
-        self.assertEqual(test_dbms.format_integer(72000000, knob_unit_time), '20h')
-        self.assertEqual(test_dbms.format_integer(600000, knob_unit_time), '10min')
-        self.assertEqual(test_dbms.format_integer(1000, knob_unit_time), '1s')
-        self.assertEqual(test_dbms.format_integer(500, knob_unit_time), '500ms')
+        self.assertEqual(self.test_dbms.format_integer(86400000, knob_unit_time), '1d')
+        self.assertEqual(self.test_dbms.format_integer(72000000, knob_unit_time), '20h')
+        self.assertEqual(self.test_dbms.format_integer(600000, knob_unit_time), '10min')
+        self.assertEqual(self.test_dbms.format_integer(1000, knob_unit_time), '1s')
+        self.assertEqual(self.test_dbms.format_integer(500, knob_unit_time), '500ms')
 
     def test_format_dbms_knobs(self):
-        super(Postgres96ParserTests, self).test_format_dbms_knobs()
+        super().test_format_dbms_knobs()
 
         test_knobs = {'global.wal_sync_method': 2,  # Enum
                       'global.random_page_cost': 0.22,  # Real
@@ -520,7 +523,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(test_formatted_knobs.get('global.wal_buffers'), '1kB')
 
     def test_filter_numeric_metrics(self):
-        super(Postgres96ParserTests, self).test_filter_numeric_metrics()
+        super().test_filter_numeric_metrics()
 
         test_metrics = {'pg_stat_bgwriter.checkpoints_req': (2, 'global'),
                         'pg_stat_archiver.last_failed_wal': (1, 'global'),
@@ -549,7 +552,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(filtered_metrics.get('pg_FAKE_KNOB'), None)
 
     def test_filter_tunable_knobs(self):
-        super(Postgres96ParserTests, self).test_filter_tunable_knobs()
+        super().test_filter_tunable_knobs()
 
         test_knobs = {'global.wal_sync_method': 5,
                       'global.random_page_cost': 3,
@@ -571,7 +574,7 @@ class Postgres96ParserTests(BaseParserTests, TestCase):
         self.assertEqual(filtered_knobs.get('global.FAKE_KNOB'), None)
 
     def test_parse_helper(self):
-        super(Postgres96ParserTests, self).test_parse_helper()
+        super().test_parse_helper()
 
         test_view_vars = {'global': {'wal_sync_method': 'open_sync',
                                      'random_page_cost': 0.22},

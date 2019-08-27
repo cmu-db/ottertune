@@ -5,16 +5,14 @@
 #
 
 from .base import BaseParser
-from website.models import DBMSCatalog
-from website.types import DBMSType
 
 
 class OracleParser(BaseParser):
 
-    def __init__(self, dbms_id):
-        super(OracleParser, self).__init__(dbms_id)
-        self.valid_true_val = ["TRUE", "true", "yes", 1]
-        self.valid_false_val = ["FALSE", "false", "no", 0]
+    def __init__(self, dbms_obj):
+        super().__init__(dbms_obj)
+        self.true_value = 'TRUE'
+        self.false_value = 'FALSE'
 
     ORACLE_BASE_KNOBS = {
     }
@@ -37,11 +35,3 @@ class OracleParser(BaseParser):
 
     def parse_version_string(self, version_string):
         return version_string
-
-
-class Oracle19Parser(OracleParser):
-
-    def __init__(self):
-        dbms = DBMSCatalog.objects.get(
-            type=DBMSType.ORACLE, version='19.0.0.0.0')
-        super(Oracle19Parser, self).__init__(dbms.pk)

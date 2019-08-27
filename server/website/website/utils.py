@@ -205,6 +205,23 @@ class DataUtil(object):
 
 class ConversionUtil(object):
 
+    DEFAULT_BYTES_SYSTEM = (
+        (1024 ** 5, 'PB'),
+        (1024 ** 4, 'TB'),
+        (1024 ** 3, 'GB'),
+        (1024 ** 2, 'MB'),
+        (1024 ** 1, 'kB'),
+        (1024 ** 0, 'B'),
+    )
+
+    DEFAULT_TIME_SYSTEM = (
+        (1000 * 60 * 60 * 24, 'd'),
+        (1000 * 60 * 60, 'h'),
+        (1000 * 60, 'min'),
+        (1000, 's'),
+        (1, 'ms'),
+    )
+
     @staticmethod
     def get_raw_size(value, system):
         for factor, suffix in system:

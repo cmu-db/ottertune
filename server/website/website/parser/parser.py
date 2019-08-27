@@ -3,42 +3,38 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-'''
-Created on Dec 12, 2017
-
-@author: dvanaken
-'''
-
 
 from website.models import DBMSCatalog
 from website.types import DBMSType
 
-from .myrocks import MyRocks56Parser
-from .postgres import Postgres96Parser, PostgresOldParser
-from .oracle import Oracle19Parser
+from .myrocks import MyRocksParser
+from .postgres import PostgresParser
+from .oracle import OracleParser
 
 
-class Parser(object):
+class Parser():
 
     __DBMS_UTILS_IMPLS = None
 
     @staticmethod
     def __utils(dbms_id=None):
         if Parser.__DBMS_UTILS_IMPLS is None:
-            Parser.__DBMS_UTILS_IMPLS = {
-                DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.3').pk: PostgresOldParser('9.3'),
-                DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.2').pk: PostgresOldParser('9.2'),
-                DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.6').pk: Postgres96Parser('9.6'),
-                DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.4').pk: Postgres96Parser('9.4'),
-                DBMSCatalog.objects.get(
-                    type=DBMSType.MYROCKS, version='5.6').pk: MyRocks56Parser(),
-                DBMSCatalog.objects.get(
-                    type=DBMSType.ORACLE, version='19.0.0.0.0').pk: Oracle19Parser()
-            }
+
+            parsers = {}
+            for obj in DBMSCatalog.objects.all():
+                if obj.type == DBMSType.POSTGRES:
+                    clz = PostgresParser
+                elif obj.type == DBMSType.MYROCKS:
+                    clz = MyRocksParser
+                elif obj.type == DBMSType.ORACLE:
+                    clz = OracleParser
+                else:
+                    raise NotImplementedError('Implement me! {}'.format(obj))
+
+                parsers[obj.pk] = clz(obj)
+
+            Parser.__DBMS_UTILS_IMPLS = parsers
+
         try:
             if dbms_id is None:
                 return Parser.__DBMS_UTILS_IMPLS

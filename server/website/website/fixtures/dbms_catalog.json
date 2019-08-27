@@ -25,14 +25,6 @@
   },
   {
     "model":"website.DBMSCatalog",
-    "pk":5,
-    "fields":{
-        "type":2,
-        "version":"9.5"
-     }
-  },
-  {
-    "model":"website.DBMSCatalog",
     "pk":1,
     "fields":{
         "type":2,

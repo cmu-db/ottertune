@@ -23,7 +23,6 @@ class Migration(migrations.Migration):
     ]
 
     try:
-        LOG.info('***** VENDOR: %s', connection.vendor)
         if connection.vendor == 'mysql':
 
             version = (0, 0, 0)
@@ -31,10 +30,9 @@ class Migration(migrations.Migration):
                 cursor.execute('SELECT VERSION()')
                 version = cursor.fetchone()[0]
 
-            version = version.split('-')[0]
-            version = version.split('.')
+            version_str = version.split('-')[0]
+            version = version_str.split('.')
             version = tuple(int(v) for v in version)
-            LOG.info('***** DB VERSION: %s', version)
 
             if version >= (5, 7, 0):
                 operations = [
@@ -44,14 +42,15 @@ class Migration(migrations.Migration):
                                        "OPTIMIZE TABLE " + table_name + ";"])
                             for table_name in TABLES_TO_COMPRESS
                 ]
-                LOG.info('***** DONE ENABLING COMPRESSION')
+                LOG.debug("Enabled compression for '%s %s'", connection.vendor, version_str)
 
             else:
                 operations = []
-                LOG.info('***** COMPRESSION NOT SUPPORTED: %s < (5, 7, 0)', version)
+                LOG.debug("Disabled compression for '%s %s': version not supported",
+                          connection.vendor, version_str)
 
         else:
-            LOG.info('***** DB COMPRESSION NOT SUPPORTED: %s', connection.vendor)
+            LOG.debug("Disabled compression for '%s': vendor not supported", connection.vendor)
 
     except ProgrammingError as err:
         LOG.warning("Error applying migration '0002_enable_compression'... Skipping")

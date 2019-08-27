@@ -35,8 +35,6 @@ class Parser(object):
                 DBMSCatalog.objects.get(
                     type=DBMSType.POSTGRES, version='9.4').pk: Postgres96Parser('9.4'),
                 DBMSCatalog.objects.get(
-                    type=DBMSType.POSTGRES, version='9.5').pk: Postgres96Parser('9.5'),
-                DBMSCatalog.objects.get(
                     type=DBMSType.MYROCKS, version='5.6').pk: MyRocks56Parser(),
                 DBMSCatalog.objects.get(
                     type=DBMSType.ORACLE, version='19.0.0.0.0').pk: Oracle19Parser()

@@ -90,7 +90,7 @@ class SessionForm(forms.ModelForm):
         model = Session
 
         fields = ('name', 'description', 'tuning_session', 'dbms', 'cpu', 'memory', 'storage',
-                  'target_objective')
+                  'algorithm', 'target_objective')
 
         widgets = {
             'name': forms.TextInput(attrs={'required': True}),

@@ -12,7 +12,7 @@ from django.utils.timezone import now
 
 from .types import (DBMSType, LabelStyleType, MetricType, KnobUnitType,
                     PipelineTaskType, VarType, KnobResourceType,
-                    WorkloadStatusType)
+                    WorkloadStatusType, AlgorithmType)
 
 
 class BaseModel(models.Model):
@@ -179,13 +179,13 @@ class Hardware(BaseModel):
     def __unicode__(self):
         return 'CPU:{}, RAM:{}, Storage:{}'.format(self.cpu, self.memory, self.storage)
 
-
 class Session(BaseModel):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=64, verbose_name="session name")
     description = models.TextField(null=True, blank=True)
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
+    algorithm = models.IntegerField(choices=AlgorithmType.choices())
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()

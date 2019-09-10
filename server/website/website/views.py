@@ -532,13 +532,16 @@ def handle_result_files(session, files):
         response = chain(aggregate_target_results.s(result.pk),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
-    elif session.algorithm == AlgorithmType.ALGORITHM1:
+    elif session.algorithm == AlgorithmType.DDPG:
+        response = chain(train_ddpg.s(result.pk),
+                         configuration_recommendation_ddpg.s()).apply_async()
+    elif session.algorithm == AlgorithmType.DNN:
         pass
-    elif session.algorithm == AlgorithmType.ALGORITHM2:
-        pass
-    elif session.algorithm == AlgorithmType.ALGORITHM3:
-        pass
-    taskmeta_ids = [response.parent.parent.id, response.parent.id, response.id]
+    taskmeta_ids = []
+    current_task = response
+    while current_task:
+        taskmeta_ids.append(current_task.id)
+        current_task = current_task.parent
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
     return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "

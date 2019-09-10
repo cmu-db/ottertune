@@ -33,7 +33,7 @@ from .parser import Parser
 from .tasks import (aggregate_target_results, map_workload,
                     configuration_recommendation)
 from .types import (DBMSType, KnobUnitType, MetricType,
-                    TaskType, VarType, WorkloadStatusType)
+                    TaskType, VarType, WorkloadStatusType, AlgorithmType)
 from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
 from .settings import TIME_ZONE
 
@@ -261,6 +261,7 @@ def session_view(request, project_id, session_id):
         'knob_names': knob_names,
         'filters': [],
         'session': session,
+        'algorithm_name': AlgorithmType.TYPE_NAMES[session.algorithm],
         'results': results,
         'labels': form_labels,
     }
@@ -313,6 +314,7 @@ def create_or_edit_session(request, project_id, session_id=''):
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
+                    'algorithm': AlgorithmType.OTTERTUNE,
                     'target_objective': 'throughput_txn_per_sec',
                 })
         context = {

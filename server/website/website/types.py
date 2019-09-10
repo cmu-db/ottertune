@@ -170,3 +170,16 @@ class LabelStyleType(BaseType):
         CAPFIRST: 'capfirst',
         LOWER: 'lower'
     }
+
+class AlgorithmType(BaseType):
+    OTTERTUNE = 1
+    ALGORITHM1 = 2
+    ALGORITHM2 = 3
+    ALGORITHM3 = 4
+
+    TYPE_NAMES = {
+        OTTERTUNE: 'Ottertune Default',
+        ALGORITHM1: 'Algorithm 1',
+        ALGORITHM2: 'Algorithm 2',
+        ALGORITHM3: 'Algorithm 3'
+    }

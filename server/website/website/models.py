@@ -185,7 +185,8 @@ class Session(BaseModel):
     description = models.TextField(null=True, blank=True)
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
-    algorithm = models.IntegerField(choices=AlgorithmType.choices())
+    algorithm = models.IntegerField(choices=AlgorithmType.choices(),
+                                    default=AlgorithmType.OTTERTUNE)
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()

@@ -527,9 +527,17 @@ def handle_result_files(session, files):
         return HttpResponse("Result stored successfully!")
 
     result_id = result.pk
-    response = chain(aggregate_target_results.s(result.pk),
-                     map_workload.s(),
-                     configuration_recommendation.s()).apply_async()
+    response = None
+    if session.algorithm == AlgorithmType.OTTERTUNE:
+        response = chain(aggregate_target_results.s(result.pk),
+                         map_workload.s(),
+                         configuration_recommendation.s()).apply_async()
+    elif session.algorithm == AlgorithmType.ALGORITHM1:
+        pass
+    elif session.algorithm == AlgorithmType.ALGORITHM2:
+        pass
+    elif session.algorithm == AlgorithmType.ALGORITHM3:
+        pass
     taskmeta_ids = [response.parent.parent.id, response.parent.id, response.id]
     result.task_ids = ','.join(taskmeta_ids)
     result.save()

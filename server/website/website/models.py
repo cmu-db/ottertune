@@ -179,6 +179,7 @@ class Hardware(BaseModel):
     def __unicode__(self):
         return 'CPU:{}, RAM:{}, Storage:{}'.format(self.cpu, self.memory, self.storage)
 
+
 class Session(BaseModel):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=64, verbose_name="session name")

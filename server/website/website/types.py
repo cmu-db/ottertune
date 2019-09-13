@@ -171,6 +171,7 @@ class LabelStyleType(BaseType):
         LOWER: 'lower'
     }
 
+
 class AlgorithmType(BaseType):
     OTTERTUNE = 1
     ALGORITHM1 = 2

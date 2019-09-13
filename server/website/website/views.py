@@ -30,7 +30,7 @@ from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatal
                      MetricData, MetricManager, Project, Result, Session, Workload,
                      SessionKnob)
 from .parser import Parser
-from .tasks import (aggregate_target_results, map_workload,
+from .tasks import (aggregate_target_results, map_workload, train_ddpg, run_ddpg,
                     configuration_recommendation)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
@@ -967,3 +967,11 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
     # success
     res = Result.objects.get(pk=lastest_result.pk)
     return HttpResponse(JSONUtil.dumps(res.next_configuration), content_type='application/json')
+
+
+def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
+    session = get_object_or_404(Session, pk=session_id, user=request.user)  # pylint: disable=unused-variable
+    results = Result.objects.filter(session=session_id)
+    for result in results:
+        train_ddpg(result.pk)
+    return HttpResponse()

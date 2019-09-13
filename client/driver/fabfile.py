@@ -12,7 +12,7 @@ import sys
 import json
 import logging
 import time
-import os.path
+import os
 import re
 import glob
 from multiprocessing import Process
@@ -145,6 +145,8 @@ def signal_controller():
 
 @task
 def save_dbms_result():
+    if not os.path.exists(CONF['save_path']):
+        os.makedirs(CONF['save_path'])
     t = int(time.time())
     files = ['knobs.json', 'metrics_after.json', 'metrics_before.json', 'summary.json']
     for f_ in files:

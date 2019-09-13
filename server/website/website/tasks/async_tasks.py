@@ -5,6 +5,8 @@
 #
 import random
 import queue
+from os.path import dirname, abspath, join
+import os
 import numpy as np
 
 from celery.task import task, Task
@@ -12,6 +14,7 @@ from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler
 
+from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
 from analysis.preprocessing import Bin, DummyEncoder
@@ -30,6 +33,7 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
 
+
 LOG = get_task_logger(__name__)
 
 
@@ -39,6 +43,17 @@ class UpdateTask(Task):  # pylint: disable=abstract-method
         self.rate_limit = '50/m'
         self.max_retries = 3
         self.default_retry_delay = 60
+
+
+class TrainDDPG(UpdateTask):  # pylint: disable=abstract-method
+    def on_success(self, retval, task_id, args, kwargs):
+        super(TrainDDPG, self).on_success(retval, task_id, args, kwargs)
+
+        # Completely delete this result because it's huge and not
+        # interesting
+        task_meta = TaskMeta.objects.get(task_id=task_id)
+        task_meta.result = None
+        task_meta.save()
 
 
 class AggregateTargetResults(UpdateTask):  # pylint: disable=abstract-method
@@ -192,6 +207,126 @@ def gen_random_data(knobs):
                 'Unknown variable type: {}'.format(knob["vartype"]))
 
     return random_knob_result
+
+
+@task(base=TrainDDPG, name='train_ddpg')
+def train_ddpg(result_id):
+    LOG.info('Add training data to ddpg and train ddpg')
+    result = Result.objects.get(pk=result_id)
+    session = Result.objects.get(pk=result_id).session
+    session_results = Result.objects.filter(session=session,
+                                            creation_time__lt=result.creation_time)
+    result_info = {}
+    result_info['newest_result_id'] = result_id
+    if len(session_results) == 0:
+        LOG.info('No previous result. Abort.')
+        return result_info
+    prev_result_id = session_results[len(session_results) - 1].pk
+    base_result_id = session_results[0].pk
+    prev_result = Result.objects.filter(pk=prev_result_id)
+    base_result = Result.objects.filter(pk=base_result_id)
+
+    # Extract data from result
+    result = Result.objects.filter(pk=result_id)
+    agg_data = DataUtil.aggregate_data(result)
+    metric_data = agg_data['y_matrix'].flatten()
+    prev_metric_data = (DataUtil.aggregate_data(prev_result))['y_matrix'].flatten()
+    base_metric_data = (DataUtil.aggregate_data(base_result))['y_matrix'].flatten()
+
+    # Clean knob data
+    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
+    agg_data['X_matrix'] = np.array(cleaned_agg_data[0]).flatten()
+    agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1]).flatten()
+    knob_data = DataUtil.normalize_knob_data(agg_data['X_matrix'],
+                                             agg_data['X_columnlabels'], session)
+    knob_num = len(knob_data)
+    metric_num = len(metric_data)
+    LOG.info('knob_num: %d, metric_num: %d', knob_num, metric_num)
+
+    # Filter ys by current target objective metric
+    result = Result.objects.get(pk=result_id)
+    target_objective = result.session.target_objective
+    target_obj_idx = [i for i, n in enumerate(agg_data['y_columnlabels']) if n == target_objective]
+    if len(target_obj_idx) == 0:
+        raise Exception(('Could not find target objective in metrics '
+                         '(target_obj={})').format(target_objective))
+    elif len(target_obj_idx) > 1:
+        raise Exception(('Found {} instances of target objective in '
+                         'metrics (target_obj={})').format(len(target_obj_idx),
+                                                           target_objective))
+    objective = metric_data[target_obj_idx]
+    prev_objective = prev_metric_data[target_obj_idx]
+    base_objective = base_metric_data[target_obj_idx]
+    metric_meta = MetricCatalog.objects.get_metric_meta(result.session.dbms,
+                                                        result.session.target_objective)
+
+    # Calculate the reward
+    reward = 0
+    if metric_meta[target_objective].improvement == '(less is better)':
+        if objective - base_objective <= 0:
+            reward = -(np.square(objective / base_objective) - 1) * objective / prev_objective
+        else:
+            reward = (np.square((2 * base_objective - objective) / base_objective) - 1)\
+                * (2 * prev_objective - objective) / prev_objective
+    else:
+        if objective - base_objective > 0:
+            reward = (np.square(objective / base_objective) - 1) * objective / prev_objective
+        else:
+            reward = -(np.square((2 * base_objective - objective) / base_objective) - 1)\
+                * (2 * prev_objective - objective) / prev_objective
+
+    # Update ddpg
+    project_root = dirname(dirname(dirname(abspath(__file__))))
+    saved_memory = join(project_root, 'checkpoint/reply_memory_' + session.project.name)
+    saved_model = join(project_root, 'checkpoint/ddpg_' + session.project.name)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num)
+    if os.path.exists(saved_memory):
+        ddpg.replay_memory.load_memory(saved_memory)
+        ddpg.load_model(saved_model)
+    ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data, False)
+    if len(ddpg.replay_memory) > 32:
+        ddpg.update()
+    checkpoint_dir = join(project_root, 'checkpoint')
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    ddpg.replay_memory.save(saved_memory)
+    ddpg.save_model(saved_model)
+    return result_info
+
+
+@task(base=ConfigurationRecommendation, name='run_ddpg')
+def run_ddpg(result_info):
+    LOG.info('Use ddpg to recommend configuration')
+    result_id = result_info['newest_result_id']
+    result = Result.objects.filter(pk=result_id)
+    session = Result.objects.get(pk=result_id).session
+    agg_data = DataUtil.aggregate_data(result)
+    metric_data = agg_data['y_matrix'].flatten()
+    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
+                                       session)
+    knob_labels = np.array(cleaned_agg_data[1]).flatten()
+    knob_data = np.array(cleaned_agg_data[0]).flatten()
+    knob_num = len(knob_data)
+    metric_num = len(metric_data)
+
+    project_root = dirname(dirname(dirname(abspath(__file__))))
+    saved_memory = join(project_root, 'checkpoint/reply_memory_' + session.project.name)
+    saved_model = join(project_root, 'checkpoint/ddpg_' + session.project.name)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num)
+    if os.path.exists(saved_memory):
+        ddpg.replay_memory.load_memory(saved_memory)
+        ddpg.load_model(saved_model)
+    knob_data = ddpg.choose_action(metric_data)
+    LOG.info('recommended knob: %s', knob_data)
+    knob_data = DataUtil.denormalize_knob_data(knob_data, knob_labels, session)
+    conf_map = {k: knob_data[i] for i, k in enumerate(knob_labels)}
+    conf_map_res = {}
+    conf_map_res['status'] = 'good'
+    conf_map_res['recommendation'] = conf_map
+    conf_map_res['info'] = 'INFO: ddpg'
+    for k in knob_labels:
+        LOG.info('%s: %f', k, conf_map[k])
+    return conf_map_res
 
 
 @task(base=ConfigurationRecommendation, name='configuration_recommendation')

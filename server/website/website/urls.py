@@ -65,6 +65,9 @@ urlpatterns = [
 
     # Back door
     url(r'^query_and_get/(?P<upload_code>[0-9a-zA-Z]+)$', website_views.give_result, name="backdoor"),
+
+    # train ddpg with results in the given session
+    url(r'^train_ddpg/sessions/(?P<session_id>[0-9]+)$', website_views.train_ddpg_loops, name='train_ddpg_loops'),
 ]
 
 if settings.DEBUG:

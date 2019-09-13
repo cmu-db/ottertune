@@ -20,7 +20,7 @@ from django.utils.text import capfirst
 from djcelery.models import TaskMeta
 
 from .types import LabelStyleType, VarType
-from .models import KnobCatalog, DBMSCatalog
+from .models import KnobCatalog, DBMSCatalog, SessionKnob
 
 LOG = logging.getLogger(__name__)
 
@@ -91,6 +91,34 @@ class TaskUtil(object):
 
 
 class DataUtil(object):
+
+    @staticmethod
+    def normalize_knob_data(knob_values, knob_labels, session):
+        for i, knob in enumerate(knob_labels):
+            knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
+            minval = float(knob_object.minval)
+            maxval = float(knob_object.maxval)
+            knob_new = SessionKnob.objects.filter(knob=knob_object, session=session, tunable=True)
+            if knob_new.exists():
+                minval = float(knob_new[0].minval)
+                maxval = float(knob_new[0].maxval)
+            knob_values[i] = (knob_values[i] - minval) / (maxval - minval)
+            knob_values[i] = max(0, min(knob_values[i], 1))
+        return knob_values
+
+    @staticmethod
+    def denormalize_knob_data(knob_values, knob_labels, session):
+        for i, knob in enumerate(knob_labels):
+            knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
+            minval = float(knob_object.minval)
+            maxval = float(knob_object.maxval)
+            knob_session_object = SessionKnob.objects.filter(knob=knob_object, session=session,
+                                                             tunable=True)
+            if knob_session_object.exists():
+                minval = float(knob_session_object[0].minval)
+                maxval = float(knob_session_object[0].maxval)
+            knob_values[i] = knob_values[i] * (maxval - minval) + minval
+        return knob_values
 
     @staticmethod
     def aggregate_data(results):

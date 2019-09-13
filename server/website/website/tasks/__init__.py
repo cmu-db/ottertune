@@ -5,7 +5,9 @@
 #
 from .async_tasks import (aggregate_target_results,
                           configuration_recommendation,
-                          map_workload)
+                          map_workload,
+                          train_ddpg,
+                          run_ddpg)
 
 
 from .periodic_tasks import (run_background_tasks)

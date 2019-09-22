@@ -158,6 +158,7 @@ class SessionViewsTests(TestCase):
             'name': 'test_create_basic_session',
             'description': 'testing create basic session...',
             'tuning_session': 'no_tuning_session',
+            'algorithm': 1,
             'cpu': '2',
             'memory': '16.0',
             'storage': '32',
@@ -179,6 +180,7 @@ class SessionViewsTests(TestCase):
             'cpu': '2',
             'memory': '16.0',
             'storage': '32',
+            'algorithm': 1,
             'dbms': 1,
             'target_objective': 'throughput_txn_per_sec'
         }
@@ -206,6 +208,7 @@ class SessionViewsTests(TestCase):
             'cpu': '2',
             'memory': '16.0',
             'storage': '32',
+            'algorithm': 1,
             'dbms': 1,
             'target_objective': 'throughput_txn_per_sec'
         }
@@ -260,6 +263,7 @@ class SessionViewsTests(TestCase):
                 'cpu': '2',
                 'memory': '16.0',
                 'storage': '32',
+                'algorithm': 1,
                 'dbms': 1,
                 'target_objective': 'throughput_txn_per_sec'
             }

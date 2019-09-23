@@ -17,8 +17,8 @@ RUN yum update -y \
 	&& yum -y autoremove \
 	&& yum clean metadata \
     && yum clean all \
-    && ln -s `which python3.6` /usr/bin/python3 \
-    && ln -s `which pip3.6` /usr/bin/pip3 \
+    && ln -sf `which python3.6` /usr/bin/python3 \
+    && ln -sf `which pip3.6` /usr/bin/pip3 \
     && wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip \
     && unzip ${GRADLE_VERSION}-bin.zip -d /opt \
     && rm ${GRADLE_VERSION}-bin.zip \
@@ -28,4 +28,3 @@ RUN yum update -y \
     && gradle --version \
     && pip3 install -r /requirements.txt \
     && rm /requirements.txt 
-

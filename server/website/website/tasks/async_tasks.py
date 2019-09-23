@@ -546,10 +546,15 @@ def configuration_recommendation(target_data):
 
     # neural network model
     # FIXME: choose algorithm based on the session option
-    model_nn = NeuralNet(weights_file=full_path, n_input=X_samples.shape[1],
-                         batch_size=X_samples.shape[0], debug=True)
+    model_nn = NeuralNet(weights_file=full_path,
+                         n_input=X_samples.shape[1],
+                         batch_size=X_samples.shape[0],
+                         explore_iters=500,
+                         noise_scale_begin=0.1,
+                         noise_scale_end=0,
+                         debug=True)
     model_nn.fit(X_scaled, y_scaled)
-    res = model_nn.recommend(X_samples, X_min, X_max, explore=False)
+    res = model_nn.recommend(X_samples, X_min, X_max, explore=True)
 
     model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
                   magnitude=DEFAULT_MAGNITUDE,

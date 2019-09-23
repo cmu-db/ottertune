@@ -33,6 +33,9 @@ CONFIG_DIR = join(PROJECT_ROOT, 'config')
 # Where the log files are stored
 LOG_DIR = join(PROJECT_ROOT, 'log')
 
+# Where the model weight files are stored
+MODEL_DIR = join(PROJECT_ROOT, 'model')
+
 # File/directory upload permissions
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o664
 FILE_UPLOAD_PERMISSIONS = 0o664
@@ -51,6 +54,13 @@ sys.path.insert(0, OTTERTUNE_LIBS)
 try:
     if not exists(LOG_DIR):
         os.mkdir(LOG_DIR)
+except OSError:  # Invalid permissions
+    pass
+
+# Try to create the model directory
+try:
+    if not exists(MODEL_DIR):
+        os.mkdir(MODEL_DIR)
 except OSError:  # Invalid permissions
     pass
 

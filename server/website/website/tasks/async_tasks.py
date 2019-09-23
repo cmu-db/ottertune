@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import os
 import random
 import queue
 import numpy as np
@@ -15,6 +16,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
+from analysis.nn_tf import NeuralNet
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog,
@@ -32,6 +34,7 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               CRITIC_LEARNING_RATE, GAMMA, TAU)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
+from website.settings import MODEL_DIR
 from website.types import VarType
 
 
@@ -536,6 +539,18 @@ def configuration_recommendation(target_data):
         except queue.Empty:
             break
 
+    # one model for each (project, session)
+    session = newest_result.session.pk
+    project = newest_result.session.project.pk
+    full_path = os.path.join(MODEL_DIR, 'p' + str(project) + '_s' + str(session) + '_nn.weights')
+
+    # neural network model
+    # FIXME: choose algorithm based on the session option
+    model_nn = NeuralNet(weights_file=full_path, n_input=X_samples.shape[1],
+                         batch_size=X_samples.shape[0], debug=True)
+    model_nn.fit(X_scaled, y_scaled)
+    res = model_nn.recommend(X_samples, X_min, X_max, explore=False)
+
     model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
                   magnitude=DEFAULT_MAGNITUDE,
                   max_train_size=MAX_TRAIN_SIZE,
@@ -546,8 +561,8 @@ def configuration_recommendation(target_data):
                   max_iter=MAX_ITER,
                   sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
                   mu_multiplier=DEFAULT_MU_MULTIPLIER)
-    model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
-    res = model.predict(X_samples, constraint_helper=constraint_helper)
+    # model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
+    # res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())
     best_config = res.minl_conf[best_config_idx, :]

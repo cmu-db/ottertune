@@ -32,14 +32,15 @@ class NeuralNet(object):
                  learning_rate=0.01,
                  debug=False,
                  debug_interval=100,
-                 batch_size=2,
+                 batch_size=1,
                  explore_iters=500,
-                 noise_scale_begin=0.5,
-                 noise_scale_end=0.01):
+                 noise_scale_begin=0.1,
+                 noise_scale_end=0):
         # absolute path for the model weitghs file
         # one model for each (project, session)
         self.weights_file = weights_file
 
+        self.history = None
         self.recommend_iters = 0
         self.n_input = n_input
         self.debug = debug
@@ -73,7 +74,7 @@ class NeuralNet(object):
             self.model.load_weights(self.weights_file)
             if self.debug:
                 LOG.info('Neural Network Model weights file exists, load weights from the file')
-        except:
+        except Exception:  # pylint: disable=broad-except
             LOG.info('Weights file does not match neural network model, train model from scratch')
 
     # Build same neural network as self.model, But input X is variables,
@@ -111,20 +112,22 @@ class NeuralNet(object):
         # save model weights
         self.save_weights()
         if self.debug:
-            MSEs = self.history.history['mean_squared_error']
+            mse = self.history.history['mean_squared_error']
             i = 0
-            size = len(MSEs)
+            size = len(mse)
             while(i < size):
                 LOG.info("Neural network training phase, epoch %d: mean_squared_error %f",
-                         i, MSEs[i])
+                         i, mse[i])
                 i += self.debug_interval
             LOG.info("Neural network training phase, epoch %d: mean_squared_error %f",
-                     size - 1, MSEs[size - 1])
+                     size - 1, mse[size - 1])
 
     def predict(self, X_pred):
         return self.model.predict(X_pred)
 
-    def add_noise(self, weights, scale=1):
+    # Reference: Parameter Space Noise for Exploration.ICLR 2018, https://arxiv.org/abs/1706.01905
+    def add_noise(self, weights):
+        scale = self.adaptive_noise_scale()
         size = weights.shape[-1]
         noise = scale * np.random.normal(size=size)
         return weights + noise
@@ -143,6 +146,14 @@ class NeuralNet(object):
         w1, b1 = self.model.get_layer(index=0).get_weights()
         w2, b2 = self.model.get_layer(index=2).get_weights()
         w3, b3 = self.model.get_layer(index=3).get_weights()
+
+        if explore is True:
+            w1 = self.add_noise(w1)
+            b1 = self.add_noise(b1)
+            w2 = self.add_noise(w2)
+            b2 = self.add_noise(b2)
+            w3 = self.add_noise(w3)
+            b3 = self.add_noise(b3)
 
         if self.debug:
             y_predict = self.predict(X_start)

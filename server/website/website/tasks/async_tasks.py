@@ -6,6 +6,7 @@
 import random
 import queue
 import numpy as np
+import json
 
 from celery.task import task, Task
 from celery.utils.log import get_task_logger
@@ -29,6 +30,7 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER)
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
+from .lhs import add_lhs_samples
 
 LOG = get_task_logger(__name__)
 
@@ -140,6 +142,16 @@ def aggregate_target_results(result_id):
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = random_knob_result
+        return agg_data
+    if newest_result.session.tuning_session == 'lhs':
+        samples = json.loads(newest_result.session.lhs_samples)
+        if len(samples) == 0:
+            samples = add_lhs_samples(newest_result.session, 100)
+        samples = samples.pop()
+        agg_data['newest_result_id'] = result_id
+        agg_data['bad'] = True
+        agg_data['config_recommend'] = samples
+        newest_result.session.samples = json.dumps(samples)
         return agg_data
 
     # Aggregate all knob config results tried by the target so far in this

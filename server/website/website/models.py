@@ -188,6 +188,7 @@ class Session(BaseModel):
     hardware = models.ForeignKey(Hardware)
     algorithm = models.IntegerField(choices=AlgorithmType.choices(),
                                     default=AlgorithmType.OTTERTUNE)
+    lhs_samples = models.CharField(blank=True, null=True)
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()
@@ -198,6 +199,7 @@ class Session(BaseModel):
         ("tuning_session", "Tuning Session"),
         ("no_tuning_session", "No Tuning"),
         ("randomly_generate", "Randomly Generate")
+        ("lhs", "Run LHS")
     ]
     tuning_session = models.CharField(choices=TUNING_OPTIONS,
                                       max_length=64, default='tuning_sesion')

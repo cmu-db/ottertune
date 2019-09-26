@@ -1,18 +1,16 @@
 #
-# ddpg.py
+# OtterTune - ddpg.py
 #
-# Copyright
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-"""
-Deep Deterministic Policy Gradient Model
+# from: https://github.com/KqSMea8/CDBTune
+# Zhang, Ji, et al. "An end-to-end automatic cloud database tuning system using
+# deep reinforcement learning." Proceedings of the 2019 International Conference
+# on Management of Data. ACM, 2019
 
-"""
-
-import logging
 import os
-import sys
-import math
 import pickle
+import math
 import numpy as np
 import torch
 import torch.nn as nn
@@ -21,12 +19,11 @@ import torch.nn.functional as F
 import torch.optim as optimizer
 from torch.autograd import Variable
 
-from analysis.ddpg.OUProcess import OUProcess
+from analysis.ddpg.ou_process import OUProcess
 from analysis.ddpg.prioritized_replay_memory import PrioritizedReplayMemory
+from analysis.util import get_analysis_logger
 
-LOG = logging.getLogger(__name__)
-
-sys.path.append('../')
+LOG = get_analysis_logger(__name__)
 
 
 # code from https://github.com/Kaixhin/NoisyNet-A3C/blob/master/model.py
@@ -37,6 +34,8 @@ class NoisyLinear(nn.Linear):
         self.sigma_init = sigma_init
         self.sigma_weight = Parameter(torch.Tensor(out_features, in_features))
         self.sigma_bias = Parameter(torch.Tensor(out_features))
+        self.epsilon_weight = None
+        self.epsilon_bias = None
         self.register_buffer('epsilon_weight', torch.zeros(out_features, in_features))
         self.register_buffer('epsilon_bias', torch.zeros(out_features))
         self.reset_parameters()
@@ -55,7 +54,6 @@ class NoisyLinear(nn.Linear):
         return F.linear(x, self.weight + self.sigma_weight * Variable(self.epsilon_weight),
                         self.bias + self.sigma_bias * Variable(self.epsilon_bias))
 
-    # pylint: disable=attribute-defined-outside-init
     def sample_noise(self):
         self.epsilon_weight = torch.randn(self.out_features, self.in_features)
         self.epsilon_bias = torch.randn(self.out_features)
@@ -63,7 +61,6 @@ class NoisyLinear(nn.Linear):
     def remove_noise(self):
         self.epsilon_weight = torch.zeros(self.out_features, self.in_features)
         self.epsilon_bias = torch.zeros(self.out_features)
-    # pylint: enable=attribute-defined-outside-init
 
 
 class Normalizer(object):
@@ -86,71 +83,6 @@ class Normalizer(object):
 
     def __call__(self, x, *args, **kwargs):
         return self.normalize(x)
-
-
-class ActorLow(nn.Module):
-
-    def __init__(self, n_states, n_actions, ):
-        super(ActorLow, self).__init__()
-        self.layers = nn.Sequential(
-            nn.BatchNorm1d(n_states),
-            nn.Linear(n_states, 32),
-            nn.LeakyReLU(negative_slope=0.2),
-            nn.BatchNorm1d(32),
-            nn.Linear(32, n_actions),
-            nn.LeakyReLU(negative_slope=0.2)
-        )
-        self._init_weights()
-        self.out_func = nn.Tanh()
-
-    def _init_weights(self):
-
-        for m in self.layers:
-            if isinstance(m, nn.Linear):
-                m.weight.data.normal_(0.0, 1e-3)
-                m.bias.data.uniform_(-0.1, 0.1)
-
-    def forward(self, x):  # pylint: disable=arguments-differ
-
-        out = self.layers(x)
-
-        return self.out_func(out)
-
-
-class CriticLow(nn.Module):
-
-    def __init__(self, n_states, n_actions):
-        super(CriticLow, self).__init__()
-        self.state_input = nn.Linear(n_states, 32)
-        self.action_input = nn.Linear(n_actions, 32)
-        self.act = nn.LeakyReLU(negative_slope=0.2)
-        self.state_bn = nn.BatchNorm1d(n_states)
-        self.layers = nn.Sequential(
-            nn.Linear(64, 1),
-            nn.LeakyReLU(negative_slope=0.2),
-        )
-        self._init_weights()
-
-    def _init_weights(self):
-        self.state_input.weight.data.normal_(0.0, 1e-3)
-        self.state_input.bias.data.uniform_(-0.1, 0.1)
-
-        self.action_input.weight.data.normal_(0.0, 1e-3)
-        self.action_input.bias.data.uniform_(-0.1, 0.1)
-
-        for m in self.layers:
-            if isinstance(m, nn.Linear):
-                m.weight.data.normal_(0.0, 1e-3)
-                m.bias.data.uniform_(-0.1, 0.1)
-
-    def forward(self, x, action):  # pylint: disable=arguments-differ
-        x = self.state_bn(x)
-        x = self.act(self.state_input(x))
-        action = self.act(self.action_input(action))
-
-        _input = torch.cat([x, action], dim=1)
-        value = self.layers(_input)
-        return value
 
 
 class Actor(nn.Module):
@@ -235,36 +167,17 @@ class Critic(nn.Module):
 
 class DDPG(object):
 
-    def __init__(self, n_states, n_actions, opt=None, ouprocess=True, mean_var_path=None,
-                 supervised=False):
-        """ DDPG Algorithms
-        Args:
-            n_states: int, dimension of states
-            n_actions: int, dimension of actions
-            opt: dict, params
-            supervised, bool, pre-train the actor with supervised learning
-        """
+    def __init__(self, n_states, n_actions, model_name='', alr=0.001, clr=0.001,
+                 gamma=0.9, batch_size=32, tau=0.002, memory_size=100000,
+                 ouprocess=True, mean_var_path=None, supervised=False):
         self.n_states = n_states
         self.n_actions = n_actions
-
-        if opt is None:
-            opt = {
-                'model': '',
-                'alr': 0.001,
-                'clr': 0.001,
-                'gamma': 0.9,
-                'batch_size': 32,
-                'tau': 0.002,
-                'memory_size': 100000
-            }
-
-        # Params
-        self.alr = opt['alr']
-        self.clr = opt['clr']
-        self.model_name = opt['model']
-        self.batch_size = opt['batch_size']
-        self.gamma = opt['gamma']
-        self.tau = opt['tau']
+        self.alr = alr
+        self.clr = clr
+        self.model_name = model_name
+        self.batch_size = batch_size
+        self.gamma = gamma
+        self.tau = tau
         self.ouprocess = ouprocess
 
         if mean_var_path is None:
@@ -287,9 +200,8 @@ class DDPG(object):
             self._build_network()
             LOG.info('Finish Initializing Networks')
 
-        self.replay_memory = PrioritizedReplayMemory(capacity=opt['memory_size'])
+        self.replay_memory = PrioritizedReplayMemory(capacity=memory_size)
         self.noise = OUProcess(n_actions)
-        # LOG.info('DDPG Initialzed!')
 
     @staticmethod
     def totensor(x):
@@ -459,6 +371,13 @@ class DDPG(object):
             self.critic.state_dict(),
             '{}_critic.pth'.format(model_name)
         )
+
+    def set_model(self, actor_dict, critic_dict):
+        self.actor.load_state_dict(pickle.loads(actor_dict))
+        self.critic.load_state_dict(pickle.loads(critic_dict))
+
+    def get_model(self):
+        return pickle.dumps(self.actor.state_dict()), pickle.dumps(self.critic.state_dict())
 
     def save_actor(self, path):
         """ save actor network

@@ -35,7 +35,7 @@ MAX_TRAIN_SIZE = 7000
 #  Batch size in GPR model
 BATCH_SIZE = 3000
 
-# Threads for TensorFlow config
+#  Threads for TensorFlow config
 NUM_THREADS = 4
 
 # ---GRADIENT DESCENT CONSTANTS---
@@ -54,3 +54,19 @@ DEFAULT_EPSILON = 1e-6
 DEFAULT_SIGMA_MULTIPLIER = 3.0
 
 DEFAULT_MU_MULTIPLIER = 1.0
+
+# ---CONSTRAINTS CONSTANTS---
+#  Batch size in DDPG model
+DDPG_BATCH_SIZE = 32
+
+#  Learning rate of actor network
+ACTOR_LEARNING_RATE = 0.001
+
+#  Learning rate of critic network
+CRITIC_LEARNING_RATE = 0.001
+
+#  The impact of future reward on the decision
+GAMMA = 0.1
+
+#  The changing rate of the target network
+TAU = 0.002

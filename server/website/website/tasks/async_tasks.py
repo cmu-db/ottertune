@@ -5,14 +5,12 @@
 #
 import random
 import queue
-from os.path import dirname, abspath, join
-import os
 import numpy as np
 
 from celery.task import task, Task
 from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
@@ -29,7 +27,10 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               MAX_TRAIN_SIZE, BATCH_SIZE, NUM_THREADS,
                               DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
-                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER)
+                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
+                              DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
+                              CRITIC_LEARNING_RATE, GAMMA, TAU)
+
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
 
@@ -235,10 +236,10 @@ def train_ddpg(result_id):
 
     # Clean knob data
     cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
-    agg_data['X_matrix'] = np.array(cleaned_agg_data[0]).flatten()
-    agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1]).flatten()
-    knob_data = DataUtil.normalize_knob_data(agg_data['X_matrix'],
-                                             agg_data['X_columnlabels'], session)
+    knob_data = np.array(cleaned_agg_data[0])
+    knob_labels = np.array(cleaned_agg_data[1])
+    knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels.flatten(), session))
+    knob_data = MinMaxScaler().fit(knob_bounds).transform(knob_data)[0]
     knob_num = len(knob_data)
     metric_num = len(metric_data)
     LOG.info('knob_num: %d, metric_num: %d', knob_num, metric_num)
@@ -276,26 +277,23 @@ def train_ddpg(result_id):
                 * (2 * prev_objective - objective) / prev_objective
 
     # Update ddpg
-    project_root = dirname(dirname(dirname(abspath(__file__))))
-    saved_memory = join(project_root, 'checkpoint/reply_memory_' + session.project.name)
-    saved_model = join(project_root, 'checkpoint/ddpg_' + session.project.name)
-    ddpg = DDPG(n_actions=knob_num, n_states=metric_num)
-    if os.path.exists(saved_memory):
-        ddpg.replay_memory.load_memory(saved_memory)
-        ddpg.load_model(saved_model)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
+                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+    if session.ddpg_actor_model and session.ddpg_critic_model:
+        ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
+    if session.ddpg_reply_memory:
+        ddpg.replay_memory.set(session.ddpg_reply_memory)
     ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data, False)
     if len(ddpg.replay_memory) > 32:
         ddpg.update()
-    checkpoint_dir = join(project_root, 'checkpoint')
-    if not os.path.exists(checkpoint_dir):
-        os.makedirs(checkpoint_dir)
-    ddpg.replay_memory.save(saved_memory)
-    ddpg.save_model(saved_model)
+    session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
+    session.ddpg_reply_memory = ddpg.replay_memory.get()
+    session.save()
     return result_info
 
 
-@task(base=ConfigurationRecommendation, name='run_ddpg')
-def run_ddpg(result_info):
+@task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
+def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
     LOG.info('Use ddpg to recommend configuration')
     result_id = result_info['newest_result_id']
     result = Result.objects.filter(pk=result_id)
@@ -305,20 +303,20 @@ def run_ddpg(result_info):
     cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
                                        session)
     knob_labels = np.array(cleaned_agg_data[1]).flatten()
-    knob_data = np.array(cleaned_agg_data[0]).flatten()
-    knob_num = len(knob_data)
+    knob_num = len(knob_labels)
     metric_num = len(metric_data)
 
-    project_root = dirname(dirname(dirname(abspath(__file__))))
-    saved_memory = join(project_root, 'checkpoint/reply_memory_' + session.project.name)
-    saved_model = join(project_root, 'checkpoint/ddpg_' + session.project.name)
-    ddpg = DDPG(n_actions=knob_num, n_states=metric_num)
-    if os.path.exists(saved_memory):
-        ddpg.replay_memory.load_memory(saved_memory)
-        ddpg.load_model(saved_model)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
+                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+    if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
+        ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
+    if session.ddpg_reply_memory is not None:
+        ddpg.replay_memory.set(session.ddpg_reply_memory)
     knob_data = ddpg.choose_action(metric_data)
     LOG.info('recommended knob: %s', knob_data)
-    knob_data = DataUtil.denormalize_knob_data(knob_data, knob_labels, session)
+
+    knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels, session))
+    knob_data = MinMaxScaler().fit(knob_bounds).inverse_transform(knob_data.reshape(1, -1))[0]
     conf_map = {k: knob_data[i] for i, k in enumerate(knob_labels)}
     conf_map_res = {}
     conf_map_res['status'] = 'good'

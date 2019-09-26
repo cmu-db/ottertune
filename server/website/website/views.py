@@ -30,8 +30,8 @@ from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatal
                      MetricData, MetricManager, Project, Result, Session, Workload,
                      SessionKnob)
 from .parser import Parser
-from .tasks import (aggregate_target_results, map_workload, train_ddpg, run_ddpg,
-                    configuration_recommendation)
+from .tasks import (aggregate_target_results, map_workload, train_ddpg,
+                    configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
 from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil

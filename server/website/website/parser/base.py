@@ -353,7 +353,7 @@ class BaseParser(object, metaclass=ABCMeta):
 
     def format_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
-        return enumvals[enum_value]
+        return enumvals[int(round(enum_value))]
 
     def format_integer(self, int_value, metadata):
         return int(round(int_value))

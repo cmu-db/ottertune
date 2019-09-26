@@ -1,8 +1,13 @@
 #
-# prioritized_replay_memory.py
+# OtterTune - prioritized_replay_memory.py
 #
-# Copyright
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+# from: https://github.com/KqSMea8/CDBTune
+# Zhang, Ji, et al. "An end-to-end automatic cloud database tuning system using
+# deep reinforcement learning." Proceedings of the 2019 International Conference
+# on Management of Data. ACM, 2019
+
 import random
 import pickle
 import numpy as np
@@ -119,3 +124,9 @@ class PrioritizedReplayMemory(object):
         with open(path, 'rb') as f:
             _memory = pickle.load(f)
         self.tree = _memory['tree']
+
+    def get(self):
+        return pickle.dumps({"tree": self.tree})
+
+    def set(self, binary):
+        self.tree = pickle.loads(binary)['tree']

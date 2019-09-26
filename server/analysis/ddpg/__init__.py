@@ -1,7 +1,7 @@
 #
-# __init__.py
+# OtterTune - __init__.py
 #
-# Copyright
+# Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
 

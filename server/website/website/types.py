@@ -174,13 +174,11 @@ class LabelStyleType(BaseType):
 
 class AlgorithmType(BaseType):
     OTTERTUNE = 1
-    ALGORITHM1 = 2
-    ALGORITHM2 = 3
-    ALGORITHM3 = 4
+    DDPG = 2
+    DNN = 3
 
     TYPE_NAMES = {
         OTTERTUNE: 'Ottertune Default',
-        ALGORITHM1: 'Algorithm 1',
-        ALGORITHM2: 'Algorithm 2',
-        ALGORITHM3: 'Algorithm 3'
+        DDPG: 'Deep Deterministic Policy Gradients',
+        DNN: 'Deep Neural Network',
     }

@@ -16,7 +16,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='session',
             name='algorithm',
-            field=models.IntegerField(choices=[(1, 'Ottertune Default'), (2, 'Algorithm 1'), (3, 'Algorithm 2'), (4, 'Algorithm 3')], default=1),
+            field=models.IntegerField(choices=[(1, 'Ottertune Default'),
+                                               (2, 'Deep Deterministic Policy Gradients'),
+                                               (3, 'Deep Neural Network')], default=1),
         ),
         migrations.AlterField(
             model_name='pipelinedata',

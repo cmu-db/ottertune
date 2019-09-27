@@ -111,21 +111,6 @@ class DataUtil(object):
         return np.array(minvals), np.array(maxvals)
 
     @staticmethod
-    def denormalize_knob_data(knob_values, knob_labels, session):
-        for i, knob in enumerate(knob_labels):
-            knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
-            knob_session_object = SessionKnob.objects.filter(knob=knob_object, session=session,
-                                                             tunable=True)
-            if knob_session_object.exists():
-                minval = float(knob_session_object[0].minval)
-                maxval = float(knob_session_object[0].maxval)
-            else:
-                minval = float(knob_object.minval)
-                maxval = float(knob_object.maxval)
-            knob_values[i] = knob_values[i] * (maxval - minval) + minval
-        return knob_values
-
-    @staticmethod
     def aggregate_data(results):
         knob_labels = list(JSONUtil.loads(results[0].knob_data.data).keys())
         metric_labels = list(JSONUtil.loads(results[0].metric_data.data).keys())

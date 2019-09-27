@@ -45,12 +45,12 @@ class NeuralNet(object):
         self.n_input = n_input
         self.debug = debug
         self.debug_interval = debug_interval
-        self.learning_rate = 0.01
+        self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.explore_iters = explore_iters
         self.noise_scale_begin = noise_scale_begin
         self.noise_scale_end = noise_scale_end
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+        self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
         # input X is placeholder, weights are variables.
         self.model = keras.Sequential([
             layers.Dense(64, activation=tf.nn.relu, input_shape=[n_input]),
@@ -93,7 +93,7 @@ class NeuralNet(object):
             l1_ = tf.nn.relu(tf.add(tf.matmul(x_, w1_), b1_))
             l2_ = tf.nn.relu(tf.add(tf.matmul(l1_, w2_), b2_))
             y_ = tf.add(tf.matmul(l2_, w3_), b3_)
-            optimizer_ = tf.train.AdamOptimizer(learning_rate=0.01)
+            optimizer_ = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
             train_ = optimizer_.minimize(y_)
 
             self.vars['x_'] = x_
@@ -155,8 +155,8 @@ class NeuralNet(object):
             w3 = self.add_noise(w3)
             b3 = self.add_noise(b3)
 
+        y_predict = self.predict(X_start)
         if self.debug:
-            y_predict = self.predict(X_start)
             LOG.info("Recommend phase, y prediction: min %f, max %f, mean %f",
                      np.min(y_predict), np.max(y_predict), np.mean(y_predict))
 
@@ -204,7 +204,7 @@ class NeuralNet(object):
 
             if self.debug:
                 LOG.info("Recommend phase, epoch %d, y after gradient descent: \
-                         min %f, max %f, mean %f", recommend_epochs, np.mean(y_recommend),
+                         min %f, max %f, mean %f", recommend_epochs, np.min(y_recommend),
                          np.max(y_recommend), np.mean(y_recommend))
 
         self.recommend_iters += 1

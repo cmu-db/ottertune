@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='session',
             name='tuning_session',
-            field=models.CharField(choices=[('tuning_session', 'Tuning Session'), ('no_tuning_session', 'No Tuning'), ('randomly_generate', 'Randomly Generate')], default='tuning_sesion', max_length=64),
+            field=models.CharField(choices=[('tuning_session', 'Tuning Session'), ('no_tuning_session', 'No Tuning'), ('randomly_generate', 'Randomly Generate')], default='tuning_session', max_length=64),
         ),
         migrations.AlterField(
             model_name='workload',

@@ -188,6 +188,9 @@ class Session(BaseModel):
     hardware = models.ForeignKey(Hardware)
     algorithm = models.IntegerField(choices=AlgorithmType.choices(),
                                     default=AlgorithmType.OTTERTUNE)
+    ddpg_actor_model = models.BinaryField(null=True, blank=True)
+    ddpg_critic_model = models.BinaryField(null=True, blank=True)
+    ddpg_reply_memory = models.BinaryField(null=True, blank=True)
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()
@@ -200,7 +203,7 @@ class Session(BaseModel):
         ("randomly_generate", "Randomly Generate")
     ]
     tuning_session = models.CharField(choices=TUNING_OPTIONS,
-                                      max_length=64, default='tuning_sesion')
+                                      max_length=64, default='tuning_session')
 
     TARGET_OBJECTIVES = [
         ('throughput_txn_per_sec', 'Throughput'),

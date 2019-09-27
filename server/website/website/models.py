@@ -179,6 +179,7 @@ class Hardware(BaseModel):
     def __unicode__(self):
         return 'CPU:{}, RAM:{}, Storage:{}'.format(self.cpu, self.memory, self.storage)
 
+
 class Session(BaseModel):
     user = models.ForeignKey(User)
     name = models.CharField(max_length=64, verbose_name="session name")
@@ -187,9 +188,6 @@ class Session(BaseModel):
     hardware = models.ForeignKey(Hardware)
     algorithm = models.IntegerField(choices=AlgorithmType.choices(),
                                     default=AlgorithmType.OTTERTUNE)
-    ddpg_actor_model = models.BinaryField(null=True, blank=True)
-    ddpg_critic_model = models.BinaryField(null=True, blank=True)
-    ddpg_reply_memory = models.BinaryField(null=True, blank=True)
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()

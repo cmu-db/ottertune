@@ -31,7 +31,10 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
                               DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
-                              CRITIC_LEARNING_RATE, GAMMA, TAU)
+                              CRITIC_LEARNING_RATE, GAMMA, TAU,
+                              DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
+                              DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
+                              DNN_DEBUG, DNN_DEBUG_INTERVAL)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.settings import MODEL_DIR
@@ -553,12 +556,14 @@ def configuration_recommendation(recommendation_input):
         model_nn = NeuralNet(weights_file=full_path,
                              n_input=X_samples.shape[1],
                              batch_size=X_samples.shape[0],
-                             explore_iters=500,
-                             noise_scale_begin=0.1,
-                             noise_scale_end=0,
-                             debug=True)
-        model_nn.fit(X_scaled, y_scaled)
-        res = model_nn.recommend(X_samples, X_min, X_max, explore=True)
+                             explore_iters=DNN_EXPLORE_ITER,
+                             noise_scale_begin=DNN_NOISE_SCALE_BEGIN,
+                             noise_scale_end=DNN_NOISE_SCALE_END,
+                             debug=DNN_DEBUG,
+                             debug_interval=DNN_DEBUG_INTERVAL)
+        model_nn.fit(X_scaled, y_scaled, fit_epochs=DNN_TRAIN_ITER)
+        res = model_nn.recommend(X_samples, X_min, X_max,
+                                 explore=DNN_EXPLORE, recommend_epochs=MAX_ITER)
     elif algorithm == 'gpr':
         # default gpr model
         model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,

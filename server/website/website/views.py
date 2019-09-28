@@ -536,7 +536,9 @@ def handle_result_files(session, files):
         response = chain(train_ddpg.s(result.pk),
                          configuration_recommendation_ddpg.s()).apply_async()
     elif session.algorithm == AlgorithmType.DNN:
-        pass
+        response = chain(aggregate_target_results.s(result.pk, 'dnn'),
+                         map_workload.s(),
+                         configuration_recommendation.s()).apply_async()
     taskmeta_ids = []
     current_task = response
     while current_task:

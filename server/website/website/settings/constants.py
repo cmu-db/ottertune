@@ -42,12 +42,13 @@ NUM_THREADS = 4
 #  the maximum iterations of gradient descent
 MAX_ITER = 500
 
+DEFAULT_LEARNING_RATE = 0.01
+
+# ---GRADIENT DESCENT FOR GPR---
 #  a small bias when using training data points as starting points.
 GPR_EPS = 0.001
 
 DEFAULT_RIDGE = 0.01
-
-DEFAULT_LEARNING_RATE = 0.01
 
 DEFAULT_EPSILON = 1e-6
 
@@ -55,7 +56,23 @@ DEFAULT_SIGMA_MULTIPLIER = 3.0
 
 DEFAULT_MU_MULTIPLIER = 1.0
 
-# ---CONSTRAINTS CONSTANTS---
+# ---GRADIENT DESCENT FOR DNN---
+DNN_TRAIN_ITER = 500
+
+DNN_EXPLORE = False
+
+DNN_EXPLORE_ITER = 500
+
+# noise scale for paramater space exploration
+DNN_NOISE_SCALE_BEGIN = 0.1
+
+DNN_NOISE_SCALE_END = 0.0
+
+DNN_DEBUG = True
+
+DNN_DEBUG_INTERVAL = 100
+
+# ---DDPG CONSTRAINTS CONSTANTS---
 #  Batch size in DDPG model
 DDPG_BATCH_SIZE = 32
 

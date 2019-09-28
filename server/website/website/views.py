@@ -539,11 +539,13 @@ def handle_result_files(session, files):
         response = chain(aggregate_target_results.s(result.pk, 'dnn'),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
+
     taskmeta_ids = []
     current_task = response
     while current_task:
-        taskmeta_ids.append(current_task.id)
+        taskmeta_ids.insert(0, current_task.id)
         current_task = current_task.parent
+
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
     return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "

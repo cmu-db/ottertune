@@ -264,6 +264,8 @@ def clean_logs():
 
 @task
 def lhs_samples(count=10):
+    if not os.path.exists(CONF['lhs_save_path']):
+        os.makedirs(CONF['lhs_save_path'])
     cmd = 'python3 lhs.py {} {} {}'.format(count, CONF['lhs_knob_path'], CONF['lhs_save_path'])
     local(cmd)
 

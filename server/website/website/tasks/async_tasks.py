@@ -3,7 +3,6 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-import os
 import random
 import queue
 import numpy as np
@@ -37,7 +36,6 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               DNN_DEBUG, DNN_DEBUG_INTERVAL)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
-from website.settings import MODEL_DIR
 from website.types import VarType
 
 
@@ -543,27 +541,27 @@ def configuration_recommendation(recommendation_input):
         except queue.Empty:
             break
 
-    # one model for each (project, session)
-    session = newest_result.session.pk
-    project = newest_result.session.project.pk
-    full_path = os.path.join(MODEL_DIR, 'p' + str(project) + '_s' + str(session) + '_nn.weights')
-
+    session = newest_result.session
     res = None
     assert algorithm in ['gpr', 'dnn']
 
     if algorithm == 'dnn':
         # neural network model
-        model_nn = NeuralNet(weights_file=full_path,
-                             n_input=X_samples.shape[1],
+        model_nn = NeuralNet(n_input=X_samples.shape[1],
                              batch_size=X_samples.shape[0],
                              explore_iters=DNN_EXPLORE_ITER,
                              noise_scale_begin=DNN_NOISE_SCALE_BEGIN,
                              noise_scale_end=DNN_NOISE_SCALE_END,
                              debug=DNN_DEBUG,
                              debug_interval=DNN_DEBUG_INTERVAL)
+        if session.dnn_model is not None:
+            model_nn.set_weights_bin(session.dnn_model)
         model_nn.fit(X_scaled, y_scaled, fit_epochs=DNN_TRAIN_ITER)
         res = model_nn.recommend(X_samples, X_min, X_max,
                                  explore=DNN_EXPLORE, recommend_epochs=MAX_ITER)
+        session.dnn_model = model_nn.get_weights_bin()
+        session.save()
+
     elif algorithm == 'gpr':
         # default gpr model
         model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,

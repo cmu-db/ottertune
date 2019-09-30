@@ -188,6 +188,7 @@ class Migration(migrations.Migration):
                 ('ddpg_actor_model', models.BinaryField(null=True, blank=True)),
                 ('ddpg_critic_model', models.BinaryField(null=True, blank=True)),
                 ('ddpg_reply_memory', models.BinaryField(null=True, blank=True)),
+                ('dnn_model', models.BinaryField(null=True, blank=True)),
                 ('creation_time', models.DateTimeField()),
                 ('last_update', models.DateTimeField()),
                 ('upload_code', models.CharField(max_length=30, unique=True)),

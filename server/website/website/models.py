@@ -191,6 +191,7 @@ class Session(BaseModel):
     ddpg_actor_model = models.BinaryField(null=True, blank=True)
     ddpg_critic_model = models.BinaryField(null=True, blank=True)
     ddpg_reply_memory = models.BinaryField(null=True, blank=True)
+    dnn_model = models.BinaryField(null=True, blank=True)
 
     project = models.ForeignKey(Project)
     creation_time = models.DateTimeField()

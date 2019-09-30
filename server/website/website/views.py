@@ -529,14 +529,14 @@ def handle_result_files(session, files):
     result_id = result.pk
     response = None
     if session.algorithm == AlgorithmType.OTTERTUNE:
-        response = chain(aggregate_target_results.s(result.pk),
+        response = chain(aggregate_target_results.s(result.pk, session.algorithm),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
     elif session.algorithm == AlgorithmType.DDPG:
         response = chain(train_ddpg.s(result.pk),
                          configuration_recommendation_ddpg.s()).apply_async()
     elif session.algorithm == AlgorithmType.DNN:
-        response = chain(aggregate_target_results.s(result.pk, 'dnn'),
+        response = chain(aggregate_target_results.s(result.pk, session.algorithm),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
 

@@ -142,7 +142,7 @@ def clean_knob_data(knob_matrix, knob_labels, session):
 
 
 @task(base=AggregateTargetResults, name='aggregate_target_results')
-def aggregate_target_results(result_id, algorithm='gpr'):
+def aggregate_target_results(result_id, algorithm):
     # Check that we've completed the background tasks at least once. We need
     # this data in order to make a configuration recommendation (until we
     # implement a sampling technique to generate new training data).

@@ -64,6 +64,9 @@ EXCLUDE_DIRECTORIES = [
 
     # Docker files
     os.path.join(OTTERTUNE_DIR, 'docker'),
+
+    # Django manage.py extensions
+    os.path.join(OTTERTUNE_DIR, "server/website/website/management"),
 ]
 
 # Files that should NOT be checked

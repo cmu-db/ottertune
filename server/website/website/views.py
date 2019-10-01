@@ -414,17 +414,19 @@ def new_result(request):
 
         if not form.is_valid():
             LOG.warning("New result form is not valid: %s", str(form.errors))
-            return HttpResponse("New result form is not valid: " + str(form.errors))
+            return HttpResponse("New result form is not valid: " + str(form.errors), status=400)
+
         upload_code = form.cleaned_data['upload_code']
         try:
             session = Session.objects.get(upload_code=upload_code)
         except Session.DoesNotExist:
             LOG.warning("Invalid upload code: %s", upload_code)
-            return HttpResponse("Invalid upload code: " + upload_code)
+            return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
         return handle_result_files(session, request.FILES)
+
     LOG.warning("Request type was not POST")
-    return HttpResponse("Request type was not POST")
+    return HttpResponse("Request type was not POST", status=400)
 
 
 def handle_result_files(session, files):
@@ -958,22 +960,26 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
         LOG.warning("Invalid upload code: %s", upload_code)
-        return HttpResponse("Invalid upload code: " + upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code, status=400)
     results = Result.objects.filter(session=session)
     lastest_result = results[len(results) - 1]
 
     tasks = TaskUtil.get_tasks(lastest_result.task_ids)
-    overall_status, _ = TaskUtil.get_task_status(tasks)
+    overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
-    if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
-        return HttpResponse("Result not ready")
-    # unclear behaviors for REVOKED and RETRY, treat as failure
-    elif overall_status in ['FAILURE', 'REVOKED', 'RETRY']:
-        return HttpResponse("Fail")
+    if overall_status == 'SUCCESS':
+        res = Result.objects.get(pk=lastest_result.pk)
+        response = HttpResponse(JSONUtil.dumps(res.next_configuration),
+                                content_type='application/json')
+    elif overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
+        response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
+    else:  # overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
+        failed_task_idx = min(len(tasks) - 1, num_completed + 1)
+        failed_task = tasks[failed_task_idx]
+        response = HttpResponse(
+            "{}: {}".format(overall_status, failed_task.traceback), status=400)
 
-    # success
-    res = Result.objects.get(pk=lastest_result.pk)
-    return HttpResponse(JSONUtil.dumps(res.next_configuration), content_type='application/json')
+    return response
 
 
 def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument

@@ -291,7 +291,8 @@ class BaseParser(object, metaclass=ABCMeta):
                 valid_metrics[name] = values[0]
             elif metric.metric_type == MetricType.COUNTER or \
                     metric.metric_type == MetricType.STATISTICS:
-                values = [int(v) for v in values if v is not None]
+                conv_fn = int if metric.vartype == VarType.INTEGER else float
+                values = [conv_fn(v) for v in values if v is not None]
                 if len(values) == 0:
                     valid_metrics[name] = 0
                 else:
@@ -359,7 +360,7 @@ class BaseParser(object, metaclass=ABCMeta):
         return int(round(int_value))
 
     def format_real(self, real_value, metadata):
-        return float(real_value)
+        return round(float(real_value), 3)
 
     def format_string(self, string_value, metadata):
         return string_value

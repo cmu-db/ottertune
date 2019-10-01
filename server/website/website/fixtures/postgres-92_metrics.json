@@ -246,7 +246,7 @@
             "dbms": 2,
             "name": "pg_stat_database.blk_read_time",
             "summary": "\"Time spent reading data file blocks by backends in this database, in milliseconds\"",
-            "vartype": 2,
+            "vartype": 3,
             "metric_type": 1,
             "scope": "database"
         },
@@ -312,7 +312,7 @@
             "dbms": 2,
             "name": "pg_stat_database.blk_write_time",
             "summary": "\"Time spent writing data file blocks by backends in this database, in milliseconds\"",
-            "vartype": 2,
+            "vartype": 3,
             "metric_type": 1,
             "scope": "database"
         },

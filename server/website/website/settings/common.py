@@ -33,10 +33,6 @@ CONFIG_DIR = join(PROJECT_ROOT, 'config')
 # Where the log files are stored
 LOG_DIR = join(PROJECT_ROOT, 'log')
 
-# File/directory upload permissions
-FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o664
-FILE_UPLOAD_PERMISSIONS = 0o664
-
 # Path to OtterTune's website and ML modules
 OTTERTUNE_LIBS = dirname(PROJECT_ROOT)
 
@@ -111,7 +107,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = join(PROJECT_ROOT, 'website', 'static')
+STATIC_ROOT = join(PROJECT_ROOT, 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -218,6 +214,8 @@ CELERYD_MAX_TASKS_PER_CHILD = 50
 # Number of concurrent workers.
 CELERYD_CONCURRENCY = 8
 
+CELERYD_HIJACK_ROOT_LOGGER = False
+
 djcelery.setup_loader()
 
 # ==============================================
@@ -247,8 +245,16 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'standard',
         },
+        'celery': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(LOG_DIR, 'celery.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
@@ -276,13 +282,17 @@ LOGGING = {
         },
         'website': {
             'handlers': ['console', 'logfile'],
-            'propagate': False,
             'level': 'DEBUG',
         },
         'django.request': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
+        },
+        'celery': {
+            'handlers': ['console', 'celery'],
+            'level': 'DEBUG',
+            'propogate': True,
         },
         # Uncomment to email admins after encountering an error (and debug=False)
         # 'django.request': {

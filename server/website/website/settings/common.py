@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'djcelery',
     # 'django_celery_beat',
     'website',
+    'django_db_logger',
 )
 
 # ==============================================
@@ -253,6 +254,14 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'standard',
         },
+        'dblog': {
+            'level': 'DEBUG',
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler',
+        },
+        'dblog_warn': {
+            'level': 'WARN',
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler',
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -271,26 +280,26 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'logfile', 'dblog_warn'],
             'propagate': True,
             'level': 'WARN',
         },
         'django.db.backends': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'logfile', 'dblog_warn'],
             'level': 'WARN',
             'propagate': False,
         },
         'website': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'logfile', 'dblog'],
             'level': 'DEBUG',
         },
         'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+            'handlers': ['console', 'dblog_warn'],
+            'level': 'INFO',
             'propagate': False,
         },
         'celery': {
-            'handlers': ['console', 'celery'],
+            'handlers': ['celery', 'dblog'],
             'level': 'DEBUG',
             'propogate': True,
         },

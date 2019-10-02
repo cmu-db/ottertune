@@ -14,23 +14,8 @@ from website.utils import ConversionUtil
 
 class MyRocksParser(BaseParser):
 
-    MYROCKS_BASE_KNOBS = {
-        'session_variables.rocksdb_max_open_files': '-1'
-    }
-
-    @property
-    def base_configuration_settings(self):
-        return dict(self.MYROCKS_BASE_KNOBS)
-
-    @property
-    def knob_configuration_filename(self):
-        return 'myrocks.conf'
-
     @property
     def transactions_counter(self):
-        return 'session_status.questions'
-
-    def latency_timer(self):
         return 'session_status.questions'
 
     def convert_integer(self, int_value, metadata):

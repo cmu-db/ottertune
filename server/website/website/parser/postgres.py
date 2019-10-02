@@ -18,36 +18,8 @@ class PostgresParser(BaseParser):
         self.valid_true_val = ("on", "true", "yes", 1)
         self.valid_false_val = ("off", "false", "no", 0)
 
-    POSTGRES_BASE_KNOBS = {
-        'global.data_directory': None,
-        'global.hba_file': None,
-        'global.ident_file': None,
-        'global.external_pid_file': None,
-        'global.listen_addresses': None,
-        'global.port': None,
-        'global.max_connections': None,
-        'global.unix_socket_directories': None,
-        'global.log_line_prefix': '%t [%p-%l] %q%u@%d ',
-        'global.track_counts': 'on',
-        'global.track_io_timing': 'on',
-        'global.autovacuum': 'on',
-        'global.default_text_search_config': 'pg_catalog.english',
-    }
-
-    @property
-    def base_configuration_settings(self):
-        return dict(self.POSTGRES_BASE_KNOBS)
-
-    @property
-    def knob_configuration_filename(self):
-        return 'postgresql.conf'
-
     @property
     def transactions_counter(self):
-        return 'pg_stat_database.xact_commit'
-
-    @property
-    def latency_timer(self):
         return 'pg_stat_database.xact_commit'
 
     def convert_integer(self, int_value, metadata):

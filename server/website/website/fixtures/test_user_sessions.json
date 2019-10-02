@@ -34,7 +34,6 @@
             "upload_code": "1234567890",
             "tuning_session": "no_tuning_session",
             "target_objective": null,
-            "nondefault_settings": null,
             "creation_time": "2017-11-30T02:00:49.611Z", 
             "last_update": "2017-11-30T02:00:49.611Z"
         }, 
@@ -52,7 +51,6 @@
             "upload_code": "0987654321",
             "tuning_session": "tuning_session",
             "target_objective": "throughput_txn_per_sec",
-            "nondefault_settings": null,
             "creation_time": "2017-11-30T02:00:49.611Z", 
             "last_update": "2017-11-30T02:00:49.611Z"
         }, 

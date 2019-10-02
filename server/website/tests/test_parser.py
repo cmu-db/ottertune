@@ -154,9 +154,6 @@ class BaseParserTests(object, metaclass=ABCMeta):
     def test_create_knob_configuration(self):
         pass
 
-    def test_get_nondefault_knob_settings(self):
-        self.assertEqual(self.test_dbms.get_nondefault_knob_settings({}), {})
-
     def test_format_bool(self):
         mock_other_knob = mock.Mock(spec=KnobCatalog)
         mock_other_knob.unit = KnobUnitType.OTHER
@@ -279,27 +276,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
         self.assertEqual(test_convert_metrics.get('pg_FAKE_METRIC'), None)
 
     def test_properties(self):
-        base_config = self.test_dbms.base_configuration_settings
-        base_config_set = set(base_config)
-
-        self.assertTrue('global.data_directory' in base_config_set)
-        self.assertTrue('global.hba_file' in base_config_set)
-        self.assertTrue('global.ident_file' in base_config_set)
-        self.assertTrue('global.external_pid_file' in base_config_set)
-        self.assertTrue('global.listen_addresses' in base_config_set)
-        self.assertTrue('global.port' in base_config_set)
-        self.assertTrue('global.max_connections' in base_config_set)
-        self.assertTrue('global.unix_socket_directories' in base_config_set)
-        self.assertTrue('global.log_line_prefix' in base_config_set)
-        self.assertTrue('global.track_counts' in base_config_set)
-        self.assertTrue('global.track_io_timing' in base_config_set)
-        self.assertTrue('global.autovacuum' in base_config_set)
-        self.assertTrue('global.default_text_search_config' in base_config_set)
-
-        self.assertEqual(self.test_dbms
-                         .knob_configuration_filename, 'postgresql.conf')
-        self.assertEqual(self.test_dbms
-                         .transactions_counter, 'pg_stat_database.xact_commit')
+        self.assertEqual(self.test_dbms.transactions_counter, 'pg_stat_database.xact_commit')
 
     def test_parse_version_string(self):
         self.assertTrue(self.test_dbms.parse_version_string("9.6.1"), "9.6")

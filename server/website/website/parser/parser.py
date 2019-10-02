@@ -84,10 +84,6 @@ class Parser():
         return Parser.__utils(dbms_id).format_dbms_knobs(knobs)
 
     @staticmethod
-    def get_knob_configuration_filename(dbms_id):
-        return Parser.__utils(dbms_id).knob_configuration_filename
-
-    @staticmethod
     def filter_numeric_metrics(dbms_id, metrics):
         return Parser.__utils(dbms_id).filter_numeric_metrics(metrics)
 

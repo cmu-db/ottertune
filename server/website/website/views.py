@@ -516,12 +516,8 @@ def handle_result_files(session, files):
         metric_log=initial_metric_diffs)
     backup_data.save()
 
-    nondefault_settings = Parser.get_nondefault_knob_settings(
-        dbms.pk, knob_dict)
     session.project.last_update = now()
     session.last_update = now()
-    if session.nondefault_settings is None:
-        session.nondefault_settings = JSONUtil.dumps(nondefault_settings)
     session.project.save()
     session.save()
 

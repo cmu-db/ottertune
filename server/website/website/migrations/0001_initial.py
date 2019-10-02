@@ -194,7 +194,6 @@ class Migration(migrations.Migration):
                 ('upload_code', models.CharField(max_length=30, unique=True)),
                 ('tuning_session', models.CharField(choices=[('tuning_session', 'Tuning Session'), ('no_tuning_session', 'No Tuning'), ('randomly_generate', 'Randomly Generate')], max_length=64)),
                 ('target_objective', models.CharField(choices=[(b'throughput_txn_per_sec', b'Throughput'), (b'99th_lat_ms', b'99 Percentile Latency')], max_length=64, null=True)),
-                ('nondefault_settings', models.TextField(null=True)),
                 ('dbms', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='website.DBMSCatalog')),
                 ('hardware', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='website.Hardware')),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='website.Project')),

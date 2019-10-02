@@ -3,8 +3,6 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-
-from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import OrderedDict
 
 from website.models import KnobCatalog, MetricCatalog
@@ -12,7 +10,7 @@ from website.types import BooleanType, MetricType, VarType
 
 
 # pylint: disable=no-self-use
-class BaseParser(object, metaclass=ABCMeta):
+class BaseParser:
 
     def __init__(self, dbms_obj):
         knobs = KnobCatalog.objects.filter(dbms=dbms_obj)
@@ -33,21 +31,13 @@ class BaseParser(object, metaclass=ABCMeta):
         self.true_value = 'on'
         self.false_value = 'off'
 
-    @abstractproperty
-    def base_configuration_settings(self):
-        pass
-
-    @abstractproperty
-    def knob_configuration_filename(self):
-        pass
-
-    @abstractproperty
+    @property
     def transactions_counter(self):
-        pass
+        raise NotImplementedError()
 
-    @abstractproperty
+    @property
     def latency_timer(self):
-        pass
+        raise NotImplementedError()
 
     def target_metric(self, target_objective=None):
         if target_objective == 'throughput_txn_per_sec' or target_objective is None:
@@ -61,9 +51,8 @@ class BaseParser(object, metaclass=ABCMeta):
 
         return res
 
-    @abstractmethod
     def parse_version_string(self, version_string):
-        pass
+        return version_string
 
     def convert_bool(self, bool_value, metadata):
         if isinstance(bool_value, str):
@@ -336,18 +325,6 @@ class BaseParser(object, metaclass=ABCMeta):
 
         configuration = OrderedDict(sorted(configuration.items()))
         return configuration
-
-    def get_nondefault_knob_settings(self, knobs):
-        nondefault_settings = OrderedDict()
-        for knob_name, metadata in list(self.knob_catalog_.items()):
-            if metadata.tunable is True:
-                continue
-            if knob_name not in knobs:
-                continue
-            knob_value = knobs[knob_name]
-            if knob_value != metadata.default:
-                nondefault_settings[knob_name] = knob_value
-        return nondefault_settings
 
     def format_bool(self, bool_value, metadata):
         return self.true_value if bool_value == BooleanType.TRUE else self.false_value

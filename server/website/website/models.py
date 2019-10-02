@@ -211,7 +211,6 @@ class Session(BaseModel):
         ('99th_lat_ms', '99 Percentile Latency')
     ]
     target_objective = models.CharField(choices=TARGET_OBJECTIVES, max_length=64, null=True)
-    nondefault_settings = models.TextField(null=True)
 
     def clean(self):
         if self.target_objective is None:

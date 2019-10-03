@@ -173,12 +173,22 @@ class LabelStyleType(BaseType):
 
 
 class AlgorithmType(BaseType):
-    OTTERTUNE = 1
+    GPR = 1
     DDPG = 2
     DNN = 3
 
     TYPE_NAMES = {
-        OTTERTUNE: 'Ottertune Default',
+        GPR: 'Gaussian Process Bandits',
         DDPG: 'Deep Deterministic Policy Gradients',
         DNN: 'Deep Neural Network',
+    }
+
+
+class StorageType(BaseType):
+    SSD = 5
+    HDD = 10
+
+    TYPE_NAMES = {
+        SSD: 'SSD',
+        HDD: 'HDD',
     }

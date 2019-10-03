@@ -3,6 +3,7 @@ celery==3.1.23
 Django==1.10.1
 django-celery==3.2.1
 django-debug-toolbar==1.5
+django-db-logger>=0.1.7
 django-request-logging==0.4.6
 mock==2.0.0
 Fabric3==1.13.1.post1

@@ -4,6 +4,7 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 from django.contrib import admin
+from django.db.utils import ProgrammingError
 from django.utils.html import format_html
 from django_db_logger.admin import StatusLogAdmin
 from django_db_logger.models import StatusLog
@@ -185,6 +186,9 @@ UNUSED_DJCELERY_MODELS = (
     djcelery_models.WorkerState,
 )
 
-for model in UNUSED_DJCELERY_MODELS:
-    if model.objects.count() == 0:
-        admin.site.unregister(model)
+try:
+    for model in UNUSED_DJCELERY_MODELS:
+        if model.objects.count() == 0:
+            admin.site.unregister(model)
+except ProgrammingError:
+    pass

@@ -10,9 +10,9 @@ Created on Jul 25, 2017
 '''
 
 from django import forms
-from django.db.models import Max
 
 from .models import Session, Project, Hardware, SessionKnob
+from .types import StorageType
 
 
 class NewResultForm(forms.Form):
@@ -44,18 +44,20 @@ class SessionForm(forms.ModelForm):
                                          required=False,
                                          label='Get new upload code')
 
-    cpu = forms.IntegerField(label='Number of Processors')
-    memory = forms.FloatField(label='RAM (GB)')
-    storage = forms.IntegerField(label='Storage (GB)')
+    cpu = forms.IntegerField(label='Number of CPUs', min_value=1)
+    memory = forms.IntegerField(label='Memory (GB)', min_value=1)
+    storage = forms.IntegerField(label='Storage (GB)', min_value=1)
+    storage_type = forms.ChoiceField(label='Storage Type', choices=StorageType.choices())
 
     def __init__(self, *args, **kwargs):
         super(SessionForm, self).__init__(*args, **kwargs)
         self.fields['description'].required = False
         self.fields['target_objective'].required = False
         self.fields['tuning_session'].required = True
-        self.fields['cpu'].initial = 2
-        self.fields['memory'].initial = 16.0
+        self.fields['cpu'].initial = 4
+        self.fields['memory'].initial = 16
         self.fields['storage'].initial = 32
+        self.fields['storage_type'].initial = StorageType.SSD
 
     def save(self, commit=True):
         model = super(SessionForm, self).save(commit=False)
@@ -63,23 +65,14 @@ class SessionForm(forms.ModelForm):
         cpu2 = self.cleaned_data['cpu']
         memory2 = self.cleaned_data['memory']
         storage2 = self.cleaned_data['storage']
+        storage_type2 = self.cleaned_data['storage_type']
 
-        if hasattr(model, 'hardware'):
-            model.hardware.cpu = cpu2
-            model.hardware.memory = memory2
-            model.hardware.storage = storage2
-            model.hardware.save()
-        else:
-            last_type = Hardware.objects.aggregate(Max('type'))['type__max']
-            if last_type is None:
-                last_type = 0
-            model.hardware = Hardware.objects.create(type=last_type + 1,
-                                                     name='New Hardware',
-                                                     cpu=cpu2,
+        hardware, _ = Hardware.objects.get_or_create(cpu=cpu2,
                                                      memory=memory2,
                                                      storage=storage2,
-                                                     storage_type='Default',
-                                                     additional_specs='{}')
+                                                     storage_type=storage_type2)
+
+        model.hardware = hardware
 
         if commit:
             model.save()

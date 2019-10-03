@@ -138,6 +138,18 @@ class SessionViewsTests(TestCase):
 
     fixtures = ['test_website.json']
 
+    post_data = {
+        'name': 'test_create_basic_session',
+        'description': 'testing create basic session...',
+        'tuning_session': 'no_tuning_session',
+        'algorithm': 1,
+        'cpu': '2',
+        'memory': '16',
+        'storage': '32',
+        'storage_type': 5,
+        'dbms': 1
+    }
+
     def setUp(self):
         self.client.login(username=TEST_USERNAME, password=TEST_PASSWORD)
 
@@ -154,17 +166,7 @@ class SessionViewsTests(TestCase):
 
     def test_create_basic_session_ok(self):
         form_addr = reverse('new_session', kwargs={'project_id': TEST_PROJECT_ID})
-        post_data = {
-            'name': 'test_create_basic_session',
-            'description': 'testing create basic session...',
-            'tuning_session': 'no_tuning_session',
-            'algorithm': 1,
-            'cpu': '2',
-            'memory': '16.0',
-            'storage': '32',
-            'dbms': 1
-        }
-        response = self.client.post(form_addr, post_data, follow=True)
+        response = self.client.post(form_addr, self.post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         session_id = response.context['session'].pk
         self.assertRedirects(response, reverse('session',
@@ -173,17 +175,8 @@ class SessionViewsTests(TestCase):
 
     def test_create_tuning_session_ok(self):
         form_addr = reverse('new_session', kwargs={'project_id': TEST_PROJECT_ID})
-        post_data = {
-            'name': 'test_create_basic_session',
-            'description': 'testing create basic session...',
-            'tuning_session': 'tuning_session',
-            'cpu': '2',
-            'memory': '16.0',
-            'storage': '32',
-            'algorithm': 1,
-            'dbms': 1,
-            'target_objective': 'throughput_txn_per_sec'
-        }
+        post_data = dict(self.post_data)
+        post_data.update(tuning_session='tuning_session')
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         session_id = response.context['session'].pk
@@ -201,17 +194,8 @@ class SessionViewsTests(TestCase):
     def test_edit_basic_session_ok(self):
         form_addr = reverse('edit_session', kwargs={'project_id': TEST_PROJECT_ID,
                                                     'session_id': TEST_BASIC_SESSION_ID})
-        post_data = {
-            'name': 'new_session_name',
-            'description': 'testing edit basic session...',
-            'tuning_session': 'tuning_session',
-            'cpu': '2',
-            'memory': '16.0',
-            'storage': '32',
-            'algorithm': 1,
-            'dbms': 1,
-            'target_objective': 'throughput_txn_per_sec'
-        }
+        post_data = dict(self.post_data)
+        post_data.update(name='new_session_name')
         response = self.client.post(form_addr, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, reverse('session',
@@ -255,18 +239,9 @@ class SessionViewsTests(TestCase):
     def test_delete_multiple_sessions(self):
         create_form_addr = reverse('new_session', kwargs={'project_id': TEST_PROJECT_ID})
         session_ids = []
+        post_data = dict(self.post_data)
         for i in range(5):
-            post_data = {
-                'name': 'session_{}'.format(i),
-                'description': "",
-                'tuning_session': 'no_tuning_session',
-                'cpu': '2',
-                'memory': '16.0',
-                'storage': '32',
-                'algorithm': 1,
-                'dbms': 1,
-                'target_objective': 'throughput_txn_per_sec'
-            }
+            post_data.update(name='session_{}'.format(i))
             response = self.client.post(create_form_addr, post_data, follow=True)
             self.assertEqual(response.status_code, 200)
             session_ids.append(response.context['session'].pk)

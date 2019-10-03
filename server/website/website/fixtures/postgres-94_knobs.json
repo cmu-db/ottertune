@@ -84,7 +84,7 @@
             "category": "Resource Usage / Asynchronous Behavior",
             "maxval": 262143,
             "dbms": 4,
-            "resource": 4,
+            "resource": 2,
             "name": "global.max_worker_processes",
             "minval": 0,
             "default": 8,

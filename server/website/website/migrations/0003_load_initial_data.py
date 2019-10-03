@@ -43,7 +43,7 @@ def unload_initial_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0003_background_task_optimization'),
+        ('website', '0002_enable_compression'),
     ]
 
     operations = [

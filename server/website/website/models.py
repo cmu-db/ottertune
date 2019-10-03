@@ -6,13 +6,12 @@
 from collections import namedtuple, OrderedDict
 
 from django.contrib.auth.models import User
-from django.core.validators import validate_comma_separated_integer_list
 from django.db import models, DEFAULT_DB_ALIAS
 from django.utils.timezone import now
 
 from .types import (DBMSType, LabelStyleType, MetricType, KnobUnitType,
                     PipelineTaskType, VarType, KnobResourceType,
-                    WorkloadStatusType, AlgorithmType)
+                    WorkloadStatusType, AlgorithmType, StorageType)
 
 
 class BaseModel(models.Model):
@@ -167,17 +166,21 @@ class Project(BaseModel):
 
 
 class Hardware(BaseModel):
-    type = models.IntegerField()
-    name = models.CharField(max_length=32)
-    cpu = models.IntegerField()
-    memory = models.FloatField()
-    storage = models.CharField(
-        max_length=64, validators=[validate_comma_separated_integer_list])
-    storage_type = models.CharField(max_length=16)
-    additional_specs = models.TextField(null=True)
 
-    def __unicode__(self):
-        return 'CPU:{}, RAM:{}, Storage:{}'.format(self.cpu, self.memory, self.storage)
+    @property
+    def name(self):
+        return '{} CPUs, {}GB RAM, {}GB {}'.format(
+            self.cpu, self.memory, self.storage, StorageType.name(self.storage_type))
+
+    cpu = models.IntegerField(default=4, verbose_name='Number of CPUs')
+    memory = models.IntegerField(default=16, verbose_name='Memory (GB)')
+    storage = models.IntegerField(default=32, verbose_name='Storage (GB)')
+    storage_type = models.IntegerField(choices=StorageType.choices(),
+                                       default=StorageType.SSD, verbose_name='Storage Type')
+    additional_specs = models.TextField(null=True, default=None)
+
+    class Meta:  # pylint: disable=old-style-class,no-init
+        unique_together = ('cpu', 'memory', 'storage', 'storage_type')
 
 
 class Session(BaseModel):
@@ -187,7 +190,7 @@ class Session(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
     algorithm = models.IntegerField(choices=AlgorithmType.choices(),
-                                    default=AlgorithmType.OTTERTUNE)
+                                    default=AlgorithmType.GPR)
     ddpg_actor_model = models.BinaryField(null=True, blank=True)
     ddpg_critic_model = models.BinaryField(null=True, blank=True)
     ddpg_reply_memory = models.BinaryField(null=True, blank=True)
@@ -217,11 +220,11 @@ class Session(BaseModel):
             self.target_objective = MetricManager.get_default_objective_function()
 
     def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
-        targets = KnobData.objects.filter(session=self)
+        SessionKnob.objects.get(session=self).delete()
         results = Result.objects.filter(session=self)
-        for t in targets:
-            t.delete()
         for r in results:
+            r.knob_data.delete()
+            r.metric_data.delete()
             r.delete()
         super(Session, self).delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
 

@@ -87,7 +87,7 @@ class Command(BaseCommand):
         pipe = '' if 'console' in settings.LOGGING['loggers']['celery']['handlers'] \
             else '> /dev/null 2>&1'
 
-        with lcd(settings.PROJECT_ROOT), hide('command'):
+        with lcd(settings.PROJECT_ROOT), hide('commands'):
             if not options['celerybeat_only']:
                 local(self.celery_cmd(
                     cmd='celery worker', opts=' '.join(celery_options), pipe=pipe))
@@ -103,7 +103,7 @@ class Command(BaseCommand):
             time.sleep(1)
             wait_sec += 1
 
-            for i in range(len(pidfiles)):
+            for i in range(len(pidfiles))[::-1]:
                 if os.path.exists(pidfiles[i]):
                     pidfiles.pop(i)
 

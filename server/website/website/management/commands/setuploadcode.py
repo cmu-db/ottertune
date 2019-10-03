@@ -26,7 +26,7 @@ class Command(BaseCommand):
             metavar='SESSIONNAME',
             help='Specifies the name of the session.')
         parser.add_argument(
-            '--upload-code',
+            '--uploadcode',
             metavar='UPLOADCODE',
             default=None,
             help='Specifies the value to set the upload code to.')
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                                          project__name=projectname,
                                          name=sessionname).first()
         if session:
-            upload_code = options['upload_code'] or MediaUtil.upload_code_generator()
+            upload_code = options['uploadcode'] or MediaUtil.upload_code_generator()
             session.upload_code = upload_code
             session.save()
             self.stdout.write(self.style.NOTICE(upload_code))

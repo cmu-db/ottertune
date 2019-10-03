@@ -314,7 +314,7 @@ def create_or_edit_session(request, project_id, session_id=''):
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
-                    'algorithm': AlgorithmType.OTTERTUNE,
+                    'algorithm': AlgorithmType.GPR,
                     'target_objective': 'throughput_txn_per_sec',
                 })
         context = {
@@ -342,15 +342,12 @@ def edit_knobs(request, project_id, session_id):
         instance.save()
         return HttpResponse(status=204)
     else:
-        knobs = KnobCatalog.objects.filter(dbms=session.dbms).order_by('-tunable')
+        knobs = SessionKnob.objects.filter(session=session).order_by('-tunable', 'knob__name')
         forms = []
         for knob in knobs:
             knob_values = model_to_dict(knob)
-            if SessionKnob.objects.filter(session=session, knob=knob).exists():
-                new_knob = SessionKnob.objects.filter(session=session, knob=knob)[0]
-                knob_values["minval"] = new_knob.minval
-                knob_values["maxval"] = new_knob.maxval
-                knob_values["tunable"] = new_knob.tunable
+            knob_values['session'] = session
+            knob_values['name'] = KnobCatalog.objects.get(pk=knob.knob.pk).name
             forms.append(SessionKnobForm(initial=knob_values))
         context = {
             'project': project,
@@ -526,7 +523,7 @@ def handle_result_files(session, files):
 
     result_id = result.pk
     response = None
-    if session.algorithm == AlgorithmType.OTTERTUNE:
+    if session.algorithm == AlgorithmType.GPR:
         response = chain(aggregate_target_results.s(result.pk, session.algorithm),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
@@ -967,13 +964,17 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         res = Result.objects.get(pk=lastest_result.pk)
         response = HttpResponse(JSONUtil.dumps(res.next_configuration),
                                 content_type='application/json')
-    elif overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
+
+    elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
+        msg = "STATUS: {}\nRESULT ID: {}\n".format(overall_status, lastest_result)
+        if tasks:
+            failed_task_idx = min(len(tasks) - 1, num_completed + 1)
+            failed_task = tasks[failed_task_idx]
+            msg += "TRACEBACK: {}".format(failed_task.traceback)
+        response = HttpResponse(msg, status=400)
+
+    else:  # overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
         response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
-    else:  # overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
-        failed_task_idx = min(len(tasks) - 1, num_completed + 1)
-        failed_task = tasks[failed_task_idx]
-        response = HttpResponse(
-            "{}: {}".format(overall_status, failed_task.traceback), status=400)
 
     return response
 

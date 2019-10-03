@@ -148,9 +148,10 @@ def aggregate_target_results(result_id, algorithm):
     # implement a sampling technique to generate new training data).
     newest_result = Result.objects.get(pk=result_id)
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
-    if not has_pipeline_data:
-        LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
     if not has_pipeline_data or newest_result.session.tuning_session == 'randomly_generate':
+        if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
+            LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
+
         result = Result.objects.filter(pk=result_id)
         knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
 
@@ -160,25 +161,30 @@ def aggregate_target_results(result_id, algorithm):
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = random_knob_result
-        return agg_data, algorithm
+        LOG.debug('%s: Finished generating a random config.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
 
-    # Aggregate all knob config results tried by the target so far in this
-    # tuning session and this tuning workload.
-    target_results = Result.objects.filter(session=newest_result.session,
-                                           dbms=newest_result.dbms,
-                                           workload=newest_result.workload)
-    if len(target_results) == 0:
-        raise Exception('Cannot find any results for session_id={}, dbms_id={}'
-                        .format(newest_result.session, newest_result.dbms))
-    agg_data = DataUtil.aggregate_data(target_results)
-    agg_data['newest_result_id'] = result_id
-    agg_data['bad'] = False
+    else:
+        # Aggregate all knob config results tried by the target so far in this
+        # tuning session and this tuning workload.
+        target_results = Result.objects.filter(session=newest_result.session,
+                                               dbms=newest_result.dbms,
+                                               workload=newest_result.workload)
+        if len(target_results) == 0:
+            raise Exception('Cannot find any results for session_id={}, dbms_id={}'
+                            .format(newest_result.session, newest_result.dbms))
+        agg_data = DataUtil.aggregate_data(target_results)
+        agg_data['newest_result_id'] = result_id
+        agg_data['bad'] = False
 
-    # Clean knob data
-    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                       newest_result.session)
-    agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
-    agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
+        # Clean knob data
+        cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
+                                           newest_result.session)
+        agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
+        agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
+
+        LOG.debug('%s: Finished aggregating target results.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
 
     return agg_data, algorithm
 
@@ -336,19 +342,22 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
 def configuration_recommendation(recommendation_input):
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
-    latest_pipeline_run = PipelineRun.objects.get_latest()
 
     if target_data['bad'] is True:
-        target_data_res = {}
-        target_data_res['status'] = 'bad'
-        target_data_res['result_id'] = target_data['newest_result_id']
-        target_data_res['info'] = 'WARNING: no training data, the config is generated randomly'
-        target_data_res['recommendation'] = target_data['config_recommend']
+        target_data_res = dict(
+            status='bad',
+            result_id=target_data['newest_result_id'],
+            info='WARNING: no training data, the config is generated randomly',
+            recommendation=target_data['config_recommend'],
+            pipeline_run=target_data['pipeline_run'])
+        LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
         return target_data_res
 
     # Load mapped workload data
     mapped_workload_id = target_data['mapped_workload'][0]
 
+    latest_pipeline_run = PipelineRun.objects.get(pk=target_data['pipeline_run'])
     mapped_workload = Workload.objects.get(pk=mapped_workload_id)
     workload_knob_data = PipelineData.objects.get(
         pipeline_run=latest_pipeline_run,
@@ -563,7 +572,7 @@ def configuration_recommendation(recommendation_input):
         session.dnn_model = model_nn.get_weights_bin()
         session.save()
 
-    elif algorithm == AlgorithmType.OTTERTUNE:
+    elif algorithm == AlgorithmType.GPR:
         # default gpr model
         model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
                       magnitude=DEFAULT_MAGNITUDE,
@@ -595,11 +604,15 @@ def configuration_recommendation(recommendation_input):
     best_config = np.maximum(best_config, X_min_inv)
 
     conf_map = {k: best_config[i] for i, k in enumerate(X_columnlabels)}
-    conf_map_res = {}
-    conf_map_res['status'] = 'good'
-    conf_map_res['result_id'] = target_data['newest_result_id']
-    conf_map_res['recommendation'] = conf_map
-    conf_map_res['info'] = 'INFO: training data size is {}'.format(X_scaled.shape[0])
+    conf_map_res = dict(
+        status='good',
+        result_id=target_data['newest_result_id'],
+        recommendation=conf_map,
+        info='INFO: training data size is {}'.format(X_scaled.shape[0]),
+        pipeline_run=latest_pipeline_run.pk)
+    LOG.debug('%s: Finished selecting the next config.\n\ndata=%s\n',
+              AlgorithmType.name(algorithm), JSONUtil.dumps(conf_map_res, pprint=True))
+
     return conf_map_res
 
 
@@ -613,12 +626,19 @@ def load_data_helper(filtered_pipeline_data, workload, task_type):
 @task(base=MapWorkload, name='map_workload')
 def map_workload(map_workload_input):
     target_data, algorithm = map_workload_input
-    # Get the latest version of pipeline data that's been computed so far.
-    latest_pipeline_run = PipelineRun.objects.get_latest()
+
     if target_data['bad']:
         assert target_data is not None
+        target_data['pipeline_run'] = None
+        LOG.debug('%s: Skipping workload mapping.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+
         return target_data, algorithm
+
+    # Get the latest version of pipeline data that's been computed so far.
+    latest_pipeline_run = PipelineRun.objects.get_latest()
     assert latest_pipeline_run is not None
+    target_data['pipeline_run'] = latest_pipeline_run.pk
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     target_workload = newest_result.workload
@@ -752,7 +772,7 @@ def map_workload(map_workload_input):
     # Find the best (minimum) score
     best_score = np.inf
     best_workload_id = None
-    # scores_info = {workload_id: (workload_name, score)}
+    best_workload_name = None
     scores_info = {}
     for workload_id, similarity_score in list(scores.items()):
         workload_name = Workload.objects.get(pk=workload_id).name
@@ -761,7 +781,9 @@ def map_workload(map_workload_input):
             best_workload_id = workload_id
             best_workload_name = workload_name
         scores_info[workload_id] = (workload_name, similarity_score)
-    target_data['mapped_workload'] = (best_workload_id, best_workload_name, best_score)
+    target_data.update(mapped_workload=(best_workload_id, best_workload_name, best_score),
+                       scores=scores_info)
+    LOG.debug('%s: Finished mapping the workload.\n\ndata=%s\n',
+              AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
 
-    target_data['scores'] = scores_info
     return target_data, algorithm

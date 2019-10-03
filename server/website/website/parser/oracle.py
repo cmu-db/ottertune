@@ -17,3 +17,7 @@ class OracleParser(BaseParser):
     @property
     def transactions_counter(self):
         return 'global.user commits'
+
+    @property
+    def latency_timer(self):
+        raise NotImplementedError()

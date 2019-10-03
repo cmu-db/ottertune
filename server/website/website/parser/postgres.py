@@ -22,6 +22,10 @@ class PostgresParser(BaseParser):
     def transactions_counter(self):
         return 'pg_stat_database.xact_commit'
 
+    @property
+    def latency_timer(self):
+        raise NotImplementedError()
+
     def convert_integer(self, int_value, metadata):
         converted = None
         try:

@@ -12,13 +12,11 @@
     },
     {
         "fields": { 
-            "type": 1, 
-            "name": "New Hardware", 
 	    "cpu": 4,
-	    "memory": 16.0,
-	    "storage": "32",
-	    "storage_type": "",
-	    "additional_specs": ""
+	    "memory": 16,
+	    "storage": 32,
+	    "storage_type": 5,
+	    "additional_specs": null
         }, 
         "model": "website.Hardware",
         "pk": 1

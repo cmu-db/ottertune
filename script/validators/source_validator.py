@@ -18,7 +18,6 @@ import logging
 import imp
 import os
 import re
-import subprocess
 import sys
 import json
 import functools
@@ -67,6 +66,9 @@ EXCLUDE_DIRECTORIES = [
 
     # Django manage.py extensions
     os.path.join(OTTERTUNE_DIR, "server/website/website/management"),
+
+    # Old management scripts
+    os.path.join(OTTERTUNE_DIR, "server/website/script/management"),
 ]
 
 # Files that should NOT be checked
@@ -151,6 +153,9 @@ def validate_file(file_path):
         return True
     if not file_path.endswith(".py") and not file_path.endswith(".java"):
         return True
+    for exclude_dir in EXCLUDE_DIRECTORIES:
+        if file_path.startswith(exclude_dir):
+            return True
 
     LOG.debug("Validating file: %s", file_path)
     status = True
@@ -172,19 +177,60 @@ def validate_file(file_path):
 
 # Validate all the files in the root_dir passed as argument
 def validate_dir(root_dir):
-    if root_dir in EXCLUDE_DIRECTORIES:
-        return True
+    for exclude_dir in EXCLUDE_DIRECTORIES:
+        if root_dir.startswith(exclude_dir):
+            return True
 
     status = True
     for root, dirs, files in os.walk(root_dir):  # pylint: disable=not-an-iterable
         # Remove excluded dirs from list
-        dirs[:] = [d for d in dirs if os.path.join(root, d) not in EXCLUDE_DIRECTORIES]
+        valid_dirs = []
+        for d in dirs:
+            valid = True
+            for exclude_dir in EXCLUDE_DIRECTORIES:
+                if d.startswith(exclude_dir):
+                    valid = False
+                    break
+            if valid:
+                valid_dirs.append(d)
+        dirs[:] = valid_dirs
+
+        # Validate files
         for file_path in files:
             file_path = os.path.join(root, file_path)
 
             if not validate_file(file_path):
                 status = False
     return status
+
+
+def get_git_files(state):
+    if state == 'staged':
+        # Files staged for commit
+        cmd = r"git diff --name-only --cached --diff-filter=d | grep -E '*\.(py|java)$'"
+
+    elif state == 'unstaged':
+        # Tracked files not staged for commit
+        cmd = r"git diff --name-only --diff-filter=d | grep -E '*\.(py|java)$'"
+
+    elif state == 'untracked':
+        # Untracked files not staged for commit
+        cmd = r"git ls-files --other --exclude-standard | grep -E '*\.(py|java)$'"
+
+    with settings(warn_only=True):
+        res = local(cmd, capture=True)
+
+    if res.succeeded:
+        targets = res.stdout.strip().split('\n')
+
+        if not targets:
+            LOG.warning("No %s files found.", state)
+    else:
+        LOG.error("An error occurred while fetching %s files (exit code %d). "
+                  "Exiting...\n\n%s\n", state, res.return_code, res.stderr)
+        sys.exit(EXIT_FAILURE)
+
+    return targets
 
 
 # ==============================================
@@ -204,9 +250,12 @@ def check_pylint(file_path, config_path=None):
 
     with settings(warn_only=True), quiet():
         res = local('pylint {} {}'.format(' '.join(options), file_path), capture=True)
+
     if res.stdout == '':
-        assert res.return_code == 0, 'return_code={}, expected=0\n{}'.format(
-            res.return_code, res.stderr)
+        if res.return_code != 0:
+            raise Exception(
+                'An error occurred while running pylint on {} (exit code {}).\n\n{}\n'.format(
+                    file_path, res.return_code, res.stderr))
         return True, None
 
     output = []
@@ -393,9 +442,18 @@ def main():
     parser = argparse.ArgumentParser(description="Validate OtterTune's source code")
     parser.add_argument('paths', metavar='PATH', type=str, nargs='*',
                         help='Files or directories to (recursively) validate')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Enable verbose output')
     parser.add_argument('--staged-files', action='store_true',
                         help='Apply the selected action(s) to all staged files (git)')
+    parser.add_argument('--unstaged-files', action='store_true',
+                        help='Apply the selected action(s) to all unstaged tracked files (git)')
+    parser.add_argument('--untracked-files', action='store_true',
+                        help='Apply the selected action(s) to all untracked files (git)')
     args = parser.parse_args()
+
+    if args.verbose:
+        LOG.setLevel(logging.DEBUG)
 
     LOG.info('\nRunning source validators:\n%s\n',
              '\n'.join('  ' + v.name for v in VALIDATORS))
@@ -403,29 +461,46 @@ def main():
         if not validate_validator(validator.modules, validator.config_path):
             sys.exit(EXIT_FAILURE)
 
-    if args.staged_files:
-        targets = [os.path.abspath(os.path.join(OTTERTUNE_DIR, f))
-                   for f in subprocess.check_output(["git", "diff", "--name-only", "HEAD",
-                                                     "--cached", "--diff-filter=d"]).split()]
+    targets = []
+
+    if args.paths or args.staged_files or args.unstaged_files or args.untracked_files:
+        if args.paths:
+            targets += args.paths
+
+        if args.staged_files:
+            targets += get_git_files('staged')
+
+        if args.unstaged_files:
+            targets += get_git_files('unstaged')
+
+        if args.untracked_files:
+            targets += get_git_files('untracked')
+
         if not targets:
-            LOG.error("No staged files or not calling from a repository. Exiting...")
+            LOG.error("No files/directories found. Exiting...")
             sys.exit(EXIT_FAILURE)
-    elif args.paths:
-        targets = args.paths
+
     else:
         targets = DEFAULT_DIRS
 
+    targets = sorted(os.path.abspath(t) for t in targets)
+    LOG.info('\nFiles/directories to validate:\n%s\n',
+             '\n'.join('  ' + t for t in targets))
+
+    status = True
     for target in targets:
-        target = os.path.abspath(target)
         if os.path.isfile(target):
             LOG.debug("Scanning file: %s\n", target)
-            status = validate_file(target)
+            target_status = validate_file(target)
         elif os.path.isdir(target):
             LOG.debug("Scanning directory: %s\n", target)
-            status = validate_dir(target)
+            target_status = validate_dir(target)
         else:
             LOG.error("%s isn't a file or directory", target)
             sys.exit(EXIT_FAILURE)
+
+        if not target_status:
+            status = False
 
     if not status:
         LOG.info(SEPARATOR + '\n')

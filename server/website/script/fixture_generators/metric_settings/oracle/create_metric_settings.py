@@ -9,7 +9,7 @@ import shutil
 
 def main():
     final_metrics = []
-    with open('oracle.txt', 'r') as f:
+    with open('oracle12.txt', 'r') as f:
         odd = 0
         entry = {}
         fields = {}
@@ -31,12 +31,12 @@ def main():
                 fields['metric_type'] = 3	 # stat
                 if fields['name'] == "global.user commits":
                     fields['metric_type'] = 1	 # counter
-                fields['dbms'] = 18  # oracle
+                fields['dbms'] = 12  # oracle
                 entry['fields'] = fields
                 final_metrics.append(entry)
-    with open('oracle_metrics.json', 'w') as f:
+    with open('oracle-12_metrics.json', 'w') as f:
         json.dump(final_metrics, f, indent=4)
-    shutil.copy('oracle_metrics.json', '../../../../website/fixtures/oracle_metrics.json')
+    shutil.copy('oracle-12_metrics.json', '../../../../website/fixtures/oracle-12_metrics.json')
 
 
 if __name__ == '__main__':

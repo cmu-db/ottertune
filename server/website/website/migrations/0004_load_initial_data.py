@@ -19,8 +19,10 @@ def load_initial_data(apps, schema_editor):
         "postgres-94_metrics.json",
         "myrocks-5.6_knobs.json",
         "myrocks-5.6_metrics.json",
-        "oracle_knobs.json",
-        "oracle_metrics.json"
+        "oracle-12_knobs.json",
+        "oracle-12_metrics.json",
+        "oracle-19_knobs.json",
+        "oracle-19_metrics.json",
     ]
     for fixture in initial_data_fixtures:
         call_command("loaddata", fixture, app_label="website")

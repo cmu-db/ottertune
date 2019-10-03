@@ -98,7 +98,7 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
     def on_success(self, retval, task_id, args, kwargs):
         super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
 
-        result_id = args[0][0]['newest_result_id']
+        result_id = retval['result_id']
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
@@ -324,6 +324,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     conf_map = {k: knob_data[i] for i, k in enumerate(knob_labels)}
     conf_map_res = {}
     conf_map_res['status'] = 'good'
+    conf_map_res['result_id'] = result_id
     conf_map_res['recommendation'] = conf_map
     conf_map_res['info'] = 'INFO: ddpg'
     for k in knob_labels:
@@ -340,6 +341,7 @@ def configuration_recommendation(recommendation_input):
     if target_data['bad'] is True:
         target_data_res = {}
         target_data_res['status'] = 'bad'
+        target_data_res['result_id'] = target_data['newest_result_id']
         target_data_res['info'] = 'WARNING: no training data, the config is generated randomly'
         target_data_res['recommendation'] = target_data['config_recommend']
         return target_data_res
@@ -595,6 +597,7 @@ def configuration_recommendation(recommendation_input):
     conf_map = {k: best_config[i] for i, k in enumerate(X_columnlabels)}
     conf_map_res = {}
     conf_map_res['status'] = 'good'
+    conf_map_res['result_id'] = target_data['newest_result_id']
     conf_map_res['recommendation'] = conf_map
     conf_map_res['info'] = 'INFO: training data size is {}'.format(X_scaled.shape[0])
     return conf_map_res

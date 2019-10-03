@@ -1,0 +1,33 @@
+ORCL.__data_transfer_cache_size=0
+ORCL.__db_cache_size=16039018496
+ORCL.__inmemory_ext_roarea=0
+ORCL.__inmemory_ext_rwarea=0
+ORCL.__java_pool_size=268435456
+ORCL.__large_pool_size=1140850688
+ORCL.__oracle_base='/opt/oracle'#ORACLE_BASE set from environment
+ORCL.__pga_aggregate_target=6777995264
+ORCL.__sga_target=20266876928
+ORCL.__shared_io_pool_size=536870912
+ORCL.__shared_pool_size=2214592512
+ORCL.__streams_pool_size=0
+*.audit_file_dest='/opt/oracle/admin/ORCL/adump'
+*.audit_sys_operations=false
+*.audit_trail='none'
+*.compatible='12.2.0'
+*.control_files='/opt/oracle/oradata/ORCL/control01.ctl'
+*.db_block_size=8192
+*.db_name='ORCL'
+*.diagnostic_dest='/opt/oracle'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=ORCLXDB)'
+*.enable_pluggable_database=true
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=400
+*.pga_aggregate_target=6434m
+*.processes=2560
+*.remote_login_passwordfile='EXCLUSIVE'
+*.sga_target=19302m
+*.undo_tablespace='UNDOTBS1'
+
+# configurations recommended by ottertune:
+*.log_buffer = 817730432

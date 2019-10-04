@@ -34,6 +34,8 @@ fabric_output.update({
 RELOAD_INTERVAL = 10
 # maximum disk usage
 MAX_DISK_USAGE = 90
+# Postgres datadir
+PG_DATADIR = '/var/lib/postgresql/11/main'
 
 # Load config
 with open('driver_config.json', 'r') as _f:
@@ -119,7 +121,7 @@ def create_controller_config():
 @task
 def restart_database():
     if CONF['database_type'] == 'postgres':
-        cmd = 'sudo service postgresql restart'
+        cmd = 'sudo -u postgres pg_ctl -D {} -w restart'.format(PG_DATADIR)
     elif CONF['database_type'] == 'oracle':
         cmd = 'sh oracleScripts/shutdownOracle.sh && sh oracleScripts/startupOracle.sh'
     else:
@@ -149,11 +151,11 @@ def create_database():
 
 @task
 def reset_conf():
-    change_conf(next_conf='')
+    change_conf()
 
 
 @task
-def change_conf(next_conf='next_config'):
+def change_conf(next_conf=None):
     signal = "# configurations recommended by ottertune:\n"
     next_conf = next_conf or {}
 
@@ -240,6 +242,16 @@ def save_dbms_result():
         srcfile = os.path.join(CONF['controller_home'], 'output', f_)
         dstfile = os.path.join(CONF['save_path'], '{}__{}'.format(t, f_))
         local('cp {} {}'.format(srcfile, dstfile))
+    return t
+
+
+@task
+def save_next_config(next_config, t=None):
+    if not t:
+        t = int(time.time())
+    with open(os.path.join(CONF['save_path'], '{}__next_config.json'.format(t)), 'w') as f:
+        json.dump(next_config, f, indent=2)
+    return t
 
 
 @task
@@ -282,50 +294,75 @@ def upload_result(result_dir=None, prefix=None):
 
 
 @task
-def get_result(max_time_sec=180, interval_sec=1):
+def get_result(max_time_sec=180, interval_sec=5):
     max_time_sec = int(max_time_sec)
     interval_sec = int(interval_sec)
     url = CONF['upload_url'] + '/query_and_get/' + CONF['upload_code']
-    elapsed = 0.0
+    elapsed = 0
     response_dict = None
     response = ''
-    start_time = time.time()
 
     while elapsed <= max_time_sec:
         rsp = requests.get(url)
         response = rsp.content.decode()
-        LOG.debug('Response:\n\n%s\n', response)
+        assert response != 'null'
+
+        LOG.debug('%s [status code: %d, content_type: %s, elapsed: %ds]', response,
+                  rsp.status_code, rsp.headers.get('content-type', ''), elapsed)
 
         if rsp.status_code == 200:
             # Success
             response_dict = json.loads(rsp.json(), object_pairs_hook=OrderedDict)
             break
+
         elif rsp.status_code == 202:
             # Not ready
             time.sleep(interval_sec)
+            elapsed += interval_sec
+
         elif rsp.status_code == 400:
             # Failure
             raise Exception(
                 "Failed to download the next config.\nStatus code: {}\nMessage: {}\n".format(
                     rsp.status_code, response))
+
         else:
             raise NotImplementedError(
                 "Unhandled status code: '{}'.\nMessage: {}".format(rsp.status_code, response))
 
-        elapsed = time.time() - start_time
-
     if not response_dict:
         assert elapsed > max_time_sec, \
-            'response={} but elapsed={:.1f}s <= max_time={:.1f}s'.format(
+            'response={} but elapsed={}s <= max_time={}s'.format(
                 response, elapsed, max_time_sec)
         raise Exception(
-            'Failed to download the next config in {}s: {} (elapsed: {:.1f}s)'.format(
+            'Failed to download the next config in {}s: {} (elapsed: {}s)'.format(
                 max_time_sec, response, elapsed))
 
-    LOG.info('Downloaded the next config in %.0fs: %s', elapsed,
-             json.dumps(response_dict, indent=4))
+    LOG.info('Downloaded the next config in %ds: %s', elapsed, json.dumps(response_dict, indent=4))
 
     return response_dict
+
+
+@task
+def download_debug_info(pprint=False):
+    pprint = _parse_bool(pprint)
+    url = '{}/dump/{}'.format(CONF['upload_url'], CONF['upload_code'])
+    params = {'pp': int(True)} if pprint else {}
+    rsp = requests.get(url, params=params)
+
+    if rsp.status_code != 200:
+        raise Exception('Error downloading debug info.')
+
+    filename = rsp.headers.get('Content-Disposition').split('=')[-1]
+    file_len, exp_len = len(rsp.content), int(rsp.headers.get('Content-Length'))
+    assert file_len == exp_len, 'File {}: content length != expected length: {} != {}'.format(
+        filename, file_len, exp_len)
+
+    with open(filename, 'wb') as f:
+        f.write(rsp.content)
+    LOG.info('Downloaded debug info to %s', filename)
+
+    return filename
 
 
 @task
@@ -469,16 +506,19 @@ def loop():
     # add_udf()
 
     # save result
-    save_dbms_result()
+    result_timestamp = save_dbms_result()
 
     # upload result
     upload_result()
 
     # get result
-    get_result()
+    response = get_result()
+
+    # save next config
+    save_next_config(response, t=result_timestamp)
 
     # change config
-    change_conf()
+    change_conf(response['recommendation'])
 
 
 @task
@@ -489,6 +529,7 @@ def run_lhs():
     # dump database if it's not done before.
     dump = dump_database()
 
+    result_timestamp = None
     for i, sample in enumerate(samples):
         # reload database periodically
         if RELOAD_INTERVAL > 0:
@@ -508,15 +549,16 @@ def run_lhs():
         if check_disk_usage() > MAX_DISK_USAGE:
             LOG.warning('Exceeds max disk usage %s', MAX_DISK_USAGE)
 
-        # copy lhs-sampled config to the to-be-used config
-        cmd = 'cp {} next_config'.format(sample)
-        local(cmd)
+        # load the next lhs-sampled config
+        with open(sample, 'r') as f:
+            next_config = json.load(f, object_pairs_hook=OrderedDict)
+        save_next_config(next_config, t=result_timestamp)
 
         # remove oltpbench log and controller log
         clean_logs()
 
         # change config
-        change_conf()
+        change_conf(next_config)
 
         # restart database
         restart_database()
@@ -550,7 +592,7 @@ def run_lhs():
         p.join()
 
         # save result
-        save_dbms_result()
+        result_timestamp = save_dbms_result()
 
         # upload result
         upload_result()

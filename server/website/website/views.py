@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+# pylint: disable=too-many-lines
 import logging
 import datetime
 import re
@@ -14,6 +15,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.context_processors import csrf
@@ -34,7 +36,7 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .utils import dump_debug_info, JSONUtil, LabelUtil, MediaUtil, TaskUtil
 from .settings import TIME_ZONE
 
 from .set_default_knobs import set_default_knobs
@@ -336,18 +338,24 @@ def edit_knobs(request, project_id, session_id):
                           {'project': project, 'session': session, 'form': form})
         instance = form.instance
         instance.session = session
-        instance.knob = KnobCatalog.objects.filter(dbms=session.dbms,
-                                                   name=form.cleaned_data["name"])[0]
+        instance.knob = KnobCatalog.objects.get(dbms=session.dbms,
+                                                name=form.cleaned_data["name"])
         SessionKnob.objects.filter(session=instance.session, knob=instance.knob).delete()
         instance.save()
         return HttpResponse(status=204)
     else:
+        # knobs = KnobCatalog.objects.filter(dbms=session.dbms).order_by('-tunable')
         knobs = SessionKnob.objects.filter(session=session).order_by('-tunable', 'knob__name')
         forms = []
         for knob in knobs:
             knob_values = model_to_dict(knob)
             knob_values['session'] = session
             knob_values['name'] = KnobCatalog.objects.get(pk=knob.knob.pk).name
+            # if SessionKnob.objects.filter(session=session, knob=knob).exists():
+            #     new_knob = SessionKnob.objects.filter(session=session, knob=knob)[0]
+            #     knob_values["minval"] = new_knob.minval
+            #     knob_values["maxval"] = new_knob.maxval
+            #     knob_values["tunable"] = new_knob.tunable
             forms.append(SessionKnobForm(initial=knob_values))
         context = {
             'project': project,
@@ -412,7 +420,6 @@ def new_result(request):
         if not form.is_valid():
             LOG.warning("New result form is not valid: %s", str(form.errors))
             return HttpResponse("New result form is not valid: " + str(form.errors), status=400)
-
         upload_code = form.cleaned_data['upload_code']
         try:
             session = Session.objects.get(upload_code=upload_code)
@@ -421,7 +428,6 @@ def new_result(request):
             return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
         return handle_result_files(session, request.FILES)
-
     LOG.warning("Request type was not POST")
     return HttpResponse("Request type was not POST", status=400)
 
@@ -722,6 +728,17 @@ def download_next_config(request):
 
 
 @login_required(login_url=reverse_lazy('login'))
+def download_debug_info(request, project_id, session_id):  # pylint: disable=unused-argument
+    session = Session.objects.get(pk=session_id)
+    content, filename = dump_debug_info(session, pretty_print=False)
+    file = ContentFile(content.getvalue())
+    response = HttpResponse(file, content_type='application/x-gzip')
+    response['Content-Length'] = file.size
+    response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(filename)
+    return response
+
+
+@login_required(login_url=reverse_lazy('login'))
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
 
@@ -949,33 +966,59 @@ def get_timeline_data(request):
 
 # get the lastest result
 def give_result(request, upload_code):  # pylint: disable=unused-argument
+
+    def _failed_response(_latest_result, _tasks, _num_completed, _status, _msg):
+        _msg = "{}\nSTATUS: {}\nRESULT ID: {}\n".format(_msg, _status, _latest_result)
+        if tasks:
+            _failed_task_idx = min(len(_tasks) - 1, _num_completed + 1)
+            _failed_task = _tasks[_failed_task_idx]
+            _msg += "TRACEBACK: {}".format(_failed_task.traceback)
+        return HttpResponse(_msg, status=400)
+
     try:
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
         LOG.warning("Invalid upload code: %s", upload_code)
         return HttpResponse("Invalid upload code: " + upload_code, status=400)
-    results = Result.objects.filter(session=session)
-    lastest_result = results[len(results) - 1]
 
-    tasks = TaskUtil.get_tasks(lastest_result.task_ids)
+    latest_result = Result.objects.filter(session=session).latest('creation_time')
+    tasks = TaskUtil.get_tasks(latest_result.task_ids)
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
     if overall_status == 'SUCCESS':
-        res = Result.objects.get(pk=lastest_result.pk)
-        response = HttpResponse(JSONUtil.dumps(res.next_configuration),
-                                content_type='application/json')
+        next_config = latest_result.next_configuration
+        if not next_config:
+            overall_status = 'FAILURE'
+            response = _failed_response(latest_result, tasks, num_completed, overall_status,
+                                        'Failed to get the next configuration.')
+        else:
+            response = HttpResponse(JSONUtil.dumps(next_config),
+                                    content_type='application/json')
 
     elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
-        msg = "STATUS: {}\nRESULT ID: {}\n".format(overall_status, lastest_result)
-        if tasks:
-            failed_task_idx = min(len(tasks) - 1, num_completed + 1)
-            failed_task = tasks[failed_task_idx]
-            msg += "TRACEBACK: {}".format(failed_task.traceback)
-        response = HttpResponse(msg, status=400)
+        response = _failed_response(latest_result, tasks, num_completed, overall_status,
+                                    'Celery failed to get the next configuration.')
 
     else:  # overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
         response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
 
+    return response
+
+
+# get the lastest result
+def get_debug_info(request, upload_code):  # pylint: disable=unused-argument
+    pprint = bool(int(request.GET.get('pp', False)))
+    try:
+        session = Session.objects.get(upload_code=upload_code)
+    except Session.DoesNotExist:
+        LOG.warning("Invalid upload code: %s", upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code, status=400)
+
+    content, filename = dump_debug_info(session, pretty_print=pprint)
+    file = ContentFile(content.getvalue())
+    response = HttpResponse(file, content_type='application/x-gzip')
+    response['Content-Length'] = file.size
+    response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(filename)
     return response
 
 

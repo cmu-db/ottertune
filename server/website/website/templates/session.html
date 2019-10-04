@@ -61,12 +61,11 @@ caption span {float: right;}
 
 <div id="session" class="container">
 <table class="table table-striped table-bordered table-condensed table-hover">
-    <caption >
-        <h4> {{ labels.title }}</h4>
-        <span> (<a href="{% url 'edit_session' project.pk session.pk %}">edit</a>)
-            (<a href="{% url 'edit_knobs' project.pk session.pk %}">edit knobs</a>)
-        </span>
-    </caption>
+    <caption><h4>{{ labels.title }}
+        (<a href="{% url 'edit_session' project.pk session.pk %}">edit</a>)
+        (<a href="{% url 'edit_knobs' project.pk session.pk %}">edit knobs</a>)
+        (<a href="{% url 'dump_debug_data' project.pk session.pk %}">dump debug info</a>)
+    </h4></caption>
     <tbody>
     <tr>
         <td style="width: 50%"><div class="text-right">{{ labels.name }}</div></td>

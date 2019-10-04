@@ -1,7 +1,7 @@
 {
   "database_type" : "postgres",
   "database_name" : "tpcc",
-  "database_disk": "/dev/xvda1",
+  "database_disk": "",
   "database_conf": "/etc/postgresql/9.6/main/postgresql.conf",
   "database_save_path": "~/ottertune/client/driver/dumpfiles",
   "username" : "dbuser",

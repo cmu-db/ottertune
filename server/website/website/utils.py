@@ -3,24 +3,25 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-'''
-Created on Jul 8, 2017
-
-@author: dvanaken
-'''
-
+import datetime
 import json
 import logging
+import os
 import string
+import tarfile
+import time
 from collections import OrderedDict
+from io import BytesIO
 from random import choice
 
 import numpy as np
 from django.utils.text import capfirst
+from django_db_logger.models import StatusLog
 from djcelery.models import TaskMeta
 
+from .models import DBMSCatalog, KnobCatalog, Result, Session, SessionKnob
+from .settings import constants
 from .types import LabelStyleType, VarType
-from .models import KnobCatalog, DBMSCatalog, SessionKnob
 
 LOG = logging.getLogger(__name__)
 
@@ -34,17 +35,27 @@ class JSONUtil(object):
                           object_pairs_hook=OrderedDict)
 
     @staticmethod
-    def dumps(config, pprint=False, sort=False):
-        indent = 4 if pprint is True else None
+    def dumps(config, pprint=False, sort=False, encoder='custom'):
+        json_args = dict(indent=4 if pprint is True else None,
+                         ensure_ascii=False)
+
+        if encoder == 'custom':
+            json_args.update(default=JSONUtil.custom_converter)
+
         if sort is True:
             if isinstance(config, dict):
                 config = OrderedDict(sorted(config.items()))
             else:
                 config = sorted(config)
 
-        return json.dumps(config,
-                          ensure_ascii=False,
-                          indent=indent)
+        return json.dumps(config, **json_args)
+
+    @staticmethod
+    def custom_converter(o):
+        if isinstance(o, datetime.datetime):
+            return str(o)
+        elif isinstance(o, np.ndarray):
+            return o.tolist()
 
 
 class MediaUtil(object):
@@ -279,3 +290,108 @@ class LabelUtil(object):
                 label = label.replace('Dbms', 'DBMS')
             style_labels[name] = str(label)
         return style_labels
+
+
+def dump_debug_info(session, pretty_print=False):
+    files = {}
+
+    # Session
+    session_values = Session.objects.filter(pk=session.pk).values()[0]
+    session_values['dbms'] = session.dbms.full_name
+    session_values['hardware'] = session.hardware.name
+
+    # Session knobs
+    knob_instances = SessionKnob.objects.filter(
+        session=session, tunable=True).select_related('knob')
+    knob_values = list(knob_instances.values())
+    for knob, knob_dict in zip(knob_instances, knob_values):
+        assert knob.pk == knob_dict['id']
+        knob_dict['knob'] = knob.name
+    session_values['knobs'] = knob_values
+
+    # Save binary field types to separate files
+    binary_fields = [
+        'ddpg_actor_model',
+        'ddpg_critic_model',
+        'ddpg_reply_memory',
+        'dnn_model',
+    ]
+    for bf in binary_fields:
+        if session_values[bf]:
+            filename = os.path.join('binaries', '{}.pickle'.format(bf))
+            content = session_values[bf]
+            session_values[bf] = filename
+            files[filename] = content
+
+    files['session.json'] = session_values
+
+    # Results from session
+    result_instances = Result.objects.filter(session=session).select_related(
+        'knob_data', 'metric_data').order_by('creation_time')
+    results = []
+
+    for result, result_dict in zip(result_instances, result_instances.values()):
+        assert result.pk == result_dict['id']
+        result_dict = OrderedDict(result_dict)
+        next_config = result.next_configuration or '{}'
+        result_dict['next_configuration'] = JSONUtil.loads(next_config)
+
+        tasks = {}
+        task_ids = result.task_ids
+        task_ids = task_ids.split(',') if task_ids else []
+        for task_id in task_ids:
+            task = TaskMeta.objects.filter(task_id=task_id).values()
+            task = task[0] if task else None
+            tasks[task_id] = task
+        result_dict['tasks'] = tasks
+
+        knob_data = result.knob_data.data or '{}'
+        metric_data = result.metric_data.data or '{}'
+        result_dict['knob_data'] = JSONUtil.loads(knob_data)
+        result_dict['metric_data'] = JSONUtil.loads(metric_data)
+        results.append(result_dict)
+
+    files['results.json'] = results
+
+    # Log messages written to the database using django-db-logger
+    logs = StatusLog.objects.filter(create_datetime__gte=session.creation_time)
+    logger_names = logs.order_by().values_list('logger_name', flat=True).distinct()
+
+    # Write log files at app scope (e.g., django, website, celery)
+    logger_names = set([l.split('.', 1)[0] for l in logger_names])
+
+    for logger_name in logger_names:
+        log_values = list(logs.filter(logger_name__startswith=logger_name).order_by(
+            'create_datetime').values())
+        for lv in log_values:
+            lv['level'] = logging.getLevelName(lv['level'])
+        files['logs/{}.log'.format(logger_name)] = log_values
+
+    # Save settings
+    constants_dict = OrderedDict()
+    for name, value in sorted(constants.__dict__.items()):
+        if not name.startswith('_') and name == name.upper():
+            constants_dict[name] = value
+    files['constants.json'] = constants_dict
+
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    root = 'debug_{}'.format(timestamp)
+
+    mtime = time.time()
+    tarstream = BytesIO()
+    with tarfile.open(mode='w:gz', fileobj=tarstream) as tar:
+        for filename, content in files.items():  # pylint: disable=not-an-iterable
+            if isinstance(content, (dict, list)):
+                content = JSONUtil.dumps(content, pprint=pretty_print)
+            if isinstance(content, str):
+                content = content.encode('utf-8')
+            assert isinstance(content, bytes), (filename, type(content))
+            bio = BytesIO(content)
+            path = os.path.join(root, filename)
+            tarinfo = tarfile.TarInfo(name=path)
+            tarinfo.size = len(bio.getvalue())
+            tarinfo.mtime = mtime
+            tar.addfile(tarinfo, bio)
+
+    tarstream.seek(0)
+    return tarstream, root

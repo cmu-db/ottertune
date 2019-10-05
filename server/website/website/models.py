@@ -204,7 +204,7 @@ class Session(BaseModel):
     TUNING_OPTIONS = [
         ("tuning_session", "Tuning Session"),
         ("no_tuning_session", "No Tuning"),
-        ("randomly_generate", "Randomly Generate")
+        ("randomly_generate", "Randomly Generate"),
         ("lhs", "Run LHS")
     ]
     tuning_session = models.CharField(choices=TUNING_OPTIONS,

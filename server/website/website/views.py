@@ -30,8 +30,8 @@ from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatal
                      MetricData, MetricManager, Project, Result, Session, Workload,
                      SessionKnob)
 from .parser import Parser
-from .tasks import (aggregate_target_results, map_workload,
-                    configuration_recommendation)
+from .tasks import (aggregate_target_results, map_workload, train_ddpg,
+                    configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
 from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
@@ -314,7 +314,7 @@ def create_or_edit_session(request, project_id, session_id=''):
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
-                    'algorithm': AlgorithmType.OTTERTUNE,
+                    'algorithm': AlgorithmType.GPR,
                     'target_objective': 'throughput_txn_per_sec',
                 })
         context = {
@@ -342,15 +342,12 @@ def edit_knobs(request, project_id, session_id):
         instance.save()
         return HttpResponse(status=204)
     else:
-        knobs = KnobCatalog.objects.filter(dbms=session.dbms).order_by('-tunable')
+        knobs = SessionKnob.objects.filter(session=session).order_by('-tunable', 'knob__name')
         forms = []
         for knob in knobs:
             knob_values = model_to_dict(knob)
-            if SessionKnob.objects.filter(session=session, knob=knob).exists():
-                new_knob = SessionKnob.objects.filter(session=session, knob=knob)[0]
-                knob_values["minval"] = new_knob.minval
-                knob_values["maxval"] = new_knob.maxval
-                knob_values["tunable"] = new_knob.tunable
+            knob_values['session'] = session
+            knob_values['name'] = KnobCatalog.objects.get(pk=knob.knob.pk).name
             forms.append(SessionKnobForm(initial=knob_values))
         context = {
             'project': project,
@@ -414,17 +411,19 @@ def new_result(request):
 
         if not form.is_valid():
             LOG.warning("New result form is not valid: %s", str(form.errors))
-            return HttpResponse("New result form is not valid: " + str(form.errors))
+            return HttpResponse("New result form is not valid: " + str(form.errors), status=400)
+
         upload_code = form.cleaned_data['upload_code']
         try:
             session = Session.objects.get(upload_code=upload_code)
         except Session.DoesNotExist:
             LOG.warning("Invalid upload code: %s", upload_code)
-            return HttpResponse("Invalid upload code: " + upload_code)
+            return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
         return handle_result_files(session, request.FILES)
+
     LOG.warning("Request type was not POST")
-    return HttpResponse("Request type was not POST")
+    return HttpResponse("Request type was not POST", status=400)
 
 
 def handle_result_files(session, files):
@@ -514,12 +513,8 @@ def handle_result_files(session, files):
         metric_log=initial_metric_diffs)
     backup_data.save()
 
-    nondefault_settings = Parser.get_nondefault_knob_settings(
-        dbms.pk, knob_dict)
     session.project.last_update = now()
     session.last_update = now()
-    if session.nondefault_settings is None:
-        session.nondefault_settings = JSONUtil.dumps(nondefault_settings)
     session.project.save()
     session.save()
 
@@ -528,17 +523,24 @@ def handle_result_files(session, files):
 
     result_id = result.pk
     response = None
-    if session.algorithm == AlgorithmType.OTTERTUNE:
-        response = chain(aggregate_target_results.s(result.pk),
+    if session.algorithm == AlgorithmType.GPR:
+        response = chain(aggregate_target_results.s(result.pk, session.algorithm),
                          map_workload.s(),
                          configuration_recommendation.s()).apply_async()
-    elif session.algorithm == AlgorithmType.ALGORITHM1:
-        pass
-    elif session.algorithm == AlgorithmType.ALGORITHM2:
-        pass
-    elif session.algorithm == AlgorithmType.ALGORITHM3:
-        pass
-    taskmeta_ids = [response.parent.parent.id, response.parent.id, response.id]
+    elif session.algorithm == AlgorithmType.DDPG:
+        response = chain(train_ddpg.s(result.pk),
+                         configuration_recommendation_ddpg.s()).apply_async()
+    elif session.algorithm == AlgorithmType.DNN:
+        response = chain(aggregate_target_results.s(result.pk, session.algorithm),
+                         map_workload.s(),
+                         configuration_recommendation.s()).apply_async()
+
+    taskmeta_ids = []
+    current_task = response
+    while current_task:
+        taskmeta_ids.insert(0, current_task.id)
+        current_task = current_task.parent
+
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
     return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "
@@ -951,19 +953,35 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
         LOG.warning("Invalid upload code: %s", upload_code)
-        return HttpResponse("Invalid upload code: " + upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code, status=400)
     results = Result.objects.filter(session=session)
     lastest_result = results[len(results) - 1]
 
     tasks = TaskUtil.get_tasks(lastest_result.task_ids)
-    overall_status, _ = TaskUtil.get_task_status(tasks)
+    overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
-    if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
-        return HttpResponse("Result not ready")
-    # unclear behaviors for REVOKED and RETRY, treat as failure
-    elif overall_status in ['FAILURE', 'REVOKED', 'RETRY']:
-        return HttpResponse("Fail")
+    if overall_status == 'SUCCESS':
+        res = Result.objects.get(pk=lastest_result.pk)
+        response = HttpResponse(JSONUtil.dumps(res.next_configuration),
+                                content_type='application/json')
 
-    # success
-    res = Result.objects.get(pk=lastest_result.pk)
-    return HttpResponse(JSONUtil.dumps(res.next_configuration), content_type='application/json')
+    elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
+        msg = "STATUS: {}\nRESULT ID: {}\n".format(overall_status, lastest_result)
+        if tasks:
+            failed_task_idx = min(len(tasks) - 1, num_completed + 1)
+            failed_task = tasks[failed_task_idx]
+            msg += "TRACEBACK: {}".format(failed_task.traceback)
+        response = HttpResponse(msg, status=400)
+
+    else:  # overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
+        response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
+
+    return response
+
+
+def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
+    session = get_object_or_404(Session, pk=session_id, user=request.user)  # pylint: disable=unused-variable
+    results = Result.objects.filter(session=session_id)
+    for result in results:
+        train_ddpg(result.pk)
+    return HttpResponse()

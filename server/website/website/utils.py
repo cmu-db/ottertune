@@ -20,7 +20,7 @@ from django.utils.text import capfirst
 from djcelery.models import TaskMeta
 
 from .types import LabelStyleType, VarType
-from .models import KnobCatalog, DBMSCatalog
+from .models import KnobCatalog, DBMSCatalog, SessionKnob
 
 LOG = logging.getLogger(__name__)
 
@@ -91,6 +91,24 @@ class TaskUtil(object):
 
 
 class DataUtil(object):
+
+    @staticmethod
+    def get_knob_bounds(knob_labels, session):
+        minvals = []
+        maxvals = []
+        for _, knob in enumerate(knob_labels):
+            knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
+            knob_session_object = SessionKnob.objects.filter(knob=knob_object, session=session,
+                                                             tunable=True)
+            if knob_session_object.exists():
+                minval = float(knob_session_object[0].minval)
+                maxval = float(knob_session_object[0].maxval)
+            else:
+                minval = float(knob_object.minval)
+                maxval = float(knob_object.maxval)
+            minvals.append(minval)
+            maxvals.append(maxval)
+        return np.array(minvals), np.array(maxvals)
 
     @staticmethod
     def aggregate_data(results):

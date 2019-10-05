@@ -3095,7 +3095,7 @@
             "summary": "Sets the maximum number of parallel processes per executor node.",
             "unit": "3",
             "description": "",
-            "resource": "4"
+            "resource": "2"
         },
         "model": "website.KnobCatalog"
     },
@@ -3255,7 +3255,7 @@
             "summary": "Sets the WAL size that triggers a checkpoint.",
             "unit": "1",
             "description": "",
-            "resource": "4"
+            "resource": "3"
         },
         "model": "website.KnobCatalog"
     },
@@ -3275,7 +3275,7 @@
             "summary": "Maximum number of concurrent worker processes.",
             "unit": "3",
             "description": "",
-            "resource": "4"
+            "resource": "2"
         },
         "model": "website.KnobCatalog"
     },
@@ -3315,7 +3315,7 @@
             "summary": "Sets the minimum size to shrink the WAL to.",
             "unit": "1",
             "description": "",
-            "resource": "4"
+            "resource": "3"
         },
         "model": "website.KnobCatalog"
     },

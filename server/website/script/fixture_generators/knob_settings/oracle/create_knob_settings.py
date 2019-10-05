@@ -158,7 +158,7 @@ def set_field(fields):
 
 def main():
     final_metrics = []
-    with open('oracle.txt', 'r') as f:
+    with open('oracle12.txt', 'r') as f:
         num = 0
 
         lines = f.readlines()
@@ -186,7 +186,7 @@ def main():
             elif num == 2:
                 fields['summary'] = line
                 fields['scope'] = 'global'
-                fields['dbms'] = 18       # oracle
+                fields['dbms'] = 12       # oracle
                 fields['category'] = ''
                 fields['enumvals'] = None
                 fields['context'] = ''
@@ -201,9 +201,9 @@ def main():
                 entry['fields'] = fields
                 final_metrics.append(entry)
             num = (num + 1) % 3
-    with open('oracle_knobs.json', 'w') as f:
+    with open('oracle-12_knobs.json', 'w') as f:
         json.dump(final_metrics, f, indent=4)
-    shutil.copy("oracle_knobs.json", "../../../../website/fixtures/oracle_knobs.json")
+    shutil.copy("oracle-12_knobs.json", "../../../../website/fixtures/oracle-12_knobs.json")
 
 
 if __name__ == '__main__':

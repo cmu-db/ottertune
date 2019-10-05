@@ -33,6 +33,10 @@
             <td>{{ form.storage.label_tag }}</td>
             <td>{{ form.storage }}</td>
         </tr>
+        <tr id="storage_type_row">
+            <td>{{ form.storage_type.label_tag }}</td>
+            <td>{{ form.storage_type }}</td>
+        </tr>
         <tr id="algorithm_row">
             <td>{{ form.algorithm.label_tag }}</td>
             <td>{{ form.algorithm }}</td>
@@ -71,6 +75,7 @@ $(function() {
 	    $("#cpu_row").hide();
 	    $("#memory_row").hide();
 	    $("#storage_row").hide();
+	    $("#storage_type_row").hide();
 	    $("#algorithm_row").hide();
 	} else {
 		$("#upload_code_row").hide();

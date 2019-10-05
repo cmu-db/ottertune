@@ -58,9 +58,8 @@ class UploadResultsTests(TestCase):
         form_addr = reverse('new_result')
         post_data = {'upload_code': upload_code}
         response = self.client.post(form_addr, post_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "New result form is not valid:")
-        self.assertContains(response, "This field is required", 4)
+        self.assertContains(response, "New result form is not valid:", status_code=400)
+        self.assertContains(response, "This field is required", count=4, status_code=400)
 
     def upload_to_session_invalid_upload_code(self, session_id):
         form_addr = reverse('new_result')
@@ -68,14 +67,12 @@ class UploadResultsTests(TestCase):
         post_data['upload_code'] = "invalid_upload_code"
         response = self.client.post(form_addr, post_data)
         self.close_files(post_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Invalid upload code")
+        self.assertContains(response, "Invalid upload code", status_code=400)
 
     def test_upload_form_not_post(self):
         form_addr = reverse('new_result')
         response = self.client.get(form_addr)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Request type was not POST")
+        self.assertContains(response, "Request type was not POST", status_code=400)
 
     def test_set_modified_workload_on_upload(self):
         workload0 = Workload.objects.get(pk=TEST_WORKLOAD_ID)

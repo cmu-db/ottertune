@@ -14,18 +14,24 @@
 #   ln -s ../../script/git-hooks/pre-commit ./pre-commit
 
 
-FILES=$(git diff --name-only HEAD --cached --diff-filter=d | grep '\.\(py\)$')
+FILES=$(git diff --name-only --cached --diff-filter=d | grep -E '*\.(py|java)$')
 
-SERVER_TESTS_RESULT=0
+WEBSITE_TESTS_RESULT=0
+ANALYSIS_TESTS_RESULT=0
 CONTROLLER_TESTS_RESULT=0
 VALIDATOR_RESULT=0
 
 if [ -n "$FILES" ]; then
 
-    # Uncomment to run the server tests
-    # cd server/website && python manage.py test -v 2
-    # SERVER_TESTS_RESULT=$?
+    # Uncomment to run the website tests
+    # cd server/website && python3 manage.py test --noinput -v 2
+    # WEBSITE_TESTS_RESULT=$?
     # cd ../..
+
+    # Uncomment to run the analysis tests
+    # cd server && python3 -m unittest discover -s analysis/tests -v
+    # ANALYSIS_TESTS_RESULT=$?
+    # cd ..
 
     # Uncomment to run the controller tests
     # cd controller && gradle build -q
@@ -33,10 +39,10 @@ if [ -n "$FILES" ]; then
     # cd ..
 
     # Run source code validator
-    python script/validators/source_validator.py $FILES
+    python3 script/validators/source_validator.py $FILES
     VALIDATOR_RESULT=$?
 
-    if [ "$VALIDATOR_RESULT" -ne 0 ] || [ "$SERVER_TESTS_RESULT" -ne 0 ] || [ "$CONTROLLER_TESTS_RESULT" -ne 0 ]; then
+    if [ "$VALIDATOR_RESULT" -ne 0 ] || [ "$WEBSITE_TESTS_RESULT" -ne 0 ] || [ "$ANALYSIS_TESTS_RESULT" -ne 0 ] || [ "$CONTROLLER_TESTS_RESULT" -ne 0 ]; then
 
         echo " +------------------------------------------------------------+"
         echo " |                                                            |"
@@ -45,8 +51,13 @@ if [ -n "$FILES" ]; then
         echo " +------------------------------------------------------------+"
         echo ""
 
-        if [ "$SERVER_TESTS_RESULT" -ne 0 ]; then
-            echo " FAILED server tests!"
+        if [ "$WEBSITE_TESTS_RESULT" -ne 0 ]; then
+            echo " FAILED website tests!"
+            echo ""
+        fi
+
+        if [ "$ANALYSIS_TESTS_RESULT" -ne 0 ]; then
+            echo " FAILED analysis tests!"
             echo ""
         fi
 

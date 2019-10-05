@@ -4,9 +4,10 @@ log/
 *.log
 local_settings.py
 
-# celery beat schedule file #
-#############################
+# celery/celerybeat #
+#####################
 celerybeat-schedule
+*.pid
 
 # Raw data files #
 ##################

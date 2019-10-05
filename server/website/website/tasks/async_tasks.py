@@ -11,26 +11,35 @@ import json
 from celery.task import task, Task
 from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
+from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
+from analysis.nn_tf import NeuralNet
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog,
                             MetricCatalog, SessionKnob)
 from website.parser import Parser
-from website.types import PipelineTaskType
+from website.types import PipelineTaskType, AlgorithmType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
 from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               MAX_TRAIN_SIZE, BATCH_SIZE, NUM_THREADS,
                               DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
-                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER)
+                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
+                              DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
+                              CRITIC_LEARNING_RATE, GAMMA, TAU,
+                              DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
+                              DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
+                              DNN_DEBUG, DNN_DEBUG_INTERVAL)
+
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
 from .lhs import add_lhs_samples
+
 
 LOG = get_task_logger(__name__)
 
@@ -41,6 +50,17 @@ class UpdateTask(Task):  # pylint: disable=abstract-method
         self.rate_limit = '50/m'
         self.max_retries = 3
         self.default_retry_delay = 60
+
+
+class TrainDDPG(UpdateTask):  # pylint: disable=abstract-method
+    def on_success(self, retval, task_id, args, kwargs):
+        super(TrainDDPG, self).on_success(retval, task_id, args, kwargs)
+
+        # Completely delete this result because it's huge and not
+        # interesting
+        task_meta = TaskMeta.objects.get(task_id=task_id)
+        task_meta.result = None
+        task_meta.save()
 
 
 class AggregateTargetResults(UpdateTask):  # pylint: disable=abstract-method
@@ -61,10 +81,10 @@ class MapWorkload(UpdateTask):  # pylint: disable=abstract-method
         super(MapWorkload, self).on_success(retval, task_id, args, kwargs)
 
         # Replace result with formatted result
-        if not args[0]['bad']:
+        if not args[0][0]['bad']:
             new_res = {
-                'scores': sorted(args[0]['scores'].items()),
-                'mapped_workload_id': args[0]['mapped_workload'],
+                'scores': sorted(args[0][0]['scores'].items()),
+                'mapped_workload_id': args[0][0]['mapped_workload'],
             }
             task_meta = TaskMeta.objects.get(task_id=task_id)
             task_meta.result = new_res  # Only store scores
@@ -80,7 +100,7 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
     def on_success(self, retval, task_id, args, kwargs):
         super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
 
-        result_id = args[0]['newest_result_id']
+        result_id = retval['result_id']
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
@@ -124,15 +144,16 @@ def clean_knob_data(knob_matrix, knob_labels, session):
 
 
 @task(base=AggregateTargetResults, name='aggregate_target_results')
-def aggregate_target_results(result_id):
+def aggregate_target_results(result_id, algorithm):
     # Check that we've completed the background tasks at least once. We need
     # this data in order to make a configuration recommendation (until we
     # implement a sampling technique to generate new training data).
     newest_result = Result.objects.get(pk=result_id)
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
-    if not has_pipeline_data:
-        LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
     if not has_pipeline_data or newest_result.session.tuning_session == 'randomly_generate':
+        if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
+            LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
+
         result = Result.objects.filter(pk=result_id)
         knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
 
@@ -142,37 +163,46 @@ def aggregate_target_results(result_id):
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = random_knob_result
-        return agg_data
-    if newest_result.session.tuning_session == 'lhs':
+        LOG.debug('%s: Finished generating a random config.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+
+    elif newest_result.session.tuning_session == 'lhs':
         samples = json.loads(newest_result.session.lhs_samples)
         if len(samples) == 0:
             samples = add_lhs_samples(newest_result.session, 100)
+            LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(samples, pprint=True))
         samples = samples.pop()
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = samples
         newest_result.session.samples = json.dumps(samples)
-        return agg_data
+        LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
 
-    # Aggregate all knob config results tried by the target so far in this
-    # tuning session and this tuning workload.
-    target_results = Result.objects.filter(session=newest_result.session,
-                                           dbms=newest_result.dbms,
-                                           workload=newest_result.workload)
-    if len(target_results) == 0:
-        raise Exception('Cannot find any results for session_id={}, dbms_id={}'
-                        .format(newest_result.session, newest_result.dbms))
-    agg_data = DataUtil.aggregate_data(target_results)
-    agg_data['newest_result_id'] = result_id
-    agg_data['bad'] = False
+    else:
+        # Aggregate all knob config results tried by the target so far in this
+        # tuning session and this tuning workload.
+        target_results = Result.objects.filter(session=newest_result.session,
+                                               dbms=newest_result.dbms,
+                                               workload=newest_result.workload)
+        if len(target_results) == 0:
+            raise Exception('Cannot find any results for session_id={}, dbms_id={}'
+                            .format(newest_result.session, newest_result.dbms))
+        agg_data = DataUtil.aggregate_data(target_results)
+        agg_data['newest_result_id'] = result_id
+        agg_data['bad'] = False
 
-    # Clean knob data
-    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                       newest_result.session)
-    agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
-    agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
+        # Clean knob data
+        cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
+                                           newest_result.session)
+        agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
+        agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
 
-    return agg_data
+        LOG.debug('%s: Finished aggregating target results.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+
+    return agg_data, algorithm
 
 
 def gen_random_data(knobs):
@@ -206,21 +236,144 @@ def gen_random_data(knobs):
     return random_knob_result
 
 
+@task(base=TrainDDPG, name='train_ddpg')
+def train_ddpg(result_id):
+    LOG.info('Add training data to ddpg and train ddpg')
+    result = Result.objects.get(pk=result_id)
+    session = Result.objects.get(pk=result_id).session
+    session_results = Result.objects.filter(session=session,
+                                            creation_time__lt=result.creation_time)
+    result_info = {}
+    result_info['newest_result_id'] = result_id
+    if len(session_results) == 0:
+        LOG.info('No previous result. Abort.')
+        return result_info
+    prev_result_id = session_results[len(session_results) - 1].pk
+    base_result_id = session_results[0].pk
+    prev_result = Result.objects.filter(pk=prev_result_id)
+    base_result = Result.objects.filter(pk=base_result_id)
+
+    # Extract data from result
+    result = Result.objects.filter(pk=result_id)
+    agg_data = DataUtil.aggregate_data(result)
+    metric_data = agg_data['y_matrix'].flatten()
+    prev_metric_data = (DataUtil.aggregate_data(prev_result))['y_matrix'].flatten()
+    base_metric_data = (DataUtil.aggregate_data(base_result))['y_matrix'].flatten()
+
+    # Clean knob data
+    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
+    knob_data = np.array(cleaned_agg_data[0])
+    knob_labels = np.array(cleaned_agg_data[1])
+    knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels.flatten(), session))
+    knob_data = MinMaxScaler().fit(knob_bounds).transform(knob_data)[0]
+    knob_num = len(knob_data)
+    metric_num = len(metric_data)
+    LOG.info('knob_num: %d, metric_num: %d', knob_num, metric_num)
+
+    # Filter ys by current target objective metric
+    result = Result.objects.get(pk=result_id)
+    target_objective = result.session.target_objective
+    target_obj_idx = [i for i, n in enumerate(agg_data['y_columnlabels']) if n == target_objective]
+    if len(target_obj_idx) == 0:
+        raise Exception(('Could not find target objective in metrics '
+                         '(target_obj={})').format(target_objective))
+    elif len(target_obj_idx) > 1:
+        raise Exception(('Found {} instances of target objective in '
+                         'metrics (target_obj={})').format(len(target_obj_idx),
+                                                           target_objective))
+    objective = metric_data[target_obj_idx]
+    prev_objective = prev_metric_data[target_obj_idx]
+    base_objective = base_metric_data[target_obj_idx]
+    metric_meta = MetricCatalog.objects.get_metric_meta(result.session.dbms,
+                                                        result.session.target_objective)
+
+    # Calculate the reward
+    reward = 0
+    if metric_meta[target_objective].improvement == '(less is better)':
+        if objective - base_objective <= 0:
+            reward = -(np.square(objective / base_objective) - 1) * objective / prev_objective
+        else:
+            reward = (np.square((2 * base_objective - objective) / base_objective) - 1)\
+                * (2 * prev_objective - objective) / prev_objective
+    else:
+        if objective - base_objective > 0:
+            reward = (np.square(objective / base_objective) - 1) * objective / prev_objective
+        else:
+            reward = -(np.square((2 * base_objective - objective) / base_objective) - 1)\
+                * (2 * prev_objective - objective) / prev_objective
+
+    # Update ddpg
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
+                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+    if session.ddpg_actor_model and session.ddpg_critic_model:
+        ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
+    if session.ddpg_reply_memory:
+        ddpg.replay_memory.set(session.ddpg_reply_memory)
+    ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data, False)
+    if len(ddpg.replay_memory) > 32:
+        ddpg.update()
+    session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
+    session.ddpg_reply_memory = ddpg.replay_memory.get()
+    session.save()
+    return result_info
+
+
+@task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
+def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
+    LOG.info('Use ddpg to recommend configuration')
+    result_id = result_info['newest_result_id']
+    result = Result.objects.filter(pk=result_id)
+    session = Result.objects.get(pk=result_id).session
+    agg_data = DataUtil.aggregate_data(result)
+    metric_data = agg_data['y_matrix'].flatten()
+    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
+                                       session)
+    knob_labels = np.array(cleaned_agg_data[1]).flatten()
+    knob_num = len(knob_labels)
+    metric_num = len(metric_data)
+
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
+                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+    if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
+        ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
+    if session.ddpg_reply_memory is not None:
+        ddpg.replay_memory.set(session.ddpg_reply_memory)
+    knob_data = ddpg.choose_action(metric_data)
+    LOG.info('recommended knob: %s', knob_data)
+
+    knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels, session))
+    knob_data = MinMaxScaler().fit(knob_bounds).inverse_transform(knob_data.reshape(1, -1))[0]
+    conf_map = {k: knob_data[i] for i, k in enumerate(knob_labels)}
+    conf_map_res = {}
+    conf_map_res['status'] = 'good'
+    conf_map_res['result_id'] = result_id
+    conf_map_res['recommendation'] = conf_map
+    conf_map_res['info'] = 'INFO: ddpg'
+    for k in knob_labels:
+        LOG.info('%s: %f', k, conf_map[k])
+    return conf_map_res
+
+
 @task(base=ConfigurationRecommendation, name='configuration_recommendation')
-def configuration_recommendation(target_data):
+def configuration_recommendation(recommendation_input):
+    target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
-    latest_pipeline_run = PipelineRun.objects.get_latest()
 
     if target_data['bad'] is True:
-        target_data_res = {}
-        target_data_res['status'] = 'bad'
-        target_data_res['info'] = 'WARNING: no training data, the config is generated randomly'
-        target_data_res['recommendation'] = target_data['config_recommend']
+        target_data_res = dict(
+            status='bad',
+            result_id=target_data['newest_result_id'],
+            info='WARNING: no training data, the config is generated randomly',
+            recommendation=target_data['config_recommend'],
+            pipeline_run=target_data['pipeline_run'])
+        LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
         return target_data_res
 
     # Load mapped workload data
     mapped_workload_id = target_data['mapped_workload'][0]
 
+    latest_pipeline_run = PipelineRun.objects.get(pk=target_data['pipeline_run'])
     mapped_workload = Workload.objects.get(pk=mapped_workload_id)
     workload_knob_data = PipelineData.objects.get(
         pipeline_run=latest_pipeline_run,
@@ -415,18 +568,40 @@ def configuration_recommendation(target_data):
         except queue.Empty:
             break
 
-    model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
-                  magnitude=DEFAULT_MAGNITUDE,
-                  max_train_size=MAX_TRAIN_SIZE,
-                  batch_size=BATCH_SIZE,
-                  num_threads=NUM_THREADS,
-                  learning_rate=DEFAULT_LEARNING_RATE,
-                  epsilon=DEFAULT_EPSILON,
-                  max_iter=MAX_ITER,
-                  sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
-                  mu_multiplier=DEFAULT_MU_MULTIPLIER)
-    model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
-    res = model.predict(X_samples, constraint_helper=constraint_helper)
+    session = newest_result.session
+    res = None
+
+    if algorithm == AlgorithmType.DNN:
+        # neural network model
+        model_nn = NeuralNet(n_input=X_samples.shape[1],
+                             batch_size=X_samples.shape[0],
+                             explore_iters=DNN_EXPLORE_ITER,
+                             noise_scale_begin=DNN_NOISE_SCALE_BEGIN,
+                             noise_scale_end=DNN_NOISE_SCALE_END,
+                             debug=DNN_DEBUG,
+                             debug_interval=DNN_DEBUG_INTERVAL)
+        if session.dnn_model is not None:
+            model_nn.set_weights_bin(session.dnn_model)
+        model_nn.fit(X_scaled, y_scaled, fit_epochs=DNN_TRAIN_ITER)
+        res = model_nn.recommend(X_samples, X_min, X_max,
+                                 explore=DNN_EXPLORE, recommend_epochs=MAX_ITER)
+        session.dnn_model = model_nn.get_weights_bin()
+        session.save()
+
+    elif algorithm == AlgorithmType.GPR:
+        # default gpr model
+        model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
+                      magnitude=DEFAULT_MAGNITUDE,
+                      max_train_size=MAX_TRAIN_SIZE,
+                      batch_size=BATCH_SIZE,
+                      num_threads=NUM_THREADS,
+                      learning_rate=DEFAULT_LEARNING_RATE,
+                      epsilon=DEFAULT_EPSILON,
+                      max_iter=MAX_ITER,
+                      sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
+                      mu_multiplier=DEFAULT_MU_MULTIPLIER)
+        model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
+        res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())
     best_config = res.minl_conf[best_config_idx, :]
@@ -445,10 +620,15 @@ def configuration_recommendation(target_data):
     best_config = np.maximum(best_config, X_min_inv)
 
     conf_map = {k: best_config[i] for i, k in enumerate(X_columnlabels)}
-    conf_map_res = {}
-    conf_map_res['status'] = 'good'
-    conf_map_res['recommendation'] = conf_map
-    conf_map_res['info'] = 'INFO: training data size is {}'.format(X_scaled.shape[0])
+    conf_map_res = dict(
+        status='good',
+        result_id=target_data['newest_result_id'],
+        recommendation=conf_map,
+        info='INFO: training data size is {}'.format(X_scaled.shape[0]),
+        pipeline_run=latest_pipeline_run.pk)
+    LOG.debug('%s: Finished selecting the next config.\n\ndata=%s\n',
+              AlgorithmType.name(algorithm), JSONUtil.dumps(conf_map_res, pprint=True))
+
     return conf_map_res
 
 
@@ -460,13 +640,21 @@ def load_data_helper(filtered_pipeline_data, workload, task_type):
 
 
 @task(base=MapWorkload, name='map_workload')
-def map_workload(target_data):
-    # Get the latest version of pipeline data that's been computed so far.
-    latest_pipeline_run = PipelineRun.objects.get_latest()
+def map_workload(map_workload_input):
+    target_data, algorithm = map_workload_input
+
     if target_data['bad']:
         assert target_data is not None
-        return target_data
+        target_data['pipeline_run'] = None
+        LOG.debug('%s: Skipping workload mapping.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+
+        return target_data, algorithm
+
+    # Get the latest version of pipeline data that's been computed so far.
+    latest_pipeline_run = PipelineRun.objects.get_latest()
     assert latest_pipeline_run is not None
+    target_data['pipeline_run'] = latest_pipeline_run.pk
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     target_workload = newest_result.workload
@@ -600,7 +788,7 @@ def map_workload(target_data):
     # Find the best (minimum) score
     best_score = np.inf
     best_workload_id = None
-    # scores_info = {workload_id: (workload_name, score)}
+    best_workload_name = None
     scores_info = {}
     for workload_id, similarity_score in list(scores.items()):
         workload_name = Workload.objects.get(pk=workload_id).name
@@ -609,8 +797,9 @@ def map_workload(target_data):
             best_workload_id = workload_id
             best_workload_name = workload_name
         scores_info[workload_id] = (workload_name, similarity_score)
-    target_data['mapped_workload'] = (best_workload_id, best_workload_name, best_score)
+    target_data.update(mapped_workload=(best_workload_id, best_workload_name, best_score),
+                       scores=scores_info)
+    LOG.debug('%s: Finished mapping the workload.\n\ndata=%s\n',
+              AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
 
-    target_data['scores'] = scores_info
-    return target_data
-#
+    return target_data, algorithm

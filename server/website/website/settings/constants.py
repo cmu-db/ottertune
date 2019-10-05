@@ -35,22 +35,55 @@ MAX_TRAIN_SIZE = 7000
 #  Batch size in GPR model
 BATCH_SIZE = 3000
 
-# Threads for TensorFlow config
+#  Threads for TensorFlow config
 NUM_THREADS = 4
 
 # ---GRADIENT DESCENT CONSTANTS---
 #  the maximum iterations of gradient descent
 MAX_ITER = 500
 
+DEFAULT_LEARNING_RATE = 0.01
+
+# ---GRADIENT DESCENT FOR GPR---
 #  a small bias when using training data points as starting points.
 GPR_EPS = 0.001
 
 DEFAULT_RIDGE = 0.01
-
-DEFAULT_LEARNING_RATE = 0.01
 
 DEFAULT_EPSILON = 1e-6
 
 DEFAULT_SIGMA_MULTIPLIER = 3.0
 
 DEFAULT_MU_MULTIPLIER = 1.0
+
+# ---GRADIENT DESCENT FOR DNN---
+DNN_TRAIN_ITER = 500
+
+DNN_EXPLORE = False
+
+DNN_EXPLORE_ITER = 500
+
+# noise scale for paramater space exploration
+DNN_NOISE_SCALE_BEGIN = 0.1
+
+DNN_NOISE_SCALE_END = 0.0
+
+DNN_DEBUG = True
+
+DNN_DEBUG_INTERVAL = 100
+
+# ---DDPG CONSTRAINTS CONSTANTS---
+#  Batch size in DDPG model
+DDPG_BATCH_SIZE = 32
+
+#  Learning rate of actor network
+ACTOR_LEARNING_RATE = 0.001
+
+#  Learning rate of critic network
+CRITIC_LEARNING_RATE = 0.001
+
+#  The impact of future reward on the decision
+GAMMA = 0.1
+
+#  The changing rate of the target network
+TAU = 0.002

@@ -3,50 +3,80 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import logging
+
 from .models import KnobCatalog, SessionKnob
-from .types import DBMSType
+from .types import DBMSType, KnobResourceType, VarType
 
+LOG = logging.getLogger(__name__)
 
-def turn_knobs_off(session, knob_names):
-    for knob_name in knob_names:
-        knob = KnobCatalog.objects.filter(dbms=session.dbms, name=knob_name).first()
-        SessionKnob.objects.create(session=session,
-                                   knob=knob,
-                                   minval=knob.minval,
-                                   maxval=knob.maxval,
-                                   tunable=False)
+GB = 1024 ** 3
 
-
-def set_knob_tuning_range(session, knob_name, minval, maxval):
-    knob = KnobCatalog.objects.filter(dbms=session.dbms, name=knob_name).first()
-    SessionKnob.objects.create(session=session,
-                               knob=knob,
-                               minval=minval,
-                               maxval=maxval,
-                               tunable=True)
+DEFAULT_TUNABLE_KNOBS = {
+    DBMSType.POSTGRES: {
+        "global.checkpoint_completion_target",
+        "global.default_statistics_target",
+        "global.effective_cache_size",
+        "global.maintenance_work_mem",
+        "global.max_wal_size",
+        "global.max_worker_processes",
+        "global.shared_buffers",
+        "global.temp_buffers",
+        "global.wal_buffers",
+        "global.work_mem",
+    }
+}
 
 
 def set_default_knobs(session):
-    if session.dbms.type == DBMSType.POSTGRES and session.dbms.version == '9.6':
-        turn_knobs_off(session, ["global.backend_flush_after", "global.bgwriter_delay",
-                                 "global.bgwriter_flush_after", "global.bgwriter_lru_multiplier",
-                                 "global.checkpoint_flush_after", "global.commit_delay",
-                                 "global.commit_siblings", "global.deadlock_timeout",
-                                 "global.effective_io_concurrency", "global.from_collapse_limit",
-                                 "global.join_collapse_limit", "global.maintenance_work_mem",
-                                 "global.max_worker_processes",
-                                 "global.min_parallel_relation_size", "global.min_wal_size",
-                                 "global.seq_page_cost", "global.wal_buffers",
-                                 "global.wal_sync_method", "global.wal_writer_delay",
-                                 "global.wal_writer_flush_after"])
+    dbtype = session.dbms.type
+    default_tunable_knobs = DEFAULT_TUNABLE_KNOBS.get(dbtype)
 
-        set_knob_tuning_range(session, "global.checkpoint_completion_target", 0.1, 0.9)
-        set_knob_tuning_range(session, "global.checkpoint_timeout", 60000, 1800000)
-        set_knob_tuning_range(session, "global.default_statistics_target", 100, 2048)
-        set_knob_tuning_range(session, "global.effective_cache_size", 4294967296, 17179869184)
-        set_knob_tuning_range(session, "global.max_parallel_workers_per_gather", 0, 8)
-        set_knob_tuning_range(session, "global.max_wal_size", 268435456, 17179869184)
-        set_knob_tuning_range(session, "global.random_page_cost", 1, 10)
-        set_knob_tuning_range(session, "global.shared_buffers", 134217728, 12884901888)
-        set_knob_tuning_range(session, "global.temp_buffers", 8388608, 1073741824)
-        set_knob_tuning_range(session, "global.work_mem", 4194304, 1073741824)
+    if not default_tunable_knobs:
+        default_tunable_knobs = set(KnobCatalog.objects.filter(
+            dbms=session.dbms, tunable=True).values_list('name', flat=True))
+
+    for knob in KnobCatalog.objects.filter(dbms=session.dbms):
+        tunable = knob.name in default_tunable_knobs
+        minval = knob.minval
+
+        if knob.vartype in (VarType.INTEGER, VarType.REAL):
+            vtype = int if knob.vartype == VarType.INTEGER else float
+
+            minval = vtype(minval)
+            knob_maxval = vtype(knob.maxval)
+
+            if knob.resource == KnobResourceType.CPU:
+                maxval = session.hardware.cpu * 2
+            elif knob.resource == KnobResourceType.MEMORY:
+                maxval = session.hardware.memory * GB
+            elif knob.resource == KnobResourceType.STORAGE:
+                maxval = session.hardware.storage * GB
+            else:
+                maxval = knob_maxval
+
+            # Special cases
+            if dbtype == DBMSType.POSTGRES:
+                if knob.name == 'global.work_mem':
+                    maxval /= 50.0
+
+            if maxval > knob_maxval:
+                maxval = knob_maxval
+
+            if maxval < minval:
+                LOG.warning(("Invalid range for session knob '%s': maxval <= minval "
+                             "(minval: %s, maxval: %s). Setting maxval to the vendor setting: %s."),
+                            knob.name, minval, maxval, knob_maxval)
+                maxval = knob_maxval
+
+            maxval = vtype(maxval)
+
+        else:
+            assert knob.resource == KnobResourceType.OTHER
+            maxval = knob.maxval
+
+        SessionKnob.objects.create(session=session,
+                                   knob=knob,
+                                   minval=minval,
+                                   maxval=maxval,
+                                   tunable=tunable)

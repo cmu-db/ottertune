@@ -3,8 +3,6 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-
-from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import OrderedDict
 
 from website.models import KnobCatalog, MetricCatalog
@@ -12,7 +10,7 @@ from website.types import BooleanType, MetricType, VarType
 
 
 # pylint: disable=no-self-use
-class BaseParser(object, metaclass=ABCMeta):
+class BaseParser:
 
     def __init__(self, dbms_obj):
         knobs = KnobCatalog.objects.filter(dbms=dbms_obj)
@@ -33,21 +31,13 @@ class BaseParser(object, metaclass=ABCMeta):
         self.true_value = 'on'
         self.false_value = 'off'
 
-    @abstractproperty
-    def base_configuration_settings(self):
-        pass
-
-    @abstractproperty
-    def knob_configuration_filename(self):
-        pass
-
-    @abstractproperty
+    @property
     def transactions_counter(self):
-        pass
+        raise NotImplementedError()
 
-    @abstractproperty
+    @property
     def latency_timer(self):
-        pass
+        raise NotImplementedError()
 
     def target_metric(self, target_objective=None):
         if target_objective == 'throughput_txn_per_sec' or target_objective is None:
@@ -61,9 +51,8 @@ class BaseParser(object, metaclass=ABCMeta):
 
         return res
 
-    @abstractmethod
     def parse_version_string(self, version_string):
-        pass
+        return version_string
 
     def convert_bool(self, bool_value, metadata):
         if isinstance(bool_value, str):
@@ -291,7 +280,8 @@ class BaseParser(object, metaclass=ABCMeta):
                 valid_metrics[name] = values[0]
             elif metric.metric_type == MetricType.COUNTER or \
                     metric.metric_type == MetricType.STATISTICS:
-                values = [int(v) for v in values if v is not None]
+                conv_fn = int if metric.vartype == VarType.INTEGER else float
+                values = [conv_fn(v) for v in values if v is not None]
                 if len(values) == 0:
                     valid_metrics[name] = 0
                 else:
@@ -336,30 +326,18 @@ class BaseParser(object, metaclass=ABCMeta):
         configuration = OrderedDict(sorted(configuration.items()))
         return configuration
 
-    def get_nondefault_knob_settings(self, knobs):
-        nondefault_settings = OrderedDict()
-        for knob_name, metadata in list(self.knob_catalog_.items()):
-            if metadata.tunable is True:
-                continue
-            if knob_name not in knobs:
-                continue
-            knob_value = knobs[knob_name]
-            if knob_value != metadata.default:
-                nondefault_settings[knob_name] = knob_value
-        return nondefault_settings
-
     def format_bool(self, bool_value, metadata):
         return self.true_value if bool_value == BooleanType.TRUE else self.false_value
 
     def format_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
-        return enumvals[enum_value]
+        return enumvals[int(round(enum_value))]
 
     def format_integer(self, int_value, metadata):
         return int(round(int_value))
 
     def format_real(self, real_value, metadata):
-        return float(real_value)
+        return round(float(real_value), 3)
 
     def format_string(self, string_value, metadata):
         return string_value

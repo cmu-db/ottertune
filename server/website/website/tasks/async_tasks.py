@@ -259,7 +259,7 @@ def gen_lhs_samples(knobs, nsamples):
     for sidx in range(nsamples):
         lhs_samples.append({})
         for fidx in range(nfeats):
-            lhs_samples[-1][names[fidx] = samples[sidx][fidx]
+            lhs_samples[-1][names[fidx]] = samples[sidx][fidx]
 
     return lhs_samples
 

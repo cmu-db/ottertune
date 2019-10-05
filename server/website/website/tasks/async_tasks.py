@@ -7,6 +7,8 @@ import random
 import queue
 import numpy as np
 import json
+from pyDOE import lhs
+from scipy.stats import uniform
 
 from celery.task import task, Task
 from celery.utils.log import get_task_logger
@@ -38,7 +40,6 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
-from .lhs import add_lhs_samples
 
 
 LOG = get_task_logger(__name__)
@@ -169,7 +170,8 @@ def aggregate_target_results(result_id, algorithm):
     elif newest_result.session.tuning_session == 'lhs':
         samples = json.loads(newest_result.session.lhs_samples)
         if len(samples) == 0:
-            samples = add_lhs_samples(newest_result.session, 100)
+            knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
+            samples = gen_lhs_samples(knobs, 100)
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(samples, pprint=True))
         samples = samples.pop()
@@ -234,6 +236,33 @@ def gen_random_data(knobs):
                 'Unknown variable type: {}'.format(knob["vartype"]))
 
     return random_knob_result
+
+def gen_lhs_samples(knobs, nsamples):
+    names = []
+    maxvals = []
+    minvals = []
+
+    for knob in knobs:
+        names.append(knob['name'])
+        maxvals.append(knob['maxval'])
+        minvals.append(knob['minval'])
+
+    nfeats = len(knobs)
+    samples = lhs(nfeats, samples=nsamples, criterion='maximin')
+    maxvals = np.array(maxvals)
+    minvals = np.array(minvals)
+    scales = maxvals - minvals
+    for fidx in range(nfeats):
+        samples[:, fidx] = uniform(loc=minvals[fidx], scale=scales[fidx]).ppf(samples[:, fidx])
+    
+    lhs_samples = []
+    for sidx in range(nsamples):
+        lhs_samples.append({})
+        for fidx in range(nfeats):
+            lhs_samples[-1][names[fidx] = samples[sidx][fidx]
+
+    return lhs_samples
+
 
 
 @task(base=TrainDDPG, name='train_ddpg')

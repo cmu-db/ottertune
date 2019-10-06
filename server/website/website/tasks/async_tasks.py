@@ -151,7 +151,23 @@ def aggregate_target_results(result_id, algorithm):
     # implement a sampling technique to generate new training data).
     newest_result = Result.objects.get(pk=result_id)
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
-    if not has_pipeline_data or newest_result.session.tuning_session == 'randomly_generate':
+    if newest_result.session.tuning_session == 'lhs':
+        allSamples = json.loads(newest_result.session.lhs_samples)
+        if len(samples) == 0:
+            knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
+            allSamples = gen_lhs_samples(knobs, 100)
+            LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
+                      AlgorithmType.name(algorithm), JSONUtil.dumps(allSamples[:5], pprint=True))
+        samples = allSamples.pop()
+        agg_data = DataUtil.aggregate_data(result)
+        agg_data['newest_result_id'] = result_id
+        agg_data['bad'] = True
+        agg_data['config_recommend'] = samples
+        newest_result.session.samples = json.dumps(allSamples)
+        LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+
+    elif not has_pipeline_data or newest_result.session.tuning_session == 'randomly_generate':
         if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
             LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
 
@@ -165,21 +181,6 @@ def aggregate_target_results(result_id, algorithm):
         agg_data['bad'] = True
         agg_data['config_recommend'] = random_knob_result
         LOG.debug('%s: Finished generating a random config.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
-
-    elif newest_result.session.tuning_session == 'lhs':
-        samples = json.loads(newest_result.session.lhs_samples)
-        if len(samples) == 0:
-            knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
-            samples = gen_lhs_samples(knobs, 100)
-            LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(samples, pprint=True))
-        samples = samples.pop()
-        agg_data['newest_result_id'] = result_id
-        agg_data['bad'] = True
-        agg_data['config_recommend'] = samples
-        newest_result.session.samples = json.dumps(samples)
-        LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
 
     else:
@@ -257,9 +258,9 @@ def gen_lhs_samples(knobs, nsamples):
     
     lhs_samples = []
     for sidx in range(nsamples):
-        lhs_samples.append({})
+        lhs_samples.append(dict())
         for fidx in range(nfeats):
-            lhs_samples[-1][names[fidx]] = samples[sidx][fidx]
+            lhs_samples[-1][names[fidx]] = float(samples[sidx][fidx])
 
     return lhs_samples
 

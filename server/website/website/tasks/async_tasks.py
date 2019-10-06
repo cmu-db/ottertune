@@ -164,7 +164,8 @@ def aggregate_target_results(result_id, algorithm):
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = samples
-        newest_result.session.samples = json.dumps(allSamples)
+        newest_result.session.lhs_samples = json.dumps(allSamples)
+        newest_result.session.save()
         LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data))
 

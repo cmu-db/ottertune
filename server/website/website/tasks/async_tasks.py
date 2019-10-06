@@ -159,13 +159,14 @@ def aggregate_target_results(result_id, algorithm):
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
                       AlgorithmType.name(algorithm), JSONUtil.dumps(allSamples[:5], pprint=True))
         samples = allSamples.pop()
+        result = Result.objects.filter(pk=result_id)
         agg_data = DataUtil.aggregate_data(result)
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = samples
         newest_result.session.samples = json.dumps(allSamples)
         LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+                  AlgorithmType.name(algorithm), str(agg_data))
 
     elif not has_pipeline_data or newest_result.session.tuning_session == 'randomly_generate':
         if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
@@ -181,7 +182,7 @@ def aggregate_target_results(result_id, algorithm):
         agg_data['bad'] = True
         agg_data['config_recommend'] = random_knob_result
         LOG.debug('%s: Finished generating a random config.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+                  AlgorithmType.name(algorithm), str(agg_data))
 
     else:
         # Aggregate all knob config results tried by the target so far in this
@@ -245,8 +246,8 @@ def gen_lhs_samples(knobs, nsamples):
 
     for knob in knobs:
         names.append(knob['name'])
-        maxvals.append(knob['maxval'])
-        minvals.append(knob['minval'])
+        maxvals.append(float(knob['maxval']))
+        minvals.append(float(knob['minval']))
 
     nfeats = len(knobs)
     samples = lhs(nfeats, samples=nsamples, criterion='maximin')
@@ -397,7 +398,7 @@ def configuration_recommendation(recommendation_input):
             recommendation=target_data['config_recommend'],
             pipeline_run=target_data['pipeline_run'])
         LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+                  AlgorithmType.name(algorithm), str(target_data))
         return target_data_res
 
     # Load mapped workload data
@@ -677,7 +678,7 @@ def map_workload(map_workload_input):
         assert target_data is not None
         target_data['pipeline_run'] = None
         LOG.debug('%s: Skipping workload mapping.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+                  AlgorithmType.name(algorithm), str(target_data))
 
         return target_data, algorithm
 

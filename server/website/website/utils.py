@@ -36,12 +36,10 @@ class JSONUtil(object):
     @staticmethod
     def dumps(config, pprint=False, sort=False):
         def default(obj):
-            if type(obj).__module__ == np.__name__:
-                   if isinstance(obj, np.ndarray):
-                    return obj.tolist()
-                else:
-                    return obj.item()
-            raise TypeError('Unknown type:', type(obj))
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            else:
+                return obj.item()
 
         indent = 4 if pprint is True else None
         if sort is True:

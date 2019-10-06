@@ -475,7 +475,7 @@ def loop():
     upload_result()
 
     # get result
-    result = get_result()
+    result = get_result()['recommendation']
 
     # change config
     change_conf(result)

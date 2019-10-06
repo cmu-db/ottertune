@@ -244,11 +244,13 @@ def gen_lhs_samples(knobs, nsamples):
     names = []
     maxvals = []
     minvals = []
+    types = []
 
     for knob in knobs:
         names.append(knob['name'])
         maxvals.append(float(knob['maxval']))
         minvals.append(float(knob['minval']))
+        types.append(knob['vartype'])
 
     nfeats = len(knobs)
     samples = lhs(nfeats, samples=nsamples, criterion='maximin')
@@ -262,7 +264,12 @@ def gen_lhs_samples(knobs, nsamples):
     for sidx in range(nsamples):
         lhs_samples.append(dict())
         for fidx in range(nfeats):
-            lhs_samples[-1][names[fidx]] = float(samples[sidx][fidx])
+            if types[fidx] == VarType.INTEGER:
+                lhs_samples[-1][names[fidx]] = int(round(samples[sidx][fidx]))
+            elif types[fidx] == VarType.REAL:
+                lhs_samples[-1][names[fidx]] = float(samples[sidx][fidx])
+            else:
+                LOG.debug("LHS type not supported: %s", types[fidx])
 
     return lhs_samples
 

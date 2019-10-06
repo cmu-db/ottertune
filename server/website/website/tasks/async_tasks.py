@@ -153,7 +153,7 @@ def aggregate_target_results(result_id, algorithm):
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
     if newest_result.session.tuning_session == 'lhs':
         allSamples = json.loads(newest_result.session.lhs_samples)
-        if len(samples) == 0:
+        if len(allSamples) == 0:
             knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
             allSamples = gen_lhs_samples(knobs, 100)
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',

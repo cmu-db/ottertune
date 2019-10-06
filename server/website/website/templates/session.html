@@ -1,18 +1,76 @@
+
 {% extends "base.html" %}
 
 {% load util_functions %}
 
 {% block body %}
 
+<style type="text/css">
+.metric-scrollbar {
+position: relative;
+overflow-y: auto;
+display: block;
+height: 400px;
+padding-left: 25px;
+border: 2px solid #F5F5F5;
+}
+
+.knob-scrollbar {
+position: relative;
+overflow-y: auto;
+display: block;
+height: 250px;
+padding-left: 25px;
+border: 2px solid #F5F5F5;
+}
+
+caption > h4 { 
+  display: inline-block;
+  position: relative;
+  left: 50%; 
+  transform: translateX(-50%); }
+caption span {float: right;}
+
+.session-font {
+  font-size: 13px;
+}
+
+.session-searchbar {
+  height: 90%;
+}
+
+.my-custom-scrollbar::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.my-custom-scrollbar::-webkit-scrollbar:vertical {
+    width: 7px;
+}
+
+.my-custom-scrollbar::-webkit-scrollbar:horizontal {
+    height: 7px;
+}
+
+.my-custom-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
+}
+
+</style>
+
 <div id="session" class="container">
 <table class="table table-striped table-bordered table-condensed table-hover">
-    <caption><h4>{{ labels.title }} (<a href="{% url 'edit_session' project.pk session.pk %}">edit</a>)
-		    (<a href="{% url 'edit_knobs' project.pk session.pk %}">edit knobs</a>)
-	    </h4></caption>
+    <caption >
+        <h4> {{ labels.title }}</h4>
+        <span> (<a href="{% url 'edit_session' project.pk session.pk %}">edit</a>)
+            (<a href="{% url 'edit_knobs' project.pk session.pk %}">edit knobs</a>)
+        </span>
+    </caption>
     <tbody>
     <tr>
-        <td><div class="text-right">{{ labels.name }}</div></td>
-        <td>{{ session.name }}</td>
+        <td style="width: 50%"><div class="text-right">{{ labels.name }}</div></td>
+        <td style="width: 50%">{{ session.name }}</td>
     </tr>
     {% if session.description %}
     <tr>
@@ -59,144 +117,120 @@
 <hr>
 
 <div class="container">
-<div class="row">
-
-<div id="sidebar" class="col-md-3">
-<div id="dbmss">
-    <div><h4>DBMS</h4></div>
-    <div class="boxbody checkbox">
-        <ul>
-        {% for dbms_key, dbms in dbmss.items %}
-        <li><label><input type="checkbox" name="dbms" value="{{ dbms_key }}"/> {{ dbms.full_name }}</label></li>
-        {% endfor %}
-        </ul>
-    </div>
-</div>
-<div id="workload">
-    <div><h4>Workload</h4></div>
-    <div class="boxbody radio">
-        <ul>
-        <li><label><input type="radio" name="workload" value="show_none" /> Display none</label></li>
-        </ul>
-        <ul>
-        {% for wkld, confs in workloads.items %}
-        <li>
-        <label><input id="workload_{{ wkld }}" type="radio" name="workload" value="{{ wkld }}" /> {{ wkld }}</label>
-        <div id="div_specific_{{ wkld }}">
-        <ul>
-        {% for conf in confs %}
-        <li><label><input id="specific_{{ wkld }}_{{ conf.pk }}" type="checkbox" name="specific" value="{{ conf.pk }}"/> {{ conf.name }}</label></li>
-        {% endfor %}
-        </ul>
+  <div class="row">
+    <div id="sidebar" class="col-md-3" style="width:30%">
+      <div id="dbmss">
+        
+        <div><h4>DBMS</h4></div>
+          <div class="boxbody checkbox session-font">
+            <ul>
+              {% for dbms_key, dbms in dbmss.items %}
+              <li><label><input type="checkbox" name="dbms" value="{{ dbms_key }}"/> {{ dbms.full_name }}</label></li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
-        </li>
-        {% endfor %}
-        </ul>
+
+        <div id="workload">
+          <div><h4>Workload</h4></div>
+          <div class="boxbody radio session-font">
+            <ul>
+              <li><label><input type="radio" name="workload" value="show_none" /> Display none</label></li>
+            </ul>
+            <ul>
+              {% for wkld, confs in workloads.items %}
+              <li>
+                <label><input id="workload_{{ wkld }}" type="radio" name="workload" value="{{ wkld }}" /> {{ wkld }}</label>
+                <div id="div_specific_{{ wkld }}">
+                  <ul>
+                    {% for conf in confs %}
+                    <li><label><input id="specific_{{ wkld }}_{{ conf.pk }}" type="checkbox" name="specific" value="{{ conf.pk }}"/> {{ conf.name }}</label></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <div id="metric">
+            <div><h4>Plot Metrics</h4></div>
+            <input type="search" class="form-control session-searchbar session-font" id="metricSearch" placeholder="Filter Metrics">
+            <div class="checkbox boxbody metric-scrollbar session-font" >
+                <table id="metricTable">
+                    {% for metric in metrics %}
+                    <tr>
+                        <td style="background-color: white;">
+                        <input type="checkbox" name="metric" value="{{ metric }}"> {{ metric_meta|get_item:metric|get_attr:"pprint" }}
+                        </td>
+                    </tr>
+                    {% endfor %} 
+                </table>
+            </div> 
+        </div>
+
+        <div id="knob">
+            <div><h4>Plot Knobs</h4></div>
+            <input type="search" class="form-control session-searchbar session-font" id="knobSearch" placeholder="Filter Knobs">
+            <div class="checkbox boxbody knob-scrollbar session-font" >
+                <table id="knobTable">
+                    {% for knob_name in knob_names %}
+                    <tr>
+                        <td style="background-color: white">
+                        <input type="checkbox" name="knob" value="{{ knob_name }}" > {{ knob_name }}
+                        </td>
+                    </tr>
+                    {% endfor %}  
+                </table>
+            </div>
+        </div>
+
     </div>
-</div>
-<!-- <div id="additional_filter">
-    <div><h4>Additional Filter</h4></div>
-    <div class="boxbody">
-        <ul>
-        {% for filter in filters %}
-        <li><label>{{ filter.print }}<select class="selectpicker" name="additional_{{ filter.field }}">
-            <option value="select_all">Select All</option>
-            {% for value in filter.values %}
-            <option value="{{ value }}">{{ value }}</option>
+
+
+
+<div class="col-md-9" style="width: 70%">
+    <div id="configbar" class="row">
+        <div class="col-sm-10">
+        Show the last
+        <select id="results_per_page" class="selectpicker show-tick" data-width="fit" data-style="btn-default">
+            {% for n_res in results_per_page %}
+            <option value="{{ n_res }}">{{ n_res }}</option>
             {% endfor %}
-        </select></label></li>
-        {% endfor %}
-        </ul>
+        </select> results
+        </div>
+        <div class="col-sm-2 checkbox">
+            <label><input id="equidistant" class="option" name="equidistant" type="checkbox"/> Equidistant</label>
+        </div>
     </div>
-</div> -->
-<div id="metric">
-    <div><h4>Plot Metrics</h4></div>
-    <div class="checkbox boxbody">
-        <table id="metrictable">
-            <thead style="display:none;">
+
+    <div id="content" class="col-sm-12">
+        <div id="plotgrid" class="plotcontainer row"></div>
+        <div id="result_table">
+            <h4>Filtered Results</h4>
+            <table id="dataTable">
+            <thead>
                 <tr>
-                    <th>Metrics</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
 
-                {% for metric in metrics %}
-                <tr>
-                    <td style="background-color: white">
-                    <input type="checkbox" name="metric" value="{{ metric }}" > {{ metric_meta|get_item:metric|get_attr:"pprint" }}
-                    </td>
-                </tr>
-                {% endfor %}  
             </tbody>
-        </table>
+            </table>
+        </div>
+
+        <!-- table tools stuff -->
+        <link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/jquery.dataTables.css'>
+        <script type="text/javascript" src='{{ STATIC_URL }}js/jquery.dataTables.min.js'></script> 
+        <script type="text/javascript" src='{{ STATIC_URL }}js/FixedHeader.min.js'></script>
     </div>
-</div>
-<div id="knob">
-    <div><h4>Plot Knobs</h4></div>
-    <div class="checkbox boxbody">
-        <table id="knobtable">
-            <thead style="display:none;">
-                <tr>
-                    <th>Knobs</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                {% for knob_name in knob_names %}
-                <tr>
-                    <td style="background-color: white">
-                    <input type="checkbox" name="knob" value="{{ knob_name }}" > {{ knob_name }}
-                    </td>
-                </tr>
-                {% endfor %}  
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
-
-<div class="col-md-9">
-<div id="configbar" class="row">
-    <div class="col-sm-10">
-    Show the last
-    <select id="results_per_page" class="selectpicker show-tick" data-width="fit" data-style="btn-default">
-        {% for n_res in results_per_page %}
-        <option value="{{ n_res }}">{{ n_res }}</option>
-        {% endfor %}
-    </select> results
-    </div>
-    <div class="col-sm-2 checkbox">
-        <label><input id="equidistant" class="option" name="equidistant" type="checkbox"/> Equidistant</label>
-    </div>
-</div>
-
-<div id="content" class="col-sm-10">
-    <div id="plotgrid" class="plotcontainer row"></div>
-    <div id="result_table">
-        <h4>Filtered Results</h4>
-        <table id="dataTable">
-        <thead>
-            <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-        </table>
-    </div>
-
-<!-- table tools stuff -->
-<link rel='stylesheet' type='text/css' href='{{ STATIC_URL }}css/jquery.dataTables.css'>
-<script type="text/javascript" src='{{ STATIC_URL }}js/jquery.dataTables.min.js'></script> 
-<script type="text/javascript" src='{{ STATIC_URL }}js/FixedHeader.min.js'></script>
-</div>
-
 </div>
 
 </div>
@@ -248,4 +282,29 @@ $(function() {
 
 </script>
 
+<script>
+$(document).ready(function(){
+  $("#metricSearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#metricTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+
+<script>
+$(document).ready(function(){
+  $("#knobSearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#knobTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
 {% endblock body %}
+
+

@@ -475,10 +475,10 @@ def loop():
     upload_result()
 
     # get result
-    get_result()
+    result = get_result()
 
     # change config
-    change_conf()
+    change_conf(result)
 
 
 @task

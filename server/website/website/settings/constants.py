@@ -83,7 +83,7 @@ ACTOR_LEARNING_RATE = 0.001
 CRITIC_LEARNING_RATE = 0.001
 
 #  The impact of future reward on the decision
-GAMMA = 0.1
+GAMMA = 0.9
 
 #  The changing rate of the target network
 TAU = 0.002

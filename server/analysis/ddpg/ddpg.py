@@ -198,7 +198,6 @@ class DDPG(object):
         else:
             # Build Network
             self._build_network()
-            LOG.info('Finish Initializing Networks')
 
         self.replay_memory = PrioritizedReplayMemory(capacity=memory_size)
         self.noise = OUProcess(n_actions)

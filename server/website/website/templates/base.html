@@ -44,56 +44,60 @@
   height: 32px;
   width: 150px;
 }
+
 </style>
+ 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
 {% endblock %}
 </head>
 
-<body>
+<body style="padding-top: 70px" >
 
 <!-- Navigation -->
-<nav class="navbar navbar-default fixed-top topnav" role="navigation">
-<div class="container">
+<nav class="navbar navbar-default fixed-top topnav navbar-fixed-top " role="navigation">
+  <div class="container">
     <div class="navbar-header">
-	   <a class="navbar-brand .text-warning" href="{% url 'home_projects' %}">OtterTune</a>
-	</div>
-    <div class="navbar-collapse collapse">
-        <div class="navbar-right">
-            {% if user.is_authenticated %}
-            <span class="navbar-text">Hello, {{ user.username }}</span>
-            <a class="btn btn-default navbar-btn2" href="{% url 'change_password' %}">Change Password</a>
-            <a class="btn btn-default navbar-btn2" href="{% url 'logout' %}">Sign Out</a>
-            {% else %}
-            <form class="form-inline navbar-form2" role="form" action="{% url 'login' %}" method="POST" style="margin:0 0 0 0">
-                {% csrf_token %}
-                <input type="text" placeholder="username" class="form-control form-control2" name="username">
-                <input type="password" placeholder="password" class="form-control form-control2" name="password">
-                <button type="submit" class="btn btn-default navbar-btn2"">Sign in</button>
-            </form>
-        </div>
-        {% endif %}
+      <a class="navbar-brand .text-warning" href="{% url 'home_projects' %}">OtterTune</a>
     </div>
-</div>
-</div>
+    <div class="navbar-collapse collapse">
+      {% if user.is_authenticated %}
+        <div class="dropdown navbar-right"><a class="dropdown-toggle navbar-text" style="font-size: 18px;" data-toggle="dropdown" href="#">Hello, {{ user.username }} <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a  href="{% url 'change_password' %}">Change Password</a></li>
+            <li><a  href="{% url 'logout' %}">Sign Out</a></li>
+          </ul>
+        </div>
+      {% else %}
+        <div class="navbar-right">
+          <form class="form-inline navbar-form2" role="form" action="{% url 'login' %}" method="POST" style="margin:0 0 0 0">
+            {% csrf_token %}
+            <input type="text" placeholder="username" class="form-control form-control2" name="username">
+            <input type="password" placeholder="password" class="form-control form-control2" name="password">
+            <button type="submit" class="btn btn-default navbar-btn2"">Sign in</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </nav>
 
-	{% if form.errors %}
-	{% for field in form %}
-	{% for error in field.errors %}
-	<div class="alert alert-danger">
-		<strong>{{ error|escape }}</strong>
-	</div>
-	{% endfor %}
-	{% endfor %}
-	{% for error in form.non_field_errors %}
-	<div class="alert alert-danger">
-		<strong>{{ error|escape }}</strong>
-	</div>
-	{% endfor %}
-	{% endif %}
-
-	{% block body %} {% endblock body %}
+  {% if form.errors %}
+  {% for field in form %}
+  {% for error in field.errors %}
+  <div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+  </div>
+  {% endfor %}
+  {% endfor %}
+  {% for error in form.non_field_errors %}
+  <div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% block body %} {% endblock body %}
 
 </body>
 </html>
+

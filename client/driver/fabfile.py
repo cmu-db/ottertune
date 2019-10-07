@@ -228,7 +228,8 @@ def run_controller():
 @task
 def signal_controller():
     pidfile = os.path.join(CONF['controller_home'], 'pid.txt')
-    pid = int(open(pidfile).read())
+    with open(pidfile, 'r') as f:
+        pid = int(f.read())
     cmd = 'sudo kill -2 {}'.format(pid)
     with lcd(CONF['controller_home']):  # pylint: disable=not-context-manager
         local(cmd)
@@ -287,6 +288,9 @@ def upload_result(result_dir=None, prefix=None):
     if response.status_code != 200:
         raise Exception('Error uploading result.\nStatus: {}\nMessage: {}\n'.format(
             response.status_code, response.content))
+
+    for f in files.values():  # pylint: disable=not-an-iterable
+        f.close()
 
     LOG.info(response.content)
 
@@ -372,7 +376,8 @@ def add_udf():
 
 
 @task
-def upload_batch(result_dir, sort=True):
+def upload_batch(result_dir=None, sort=True):
+    result_dir = result_dir or CONF['save_path']
     sort = _parse_bool(sort)
     results = glob.glob(os.path.join(result_dir, '*__summary.json'))
     if sort:
@@ -381,7 +386,9 @@ def upload_batch(result_dir, sort=True):
 
     LOG.info('Uploading %d samples from %s...', count, result_dir)
     for i, result in enumerate(results):
-        prefix = os.path.basename(result).split('__')[0]
+        prefix = os.path.basename(result)
+        prefix_len = os.path.basename(result).find('_') + 2
+        prefix = prefix[:prefix_len]
         upload_result(result_dir=result_dir, prefix=prefix)
         LOG.info('Uploaded result %d/%d: %s__*.json', i + 1, count, prefix)
 
@@ -430,19 +437,31 @@ def restore_database():
 
 
 def _ready_to_start_oltpbench():
-    return os.path.exists(CONF['controller_log']) and \
-        'Output the process pid to' in open(CONF['controller_log']).read()
+    ready = False
+    if os.path.exists(CONF['controller_log']):
+        with open(CONF['controller_log'], 'r') as f:
+            content = f.read()
+        ready = 'Output the process pid to' in content
+    return ready
 
 
 def _ready_to_start_controller():
-    return os.path.exists(CONF['oltpbench_log']) and \
-        'Warmup complete, starting measurements' in open(CONF['oltpbench_log']).read()
+    ready = False
+    if os.path.exists(CONF['oltpbench_log']):
+        with open(CONF['oltpbench_log'], 'r') as f:
+            content = f.read()
+        ready = 'Warmup complete, starting measurements' in content
+    return ready
 
 
 def _ready_to_shut_down_controller():
-    pid_file_path = os.path.join(CONF['controller_home'], 'pid.txt')
-    return os.path.exists(pid_file_path) and os.path.exists(CONF['oltpbench_log']) and \
-        'Output throughput samples into file' in open(CONF['oltpbench_log']).read()
+    pidfile = os.path.join(CONF['controller_home'], 'pid.txt')
+    ready = False
+    if os.path.exists(pidfile) and os.path.exists(CONF['oltpbench_log']):
+        with open(CONF['oltpbench_log'], 'r') as f:
+            content = f.read()
+        ready = 'Output throughput samples into file' in content
+    return ready
 
 
 def clean_logs():

@@ -13,6 +13,7 @@ import com.controller.util.json.JSONStringer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
@@ -32,6 +33,10 @@ public class OracleCollector extends DBCollector {
 
   private static final String METRICS_SQL = "select name, value from v$sysstat";
 
+  private static final String METRICS_SQL2 = "select stat_name, value from v$sys_time_model";
+
+  private static final String METRICS_SQL3 = "select * from v$system_event";
+
   public OracleCollector(String oriDBUrl, String username, String password) {
     try {
       Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
@@ -43,7 +48,7 @@ public class OracleCollector extends DBCollector {
       }
 
       // Collect DBMS parameters
-      out = statement.executeQuery(PARAMETERS_SQL_WITH_HIDDEN);
+      out = statement.executeQuery(PARAMETERS_SQL);
       while (out.next()) {
         dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
       }
@@ -53,6 +58,28 @@ public class OracleCollector extends DBCollector {
       while (out.next()) {
         dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
       }
+
+      out = statement.executeQuery(METRICS_SQL2);
+      while (out.next()) {
+        dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+      }
+
+      out = statement.executeQuery(METRICS_SQL3);
+      ResultSetMetaData meta = out.getMetaData();
+      int columnCount = meta.getColumnCount();
+      String[] columnNames = new String[columnCount];
+      for (int i = 0; i < columnCount; ++i) {
+        columnNames[i] = meta.getColumnName(i + 1).toLowerCase();
+      }
+      while (out.next()) {
+        String eventName = out.getString(1).toLowerCase();
+        for (int i = 2; i <= columnCount; ++i) {
+          String name = eventName + "." + columnNames[i - 1];
+          Object value = out.getObject(i);
+          dbMetrics.put(name, String.valueOf(value));
+        }
+      }
+
       conn.close();
     } catch (SQLException e) {
       LOG.error("Error while collecting DB parameters: " + e.getMessage());

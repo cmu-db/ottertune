@@ -67,8 +67,8 @@ EXCLUDE_DIRECTORIES = [
     # Django manage.py extensions
     os.path.join(OTTERTUNE_DIR, "server/website/website/management"),
 
-    # Old management scripts
-    os.path.join(OTTERTUNE_DIR, "server/website/script/management"),
+    # Stand-alone scripts
+    os.path.join(OTTERTUNE_DIR, "server/website/script"),
 ]
 
 # Files that should NOT be checked

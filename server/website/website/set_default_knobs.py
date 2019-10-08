@@ -10,8 +10,8 @@ from .types import DBMSType, KnobResourceType, VarType
 
 LOG = logging.getLogger(__name__)
 
-GB = 1024 ** 3
-
+# Default tunable knobs by DBMS. If a DBMS is not listed here, the set of
+# tunable knobs in the KnobCatalog will be used instead.
 DEFAULT_TUNABLE_KNOBS = {
     DBMSType.POSTGRES: {
         "global.checkpoint_completion_target",
@@ -26,6 +26,24 @@ DEFAULT_TUNABLE_KNOBS = {
         "global.work_mem",
     }
 }
+
+# Bytes in a GB
+GB = 1024 ** 3
+
+# Default minval when set to None
+MINVAL = 0
+
+# Default maxval when set to None
+MAXVAL = 192 * GB
+
+# Percentage of total CPUs to use for maxval
+CPU_PERCENT = 2.0
+
+# Percentage of total memory to use for maxval
+MEMORY_PERCENT = 0.8
+
+# Percentage of total storage to use for maxval
+STORAGE_PERCENT = 0.8
 
 
 def set_default_knobs(session):
@@ -43,15 +61,15 @@ def set_default_knobs(session):
         if knob.vartype in (VarType.INTEGER, VarType.REAL):
             vtype = int if knob.vartype == VarType.INTEGER else float
 
-            minval = vtype(minval)
-            knob_maxval = vtype(knob.maxval)
+            minval = vtype(minval) if minval is not None else MINVAL
+            knob_maxval = vtype(knob.maxval) if knob.maxval is not None else MAXVAL
 
             if knob.resource == KnobResourceType.CPU:
-                maxval = session.hardware.cpu * 2
+                maxval = session.hardware.cpu * CPU_PERCENT
             elif knob.resource == KnobResourceType.MEMORY:
-                maxval = session.hardware.memory * GB
+                maxval = session.hardware.memory * GB * MEMORY_PERCENT
             elif knob.resource == KnobResourceType.STORAGE:
-                maxval = session.hardware.storage * GB
+                maxval = session.hardware.storage * GB * STORAGE_PERCENT
             else:
                 maxval = knob_maxval
 

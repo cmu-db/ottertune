@@ -31,7 +31,7 @@
             "project": 1,
             "upload_code": "1234567890",
             "tuning_session": "no_tuning_session",
-            "target_objective": null,
+            "target_objective": "throughput_txn_per_sec",
             "creation_time": "2017-11-30T02:00:49.611Z", 
             "last_update": "2017-11-30T02:00:49.611Z"
         }, 

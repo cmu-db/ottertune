@@ -8,12 +8,14 @@ from collections import OrderedDict
 from website.models import KnobCatalog, KnobUnitType, MetricCatalog
 from website.types import BooleanType, MetricType, VarType
 from website.utils import ConversionUtil
+from .. import target_objectives
 
 
 # pylint: disable=no-self-use
 class BaseParser:
 
     def __init__(self, dbms_obj):
+        self.dbms_id = int(dbms_obj.pk)
         knobs = KnobCatalog.objects.filter(dbms=dbms_obj)
         self.knob_catalog_ = {k.name: k for k in knobs}
         self.tunable_knob_catalog_ = {
@@ -36,26 +38,6 @@ class BaseParser:
         self.time_system = ConversionUtil.DEFAULT_TIME_SYSTEM
         self.min_bytes_unit = 'kB'
         self.min_time_unit = 'ms'
-
-    @property
-    def transactions_counter(self):
-        raise NotImplementedError()
-
-    @property
-    def latency_timer(self):
-        raise NotImplementedError()
-
-    def target_metric(self, target_objective=None):
-        if target_objective == 'throughput_txn_per_sec' or target_objective is None:
-            # throughput
-            res = self.transactions_counter
-        elif target_objective == '99th_lat_ms':
-            # 99 percentile latency
-            res = self.latency_timer
-        else:
-            raise Exception("Target Objective {} Not Supported".format(target_objective))
-
-        return res
 
     def parse_version_string(self, version_string):
         return version_string
@@ -178,38 +160,47 @@ class BaseParser:
         return knob_data
 
     def _check_knob_num_in_range(self, value, mdata):
-        return value >= float(mdata.minval) and value <= float(mdata.maxval)
+        return float(mdata.minval) <= value <= float(mdata.maxval)
 
     def _check_knob_bool_val(self, value):
         if isinstance(str, value):
             value = value.lower()
         return value in self.valid_true_val or value in self.valid_false_val
 
-    def convert_dbms_metrics(self, metrics, observation_time, target_objective=None):
-        #         if len(metrics) != len(self.numeric_metric_catalog_):
-        #             raise Exception('The number of metrics should be equal!')
+    def convert_dbms_metrics(self, metrics, observation_time, target_objective):
         metric_data = {}
-        for name, metadata in list(self.numeric_metric_catalog_.items()):
+        # Same as metric_data except COUNTER metrics are not divided by the time
+        base_metric_data = {}
+
+        for name, metadata in self.numeric_metric_catalog_.items():
             value = metrics[name]
-            if metadata.metric_type == MetricType.COUNTER:
-                converted = self.convert_integer(value, metadata)
-                metric_data[name] = float(converted) / observation_time
-            elif metadata.metric_type == MetricType.STATISTICS:
-                converted = self.convert_integer(value, metadata)
-                metric_data[name] = float(converted)
+
+            if metadata.vartype == VarType.INTEGER:
+                converted = float(self.convert_integer(value, metadata))
+            elif metadata.vartype == VarType.REAL:
+                converted = self.convert_real(value, metadata)
             else:
-                raise Exception(
+                raise ValueError(
+                    ("Found non-numeric metric '{}' in the numeric "
+                     "metric catalog: value={}, type={}").format(
+                         name, value, VarType.name(metadata.vartype)))
+
+            if metadata.metric_type == MetricType.COUNTER:
+                assert isinstance(converted, float)
+                base_metric_data[name] = converted
+                metric_data[name] = converted / observation_time
+            elif metadata.metric_type == MetricType.STATISTICS:
+                assert isinstance(converted, float)
+                base_metric_data[name] = converted
+                metric_data[name] = converted
+            else:
+                raise ValueError(
                     'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
-        if target_objective is not None and self.target_metric(target_objective) not in metric_data:
-            raise Exception("Cannot find objective function")
-
-        if target_objective is not None:
-            metric_data[target_objective] = metric_data[self.target_metric(target_objective)]
-        else:
-            # default
-            metric_data['throughput_txn_per_sec'] = \
-                metric_data[self.target_metric(target_objective)]
+        target_objective_instance = target_objectives.get_target_objective_instance(
+            self.dbms_id, target_objective)
+        metric_data[target_objective] = target_objective_instance.compute(
+            base_metric_data, observation_time)
 
         return metric_data
 
@@ -354,9 +345,6 @@ class BaseParser:
     def format_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
         return enumvals[int(round(enum_value))]
-
-    # def format_integer(self, int_value, metadata):
-    #     return int(round(int_value))
 
     def format_integer(self, int_value, metadata):
         int_value = int(round(int_value))

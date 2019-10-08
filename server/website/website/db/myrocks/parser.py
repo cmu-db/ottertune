@@ -8,18 +8,11 @@ import re
 from collections import OrderedDict
 
 from ..base.parser import BaseParser
+from .. import target_objectives
 from website.types import MetricType, VarType
 
 
 class MyRocksParser(BaseParser):
-
-    @property
-    def transactions_counter(self):
-        return 'session_status.questions'
-
-    @property
-    def latency_timer(self):
-        raise NotImplementedError()
 
     def parse_version_string(self, version_string):
         dbms_version = version_string.split(',')[0]
@@ -145,28 +138,42 @@ class MyRocksParser(BaseParser):
             valid_metrics, self.metric_catalog_, default_value='0')
         return valid_metrics, diffs
 
-    def convert_dbms_metrics(self, metrics, observation_time, target_objective=None):
+    def convert_dbms_metrics(self, metrics, observation_time, target_objective):
+        base_metric_data = {}
         metric_data = {}
         for name, value in list(metrics.items()):
             prt_name = self.partial_name(name)
+
             if prt_name in self.numeric_metric_catalog_:
                 metadata = self.numeric_metric_catalog_[prt_name]
-                if metadata.metric_type == MetricType.COUNTER:
-                    converted = self.convert_integer(value, metadata)
-                    metric_data[name] = float(converted) / observation_time
+
+                if metadata.vartype == VarType.INTEGER:
+                    converted = float(self.convert_integer(value, metadata))
+                elif metadata.vartype == VarType.REAL:
+                    converted = self.convert_real(value, metadata)
                 else:
-                    raise Exception('Unknown metric type for {}: {}'.format(
-                        name, metadata.metric_type))
+                    raise ValueError(
+                        ("Found non-numeric metric '{}' in the numeric "
+                         "metric catalog: value={}, type={}").format(
+                             name, value, VarType.name(metadata.vartype)))
 
-        if target_objective is not None and self.target_metric(target_objective) not in metric_data:
-            raise Exception("Cannot find objective function")
+                if metadata.metric_type == MetricType.COUNTER:
+                    assert isinstance(converted, float)
+                    base_metric_data[name] = converted
+                    metric_data[name] = converted / observation_time
+                elif metadata.metric_type == MetricType.STATISTICS:
+                    assert isinstance(converted, float)
+                    base_metric_data[name] = converted
+                    metric_data[name] = converted
+                else:
+                    raise ValueError(
+                        'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
-        if target_objective is not None:
-            metric_data[target_objective] = metric_data[self.target_metric(target_objective)]
-        else:
-            # default
-            metric_data['throughput_txn_per_sec'] = \
-                metric_data[self.target_metric(target_objective)]
+        target_objective_instance = target_objectives.get_target_objective_instance(
+            self.dbms_id, target_objective)
+        metric_data[target_objective] = target_objective_instance.compute(
+            base_metric_data, observation_time)
+
         return metric_data
 
     def convert_dbms_knobs(self, knobs):

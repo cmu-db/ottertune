@@ -20,11 +20,3 @@ class OracleParser(BaseParser):
             (1024 ** 1, 'k'),
         )
         self.min_bytes_unit = 'k'
-
-    @property
-    def transactions_counter(self):
-        return 'global.user commits'
-
-    @property
-    def latency_timer(self):
-        raise NotImplementedError()

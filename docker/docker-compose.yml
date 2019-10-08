@@ -29,7 +29,6 @@ services:
         environment:
           DEBUG: 'True'
           ADMIN_PASSWORD: 'changeme'
-          ADMIN_EMAIL: 'admin@example.com'
           MYSQL_USER: 'root'
           MYSQL_PASSWORD: 'ottertune'
           MYSQL_HOST: 'mysql'

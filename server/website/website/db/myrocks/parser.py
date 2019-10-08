@@ -1,5 +1,5 @@
 #
-# OtterTune - myrocks.py
+# OtterTune - parser.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
@@ -7,7 +7,7 @@
 import re
 from collections import OrderedDict
 
-from .base import BaseParser
+from ..base.parser import BaseParser
 from website.types import MetricType, VarType
 
 
@@ -75,8 +75,7 @@ class MyRocksParser(BaseParser):
         else:
             raise Exception('Invalid variable full name: {}'.format(full_name))
 
-    @staticmethod
-    def extract_valid_variables(variables, catalog, default_value=None):
+    def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
         diff_log = []
         valid_lc_variables = {k.lower(): v for k, v in list(catalog.items())}
@@ -88,7 +87,7 @@ class MyRocksParser(BaseParser):
         # are also logged as 'miscapitalized'.
         for var_name, var_value in list(variables.items()):
             lc_var_name = var_name.lower()
-            prt_name = MyRocksParser.partial_name(lc_var_name)
+            prt_name = self.partial_name(lc_var_name)
             if prt_name in valid_lc_variables:
                 valid_name = valid_lc_variables[prt_name].name
                 if prt_name != valid_name:
@@ -102,7 +101,7 @@ class MyRocksParser(BaseParser):
         # the given default_value if provided (or the item's actual default value
         # if not) and logged as 'missing'. For now missing local variables are
         # not added to valid_variables
-        lc_variables = {MyRocksParser.partial_name(k.lower()): v
+        lc_variables = {self.partial_name(k.lower()): v
                         for k, v in list(variables.items())}
         for valid_lc_name, metadata in list(valid_lc_variables.items()):
             if valid_lc_name not in lc_variables:
@@ -116,7 +115,7 @@ class MyRocksParser(BaseParser):
         adjusted_metrics = {}
         for met_name, start_val in list(metrics_start.items()):
             end_val = metrics_end[met_name]
-            met_info = self.metric_catalog_[MyRocksParser.partial_name(met_name)]
+            met_info = self.metric_catalog_[self.partial_name(met_name)]
             if met_info.vartype == VarType.INTEGER or \
                     met_info.vartype == VarType.REAL:
                 conversion_fn = self.convert_integer if \
@@ -136,20 +135,20 @@ class MyRocksParser(BaseParser):
     def parse_dbms_knobs(self, knobs):
         valid_knobs = self.parse_dbms_variables(knobs)
         # Extract all valid knobs
-        return MyRocksParser.extract_valid_variables(
+        return self.extract_valid_variables(
             valid_knobs, self.knob_catalog_)
 
     def parse_dbms_metrics(self, metrics):
         valid_metrics = self.parse_dbms_variables(metrics)
         # Extract all valid metrics
-        valid_metrics, diffs = MyRocksParser.extract_valid_variables(
+        valid_metrics, diffs = self.extract_valid_variables(
             valid_metrics, self.metric_catalog_, default_value='0')
         return valid_metrics, diffs
 
     def convert_dbms_metrics(self, metrics, observation_time, target_objective=None):
         metric_data = {}
         for name, value in list(metrics.items()):
-            prt_name = MyRocksParser.partial_name(name)
+            prt_name = self.partial_name(name)
             if prt_name in self.numeric_metric_catalog_:
                 metadata = self.numeric_metric_catalog_[prt_name]
                 if metadata.metric_type == MetricType.COUNTER:
@@ -173,7 +172,7 @@ class MyRocksParser(BaseParser):
     def convert_dbms_knobs(self, knobs):
         knob_data = {}
         for name, value in list(knobs.items()):
-            prt_name = MyRocksParser.partial_name(name)
+            prt_name = self.partial_name(name)
             if prt_name in self.tunable_knob_catalog_:
                 metadata = self.tunable_knob_catalog_[prt_name]
                 assert(metadata.tunable)
@@ -202,8 +201,8 @@ class MyRocksParser(BaseParser):
 
     def filter_numeric_metrics(self, metrics):
         return OrderedDict([(k, v) for k, v in list(metrics.items()) if
-                            MyRocksParser.partial_name(k) in self.numeric_metric_catalog_])
+                            self.partial_name(k) in self.numeric_metric_catalog_])
 
     def filter_tunable_knobs(self, knobs):
         return OrderedDict([(k, v) for k, v in list(knobs.items()) if
-                            MyRocksParser.partial_name(k) in self.tunable_knob_catalog_])
+                            self.partial_name(k) in self.tunable_knob_catalog_])

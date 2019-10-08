@@ -3,4 +3,3 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-from .parser import Parser

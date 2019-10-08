@@ -1,5 +1,5 @@
 #
-# OtterTune - base.py
+# OtterTune - parser.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
@@ -213,8 +213,7 @@ class BaseParser:
 
         return metric_data
 
-    @staticmethod
-    def extract_valid_variables(variables, catalog, default_value=None):
+    def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
         diff_log = []
         valid_lc_variables = {k.lower(): v for k, v in list(catalog.items())}
@@ -280,8 +279,7 @@ class BaseParser:
             assert len(valid_knobs[k]) == 1
             valid_knobs[k] = valid_knobs[k][0]
         # Extract all valid knobs
-        return BaseParser.extract_valid_variables(
-            valid_knobs, self.knob_catalog_)
+        return self.extract_valid_variables(valid_knobs, self.knob_catalog_)
 
     def parse_dbms_metrics(self, metrics):
         # Some DBMSs measure different types of stats (e.g., global, local)
@@ -290,7 +288,7 @@ class BaseParser:
         valid_metrics = self.parse_dbms_variables(metrics)
 
         # Extract all valid metrics
-        valid_metrics, diffs = BaseParser.extract_valid_variables(
+        valid_metrics, diffs = self.extract_valid_variables(
             valid_metrics, self.metric_catalog_, default_value='0')
 
         # Combine values

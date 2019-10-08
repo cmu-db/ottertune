@@ -20,7 +20,7 @@ from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog,
                             MetricCatalog, SessionKnob)
-from website.parser import Parser
+from website.db import parser
 from website.types import PipelineTaskType, AlgorithmType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
@@ -102,14 +102,14 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
-        formatted_params = Parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
+        formatted_params = parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
         task_meta = TaskMeta.objects.get(task_id=task_id)
         retval['recommendation'] = formatted_params
         task_meta.result = retval
         task_meta.save()
 
         # Create next configuration to try
-        config = Parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
+        config = parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
         retval['recommendation'] = config
         result.next_configuration = JSONUtil.dumps(retval)
         result.save()

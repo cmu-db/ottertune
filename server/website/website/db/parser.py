@@ -52,7 +52,7 @@ def convert_dbms_knobs(dbms_id, knobs):
     return _get(dbms_id).convert_dbms_knobs(knobs)
 
 
-def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time, target_objective=None):
+def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time, target_objective):
     return _get(dbms_id).convert_dbms_metrics(
         numeric_metrics, observation_time, target_objective)
 

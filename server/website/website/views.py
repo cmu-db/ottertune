@@ -27,11 +27,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from pytz import timezone
 
-from .db import parser
+from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
 from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog,
-                     MetricData, MetricManager, Project, Result, Session, Workload,
-                     SessionKnob)
+                     MetricData, Project, Result, Session, Workload, SessionKnob)
 from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
@@ -246,8 +245,9 @@ def session_view(request, project_id, session_id):
         default_workload = 'show_none'
         default_confs = 'none'
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(
+        session.dbms.pk, session.target_objective)
 
     knobs = SessionKnob.objects.get_knobs_for_session(session)
     knob_names = [knob["name"] for knob in knobs if knob["tunable"]]
@@ -330,7 +330,7 @@ def create_or_edit_session(request, project_id, session_id=''):
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
                     'algorithm': AlgorithmType.GPR,
-                    'target_objective': 'throughput_txn_per_sec',
+                    'target_objective': target_objectives.get_default_target_objective(),
                 })
             form = SessionForm(**form_kwargs)
         context = {
@@ -393,12 +393,12 @@ def result_view(request, project_id, session_id, result_id):
     target = get_object_or_404(Result, pk=result_id)
     session = target.session
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
-    metric_data = JSONUtil.loads(target.metric_data.data)
+    # default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
+    # metric_data = JSONUtil.loads(target.metric_data.data)
 
-    default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
-                       for mname in default_metrics}
+    # default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
+    #                    for mname in default_metrics}
 
     status = None
     if target.task_ids is not None:
@@ -459,11 +459,11 @@ def handle_result_files(session, files):
     observation_time = summary['observation_time']
     start_time = datetime.fromtimestamp(
         # int(summary['start_time']), # unit: seconds
-        int(summary['start_time']) / 1000,  # unit: ms
+        int(float(summary['start_time']) / 1000),  # unit: ms
         timezone(TIME_ZONE))
     end_time = datetime.fromtimestamp(
         # int(summary['end_time']), # unit: seconds
-        int(summary['end_time']) / 1000,  # unit: ms
+        int(float(summary['end_time']) / 1000),  # unit: ms
         timezone(TIME_ZONE))
 
     # Check if workload name only contains alpha-numeric, underscore and hyphen
@@ -715,8 +715,8 @@ def workload_view(request, project_id, session_id, wkld_id):  # pylint: disable=
     default_knob_confs = [c for c, _ in list(knob_conf_map.values())][:5]
     LOG.debug("default_knob_confs: %s", default_knob_confs)
 
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
+    default_metrics = [session.target_objective]
 
     labels = Workload.get_labels()
     labels['title'] = 'Workload Information'
@@ -799,9 +799,9 @@ def get_workload_data(request):
 
     results = Result.objects.filter(workload=workload)
     result_data = {r.pk: JSONUtil.loads(r.metric_data.data) for r in results}
-    results = sorted(results, key=lambda x: int(result_data[x.pk][MetricManager.THROUGHPUT]))
+    results = sorted(results, key=lambda x: int(result_data[x.pk][target_objectives.THROUGHPUT]))
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
+    default_metrics = [session.target_objective]
     metrics = request.GET.get('met', ','.join(default_metrics)).split(',')
     metrics = [m for m in metrics if m != 'none']
     if len(metrics) == 0:
@@ -810,7 +810,7 @@ def get_workload_data(request):
     data_package = {'results': [],
                     'error': 'None',
                     'metrics': metrics}
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
     for met in data_package['metrics']:
         met_info = metric_meta[met]
         data_package['results'].append({'data': [[]], 'tick': [],
@@ -869,9 +869,8 @@ def get_timeline_data(request):
     if session.user != request.user:
         return HttpResponse(JSONUtil.dumps(data_package), content_type='application/json')
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
     for met in default_metrics:
         met_info = metric_meta[met]
         columnnames.append(met_info.pprint + ' (' + met_info.short_unit + ')')

@@ -18,9 +18,8 @@ from analysis.gp_tf import GPRGD
 from analysis.nn_tf import NeuralNet
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
-from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog,
-                            MetricCatalog, SessionKnob)
-from website.db import parser
+from website.models import PipelineData, PipelineRun, Result, Workload, KnobCatalog, SessionKnob
+from website import db
 from website.types import PipelineTaskType, AlgorithmType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
@@ -102,14 +101,14 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
-        formatted_params = parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
+        formatted_params = db.parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
         task_meta = TaskMeta.objects.get(task_id=task_id)
         retval['recommendation'] = formatted_params
         task_meta.result = retval
         task_meta.save()
 
         # Create next configuration to try
-        config = parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
+        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
         retval['recommendation'] = config
         result.next_configuration = JSONUtil.dumps(retval)
         result.save()
@@ -267,8 +266,8 @@ def train_ddpg(result_id):
                                                            target_objective))
     objective = metric_data[target_obj_idx]
     base_objective = base_metric_data[target_obj_idx]
-    metric_meta = MetricCatalog.objects.get_metric_meta(result.session.dbms,
-                                                        result.session.target_objective)
+    metric_meta = db.target_objectives.get_metric_metadata(
+        result.session.dbms.pk, result.session.target_objective)
 
     # Calculate the reward
     objective = objective / base_objective
@@ -407,12 +406,9 @@ def configuration_recommendation(recommendation_input):
                          'metrics (target_obj={})').format(len(target_obj_idx),
                                                            target_objective))
 
-    metric_meta = MetricCatalog.objects.get_metric_meta(newest_result.session.dbms,
-                                                        newest_result.session.target_objective)
-    if metric_meta[target_objective].improvement == '(less is better)':
-        lessisbetter = True
-    else:
-        lessisbetter = False
+    metric_meta = db.target_objectives.get_metric_metadata(
+        newest_result.session.dbms.pk, newest_result.session.target_objective)
+    lessisbetter = metric_meta[target_objective].improvement == db.target_objectives.LESS_IS_BETTER
 
     y_workload = y_workload[:, target_obj_idx]
     y_target = y_target[:, target_obj_idx]

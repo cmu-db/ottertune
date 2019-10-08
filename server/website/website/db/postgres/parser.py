@@ -19,14 +19,6 @@ class PostgresParser(BaseParser):
         self.bytes_system = [(f, s) for f, s in ConversionUtil.DEFAULT_BYTES_SYSTEM
                              if s in ('TB', 'GB', 'MB', 'kB')]
 
-    @property
-    def transactions_counter(self):
-        return 'pg_stat_database.xact_commit'
-
-    @property
-    def latency_timer(self):
-        raise NotImplementedError()
-
     def parse_version_string(self, version_string):
         dbms_version = version_string.split(',')[0]
         return re.search(r'\d+\.\d+(?=\.\d+)', dbms_version).group(0)

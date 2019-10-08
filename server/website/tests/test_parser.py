@@ -7,8 +7,7 @@
 from abc import ABCMeta, abstractmethod
 import mock
 from django.test import TestCase
-from website.db import parser
-# from website.db.parser.postgres import PostgresParser
+from website.db import parser, target_objectives
 from website.types import BooleanType, DBMSType, VarType, KnobUnitType, MetricType
 from website.models import DBMSCatalog, KnobCatalog
 
@@ -254,18 +253,23 @@ class PostgresParserTests(BaseParserTests, TestCase):
     def test_convert_dbms_metrics(self):
         super().test_convert_dbms_metrics()
 
+        target_obj = target_objectives.THROUGHPUT
+        target_obj_instance = target_objectives.get_target_objective_instance(
+            self.test_dbms.dbms_id, target_obj)
+        txns_counter = target_obj_instance.transactions_counter
+
         test_metrics = {}
 
         for key in list(self.test_dbms.numeric_metric_catalog_.keys()):
             test_metrics[key] = 2
-        test_metrics['pg_stat_database.xact_commit'] = 10
+        test_metrics[txns_counter] = 10
         test_metrics['pg_FAKE_METRIC'] = 0
 
-        self.assertEqual(test_metrics.get('throughput_txn_per_sec'), None)
+        self.assertEqual(test_metrics.get(target_obj), None)
 
-        test_convert_metrics = self.test_dbms.convert_dbms_metrics(test_metrics, 0.1)
+        test_convert_metrics = self.test_dbms.convert_dbms_metrics(test_metrics, 0.1, target_obj)
         for key, metadata in list(self.test_dbms.numeric_metric_catalog_.items()):
-            if (key == self.test_dbms.transactions_counter):
+            if key == txns_counter:
                 self.assertEqual(test_convert_metrics[key], 10 / 0.1)
                 continue
             if metadata.metric_type == MetricType.COUNTER:
@@ -273,11 +277,8 @@ class PostgresParserTests(BaseParserTests, TestCase):
             else:  # MetricType.STATISTICS
                 self.assertEqual(test_convert_metrics[key], 2)
 
-        self.assertEqual(test_convert_metrics['throughput_txn_per_sec'], 100)
+        self.assertEqual(test_convert_metrics[target_obj], 100)
         self.assertEqual(test_convert_metrics.get('pg_FAKE_METRIC'), None)
-
-    def test_properties(self):
-        self.assertEqual(self.test_dbms.transactions_counter, 'pg_stat_database.xact_commit')
 
     def test_parse_version_string(self):
         self.assertTrue(self.test_dbms.parse_version_string("9.6.1"), "9.6")

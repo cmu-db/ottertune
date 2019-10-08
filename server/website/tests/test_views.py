@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from .utils import (TEST_BASIC_SESSION_ID, TEST_PASSWORD, TEST_PROJECT_ID, TEST_USERNAME)
+from website.db import target_objectives
 
 
 class UserAuthViewTests(TestCase):
@@ -142,6 +143,7 @@ class SessionViewsTests(TestCase):
         'name': 'test_create_basic_session',
         'description': 'testing create basic session...',
         'tuning_session': 'no_tuning_session',
+        'target_objective': target_objectives.get_default_target_objective(),
         'algorithm': 1,
         'cpu': '2',
         'memory': '16',

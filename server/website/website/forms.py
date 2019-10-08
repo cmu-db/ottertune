@@ -8,7 +8,6 @@ Created on Jul 25, 2017
 
 @author: dvanaken
 '''
-
 from django import forms
 
 from .models import Session, Project, Hardware, SessionKnob
@@ -24,6 +23,24 @@ class NewResultForm(forms.Form):
 
 
 class ProjectForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.user_id = kwargs.pop('user_id')
+        self.project_id = kwargs.pop('project_id')
+        super().__init__(*args, **kwargs)
+
+    def is_valid(self):
+        valid = super().is_valid()
+        if valid:
+            new_name = self.cleaned_data['name']
+            user_projects = Project.objects.filter(
+                user__id=self.user_id, name=new_name)
+            if self.project_id:
+                user_projects = user_projects.exclude(id=self.project_id)
+            if user_projects.exists():
+                valid = False
+                self._errors['name'] = ["Project '{}' already exists.".format(new_name)]
+        return valid
 
     class Meta:  # pylint: disable=old-style-class,no-init
         model = Project
@@ -50,7 +67,11 @@ class SessionForm(forms.ModelForm):
     storage_type = forms.ChoiceField(label='Storage Type', choices=StorageType.choices())
 
     def __init__(self, *args, **kwargs):
-        super(SessionForm, self).__init__(*args, **kwargs)
+        self.project_id = kwargs.pop('project_id')
+        self.user_id = kwargs.pop('user_id')
+        self.session_id = kwargs.pop('session_id')
+
+        super().__init__(*args, **kwargs)
         self.fields['description'].required = False
         self.fields['target_objective'].required = False
         self.fields['tuning_session'].required = True
@@ -59,8 +80,21 @@ class SessionForm(forms.ModelForm):
         self.fields['storage'].initial = 32
         self.fields['storage_type'].initial = StorageType.SSD
 
+    def is_valid(self):
+        valid = super().is_valid()
+        if valid:
+            new_name = self.cleaned_data['name']
+            user_sessions = Session.objects.filter(
+                user__id=self.user_id, project__id=self.project_id, name=new_name)
+            if self.session_id:
+                user_sessions = user_sessions.exclude(id=self.session_id)
+            if user_sessions.exists():
+                valid = False
+                self._errors['name'] = ["Session '{}' already exists.".format(new_name)]
+        return valid
+
     def save(self, commit=True):
-        model = super(SessionForm, self).save(commit=False)
+        model = super().save(commit=False)
 
         cpu2 = self.cleaned_data['cpu']
         memory2 = self.cleaned_data['memory']
@@ -99,7 +133,7 @@ class SessionKnobForm(forms.ModelForm):
     name = forms.CharField(max_length=128)
 
     def __init__(self, *args, **kwargs):
-        super(SessionKnobForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['session'].required = False
         self.fields['knob'].required = False
         self.fields['name'].widget.attrs['readonly'] = True

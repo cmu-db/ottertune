@@ -13,7 +13,8 @@
         <th>{{ labels.dbms }}</th>
         <th>{{ labels.hardware }}</th>
         <th>{{ labels.tuning_session }}</th>
-        <th>{{ labels.creation_time }}</th>
+        <th>{{ labels.algorithm }}</th>
+        <!-- <th>{{ labels.creation_time }}</th> -->
         <th>{{ labels.last_update }}</th>
     </tr>
     {% for session in sessions %}
@@ -22,8 +23,9 @@
             <td style="vertical-align:middle"><a href="{% url 'session' project.pk session.pk %}">{{ session.name }}</a></td>
             <td style="vertical-align:middle">{{ session.dbms.full_name }}</td>
             <td style="vertical-align:middle">{{ session.hardware }}</td>
-            <td style="vertical-align:middle">{{ session.tuning_session }}</td>
-            <td style="vertical-align:middle">{{ session.creation_time }}</td>
+            <td style="vertical-align:middle">{{ session.session_type_name }}</td>
+            <td style="vertical-align:middle">{{ session.algorithm_name }}</td>
+            <!-- <td style="vertical-align:middle">{{ session.creation_time }}</td> -->
             <td style="vertical-align:middle">{{ session.last_update }}</td>
         </tr>
     {% endfor %}

@@ -1,12 +1,12 @@
 #
-# OtterTune - postgres.py
+# OtterTune - parser.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
 import re
 
-from .base import BaseParser
+from ..base.parser import BaseParser
 from website.utils import ConversionUtil
 
 

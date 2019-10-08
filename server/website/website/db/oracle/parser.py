@@ -1,10 +1,10 @@
 #
-# OtterTune - oracle.py
+# OtterTune - parser.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
-from .base import BaseParser
+from ..base.parser import BaseParser
 
 
 class OracleParser(BaseParser):

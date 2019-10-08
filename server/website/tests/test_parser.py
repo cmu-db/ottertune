@@ -7,7 +7,8 @@
 from abc import ABCMeta, abstractmethod
 import mock
 from django.test import TestCase
-from website.parser.postgres import PostgresParser
+from website.db import parser
+# from website.db.parser.postgres import PostgresParser
 from website.types import BooleanType, DBMSType, VarType, KnobUnitType, MetricType
 from website.models import DBMSCatalog, KnobCatalog
 
@@ -221,7 +222,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
     def setUp(self):
         dbms_obj = DBMSCatalog.objects.filter(
             type=DBMSType.POSTGRES, version="9.6").first()
-        self.test_dbms = PostgresParser(dbms_obj)
+        self.test_dbms = parser._get(dbms_obj.pk)  # pylint: disable=protected-access
 
     def test_convert_dbms_knobs(self):
         super().test_convert_dbms_knobs()

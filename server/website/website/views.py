@@ -27,11 +27,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from pytz import timezone
 
+from .db import parser
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
 from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog,
                      MetricData, MetricManager, Project, Result, Session, Workload,
                      SessionKnob)
-from .parser import Parser
 from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
@@ -487,23 +487,23 @@ def handle_result_files(session, files):
                             '(actual=' + dbms.full_name + ')')
 
     # Load, process, and store the knobs in the DBMS's configuration
-    knob_dict, knob_diffs = Parser.parse_dbms_knobs(
+    knob_dict, knob_diffs = parser.parse_dbms_knobs(
         dbms.pk, JSONUtil.loads(files['knobs']))
-    tunable_knob_dict = Parser.convert_dbms_knobs(
+    tunable_knob_dict = parser.convert_dbms_knobs(
         dbms.pk, knob_dict)
     knob_data = KnobData.objects.create_knob_data(
         session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
         JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
 
     # Load, process, and store the runtime metrics exposed by the DBMS
-    initial_metric_dict, initial_metric_diffs = Parser.parse_dbms_metrics(
+    initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
         dbms.pk, JSONUtil.loads(files['metrics_before']))
-    final_metric_dict, final_metric_diffs = Parser.parse_dbms_metrics(
+    final_metric_dict, final_metric_diffs = parser.parse_dbms_metrics(
         dbms.pk, JSONUtil.loads(files['metrics_after']))
-    metric_dict = Parser.calculate_change_in_metrics(
+    metric_dict = parser.calculate_change_in_metrics(
         dbms.pk, initial_metric_dict, final_metric_dict)
     initial_metric_diffs.extend(final_metric_diffs)
-    numeric_metric_dict = Parser.convert_dbms_metrics(
+    numeric_metric_dict = parser.convert_dbms_metrics(
         dbms.pk, metric_dict, observation_time, session.target_objective)
     metric_data = MetricData.objects.create_metric_data(
         session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
@@ -658,11 +658,11 @@ def metric_data_view(request, project_id, session_id, data_id):  # pylint: disab
 def dbms_data_view(request, context, dbms_data):
     if context['data_type'] == 'knobs':
         model_class = KnobData
-        filter_fn = Parser.filter_tunable_knobs
+        filter_fn = parser.filter_tunable_knobs
         obj_data = dbms_data.knobs
     else:
         model_class = MetricData
-        filter_fn = Parser.filter_numeric_metrics
+        filter_fn = parser.filter_numeric_metrics
         obj_data = dbms_data.metrics
 
     dbms_id = dbms_data.dbms.pk

@@ -3,11 +3,6 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-'''
-Created on Jul 4, 2016
-
-@author: dva
-'''
 from abc import ABCMeta, abstractproperty
 from collections import OrderedDict
 
@@ -15,7 +10,6 @@ import os
 import json
 import copy
 import numpy as np
-import matplotlib.pyplot as plt
 
 from scipy.spatial.distance import cdist
 from sklearn.metrics import silhouette_score
@@ -274,46 +268,6 @@ class KMeansClusters(ModelBase):
 
         return self
 
-    def save(self, savedir):
-        """Saves the KMeans model results
-
-        Parameters
-        ----------
-        savedir : string
-                  Path to the directory to save the results in.
-        """
-        if self.cluster_map_ is None:
-            raise Exception("No models have been fitted yet!")
-
-        cluster_map = OrderedDict()
-        inertias = []
-        for K, model in sorted(self.cluster_map_.items()):
-            cluster_map[K] = {
-                "cluster_inertia": model.cluster_inertia_,
-                "cluster_labels": model.cluster_labels_,
-                "cluster_centers": model.cluster_centers_,
-            }
-            inertias.append(model.cluster_inertia_)
-
-        # Save sum of squares plot (elbow curve)
-        fig = plt.figure()
-        plt.plot(list(cluster_map.keys()), inertias, '--o')
-        plt.xlabel("Number of clusters (K)")
-        plt.ylabel("Within sum of squares W_k")
-        plt.title("Within Sum of Squares vs. Number of Clusters")
-        fig.canvas.set_window_title(os.path.basename(savedir))
-        savepath = os.path.join(savedir, "kmeans_sum_of_squares.pdf")
-        plt.savefig(savepath, bbox_inches="tight")
-        plt.close()
-
-        # save cluster memberships
-        for K in range(self.min_cluster_, self.max_cluster_ + 1):
-            savepath = os.path.join(savedir,
-                                    "memberships_{}-clusters.json".format(K))
-            members = self.cluster_map_[K].get_memberships()
-            with open(savepath, "w") as f:
-                f.write(members)
-
 
 class KSelection(ModelBase, metaclass=ABCMeta):
     """KSelection:
@@ -529,38 +483,6 @@ class GapStatistic(KSelection):
                     for i in range(K)
                     for x in X[cluster_labels == i]])
 
-    def save(self, savedir):
-        """Saves the estimation results of the optimal # of clusters.
-
-        Parameters
-        ----------
-        savedir : string
-                  Path to the directory to save the results in.
-        """
-        super(GapStatistic, self).save(savedir)
-
-        # Plot the calculated gap
-        gaps = self.log_wkbs_ - self.log_wks_
-        fig = plt.figure()
-        plt.plot(self.clusters_, gaps, '--o')
-        plt.title("Gap vs. Number of Clusters")
-        plt.xlabel("Number of clusters (K)")
-        plt.ylabel("gap_K")
-        fig.canvas.set_window_title(os.path.basename(savedir))
-        plt.savefig(os.path.join(savedir, self.name_ + ".pdf"), bbox_inches="tight")
-        plt.close()
-
-        # Plot the gap statistic
-        fig = plt.figure()
-        plt.bar(self.clusters_, self.khats_)
-        plt.title("Gap Statistic vs. Number of Clusters")
-        plt.xlabel("Number of clusters (K)")
-        plt.ylabel("gap(K)-(gap(K+1)-s(K+1))")
-        fig.canvas.set_window_title(os.path.basename(savedir))
-        plt.savefig(os.path.join(savedir, self.name_ + "_final.pdf"),
-                    bbox_inches="tight")
-        plt.close()
-
 
 class DetK(KSelection):
     """DetK:
@@ -649,27 +571,6 @@ class DetK(KSelection):
         self.fs_ = fs
         return self
 
-    def save(self, savedir):
-        """Saves the estimation results of the optimal # of clusters.
-
-        Parameters
-        ----------
-        savedir : string
-                  Path to the directory to save the results in.
-        """
-        super(DetK, self).save(savedir)
-
-        # Plot the evaluation function
-        fig = plt.figure()
-        plt.plot(self.clusters_, self.fs_, '--o')
-        plt.xlabel("Number of clusters (K)")
-        plt.ylabel("Evaluation function (F_k)")
-        plt.title("Evaluation Function vs. Number of Clusters")
-        fig.canvas.set_window_title(os.path.basename(savedir))
-        savepath = os.path.join(savedir, self.name_ + "_eval_function.pdf")
-        plt.savefig(savepath, bbox_inches="tight")
-        plt.close()
-
 
 class Silhouette(KSelection):
     """Det:
@@ -745,27 +646,6 @@ class Silhouette(KSelection):
         self.optimal_num_clusters_ = self.clusters_[np.argmax(scores)]
         self.scores_ = scores
         return self
-
-    def save(self, savedir):
-        """Saves the estimation results of the optimal # of clusters.
-
-        Parameters
-        ----------
-        savedir : string
-                  Path to the directory to save the results in.
-        """
-        super(Silhouette, self).save(savedir)
-
-        # Plot the evaluation function
-        fig = plt.figure()
-        plt.plot(self.clusters_, self.scores_, '--o')
-        plt.xlabel("Number of clusters (K)")
-        plt.ylabel("Silhouette scores")
-        plt.title("Silhouette Scores vs. Number of Clusters")
-        fig.canvas.set_window_title(os.path.basename(savedir))
-        savepath = os.path.join(savedir, self.name_ + "_eval_function.pdf")
-        plt.savefig(savepath, bbox_inches="tight")
-        plt.close()
 
 
 def create_kselection_model(model_name):

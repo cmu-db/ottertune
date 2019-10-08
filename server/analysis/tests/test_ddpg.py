@@ -39,6 +39,5 @@ class TestDDPG(unittest.TestCase):
     def test_ddpg_ypreds(self):
         ypreds_round = [round(self.ddpg.choose_action(x)[0], 4) for x in self.X_test]
         expected_ypreds = [0.1778, 0.1914, 0.2607, 0.4459, 0.5660, 0.3836]
-        self.assertEqual(ypreds_round, expected_ypreds)
         for ypred_round, expected_ypred in zip(ypreds_round, expected_ypreds):
             self.assertAlmostEqual(ypred_round, expected_ypred, places=6)

@@ -164,6 +164,9 @@ class Project(BaseModel):
             x.delete()
         super(Project, self).delete(using, keep_parents)
 
+    class Meta:  # pylint: disable=old-style-class,no-init
+        unique_together = ('user', 'name')
+
 
 class Hardware(BaseModel):
 
@@ -201,13 +204,14 @@ class Session(BaseModel):
     last_update = models.DateTimeField()
 
     upload_code = models.CharField(max_length=30, unique=True)
-    TUNING_OPTIONS = [
+    TUNING_OPTIONS = OrderedDict([
         ("tuning_session", "Tuning Session"),
         ("no_tuning_session", "No Tuning"),
         ("randomly_generate", "Randomly Generate")
-    ]
-    tuning_session = models.CharField(choices=TUNING_OPTIONS,
-                                      max_length=64, default='tuning_session')
+    ])
+    tuning_session = models.CharField(choices=TUNING_OPTIONS.items(),
+                                      max_length=64, default='tuning_session',
+                                      verbose_name="session type")
 
     TARGET_OBJECTIVES = [
         ('throughput_txn_per_sec', 'Throughput'),
@@ -227,6 +231,9 @@ class Session(BaseModel):
             r.metric_data.delete()
             r.delete()
         super(Session, self).delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
+
+    class Meta:  # pylint: disable=old-style-class,no-init
+        unique_together = ('user', 'project', 'name')
 
 
 class SessionKnobManager(models.Manager):

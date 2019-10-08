@@ -141,9 +141,10 @@ def home_projects_view(request):
 
 @login_required(login_url=reverse_lazy('login'))
 def create_or_edit_project(request, project_id=''):
+    form_kwargs = dict(user_id=request.user.pk, project_id=project_id)
     if request.method == 'POST':
         if project_id == '':
-            form = ProjectForm(request.POST)
+            form = ProjectForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_project.html', {'form': form})
             project = form.save(commit=False)
@@ -151,22 +152,24 @@ def create_or_edit_project(request, project_id=''):
             ts = now()
             project.creation_time = ts
             project.last_update = ts
-            project.save()
         else:
             project = get_object_or_404(Project, pk=project_id, user=request.user)
-            form = ProjectForm(request.POST, instance=project)
+            form_kwargs.update(instance=project)
+            form = ProjectForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_project.html', {'form': form})
             project.last_update = now()
-            project.save()
+
+        project.save()
         return redirect(reverse('project_sessions', kwargs={'project_id': project.pk}))
     else:
         if project_id == '':
             project = None
-            form = ProjectForm()
+            form = ProjectForm(**form_kwargs)
         else:
-            project = Project.objects.get(pk=int(project_id))
-            form = ProjectForm(instance=project)
+            project = Project.objects.get(pk=project_id)
+            form_kwargs.update(instance=project)
+            form = ProjectForm(**form_kwargs)
         context = {
             'project': project,
             'form': form,
@@ -191,6 +194,10 @@ def project_sessions_view(request, project_id):
         'button_create': 'create a new session',
     }))
     form_labels['title'] = "Your Sessions"
+    for session in sessions:
+        session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
+        session.algorithm_name = AlgorithmType.name(session.algorithm)
+
     context = {
         "sessions": sessions,
         "project": project,
@@ -245,8 +252,12 @@ def session_view(request, project_id, session_id):
     knobs = SessionKnob.objects.get_knobs_for_session(session)
     knob_names = [knob["name"] for knob in knobs if knob["tunable"]]
 
+    session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
+    session.algorithm_name = AlgorithmType.name(session.algorithm)
+
     form_labels = Session.get_labels()
     form_labels['title'] = "Session Info"
+
     context = {
         'project': project,
         'dbmss': dbmss,
@@ -263,7 +274,6 @@ def session_view(request, project_id, session_id):
         'knob_names': knob_names,
         'filters': [],
         'session': session,
-        'algorithm_name': AlgorithmType.TYPE_NAMES[session.algorithm],
         'results': results,
         'labels': form_labels,
     }
@@ -274,13 +284,14 @@ def session_view(request, project_id, session_id):
 @login_required(login_url=reverse_lazy('login'))
 def create_or_edit_session(request, project_id, session_id=''):
     project = get_object_or_404(Project, pk=project_id, user=request.user)
+    form_kwargs = dict(user_id=request.user.pk, project_id=project_id, session_id=session_id)
     if request.method == 'POST':
         if not session_id:
             # Create a new session from the form contents
-            form = SessionForm(request.POST)
+            form = SessionForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_session.html',
-                              {'project': project, 'form': form})
+                              {'project': project, 'form': form, 'session': None})
             session = form.save(commit=False)
             session.user = request.user
             session.project = project
@@ -293,7 +304,8 @@ def create_or_edit_session(request, project_id, session_id=''):
         else:
             # Update an existing session with the form contents
             session = Session.objects.get(pk=session_id)
-            form = SessionForm(request.POST, instance=session)
+            form_kwargs.update(instance=session)
+            form = SessionForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_session.html',
                               {'project': project, 'form': form, 'session': session})
@@ -308,17 +320,19 @@ def create_or_edit_session(request, project_id, session_id=''):
         if session_id:
             # Return a pre-filled form for editing an existing session
             session = Session.objects.get(pk=session_id)
-            form = SessionForm(instance=session)
+            form_kwargs.update(instance=session)
+            form = SessionForm(**form_kwargs)
         else:
             # Return a new form with defaults for creating a new session
             session = None
-            form = SessionForm(
+            form_kwargs.update(
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
                     'algorithm': AlgorithmType.GPR,
                     'target_objective': 'throughput_txn_per_sec',
                 })
+            form = SessionForm(**form_kwargs)
         context = {
             'project': project,
             'session': session,

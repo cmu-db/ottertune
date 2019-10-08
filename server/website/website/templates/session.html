@@ -90,8 +90,12 @@ caption span {float: right;}
         <td>{{ session.hardware }}</td>
     </tr>
     <tr>
+        <td><div class="text-right">{{ labels.tuning_session }}</div></td>
+        <td>{{ session.session_type_name }}</td>
+    </tr>
+    <tr>
         <td><div class="text-right">{{ labels.algorithm }}</div></td>
-        <td>{{ algorithm_name }}</td>
+        <td>{{ session.algorithm_name }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.creation_time }}</div></td>
@@ -100,10 +104,6 @@ caption span {float: right;}
     <tr>
         <td><div class="text-right">{{ labels.last_update }}</div></td>
         <td>{{ session.last_update }}</td>
-    </tr>
-    <tr>
-        <td><div class="text-right">{{ labels.tuning_session }}</div></td>
-        <td>{{ session.tuning_session }}</td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.target_objective }}</div></td>

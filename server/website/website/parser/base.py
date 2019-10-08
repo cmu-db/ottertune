@@ -5,8 +5,9 @@
 #
 from collections import OrderedDict
 
-from website.models import KnobCatalog, MetricCatalog
+from website.models import KnobCatalog, KnobUnitType, MetricCatalog
 from website.types import BooleanType, MetricType, VarType
+from website.utils import ConversionUtil
 
 
 # pylint: disable=no-self-use
@@ -30,6 +31,11 @@ class BaseParser:
         self.valid_false_val = ("off", "false", "no")
         self.true_value = 'on'
         self.false_value = 'off'
+
+        self.bytes_system = ConversionUtil.DEFAULT_BYTES_SYSTEM
+        self.time_system = ConversionUtil.DEFAULT_TIME_SYSTEM
+        self.min_bytes_unit = 'kB'
+        self.min_time_unit = 'ms'
 
     @property
     def transactions_counter(self):
@@ -79,11 +85,25 @@ class BaseParser:
 
     def convert_integer(self, int_value, metadata):
         try:
-            res = int(int_value)
-        except ValueError:
-            res = int(float(int_value))
+            try:
+                converted = int(int_value)
+            except ValueError:
+                converted = int(float(int_value))
 
-        return res
+        except ValueError:
+            if metadata.unit == KnobUnitType.BYTES:
+                converted = ConversionUtil.get_raw_size(
+                    int_value, system=self.bytes_system)
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
+                converted = ConversionUtil.get_raw_size(
+                    int_value, system=self.time_system)
+            else:
+                raise Exception(
+                    'Unknown unit type: {}'.format(metadata.unit))
+        if converted is None:
+            raise Exception('Invalid integer format for {}: {}'.format(
+                metadata.name, int_value))
+        return converted
 
     def convert_real(self, real_value, metadata):
         return float(real_value)
@@ -307,7 +327,11 @@ class BaseParser:
                     adj_val = end_val - start_val
                 else:  # MetricType.STATISTICS or MetricType.INFO
                     adj_val = end_val
-                assert adj_val >= 0, '{} wrong metric type '.format(met_name)
+                assert adj_val >= 0, \
+                    '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
+                        met_name, MetricType.name(met_info.metric_type), start_val,
+                        end_val, end_val - start_val)
+
                 adjusted_metrics[met_name] = adj_val
             else:
                 # This metric is either a bool, enum, string, or timestamp
@@ -333,8 +357,24 @@ class BaseParser:
         enumvals = metadata.enumvals.split(',')
         return enumvals[int(round(enum_value))]
 
+    # def format_integer(self, int_value, metadata):
+    #     return int(round(int_value))
+
     def format_integer(self, int_value, metadata):
-        return int(round(int_value))
+        int_value = int(round(int_value))
+        if metadata.unit != KnobUnitType.OTHER and int_value > 0:
+            if metadata.unit == KnobUnitType.BYTES:
+                int_value = ConversionUtil.get_human_readable2(
+                    int_value, self.bytes_system, 'kB')
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
+                int_value = ConversionUtil.get_human_readable2(
+                    int_value, self.time_system, 'ms')
+            else:
+                raise Exception(
+                    'Invalid unit type for {}: {}'.format(
+                        metadata.name, metadata.unit))
+
+        return int_value
 
     def format_real(self, real_value, metadata):
         return round(float(real_value), 3)

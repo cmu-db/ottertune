@@ -6,6 +6,7 @@
 import datetime
 import json
 import logging
+import math
 import os
 import string
 import tarfile
@@ -269,6 +270,47 @@ class ConversionUtil(object):
     def get_human_readable(value, system):
         from hurry.filesize import size
         return size(value, system=system)
+
+    @staticmethod
+    def get_human_readable2(value, system, min_suffix):
+        # Converts the value to larger units only if there is no loss of resolution.
+        # pylint: disable=line-too-long
+        # From https://github.com/le0pard/pgtune/blob/master/webpack/components/configurationView/index.jsx#L74
+        # pylint: enable=line-too-long
+        min_factor = None
+        unit = None
+        mod_system = []
+        for i, (factor, suffix) in enumerate(system):
+            if suffix == min_suffix:
+                if value < factor:
+                    assert i + 1 < len(system), \
+                        ('i + 1 >= len(system) (i + 1: {}, len(system): {}, value: {}, '
+                         'min_suffix: {})').format(i + 1, len(system), value, min_suffix)
+                    min_suffix = system[i + 1][1]
+                    LOG.warning('The value is smaller than the min factor: %s < %s%s. '
+                                'Setting min_suffix=%s...', value, factor, suffix, min_suffix)
+                else:
+                    min_factor = factor
+                    unit = min_suffix
+                    value = math.floor(float(value) / min_factor)
+                    break
+
+            mod_system.append((factor, suffix))
+
+        if min_factor is None:
+            raise ValueError('Invalid min suffix for system: suffix={}, system={}'.format(
+                min_suffix, system))
+
+        LOG.info('min_suffix: %s, min_factor: %s, unit: %s, value: %s\nMOD_SYS:\n%s\n\n',
+                 min_suffix, min_factor, unit, value, mod_system)
+        for factor, suffix in mod_system:
+            adj_factor = factor / min_factor
+            if value % adj_factor == 0:
+                value = math.floor(float(value) / adj_factor)
+                unit = suffix
+                break
+
+        return '{}{}'.format(int(value), unit)
 
 
 class LabelUtil(object):

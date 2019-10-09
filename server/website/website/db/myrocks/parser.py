@@ -169,7 +169,7 @@ class MyRocksParser(BaseParser):
                     raise ValueError(
                         'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
-        target_objective_instance = target_objectives.get_target_objective_instance(
+        target_objective_instance = target_objectives.get_instance(
             self.dbms_id, target_objective)
         metric_data[target_objective] = target_objective_instance.compute(
             base_metric_data, observation_time)

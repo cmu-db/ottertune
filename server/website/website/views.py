@@ -330,7 +330,7 @@ def create_or_edit_session(request, project_id, session_id=''):
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
                     'algorithm': AlgorithmType.GPR,
-                    'target_objective': target_objectives.get_default_target_objective(),
+                    'target_objective': target_objectives.default(),
                 })
             form = SessionForm(**form_kwargs)
         context = {

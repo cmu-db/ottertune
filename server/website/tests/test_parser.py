@@ -254,7 +254,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
         super().test_convert_dbms_metrics()
 
         target_obj = target_objectives.THROUGHPUT
-        target_obj_instance = target_objectives.get_target_objective_instance(
+        target_obj_instance = target_objectives.get_instance(
             self.test_dbms.dbms_id, target_obj)
         txns_counter = target_obj_instance.transactions_counter
 

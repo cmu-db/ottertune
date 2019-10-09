@@ -4,6 +4,7 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
+import copy
 import logging
 from collections import OrderedDict
 
@@ -43,6 +44,10 @@ class BaseTargetObjective(BaseMetric):
     def __init__(self, name, pprint, unit, short_unit, improvement, scale=1):
         super().__init__(name=name, pprint=pprint, unit=unit, short_unit=short_unit,
                          improvement=improvement, scale=scale)
+
+    @property
+    def label(self):
+        return '{} ({})'.format(self.pprint, self.short_unit)
 
     def compute(self, metrics, observation_time):
         raise NotImplementedError()
@@ -106,15 +111,25 @@ class TargetObjectives:
         metadata.insert(0, (target_objective, target_objective_instance))
         return OrderedDict(metadata)
 
-    def get_default_target_objective(self):
+    def default(self):
         return self._default_target_objective
 
-    def get_target_objective_instance(self, dbms_id, target_objective):
+    def get_instance(self, dbms_id, target_objective):
         if not self.registered():
             self.register()
         dbms_id = int(dbms_id)
         instance = self._registry[dbms_id][target_objective]
         return instance
+
+    def get_all(self, dbms_id=None):
+        if not self.registered():
+            self.register()
+        if dbms_id is None:
+            res = copy.deepcopy(self._registry)
+        else:
+            dbms_id = int(dbms_id)
+            res = copy.deepcopy(self._registry[dbms_id])
+        return res
 
     def __repr__(self):
         s = 'TargetObjectives = (\n'

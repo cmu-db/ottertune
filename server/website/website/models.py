@@ -159,11 +159,11 @@ class Session(BaseModel):
                                       verbose_name='session type')
 
     target_objective = models.CharField(
-        max_length=64, default=target_objectives.get_default_target_objective())
+        max_length=64, default=target_objectives.default())
 
     def clean(self):
         if self.target_objective is None:
-            self.target_objective = target_objectives.get_default_target_objective()
+            self.target_objective = target_objectives.default()
 
     def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
         SessionKnob.objects.get(session=self).delete()

@@ -143,7 +143,7 @@ class SessionViewsTests(TestCase):
         'name': 'test_create_basic_session',
         'description': 'testing create basic session...',
         'tuning_session': 'no_tuning_session',
-        'target_objective': target_objectives.get_default_target_objective(),
+        'target_objective': target_objectives.default(),
         'algorithm': 1,
         'cpu': '2',
         'memory': '16',

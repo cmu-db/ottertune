@@ -299,7 +299,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
     cleaned_knob_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                       session)
+                                        session)
     knob_labels = np.array(cleaned_knob_data[1]).flatten()
     knob_num = len(knob_labels)
     metric_num = len(metric_data)

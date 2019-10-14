@@ -45,6 +45,9 @@ MEMORY_PERCENT = 0.8
 # Percentage of total storage to use for maxval
 STORAGE_PERCENT = 0.8
 
+# The maximum connections to the database
+SESSION_NUM = 50.0
+
 
 def set_default_knobs(session):
     dbtype = session.dbms.type
@@ -67,16 +70,18 @@ def set_default_knobs(session):
             if knob.resource == KnobResourceType.CPU:
                 maxval = session.hardware.cpu * CPU_PERCENT
             elif knob.resource == KnobResourceType.MEMORY:
+                minval = session.hardware.memory * minval
                 maxval = session.hardware.memory * GB * MEMORY_PERCENT
             elif knob.resource == KnobResourceType.STORAGE:
+                minval = session.hardware.storage * minval
                 maxval = session.hardware.storage * GB * STORAGE_PERCENT
             else:
                 maxval = knob_maxval
 
             # Special cases
             if dbtype == DBMSType.POSTGRES:
-                if knob.name == 'global.work_mem':
-                    maxval /= 50.0
+                if knob.name in ('global.work_mem', 'global.temp_buffers'):
+                    maxval /= SESSION_NUM
 
             if maxval > knob_maxval:
                 maxval = knob_maxval

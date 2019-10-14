@@ -77,13 +77,7 @@ DNN_DEBUG_INTERVAL = 100
 DDPG_BATCH_SIZE = 32
 
 #  Learning rate of actor network
-ACTOR_LEARNING_RATE = 0.001
+ACTOR_LEARNING_RATE = 0.01
 
 #  Learning rate of critic network
-CRITIC_LEARNING_RATE = 0.001
-
-#  The impact of future reward on the decision
-GAMMA = 0.9
-
-#  The changing rate of the target network
-TAU = 0.002
+CRITIC_LEARNING_RATE = 0.01

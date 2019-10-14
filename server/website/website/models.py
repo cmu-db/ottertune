@@ -193,6 +193,27 @@ class SessionKnobManager(models.Manager):
         knob_dicts = [knob for knob in knob_dicts if knob["tunable"]]
         return knob_dicts
 
+    @staticmethod
+    def get_knob_tunability(session):
+        # Returns a dict of the knob
+        knobs = KnobCatalog.objects.filter(dbms=session.dbms)
+        knob_dicts = list(knobs.values())
+        session_knob_dict = {}
+        for i, _ in enumerate(knob_dicts):
+            if SessionKnob.objects.filter(session=session, knob=knobs[i]).exists():
+                new_knob = SessionKnob.objects.filter(session=session, knob=knobs[i])[0]
+                session_knob_dict[new_knob.name] = new_knob.tunable
+        return session_knob_dict
+
+    @staticmethod
+    def set_knob_tunability(session, knob_dicts):
+        # Returns a dict of the knob
+        session_knobs = SessionKnob.objects.filter(session=session)
+        for session_knob in session_knobs:
+            if knob_dicts.__contains__(session_knob.name):
+                session_knob.tunable = knob_dicts[session_knob.name]
+                session_knob.save()
+
 
 class SessionKnob(BaseModel):
 

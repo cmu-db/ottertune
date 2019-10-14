@@ -1,38 +1,34 @@
 #
-# OtterTune - dumpdebuginfo.py
+# OtterTune - dumpknobtunability.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import json
 import os
 
 from django.core.management.base import BaseCommand, CommandError
 
-from website.models import Session
-from website.utils import dump_debug_info
+from website.models import Session, SessionKnob, SessionKnobManager
 
 
 class Command(BaseCommand):
-    help = 'Dump debug information for the session with the given upload code.'
+    help = 'Dump knob tunability for the session with the given upload code.'
 
     def add_arguments(self, parser):
         parser.add_argument(
             'uploadcode',
             metavar='UPLOADCODE',
-            help="The session's upload code to.")
+            help="The session's upload code.")
         parser.add_argument(
             '-f', '--filename',
             metavar='FILE',
-            help='Name of the file to write the debug information. '
-                 'Default: debug_[timestamp].tar.gz')
+            help='Name of the file to write the session knob tunability to. '
+                 'Default: knob.json')
         parser.add_argument(
             '-d', '--directory',
             metavar='DIR',
-            help='Path of the directory to write the debug information to. '
+            help='Path of the directory to write the session knob tunability to. '
                  'Default: current directory')
-        parser.add_argument(
-            '--prettyprint',
-            action='store_true',
-            help='Pretty print the output.')
 
     def handle(self, *args, **options):
         directory = options['directory'] or ''
@@ -44,15 +40,13 @@ class Command(BaseCommand):
             raise CommandError(
                 "ERROR: Session with upload code '{}' not exist.".format(options['uploadcode']))
 
-        debug_info, root = dump_debug_info(session, pretty_print=options['prettyprint'])
+        session_knobs = SessionKnobManager.get_knob_tunability(session)
 
-        filename = options['filename'] or root
-        if not filename.endswith('.tar.gz'):
-            filename += '.tar.gz'
+        filename = options['filename'] or 'knobs.json'
         path = os.path.join(directory, filename)
 
-        with open(path, 'wb') as f:
-            f.write(debug_info.getvalue())
+        with open(path, 'w') as f:
+            json.dump(session_knobs, f, indent=4)
 
         self.stdout.write(self.style.SUCCESS(
-            "Successfully dumped debug information to '{}'.".format(path)))
+            "Successfully dumped knob tunability to '{}'.".format(path)))

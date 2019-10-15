@@ -3,7 +3,9 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import random
 import unittest
+import numpy as np
 from tensorflow import set_random_seed
 from sklearn import datasets
 from analysis.nn_tf import NeuralNet
@@ -20,7 +22,9 @@ class TestNN(unittest.TestCase):
         X_train = data[0:500]
         X_test = data[500:]
         y_train = boston['target'][0:500].reshape(500, 1)
-        set_random_seed(1)
+        random.seed(0)
+        np.random.seed(0)
+        set_random_seed(0)
         cls.model = NeuralNet(n_input=X_test.shape[1],
                               batch_size=X_test.shape[0])
         cls.model.fit(X_train, y_train)
@@ -29,10 +33,10 @@ class TestNN(unittest.TestCase):
 
     def test_nn_ypreds(self):
         ypreds_round = ['%.3f' % x[0] for x in self.nn_result]
-        expected_ypreds = ['20.503', '22.158', '22.158', '25.692', '24.536', '23.637']
+        expected_ypreds = ['21.279', '22.668', '23.115', '27.228', '25.892', '23.967']
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_nn_yrecommend(self):
         recommends_round = ['%.3f' % x[0] for x in self.nn_recommend.minl]
-        expected_recommends = ['14.229', '22.158', '22.158', '23.591', '23.591', '23.593']
+        expected_recommends = ['21.279', '21.279', '21.279', '21.279', '21.279', '21.279']
         self.assertEqual(recommends_round, expected_recommends)

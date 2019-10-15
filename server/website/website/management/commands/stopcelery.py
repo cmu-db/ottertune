@@ -11,7 +11,7 @@ from fabric.api import local
 
 
 class Command(BaseCommand):
-    help = 'Start celery and celerybeat in the background.'
+    help = 'Stop celery and celerybeat and remove pid files.'
     celery_cmd = 'python3 manage.py {cmd} {opts} &'.format
     max_wait_sec = 15
 

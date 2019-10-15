@@ -1,5 +1,5 @@
 #
-# OtterTune - loadknobtunability.py
+# OtterTune - dumpknob.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
@@ -12,7 +12,7 @@ from website.models import Session, SessionKnob, SessionKnobManager
 
 
 class Command(BaseCommand):
-    help = 'load session tunability for the session with the given upload code.'
+    help = 'Dump knobs for the session with the given upload code.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -22,12 +22,12 @@ class Command(BaseCommand):
         parser.add_argument(
             '-f', '--filename',
             metavar='FILE',
-            help='Name of the file to read the session knob tunability from. '
+            help='Name of the file to write the session knob tunability to. '
                  'Default: knob.json')
         parser.add_argument(
             '-d', '--directory',
             metavar='DIR',
-            help='Path of the directory to read the session knob tunability from. '
+            help='Path of the directory to write the session knob tunability to. '
                  'Default: current directory')
 
     def handle(self, *args, **options):
@@ -40,13 +40,13 @@ class Command(BaseCommand):
             raise CommandError(
                 "ERROR: Session with upload code '{}' not exist.".format(options['uploadcode']))
 
+        session_knobs = SessionKnobManager.get_knob_min_max_tunability(session)
+
         filename = options['filename'] or 'knobs.json'
         path = os.path.join(directory, filename)
 
-        with open(path, 'r') as f:
-            knobs = json.load(f)
-
-        SessionKnobManager.set_knob_tunability(session, knobs)
+        with open(path, 'w') as f:
+            json.dump(session_knobs, f, indent=4)
 
         self.stdout.write(self.style.SUCCESS(
-            "Successfully load knob tunability from '{}'.".format(path)))
+            "Successfully dumped knob information to '{}'.".format(path)))

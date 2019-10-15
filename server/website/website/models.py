@@ -194,24 +194,29 @@ class SessionKnobManager(models.Manager):
         return knob_dicts
 
     @staticmethod
-    def get_knob_tunability(session):
+    def get_knob_min_max_tunability(session):
         # Returns a dict of the knob
         knobs = KnobCatalog.objects.filter(dbms=session.dbms)
         knob_dicts = list(knobs.values())
-        session_knob_dict = {}
+        session_knob_dicts = {}
         for i, _ in enumerate(knob_dicts):
             if SessionKnob.objects.filter(session=session, knob=knobs[i]).exists():
                 new_knob = SessionKnob.objects.filter(session=session, knob=knobs[i])[0]
-                session_knob_dict[new_knob.name] = new_knob.tunable
-        return session_knob_dict
+                min_max_tunability = {"minval": new_knob.minval,
+                                      "maxval": new_knob.maxval,
+                                      "tunable": new_knob.tunable}
+                session_knob_dicts[new_knob.name] = min_max_tunability
+        return session_knob_dicts
 
     @staticmethod
-    def set_knob_tunability(session, knob_dicts):
+    def set_knob_min_max_tunability(session, knob_dicts):
         # Returns a dict of the knob
         session_knobs = SessionKnob.objects.filter(session=session)
         for session_knob in session_knobs:
             if knob_dicts.__contains__(session_knob.name):
-                session_knob.tunable = knob_dicts[session_knob.name]
+                session_knob.minval = knob_dicts[session_knob.name]["minval"]
+                session_knob.maxval = knob_dicts[session_knob.name]["maxval"]
+                session_knob.tunable = knob_dicts[session_knob.name]["tunable"]
                 session_knob.save()
 
 

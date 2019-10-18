@@ -21,9 +21,8 @@ from analysis.gp_tf import GPRGD
 from analysis.nn_tf import NeuralNet
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
-from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog,
-                            MetricCatalog, SessionKnob)
-from website.parser import Parser
+from website.models import PipelineData, PipelineRun, Result, Workload, KnobCatalog, SessionKnob
+from website import db
 from website.types import PipelineTaskType, AlgorithmType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
@@ -33,7 +32,7 @@ from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
                               DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
-                              CRITIC_LEARNING_RATE, GAMMA, TAU,
+                              CRITIC_LEARNING_RATE,
                               DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
                               DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
                               DNN_DEBUG, DNN_DEBUG_INTERVAL)
@@ -105,14 +104,14 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
         result = Result.objects.get(pk=result_id)
 
         # Replace result with formatted result
-        formatted_params = Parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
+        formatted_params = db.parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
         task_meta = TaskMeta.objects.get(task_id=task_id)
         retval['recommendation'] = formatted_params
         task_meta.result = retval
         task_meta.save()
 
         # Create next configuration to try
-        config = Parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
+        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
         retval['recommendation'] = config
         result.next_configuration = JSONUtil.dumps(retval)
         result.save()
@@ -287,22 +286,22 @@ def train_ddpg(result_id):
     if len(session_results) == 0:
         LOG.info('No previous result. Abort.')
         return result_info
-    prev_result_id = session_results[len(session_results) - 1].pk
-    base_result_id = session_results[0].pk
-    prev_result = Result.objects.filter(pk=prev_result_id)
-    base_result = Result.objects.filter(pk=base_result_id)
 
     # Extract data from result
     result = Result.objects.filter(pk=result_id)
+    base_result_id = session_results[0].pk
+    base_result = Result.objects.filter(pk=base_result_id)
+
     agg_data = DataUtil.aggregate_data(result)
     metric_data = agg_data['y_matrix'].flatten()
-    prev_metric_data = (DataUtil.aggregate_data(prev_result))['y_matrix'].flatten()
     base_metric_data = (DataUtil.aggregate_data(base_result))['y_matrix'].flatten()
+    metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
+    normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
 
     # Clean knob data
-    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
-    knob_data = np.array(cleaned_agg_data[0])
-    knob_labels = np.array(cleaned_agg_data[1])
+    cleaned_knob_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
+    knob_data = np.array(cleaned_knob_data[0])
+    knob_labels = np.array(cleaned_knob_data[1])
     knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels.flatten(), session))
     knob_data = MinMaxScaler().fit(knob_bounds).transform(knob_data)[0]
     knob_num = len(knob_data)
@@ -321,34 +320,26 @@ def train_ddpg(result_id):
                          'metrics (target_obj={})').format(len(target_obj_idx),
                                                            target_objective))
     objective = metric_data[target_obj_idx]
-    prev_objective = prev_metric_data[target_obj_idx]
     base_objective = base_metric_data[target_obj_idx]
-    metric_meta = MetricCatalog.objects.get_metric_meta(result.session.dbms,
-                                                        result.session.target_objective)
+    metric_meta = db.target_objectives.get_metric_metadata(
+        result.session.dbms.pk, result.session.target_objective)
 
     # Calculate the reward
-    reward = 0
+    objective = objective / base_objective
     if metric_meta[target_objective].improvement == '(less is better)':
-        if objective - base_objective <= 0:
-            reward = -(np.square(objective / base_objective) - 1) * objective / prev_objective
-        else:
-            reward = (np.square((2 * base_objective - objective) / base_objective) - 1)\
-                * (2 * prev_objective - objective) / prev_objective
+        reward = -objective * objective
     else:
-        if objective - base_objective > 0:
-            reward = (np.square(objective / base_objective) - 1) * objective / prev_objective
-        else:
-            reward = -(np.square((2 * base_objective - objective) / base_objective) - 1)\
-                * (2 * prev_objective - objective) / prev_objective
+        reward = objective * objective
+    LOG.info('reward: %f', reward)
 
     # Update ddpg
     ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
-                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+                clr=CRITIC_LEARNING_RATE, gamma=0.0, batch_size=DDPG_BATCH_SIZE, tau=0.0)
     if session.ddpg_actor_model and session.ddpg_critic_model:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory:
         ddpg.replay_memory.set(session.ddpg_reply_memory)
-    ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data, False)
+    ddpg.add_sample(normalized_metric_data, knob_data, reward, normalized_metric_data, False)
     if len(ddpg.replay_memory) > 32:
         ddpg.update()
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
@@ -365,20 +356,21 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     session = Result.objects.get(pk=result_id).session
     agg_data = DataUtil.aggregate_data(result)
     metric_data = agg_data['y_matrix'].flatten()
-    cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                       session)
-    knob_labels = np.array(cleaned_agg_data[1]).flatten()
+    metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
+    normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
+    cleaned_knob_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
+                                        session)
+    knob_labels = np.array(cleaned_knob_data[1]).flatten()
     knob_num = len(knob_labels)
     metric_num = len(metric_data)
 
     ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
-                clr=CRITIC_LEARNING_RATE, gamma=GAMMA, batch_size=DDPG_BATCH_SIZE, tau=TAU)
+                clr=CRITIC_LEARNING_RATE, gamma=0.0, batch_size=DDPG_BATCH_SIZE, tau=0.0)
     if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory is not None:
         ddpg.replay_memory.set(session.ddpg_reply_memory)
-    knob_data = ddpg.choose_action(metric_data)
-    LOG.info('recommended knob: %s', knob_data)
+    knob_data = ddpg.choose_action(normalized_metric_data)
 
     knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels, session))
     knob_data = MinMaxScaler().fit(knob_bounds).inverse_transform(knob_data.reshape(1, -1))[0]
@@ -388,8 +380,6 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     conf_map_res['result_id'] = result_id
     conf_map_res['recommendation'] = conf_map
     conf_map_res['info'] = 'INFO: ddpg'
-    for k in knob_labels:
-        LOG.info('%s: %f', k, conf_map[k])
     return conf_map_res
 
 
@@ -471,12 +461,9 @@ def configuration_recommendation(recommendation_input):
                          'metrics (target_obj={})').format(len(target_obj_idx),
                                                            target_objective))
 
-    metric_meta = MetricCatalog.objects.get_metric_meta(newest_result.session.dbms,
-                                                        newest_result.session.target_objective)
-    if metric_meta[target_objective].improvement == '(less is better)':
-        lessisbetter = True
-    else:
-        lessisbetter = False
+    metric_meta = db.target_objectives.get_metric_metadata(
+        newest_result.session.dbms.pk, newest_result.session.target_objective)
+    lessisbetter = metric_meta[target_objective].improvement == db.target_objectives.LESS_IS_BETTER
 
     y_workload = y_workload[:, target_obj_idx]
     y_target = y_target[:, target_obj_idx]

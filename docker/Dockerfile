@@ -11,7 +11,6 @@ WORKDIR /app/server/website
 
 COPY ./docker/credentials.py ./website/settings
 COPY ./docker/start.sh .
-COPY ./docker/createadmin.py .
 COPY ./docker/wait-for-it.sh .
 
 RUN chmod +x ./*.sh

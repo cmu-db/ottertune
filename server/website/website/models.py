@@ -3,12 +3,13 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from django.db import models, DEFAULT_DB_ALIAS
 from django.utils.timezone import now
 
+from .db import target_objectives
 from .types import (DBMSType, LabelStyleType, MetricType, KnobUnitType,
                     PipelineTaskType, VarType, KnobResourceType,
                     WorkloadStatusType, AlgorithmType, StorageType)
@@ -84,65 +85,7 @@ class KnobCatalog(BaseModel):
     resource = models.IntegerField(choices=KnobResourceType.choices(), default=4)
 
 
-MetricMeta = namedtuple('MetricMeta',
-                        ['name', 'pprint', 'unit', 'short_unit', 'scale', 'improvement'])
-
-
-class MetricManager(models.Manager):
-
-    # Direction of performance improvement
-    LESS_IS_BETTER = '(less is better)'
-    MORE_IS_BETTER = '(more is better)'
-
-    # Possible objective functions
-    THROUGHPUT = 'throughput_txn_per_sec'
-    THROUGHPUT_META = (THROUGHPUT, 'Throughput',
-                       'transactions / second',
-                       'txn/sec', 1, MORE_IS_BETTER)
-
-    LATENCY_99 = '99th_lat_ms'
-    LATENCY_99_META = (LATENCY_99, '99 Percentile Latency',
-                       'milliseconds', 'ms', 1, LESS_IS_BETTER)
-
-    # Objective function metric metadata
-    OBJ_META = {THROUGHPUT: THROUGHPUT_META, LATENCY_99: LATENCY_99_META}
-
-    @staticmethod
-    def get_default_metrics(target_objective=None):
-        # get the target_objective, return the default one if target_objective is None
-        if target_objective is not None:
-            default_metrics = [target_objective]
-        else:
-            default_metrics = [MetricManager.get_default_objective_function()]
-        return default_metrics
-
-    @staticmethod
-    def get_default_objective_function():
-        return MetricManager.THROUGHPUT
-
-    @staticmethod
-    def get_metric_meta(dbms, target_objective=None):
-        numeric_metric_names = MetricCatalog.objects.filter(dbms=dbms).exclude(
-            metric_type=MetricType.INFO).values_list('name', flat=True)
-        numeric_metrics = {}
-        for metname in numeric_metric_names:
-            numeric_metrics[metname] = MetricMeta(
-                metname, metname, 'events / second', 'events/sec', 1, '')
-        sorted_metrics = [(mname, mmeta) for mname, mmeta in
-                          sorted(numeric_metrics.items())]
-        if target_objective is not None:
-            mname = target_objective
-        else:
-            mname = MetricManager.get_default_objective_function()
-
-        mmeta = MetricManager.OBJ_META[mname]
-        sorted_metrics.insert(0, (mname, MetricMeta(*mmeta)))
-        return OrderedDict(sorted_metrics)
-
-
 class MetricCatalog(BaseModel):
-    objects = MetricManager()
-
     dbms = models.ForeignKey(DBMSCatalog)
     name = models.CharField(max_length=128)
     vartype = models.IntegerField(choices=VarType.choices())
@@ -164,6 +107,9 @@ class Project(BaseModel):
             x.delete()
         super(Project, self).delete(using, keep_parents)
 
+    class Meta:  # pylint: disable=old-style-class,no-init
+        unique_together = ('user', 'name')
+
 
 class Hardware(BaseModel):
 
@@ -184,6 +130,14 @@ class Hardware(BaseModel):
 
 
 class Session(BaseModel):
+
+    TUNING_OPTIONS = OrderedDict([
+        ("tuning_session", "Tuning Session"),
+        ("no_tuning_session", "No Tuning"),
+        ("randomly_generate", "Randomly Generate"),
+        ("lhs", "Run LHS")
+    ])
+
     user = models.ForeignKey(User)
     name = models.CharField(max_length=64, verbose_name="session name")
     description = models.TextField(null=True, blank=True)
@@ -202,24 +156,16 @@ class Session(BaseModel):
     last_update = models.DateTimeField()
 
     upload_code = models.CharField(max_length=30, unique=True)
-    TUNING_OPTIONS = [
-        ("tuning_session", "Tuning Session"),
-        ("no_tuning_session", "No Tuning"),
-        ("randomly_generate", "Randomly Generate"),
-        ("lhs", "Run LHS")
-    ]
-    tuning_session = models.CharField(choices=TUNING_OPTIONS,
-                                      max_length=64, default='tuning_session')
+    tuning_session = models.CharField(choices=TUNING_OPTIONS.items(),
+                                      max_length=64, default='tuning_session',
+                                      verbose_name='session type')
 
-    TARGET_OBJECTIVES = [
-        ('throughput_txn_per_sec', 'Throughput'),
-        ('99th_lat_ms', '99 Percentile Latency')
-    ]
-    target_objective = models.CharField(choices=TARGET_OBJECTIVES, max_length=64, null=True)
+    target_objective = models.CharField(
+        max_length=64, default=target_objectives.default())
 
     def clean(self):
         if self.target_objective is None:
-            self.target_objective = MetricManager.get_default_objective_function()
+            self.target_objective = target_objectives.default()
 
     def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
         SessionKnob.objects.get(session=self).delete()
@@ -229,6 +175,9 @@ class Session(BaseModel):
             r.metric_data.delete()
             r.delete()
         super(Session, self).delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
+
+    class Meta:  # pylint: disable=old-style-class,no-init
+        unique_together = ('user', 'project', 'name')
 
 
 class SessionKnobManager(models.Manager):
@@ -245,6 +194,32 @@ class SessionKnobManager(models.Manager):
                 knob_dicts[i]["tunable"] = new_knob.tunable
         knob_dicts = [knob for knob in knob_dicts if knob["tunable"]]
         return knob_dicts
+
+    @staticmethod
+    def get_knob_min_max_tunability(session):
+        # Returns a dict of the knob
+        knobs = KnobCatalog.objects.filter(dbms=session.dbms)
+        knob_dicts = list(knobs.values())
+        session_knob_dicts = {}
+        for i, _ in enumerate(knob_dicts):
+            if SessionKnob.objects.filter(session=session, knob=knobs[i]).exists():
+                new_knob = SessionKnob.objects.filter(session=session, knob=knobs[i])[0]
+                min_max_tunability = {"minval": new_knob.minval,
+                                      "maxval": new_knob.maxval,
+                                      "tunable": new_knob.tunable}
+                session_knob_dicts[new_knob.name] = min_max_tunability
+        return session_knob_dicts
+
+    @staticmethod
+    def set_knob_min_max_tunability(session, knob_dicts):
+        # Returns a dict of the knob
+        session_knobs = SessionKnob.objects.filter(session=session)
+        for session_knob in session_knobs:
+            if knob_dicts.__contains__(session_knob.name):
+                session_knob.minval = knob_dicts[session_knob.name]["minval"]
+                session_knob.maxval = knob_dicts[session_knob.name]["maxval"]
+                session_knob.tunable = knob_dicts[session_knob.name]["tunable"]
+                session_knob.save()
 
 
 class SessionKnob(BaseModel):
@@ -277,7 +252,7 @@ class DataManager(models.Manager):
     @staticmethod
     def create_name(data_obj, key):
         ts = data_obj.creation_time.strftime("%m-%d-%y")
-        return (key + '@' + ts + '#' + str(data_obj.pk))
+        return key + '@' + ts + '#' + str(data_obj.pk)
 
 
 class KnobDataManager(DataManager):

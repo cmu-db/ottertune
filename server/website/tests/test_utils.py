@@ -5,8 +5,11 @@
 #
 
 import string
+from collections import OrderedDict
+
 import numpy as np
 from django.test import TestCase
+
 from website.utils import JSONUtil, MediaUtil, DataUtil, ConversionUtil, LabelUtil, TaskUtil
 from website.types import LabelStyleType, VarType
 from website.models import Result, DBMSCatalog
@@ -250,40 +253,246 @@ class DataUtilTest(TestCase):
 
 
 class ConversionUtilTest(TestCase):
-    def test_get_raw_size(self):
-        # Bytes - In Bytes
-        byte_test_convert = ['1PB', '2TB', '3GB', '4MB', '5kB', '6B']
-        byte_ans = [1024**5, 2 * 1024**4, 3 * 1024**3, 4 * 1024**2, 5 * 1024**1, 6]
-        for i, byte_test in enumerate(byte_test_convert):
-            byte_conversion = ConversionUtil.get_raw_size(
-                byte_test, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
-            self.assertEqual(byte_conversion, byte_ans[i])
 
-        # Time - In Milliseconds
-        day_test_convert = ['1000ms', '1s', '10min', '20h', '1d']
-        day_ans = [1000, 1000, 600000, 72000000, 86400000]
-        for i, day_test in enumerate(day_test_convert):
-            day_conversion = ConversionUtil.get_raw_size(
-                day_test, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
-            self.assertEqual(day_conversion, day_ans[i])
+    def setUp(self):
+        self.bytes_map = OrderedDict(
+            [(suffix, factor) for factor, suffix in ConversionUtil.DEFAULT_BYTES_SYSTEM])
+        self.ms_map = OrderedDict(
+            [(suffix, factor) for factor, suffix in ConversionUtil.DEFAULT_TIME_SYSTEM])
+
+        self.from_hr_bytes_simple = ['1PB', '2TB', '3GB', '4MB', '1024MB', '5kB', '6B']
+        self.as_bytes_simple = [1024**5, 2 * 1024**4, 3 * 1024**3, 4 * 1024**2, 1024**3,
+                                5 * 1024, 6]
+        self.bytes_to_hr_simple = ['1PB', '2TB', '3GB', '4MB', '1GB', '5kB', '6B']
+        self.assertListEqual(
+            [len(l) for l in (self.from_hr_bytes_simple, self.as_bytes_simple,
+                              self.bytes_to_hr_simple)], [len(self.from_hr_bytes_simple)] * 3)
+
+        self.from_hr_times_simple = ['500ms', '1000ms', '1s', '55s', '10min', '20h', '1d']
+        self.as_ms_simple = [500, 1000, 1000, 55000, 600000, 72000000, 86400000]
+        self.ms_to_hr_simple = ['500ms', '1s', '1s', '55s', '10min', '20h', '1d']
+        self.assertListEqual(
+            [len(l) for l in (self.from_hr_times_simple, self.as_ms_simple,
+                              self.ms_to_hr_simple)], [len(self.from_hr_times_simple)] * 3)
+
+        extra_bytes = [3 * factor for factor in self.bytes_map.values()]
+        neb = len(extra_bytes)
+
+        self.test_bytes_lengths = []
+
+        self.from_hr_bytes = [
+            '1PB', '43PB', '1023PB', '1024PB', '1025PB',
+            '1TB', '43TB', '1023TB', '1024TB', '1025TB',
+            '1GB', '43GB', '1023GB', '1024GB', '1025GB',
+            '1MB', '43MB', '1023MB', '1024MB', '1025MB',
+            '1kB', '43kB', '1023kB', '1024kB', '1025kB',
+            '1B', '43B', '1023B', '1024B', '1025B',
+            '46170898432MB', '45088768MB', '44032MB',
+            '44032kB', '44032B', '43kB',
+        ] + ['43{}'.format(suffix) for suffix in list(self.bytes_map.keys())[1:]] + \
+            ['{}B'.format(sum(extra_bytes[i:])) for i in range(neb)]
+        self.test_bytes_lengths.append(len(self.from_hr_bytes))
+
+        self.as_bytes = [
+            1024**5, 43 * 1024**5, 1023 * 1024**5, 1024 * 1024**5, 1025 * 1024**5,
+            1024**4, 43 * 1024**4, 1023 * 1024**4, 1024 * 1024**4, 1025 * 1024**4,
+            1024**3, 43 * 1024**3, 1023 * 1024**3, 1024 * 1024**3, 1025 * 1024**3,
+            1024**2, 43 * 1024**2, 1023 * 1024**2, 1024 * 1024**2, 1025 * 1024**2,
+            1024**1, 43 * 1024**1, 1023 * 1024**1, 1024 * 1024**1, 1025 * 1024**1,
+            1024**0, 43 * 1024**0, 1023 * 1024**0, 1024 * 1024**0, 1025 * 1024**0,
+            46170898432 * 1024**2, 45088768 * 1024**2, 44032 * 1024**2,
+            44032 * 1024, 44032, 43 * 1024,
+        ] + [43 * 1024**i for i in range(len(self.bytes_map) - 1)[::-1]] + \
+            [sum(extra_bytes[i:]) for i in range(neb)]
+        self.test_bytes_lengths.append(len(self.as_bytes))
+
+        self.bytes_to_hr = [
+            '1PB', '43PB', '1023PB', '1024PB', '1025PB',
+            '1TB', '43TB', '1023TB', '1PB', '1PB',
+            '1GB', '43GB', '1023GB', '1TB', '1TB',
+            '1MB', '43MB', '1023MB', '1GB', '1GB',
+            '1kB', '43kB', '1023kB', '1MB', '1MB',
+            '1B', '43B', '1023B', '1kB', '1kB',
+            '43PB', '43TB', '43GB',
+            '43MB', '43kB', '43kB',
+        ] + ['43{}'.format(suffix) for suffix in list(self.bytes_map.keys())[1:]] + \
+            ['3{}'.format(suffix) for suffix in self.bytes_map.keys()]
+        self.test_bytes_lengths.append(len(self.bytes_to_hr))
+
+        self.bytes_to_hr2 = [
+            '1PB', '43PB', '1023PB', '1024PB', '1025PB',
+            '1TB', '43TB', '1023TB', '1PB', '1025TB',
+            '1GB', '43GB', '1023GB', '1TB', '1025GB',
+            '1MB', '43MB', '1023MB', '1GB', '1025MB',
+            '1kB', '43kB', '1023kB', '1MB', '1025kB',
+            '1B', '43B', '1023B', '1kB', '1025B',
+            '43PB', '43TB', '43GB',
+            '43MB', '43kB', '43kB',
+        ] + ['43{}'.format(suffix) for suffix in list(self.bytes_map.keys())[1:]] + \
+            ['{}kB'.format(sum(extra_bytes[i:]) // 1024) for i in range(neb - 1)] + \
+            ['{}B'.format(extra_bytes[-1])]
+        self.test_bytes_lengths.append(len(self.bytes_to_hr2))
+
+        self.min_bytes_suffixes = (25 * ['kB']) + (11 * ['B']) + \
+            list(self.bytes_map.keys())[:-1] + \
+            ((neb - 1) * ['kB']) + ['B']
+        self.test_bytes_lengths.append(len(self.min_bytes_suffixes))
+
+        self.assertListEqual(self.test_bytes_lengths,
+                             [self.test_bytes_lengths[0]] * len(self.test_bytes_lengths))
+
+        self.test_ms_lengths = []
+
+        extra_ms = [3 * factor for factor in self.ms_map.values()]
+        nem = len(extra_ms)
+
+        self.from_hr_times = [
+            '1d', '5d', '6d', '7d', '8d',
+            '1h', '5h', '23h', '24h', '25h',
+            '1min', '5min', '59min', '60min', '61min',
+            '1s', '5s', '59s', '60s', '61s',
+            '1ms', '5ms', '999ms', '1000ms', '1001ms',
+            '7200min', '300min', '300s', '5000ms', '5s',
+        ] + ['5{}'.format(suffix) for suffix in list(self.ms_map.keys())[1:]] + \
+            ['{}ms'.format(sum(extra_ms[i:])) for i in range(nem)]
+        self.test_ms_lengths.append(len(self.from_hr_times))
+
+        self.as_ms = [v * 86400000 for v in (1, 5, 6, 7, 8)] + \
+            [v * 3600000 for v in (1, 5, 23, 24, 25)] + \
+            [v * 60000 for v in (1, 5, 59, 60, 61)] + \
+            [v * 1000 for v in (1, 5, 59, 60, 61)] + \
+            [v * 1 for v in (1, 5, 999, 1000, 1001)] + \
+            [432000000, 18000000, 300000, 5000, 5000] + \
+            [5 * v for v in (3600000, 60000, 1000, 1)] + \
+            [sum(extra_ms[i:]) for i in range(nem)]
+        self.test_ms_lengths.append(len(self.as_ms))
+
+        self.ms_to_hr = [
+            '1d', '5d', '6d', '7d', '8d',
+            '1h', '5h', '23h', '1d', '1d',
+            '1min', '5min', '59min', '1h', '1h',
+            '1s', '5s', '59s', '1min', '1min',
+            '1ms', '5ms', '999ms', '1s', '1s',
+            '5d', '5h', '5min', '5s', '5s',
+        ] + ['5{}'.format(suffix) for suffix in list(self.ms_map.keys())[1:]] + \
+            ['3{}'.format(suffix) for suffix in self.ms_map.keys()]
+        self.test_ms_lengths.append(len(self.ms_to_hr))
+
+        self.ms_to_hr2 = [
+            '1d', '5d', '6d', '7d', '8d',
+            '1h', '5h', '23h', '1d', '25h',
+            '1min', '5min', '59min', '1h', '61min',
+            '1s', '5s', '59s', '1min', '61s',
+            '1ms', '5ms', '999ms', '1s', '1001ms',
+            '5d', '5h', '5min', '5s', '5s',
+        ] + ['5{}'.format(suffix) for suffix in list(self.ms_map.keys())[1:]] + \
+            ['{}s'.format(sum(extra_ms[i:]) // 1000) for i in range(nem - 1)] + \
+            ['{}ms'.format(extra_ms[-1])]
+        self.test_ms_lengths.append(len(self.ms_to_hr2))
+
+        self.min_time_suffixes = (20 * ['s']) + (10 * ['ms']) + list(self.ms_map.keys())[:-1] + \
+            ((nem - 1) * ['s']) + ['ms']
+        self.test_ms_lengths.append(len(self.min_time_suffixes))
+
+        self.assertListEqual(self.test_ms_lengths,
+                             [self.test_ms_lengths[0]] * len(self.test_ms_lengths))
+
+    def test_default_system(self):
+        expected_byte_units = ('B', 'kB', 'MB', 'GB', 'TB', 'PB')
+        expected_byte_values = (1, 1024, 1024**2, 1024**3, 1024**4, 1024**5)
+        self.assertEqual(set(self.bytes_map.keys()), set(expected_byte_units))
+        for unit, exp_val in zip(expected_byte_units, expected_byte_values):
+            self.assertEqual(self.bytes_map[unit], exp_val)
+
+        expected_time_units = ('ms', 's', 'min', 'h', 'd')
+        expected_time_values = (1, 1000, 60000, 3600000, 86400000)
+        self.assertEqual(set(self.ms_map.keys()), set(expected_time_units))
+        for unit, exp_val in zip(expected_time_units, expected_time_values):
+            self.assertEqual(self.ms_map[unit], exp_val)
+
+    def test_get_raw_size_simple(self):
+        # Bytes
+        for hr_value, exp_value in zip(self.from_hr_bytes_simple, self.as_bytes_simple):
+            value = ConversionUtil.get_raw_size(
+                hr_value, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
+            self.assertEqual(value, exp_value)
+
+        # Time
+        for hr_value, exp_value in zip(self.from_hr_times_simple, self.as_ms_simple):
+            value = ConversionUtil.get_raw_size(
+                hr_value, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
+            self.assertEqual(value, exp_value)
+
+    def test_get_raw_size(self):
+        # Bytes
+        for hr_value, exp_value in zip(self.from_hr_bytes, self.as_bytes):
+            byte_conversion = ConversionUtil.get_raw_size(
+                hr_value, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
+            self.assertEqual(byte_conversion, exp_value)
+
+        # Time
+        for hr_value, exp_value in zip(self.from_hr_times, self.as_ms):
+            time_conversion = ConversionUtil.get_raw_size(
+                hr_value, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
+            self.assertEqual(time_conversion, exp_value)
+
+    def test_get_human_readable_simple(self):
+        # Bytes
+        for raw_value, exp_value in zip(self.as_bytes_simple, self.bytes_to_hr_simple):
+            value = ConversionUtil.get_human_readable(
+                raw_value, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
+            self.assertEqual(value, exp_value)
+            value2 = ConversionUtil.get_human_readable2(
+                raw_value, system=ConversionUtil.DEFAULT_BYTES_SYSTEM,
+                min_suffix='B')
+            self.assertEqual(value2, exp_value)
+
+        value = ConversionUtil.get_human_readable2(
+            44, system=ConversionUtil.DEFAULT_BYTES_SYSTEM,
+            min_suffix='kB')
+        self.assertEqual(value, '44B')
+
+        # Time
+        for raw_value, exp_value in zip(self.as_ms_simple, self.ms_to_hr_simple):
+            value = ConversionUtil.get_human_readable(
+                raw_value, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
+            self.assertEqual(value, exp_value)
+            value2 = ConversionUtil.get_human_readable2(
+                raw_value, system=ConversionUtil.DEFAULT_TIME_SYSTEM,
+                min_suffix='ms')
+            self.assertEqual(value2, exp_value)
+
+        value = ConversionUtil.get_human_readable2(
+            44, system=ConversionUtil.DEFAULT_TIME_SYSTEM,
+            min_suffix='s')
+        self.assertEqual(value, '44ms')
 
     def test_get_human_readable(self):
         # Bytes
-        byte_test_convert = [1024**5, 2 * 1024**4, 3 * 1024**3,
-                             4 * 1024**2, 5 * 1024**1, 6]
-        byte_ans = ['1PB', '2TB', '3GB', '4MB', '5kB', '6B']
-        for i, byte_test in enumerate(byte_test_convert):
-            byte_readable = ConversionUtil.get_human_readable(
-                byte_test, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
-            self.assertEqual(byte_readable, byte_ans[i])
+        for i, raw_bytes in enumerate(self.as_bytes):
+            exp_hr = self.bytes_to_hr[i]
+            exp_hr2 = self.bytes_to_hr2[i]
+            min_suffix = self.min_bytes_suffixes[i]
+            hr_value = ConversionUtil.get_human_readable(
+                raw_bytes, system=ConversionUtil.DEFAULT_BYTES_SYSTEM)
+            hr_value2 = ConversionUtil.get_human_readable2(
+                raw_bytes, system=ConversionUtil.DEFAULT_BYTES_SYSTEM,
+                min_suffix=min_suffix)
+            self.assertEqual(hr_value, exp_hr)
+            self.assertEqual(hr_value2, exp_hr2)
 
         # Time
-        day_test_convert = [500, 1000, 55000, 600000, 72000000, 86400000]
-        day_ans = ['500ms', '1s', '55s', '10min', '20h', '1d']
-        for i, day_test in enumerate(day_test_convert):
-            day_readable = ConversionUtil.get_human_readable(
-                day_test, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
-            self.assertEqual(day_readable, day_ans[i])
+        for i, raw_time in enumerate(self.as_ms):
+            exp_hr = self.ms_to_hr[i]
+            exp_hr2 = self.ms_to_hr2[i]
+            min_suffix = self.min_time_suffixes[i]
+            hr_value = ConversionUtil.get_human_readable(
+                raw_time, system=ConversionUtil.DEFAULT_TIME_SYSTEM)
+            hr_value2 = ConversionUtil.get_human_readable2(
+                raw_time, system=ConversionUtil.DEFAULT_TIME_SYSTEM,
+                min_suffix=min_suffix)
+            self.assertEqual(hr_value, exp_hr)
+            self.assertEqual(hr_value2, exp_hr2)
 
 
 class LabelUtilTest(TestCase):
@@ -314,7 +523,7 @@ class LabelUtilTest(TestCase):
                    "Random Word"]
 
         for i, key in enumerate(test_keys):
-            if (key == "???"):  # DBms -> DBMS or DBms?
+            if key == "???":  # DBms -> DBMS or DBms?
                 continue
             self.assertEqual(res_capfirst_label_map[key], cap_ans[i])
 

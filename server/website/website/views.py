@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+# pylint: disable=too-many-lines
 import logging
 import datetime
 import re
@@ -14,6 +15,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.context_processors import csrf
@@ -25,16 +27,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from pytz import timezone
 
+from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
 from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog,
-                     MetricData, MetricManager, Project, Result, Session, Workload,
-                     SessionKnob)
-from .parser import Parser
+                     MetricData, Project, Result, Session, Workload, SessionKnob)
 from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .utils import dump_debug_info, JSONUtil, LabelUtil, MediaUtil, TaskUtil
 from .settings import TIME_ZONE
 
 from .set_default_knobs import set_default_knobs
@@ -139,9 +140,10 @@ def home_projects_view(request):
 
 @login_required(login_url=reverse_lazy('login'))
 def create_or_edit_project(request, project_id=''):
+    form_kwargs = dict(user_id=request.user.pk, project_id=project_id)
     if request.method == 'POST':
         if project_id == '':
-            form = ProjectForm(request.POST)
+            form = ProjectForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_project.html', {'form': form})
             project = form.save(commit=False)
@@ -149,22 +151,24 @@ def create_or_edit_project(request, project_id=''):
             ts = now()
             project.creation_time = ts
             project.last_update = ts
-            project.save()
         else:
             project = get_object_or_404(Project, pk=project_id, user=request.user)
-            form = ProjectForm(request.POST, instance=project)
+            form_kwargs.update(instance=project)
+            form = ProjectForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_project.html', {'form': form})
             project.last_update = now()
-            project.save()
+
+        project.save()
         return redirect(reverse('project_sessions', kwargs={'project_id': project.pk}))
     else:
         if project_id == '':
             project = None
-            form = ProjectForm()
+            form = ProjectForm(**form_kwargs)
         else:
-            project = Project.objects.get(pk=int(project_id))
-            form = ProjectForm(instance=project)
+            project = Project.objects.get(pk=project_id)
+            form_kwargs.update(instance=project)
+            form = ProjectForm(**form_kwargs)
         context = {
             'project': project,
             'form': form,
@@ -189,6 +193,10 @@ def project_sessions_view(request, project_id):
         'button_create': 'create a new session',
     }))
     form_labels['title'] = "Your Sessions"
+    for session in sessions:
+        session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
+        session.algorithm_name = AlgorithmType.name(session.algorithm)
+
     context = {
         "sessions": sessions,
         "project": project,
@@ -237,14 +245,19 @@ def session_view(request, project_id, session_id):
         default_workload = 'show_none'
         default_confs = 'none'
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(
+        session.dbms.pk, session.target_objective)
 
     knobs = SessionKnob.objects.get_knobs_for_session(session)
     knob_names = [knob["name"] for knob in knobs if knob["tunable"]]
 
+    session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
+    session.algorithm_name = AlgorithmType.name(session.algorithm)
+
     form_labels = Session.get_labels()
     form_labels['title'] = "Session Info"
+
     context = {
         'project': project,
         'dbmss': dbmss,
@@ -261,7 +274,6 @@ def session_view(request, project_id, session_id):
         'knob_names': knob_names,
         'filters': [],
         'session': session,
-        'algorithm_name': AlgorithmType.TYPE_NAMES[session.algorithm],
         'results': results,
         'labels': form_labels,
     }
@@ -272,13 +284,14 @@ def session_view(request, project_id, session_id):
 @login_required(login_url=reverse_lazy('login'))
 def create_or_edit_session(request, project_id, session_id=''):
     project = get_object_or_404(Project, pk=project_id, user=request.user)
+    form_kwargs = dict(user_id=request.user.pk, project_id=project_id, session_id=session_id)
     if request.method == 'POST':
         if not session_id:
             # Create a new session from the form contents
-            form = SessionForm(request.POST)
+            form = SessionForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_session.html',
-                              {'project': project, 'form': form})
+                              {'project': project, 'form': form, 'session': None})
             session = form.save(commit=False)
             session.user = request.user
             session.project = project
@@ -291,7 +304,8 @@ def create_or_edit_session(request, project_id, session_id=''):
         else:
             # Update an existing session with the form contents
             session = Session.objects.get(pk=session_id)
-            form = SessionForm(request.POST, instance=session)
+            form_kwargs.update(instance=session)
+            form = SessionForm(request.POST, **form_kwargs)
             if not form.is_valid():
                 return render(request, 'edit_session.html',
                               {'project': project, 'form': form, 'session': session})
@@ -306,17 +320,19 @@ def create_or_edit_session(request, project_id, session_id=''):
         if session_id:
             # Return a pre-filled form for editing an existing session
             session = Session.objects.get(pk=session_id)
-            form = SessionForm(instance=session)
+            form_kwargs.update(instance=session)
+            form = SessionForm(**form_kwargs)
         else:
             # Return a new form with defaults for creating a new session
             session = None
-            form = SessionForm(
+            form_kwargs.update(
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
                     'algorithm': AlgorithmType.GPR,
-                    'target_objective': 'throughput_txn_per_sec',
+                    'target_objective': target_objectives.default(),
                 })
+            form = SessionForm(**form_kwargs)
         context = {
             'project': project,
             'session': session,
@@ -336,18 +352,24 @@ def edit_knobs(request, project_id, session_id):
                           {'project': project, 'session': session, 'form': form})
         instance = form.instance
         instance.session = session
-        instance.knob = KnobCatalog.objects.filter(dbms=session.dbms,
-                                                   name=form.cleaned_data["name"])[0]
+        instance.knob = KnobCatalog.objects.get(dbms=session.dbms,
+                                                name=form.cleaned_data["name"])
         SessionKnob.objects.filter(session=instance.session, knob=instance.knob).delete()
         instance.save()
         return HttpResponse(status=204)
     else:
+        # knobs = KnobCatalog.objects.filter(dbms=session.dbms).order_by('-tunable')
         knobs = SessionKnob.objects.filter(session=session).order_by('-tunable', 'knob__name')
         forms = []
         for knob in knobs:
             knob_values = model_to_dict(knob)
             knob_values['session'] = session
             knob_values['name'] = KnobCatalog.objects.get(pk=knob.knob.pk).name
+            # if SessionKnob.objects.filter(session=session, knob=knob).exists():
+            #     new_knob = SessionKnob.objects.filter(session=session, knob=knob)[0]
+            #     knob_values["minval"] = new_knob.minval
+            #     knob_values["maxval"] = new_knob.maxval
+            #     knob_values["tunable"] = new_knob.tunable
             forms.append(SessionKnobForm(initial=knob_values))
         context = {
             'project': project,
@@ -371,12 +393,12 @@ def result_view(request, project_id, session_id, result_id):
     target = get_object_or_404(Result, pk=result_id)
     session = target.session
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
-    metric_data = JSONUtil.loads(target.metric_data.data)
+    # default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
+    # metric_data = JSONUtil.loads(target.metric_data.data)
 
-    default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
-                       for mname in default_metrics}
+    # default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
+    #                    for mname in default_metrics}
 
     status = None
     if target.task_ids is not None:
@@ -412,7 +434,6 @@ def new_result(request):
         if not form.is_valid():
             LOG.warning("New result form is not valid: %s", str(form.errors))
             return HttpResponse("New result form is not valid: " + str(form.errors), status=400)
-
         upload_code = form.cleaned_data['upload_code']
         try:
             session = Session.objects.get(upload_code=upload_code)
@@ -421,7 +442,6 @@ def new_result(request):
             return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
         return handle_result_files(session, request.FILES)
-
     LOG.warning("Request type was not POST")
     return HttpResponse("Request type was not POST", status=400)
 
@@ -439,11 +459,11 @@ def handle_result_files(session, files):
     observation_time = summary['observation_time']
     start_time = datetime.fromtimestamp(
         # int(summary['start_time']), # unit: seconds
-        int(summary['start_time']) / 1000,  # unit: ms
+        int(float(summary['start_time']) / 1000),  # unit: ms
         timezone(TIME_ZONE))
     end_time = datetime.fromtimestamp(
         # int(summary['end_time']), # unit: seconds
-        int(summary['end_time']) / 1000,  # unit: ms
+        int(float(summary['end_time']) / 1000),  # unit: ms
         timezone(TIME_ZONE))
 
     # Check if workload name only contains alpha-numeric, underscore and hyphen
@@ -467,23 +487,23 @@ def handle_result_files(session, files):
                             '(actual=' + dbms.full_name + ')')
 
     # Load, process, and store the knobs in the DBMS's configuration
-    knob_dict, knob_diffs = Parser.parse_dbms_knobs(
+    knob_dict, knob_diffs = parser.parse_dbms_knobs(
         dbms.pk, JSONUtil.loads(files['knobs']))
-    tunable_knob_dict = Parser.convert_dbms_knobs(
+    tunable_knob_dict = parser.convert_dbms_knobs(
         dbms.pk, knob_dict)
     knob_data = KnobData.objects.create_knob_data(
         session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
         JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
 
     # Load, process, and store the runtime metrics exposed by the DBMS
-    initial_metric_dict, initial_metric_diffs = Parser.parse_dbms_metrics(
+    initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
         dbms.pk, JSONUtil.loads(files['metrics_before']))
-    final_metric_dict, final_metric_diffs = Parser.parse_dbms_metrics(
+    final_metric_dict, final_metric_diffs = parser.parse_dbms_metrics(
         dbms.pk, JSONUtil.loads(files['metrics_after']))
-    metric_dict = Parser.calculate_change_in_metrics(
+    metric_dict = parser.calculate_change_in_metrics(
         dbms.pk, initial_metric_dict, final_metric_dict)
     initial_metric_diffs.extend(final_metric_diffs)
-    numeric_metric_dict = Parser.convert_dbms_metrics(
+    numeric_metric_dict = parser.convert_dbms_metrics(
         dbms.pk, metric_dict, observation_time, session.target_objective)
     metric_data = MetricData.objects.create_metric_data(
         session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
@@ -638,11 +658,11 @@ def metric_data_view(request, project_id, session_id, data_id):  # pylint: disab
 def dbms_data_view(request, context, dbms_data):
     if context['data_type'] == 'knobs':
         model_class = KnobData
-        filter_fn = Parser.filter_tunable_knobs
+        filter_fn = parser.filter_tunable_knobs
         obj_data = dbms_data.knobs
     else:
         model_class = MetricData
-        filter_fn = Parser.filter_numeric_metrics
+        filter_fn = parser.filter_numeric_metrics
         obj_data = dbms_data.metrics
 
     dbms_id = dbms_data.dbms.pk
@@ -695,8 +715,8 @@ def workload_view(request, project_id, session_id, wkld_id):  # pylint: disable=
     default_knob_confs = [c for c, _ in list(knob_conf_map.values())][:5]
     LOG.debug("default_knob_confs: %s", default_knob_confs)
 
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
+    default_metrics = [session.target_objective]
 
     labels = Workload.get_labels()
     labels['title'] = 'Workload Information'
@@ -718,6 +738,17 @@ def download_next_config(request):
     response = HttpResponse(res.next_configuration,
                             content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=result_' + str(result_id) + '.cnf'
+    return response
+
+
+@login_required(login_url=reverse_lazy('login'))
+def download_debug_info(request, project_id, session_id):  # pylint: disable=unused-argument
+    session = Session.objects.get(pk=session_id)
+    content, filename = dump_debug_info(session, pretty_print=False)
+    file = ContentFile(content.getvalue())
+    response = HttpResponse(file, content_type='application/x-gzip')
+    response['Content-Length'] = file.size
+    response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(filename)
     return response
 
 
@@ -768,9 +799,9 @@ def get_workload_data(request):
 
     results = Result.objects.filter(workload=workload)
     result_data = {r.pk: JSONUtil.loads(r.metric_data.data) for r in results}
-    results = sorted(results, key=lambda x: int(result_data[x.pk][MetricManager.THROUGHPUT]))
+    results = sorted(results, key=lambda x: int(result_data[x.pk][target_objectives.THROUGHPUT]))
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
+    default_metrics = [session.target_objective]
     metrics = request.GET.get('met', ','.join(default_metrics)).split(',')
     metrics = [m for m in metrics if m != 'none']
     if len(metrics) == 0:
@@ -779,7 +810,7 @@ def get_workload_data(request):
     data_package = {'results': [],
                     'error': 'None',
                     'metrics': metrics}
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
     for met in data_package['metrics']:
         met_info = metric_meta[met]
         data_package['results'].append({'data': [[]], 'tick': [],
@@ -838,9 +869,8 @@ def get_timeline_data(request):
     if session.user != request.user:
         return HttpResponse(JSONUtil.dumps(data_package), content_type='application/json')
 
-    default_metrics = MetricCatalog.objects.get_default_metrics(session.target_objective)
-
-    metric_meta = MetricCatalog.objects.get_metric_meta(session.dbms, session.target_objective)
+    default_metrics = [session.target_objective]
+    metric_meta = target_objectives.get_metric_metadata(session.dbms.pk, session.target_objective)
     for met in default_metrics:
         met_info = metric_meta[met]
         columnnames.append(met_info.pprint + ' (' + met_info.short_unit + ')')
@@ -949,33 +979,59 @@ def get_timeline_data(request):
 
 # get the lastest result
 def give_result(request, upload_code):  # pylint: disable=unused-argument
+
+    def _failed_response(_latest_result, _tasks, _num_completed, _status, _msg):
+        _msg = "{}\nSTATUS: {}\nRESULT ID: {}\n".format(_msg, _status, _latest_result)
+        if tasks:
+            _failed_task_idx = min(len(_tasks) - 1, _num_completed + 1)
+            _failed_task = _tasks[_failed_task_idx]
+            _msg += "TRACEBACK: {}".format(_failed_task.traceback)
+        return HttpResponse(_msg, status=400)
+
     try:
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
         LOG.warning("Invalid upload code: %s", upload_code)
         return HttpResponse("Invalid upload code: " + upload_code, status=400)
-    results = Result.objects.filter(session=session)
-    lastest_result = results[len(results) - 1]
 
-    tasks = TaskUtil.get_tasks(lastest_result.task_ids)
+    latest_result = Result.objects.filter(session=session).latest('creation_time')
+    tasks = TaskUtil.get_tasks(latest_result.task_ids)
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
     if overall_status == 'SUCCESS':
-        res = Result.objects.get(pk=lastest_result.pk)
-        response = HttpResponse(JSONUtil.dumps(res.next_configuration),
-                                content_type='application/json')
+        next_config = latest_result.next_configuration
+        if not next_config:
+            overall_status = 'FAILURE'
+            response = _failed_response(latest_result, tasks, num_completed, overall_status,
+                                        'Failed to get the next configuration.')
+        else:
+            response = HttpResponse(JSONUtil.dumps(next_config),
+                                    content_type='application/json')
 
     elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
-        msg = "STATUS: {}\nRESULT ID: {}\n".format(overall_status, lastest_result)
-        if tasks:
-            failed_task_idx = min(len(tasks) - 1, num_completed + 1)
-            failed_task = tasks[failed_task_idx]
-            msg += "TRACEBACK: {}".format(failed_task.traceback)
-        response = HttpResponse(msg, status=400)
+        response = _failed_response(latest_result, tasks, num_completed, overall_status,
+                                    'Celery failed to get the next configuration.')
 
     else:  # overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
         response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
 
+    return response
+
+
+# get the lastest result
+def get_debug_info(request, upload_code):  # pylint: disable=unused-argument
+    pprint = bool(int(request.GET.get('pp', False)))
+    try:
+        session = Session.objects.get(upload_code=upload_code)
+    except Session.DoesNotExist:
+        LOG.warning("Invalid upload code: %s", upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code, status=400)
+
+    content, filename = dump_debug_info(session, pretty_print=pprint)
+    file = ContentFile(content.getvalue())
+    response = HttpResponse(file, content_type='application/x-gzip')
+    response['Content-Length'] = file.size
+    response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(filename)
     return response
 
 

@@ -1,18 +1,21 @@
 #
-# OtterTune - base.py
+# OtterTune - parser.py
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 from collections import OrderedDict
 
-from website.models import KnobCatalog, MetricCatalog
+from website.models import KnobCatalog, KnobUnitType, MetricCatalog
 from website.types import BooleanType, MetricType, VarType
+from website.utils import ConversionUtil
+from .. import target_objectives
 
 
 # pylint: disable=no-self-use
 class BaseParser:
 
     def __init__(self, dbms_obj):
+        self.dbms_id = int(dbms_obj.pk)
         knobs = KnobCatalog.objects.filter(dbms=dbms_obj)
         self.knob_catalog_ = {k.name: k for k in knobs}
         self.tunable_knob_catalog_ = {
@@ -31,25 +34,10 @@ class BaseParser:
         self.true_value = 'on'
         self.false_value = 'off'
 
-    @property
-    def transactions_counter(self):
-        raise NotImplementedError()
-
-    @property
-    def latency_timer(self):
-        raise NotImplementedError()
-
-    def target_metric(self, target_objective=None):
-        if target_objective == 'throughput_txn_per_sec' or target_objective is None:
-            # throughput
-            res = self.transactions_counter
-        elif target_objective == '99th_lat_ms':
-            # 99 percentile latency
-            res = self.latency_timer
-        else:
-            raise Exception("Target Objective {} Not Supported".format(target_objective))
-
-        return res
+        self.bytes_system = ConversionUtil.DEFAULT_BYTES_SYSTEM
+        self.time_system = ConversionUtil.DEFAULT_TIME_SYSTEM
+        self.min_bytes_unit = 'kB'
+        self.min_time_unit = 'ms'
 
     def parse_version_string(self, version_string):
         return version_string
@@ -79,11 +67,25 @@ class BaseParser:
 
     def convert_integer(self, int_value, metadata):
         try:
-            res = int(int_value)
-        except ValueError:
-            res = int(float(int_value))
+            try:
+                converted = int(int_value)
+            except ValueError:
+                converted = int(float(int_value))
 
-        return res
+        except ValueError:
+            if metadata.unit == KnobUnitType.BYTES:
+                converted = ConversionUtil.get_raw_size(
+                    int_value, system=self.bytes_system)
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
+                converted = ConversionUtil.get_raw_size(
+                    int_value, system=self.time_system)
+            else:
+                raise Exception(
+                    'Unknown unit type: {}'.format(metadata.unit))
+        if converted is None:
+            raise Exception('Invalid integer format for {}: {}'.format(
+                metadata.name, int_value))
+        return converted
 
     def convert_real(self, real_value, metadata):
         return float(real_value)
@@ -158,43 +160,51 @@ class BaseParser:
         return knob_data
 
     def _check_knob_num_in_range(self, value, mdata):
-        return value >= float(mdata.minval) and value <= float(mdata.maxval)
+        return float(mdata.minval) <= value <= float(mdata.maxval)
 
     def _check_knob_bool_val(self, value):
         if isinstance(str, value):
             value = value.lower()
         return value in self.valid_true_val or value in self.valid_false_val
 
-    def convert_dbms_metrics(self, metrics, observation_time, target_objective=None):
-        #         if len(metrics) != len(self.numeric_metric_catalog_):
-        #             raise Exception('The number of metrics should be equal!')
+    def convert_dbms_metrics(self, metrics, observation_time, target_objective):
         metric_data = {}
-        for name, metadata in list(self.numeric_metric_catalog_.items()):
+        # Same as metric_data except COUNTER metrics are not divided by the time
+        base_metric_data = {}
+
+        for name, metadata in self.numeric_metric_catalog_.items():
             value = metrics[name]
-            if metadata.metric_type == MetricType.COUNTER:
-                converted = self.convert_integer(value, metadata)
-                metric_data[name] = float(converted) / observation_time
-            elif metadata.metric_type == MetricType.STATISTICS:
-                converted = self.convert_integer(value, metadata)
-                metric_data[name] = float(converted)
+
+            if metadata.vartype == VarType.INTEGER:
+                converted = float(self.convert_integer(value, metadata))
+            elif metadata.vartype == VarType.REAL:
+                converted = self.convert_real(value, metadata)
             else:
-                raise Exception(
+                raise ValueError(
+                    ("Found non-numeric metric '{}' in the numeric "
+                     "metric catalog: value={}, type={}").format(
+                         name, value, VarType.name(metadata.vartype)))
+
+            if metadata.metric_type == MetricType.COUNTER:
+                assert isinstance(converted, float)
+                base_metric_data[name] = converted
+                metric_data[name] = converted / observation_time
+            elif metadata.metric_type == MetricType.STATISTICS:
+                assert isinstance(converted, float)
+                base_metric_data[name] = converted
+                metric_data[name] = converted
+            else:
+                raise ValueError(
                     'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
-        if target_objective is not None and self.target_metric(target_objective) not in metric_data:
-            raise Exception("Cannot find objective function")
-
-        if target_objective is not None:
-            metric_data[target_objective] = metric_data[self.target_metric(target_objective)]
-        else:
-            # default
-            metric_data['throughput_txn_per_sec'] = \
-                metric_data[self.target_metric(target_objective)]
+        target_objective_instance = target_objectives.get_instance(
+            self.dbms_id, target_objective)
+        metric_data[target_objective] = target_objective_instance.compute(
+            base_metric_data, observation_time)
 
         return metric_data
 
-    @staticmethod
-    def extract_valid_variables(variables, catalog, default_value=None):
+    def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
         diff_log = []
         valid_lc_variables = {k.lower(): v for k, v in list(catalog.items())}
@@ -260,8 +270,7 @@ class BaseParser:
             assert len(valid_knobs[k]) == 1
             valid_knobs[k] = valid_knobs[k][0]
         # Extract all valid knobs
-        return BaseParser.extract_valid_variables(
-            valid_knobs, self.knob_catalog_)
+        return self.extract_valid_variables(valid_knobs, self.knob_catalog_)
 
     def parse_dbms_metrics(self, metrics):
         # Some DBMSs measure different types of stats (e.g., global, local)
@@ -270,7 +279,7 @@ class BaseParser:
         valid_metrics = self.parse_dbms_variables(metrics)
 
         # Extract all valid metrics
-        valid_metrics, diffs = BaseParser.extract_valid_variables(
+        valid_metrics, diffs = self.extract_valid_variables(
             valid_metrics, self.metric_catalog_, default_value='0')
 
         # Combine values
@@ -307,7 +316,11 @@ class BaseParser:
                     adj_val = end_val - start_val
                 else:  # MetricType.STATISTICS or MetricType.INFO
                     adj_val = end_val
-                assert adj_val >= 0, '{} wrong metric type '.format(met_name)
+                assert adj_val >= 0, \
+                    '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
+                        met_name, MetricType.name(met_info.metric_type), start_val,
+                        end_val, end_val - start_val)
+
                 adjusted_metrics[met_name] = adj_val
             else:
                 # This metric is either a bool, enum, string, or timestamp
@@ -334,7 +347,20 @@ class BaseParser:
         return enumvals[int(round(enum_value))]
 
     def format_integer(self, int_value, metadata):
-        return int(round(int_value))
+        int_value = int(round(int_value))
+        if metadata.unit != KnobUnitType.OTHER and int_value > 0:
+            if metadata.unit == KnobUnitType.BYTES:
+                int_value = ConversionUtil.get_human_readable2(
+                    int_value, self.bytes_system, 'kB')
+            elif metadata.unit == KnobUnitType.MILLISECONDS:
+                int_value = ConversionUtil.get_human_readable2(
+                    int_value, self.time_system, 'ms')
+            else:
+                raise Exception(
+                    'Invalid unit type for {}: {}'.format(
+                        metadata.name, metadata.unit))
+
+        return int_value
 
     def format_real(self, real_value, metadata):
         return round(float(real_value), 3)

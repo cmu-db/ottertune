@@ -8,12 +8,12 @@ ENV PATH=${GRADLE_HOME}/bin:${PATH}
 COPY ./server/website/requirements.txt /
 
 RUN yum update -y \
-    && yum install -y mariadb mariadb-devel \
+    && yum install -y mariadb mariadb-devel postgresql \
         https://centos7.iuscommunity.org/ius-release.rpm \
     && yum install -y gcc git MySQL-python openldap-devel \
         parallel python36u python36u-devel python36u-libs \
-        python36u-pip python36u-tkinter rabbitmq-server \
-        java-11-openjdk-devel wget which unzip curl \
+        python36u-pip rabbitmq-server java-11-openjdk-devel \
+        wget which unzip curl \
 	&& yum -y autoremove \
 	&& yum clean metadata \
     && yum clean all \

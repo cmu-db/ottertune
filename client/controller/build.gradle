@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    runtime fileTree(dir: 'lib', include: '*.jar')
+    runtime fileTree(dir: 'libs', include: '*.jar')
     compile group: 'net.sourceforge.collections', name: 'collections-generic', version: '4.01'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'log4j', name: 'log4j', version: '1.2.17'
@@ -51,8 +51,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.postgresql/postgresql
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc41'
 
-    // This lib has to be manually downloaded from Oracle
-    dependencies {compile files('lib/ojdbc8.jar')}
+    // For Oracle, create the directory client/controller/libs and copy the driver
+    // (e.g., ojdbc8.jar) into it. The driver must be manually downloaded from Oracle.
 }
 
 run {

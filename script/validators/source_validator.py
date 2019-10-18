@@ -67,17 +67,14 @@ EXCLUDE_DIRECTORIES = [
     # Django manage.py extensions
     os.path.join(OTTERTUNE_DIR, "server/website/website/management"),
 
-    # Old management scripts
-    os.path.join(OTTERTUNE_DIR, "server/website/script/management"),
+    # Stand-alone scripts
+    os.path.join(OTTERTUNE_DIR, "server/website/script"),
 ]
 
 # Files that should NOT be checked
 EXCLUDE_FILES = [
     # Django-generated files
     os.path.join(OTTERTUNE_DIR, 'server/website/manage.py'),
-
-    # Docker files
-    os.path.join(OTTERTUNE_DIR, 'server/website/createadmin.py'),
 ]
 
 CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR,

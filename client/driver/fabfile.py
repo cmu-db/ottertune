@@ -35,7 +35,7 @@ RELOAD_INTERVAL = 10
 # maximum disk usage
 MAX_DISK_USAGE = 90
 # Postgres datadir
-PG_DATADIR = '/var/lib/postgresql/11/main'
+PG_DATADIR = '/var/lib/postgresql/9.6/main'
 
 # Load config
 with open('driver_config.json', 'r') as _f:

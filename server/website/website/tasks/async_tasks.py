@@ -6,7 +6,6 @@
 import random
 import queue
 import numpy as np
-import json
 from pyDOE import lhs
 from scipy.stats import uniform
 
@@ -151,19 +150,19 @@ def aggregate_target_results(result_id, algorithm):
     newest_result = Result.objects.get(pk=result_id)
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
     if newest_result.session.tuning_session == 'lhs':
-        allSamples = json.loads(newest_result.session.lhs_samples)
-        if len(allSamples) == 0:
+        all_samples = JSONUtil.loads(newest_result.session.lhs_samples)
+        if len(all_samples) == 0:
             knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
-            allSamples = gen_lhs_samples(knobs, 100)
+            all_samples = gen_lhs_samples(knobs, 100)
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
-                      AlgorithmType.name(algorithm), JSONUtil.dumps(allSamples[:5], pprint=True))
-        samples = allSamples.pop()
+                      AlgorithmType.name(algorithm), JSONUtil.dumps(all_samples[:5], pprint=True))
+        samples = all_samples.pop()
         result = Result.objects.filter(pk=result_id)
         agg_data = DataUtil.aggregate_data(result)
         agg_data['newest_result_id'] = result_id
         agg_data['bad'] = True
         agg_data['config_recommend'] = samples
-        newest_result.session.lhs_samples = json.dumps(allSamples)
+        newest_result.session.lhs_samples = JSONUtil.dumps(all_samples)
         newest_result.session.save()
         LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
@@ -239,6 +238,7 @@ def gen_random_data(knobs):
 
     return random_knob_result
 
+
 def gen_lhs_samples(knobs, nsamples):
     names = []
     maxvals = []
@@ -258,7 +258,6 @@ def gen_lhs_samples(knobs, nsamples):
     scales = maxvals - minvals
     for fidx in range(nfeats):
         samples[:, fidx] = uniform(loc=minvals[fidx], scale=scales[fidx]).ppf(samples[:, fidx])
-    
     lhs_samples = []
     for sidx in range(nsamples):
         lhs_samples.append(dict())
@@ -271,7 +270,6 @@ def gen_lhs_samples(knobs, nsamples):
                 LOG.debug("LHS type not supported: %s", types[fidx])
 
     return lhs_samples
-
 
 
 @task(base=TrainDDPG, name='train_ddpg')

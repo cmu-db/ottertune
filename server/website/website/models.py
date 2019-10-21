@@ -134,7 +134,8 @@ class Session(BaseModel):
     TUNING_OPTIONS = OrderedDict([
         ("tuning_session", "Tuning Session"),
         ("no_tuning_session", "No Tuning"),
-        ("randomly_generate", "Randomly Generate")
+        ("randomly_generate", "Randomly Generate"),
+        ("lhs", "Run LHS")
     ])
 
     user = models.ForeignKey(User)
@@ -144,6 +145,7 @@ class Session(BaseModel):
     hardware = models.ForeignKey(Hardware)
     algorithm = models.IntegerField(choices=AlgorithmType.choices(),
                                     default=AlgorithmType.GPR)
+    lhs_samples = models.TextField(default="[]")
     ddpg_actor_model = models.BinaryField(null=True, blank=True)
     ddpg_critic_model = models.BinaryField(null=True, blank=True)
     ddpg_reply_memory = models.BinaryField(null=True, blank=True)

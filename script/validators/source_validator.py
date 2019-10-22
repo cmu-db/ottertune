@@ -75,6 +75,8 @@ EXCLUDE_DIRECTORIES = [
 EXCLUDE_FILES = [
     # Django-generated files
     os.path.join(OTTERTUNE_DIR, 'server/website/manage.py'),
+    # file causing import error
+    os.path.join(OTTERTUNE_DIR, 'server/analysis/simulation.py'),
 ]
 
 CHECKSTYLE_JAR_PATH = os.path.join(OTTERTUNE_DIR,

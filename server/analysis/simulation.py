@@ -5,12 +5,10 @@
 #
 
 
-import imp
 import random
 import os
 import sys
 try:
-    imp.find_module('matplotlib.pyplot')
     import matplotlib.pyplot as plt
 except (ModuleNotFoundError, ImportError):
     plt = None

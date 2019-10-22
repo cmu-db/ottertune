@@ -9,7 +9,7 @@ mock==2.0.0
 Fabric3>=1.13.1.post1
 hurry.filesize>=0.9
 numpy==1.14.0
-requests==2.18.4
+requests==2.20.0
 pycodestyle==2.3.1
 astroid==1.5.1
 psycopg2-binary>=2.5.4

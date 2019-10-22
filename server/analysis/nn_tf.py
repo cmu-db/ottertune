@@ -12,7 +12,6 @@ import pickle
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
 
 from .util import get_analysis_logger
 
@@ -50,10 +49,10 @@ class NeuralNet(object):
         self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
         # input X is placeholder, weights are variables.
         self.model = keras.Sequential([
-            layers.Dense(64, activation=tf.nn.relu, input_shape=[n_input]),
-            layers.Dropout(0.5),
-            layers.Dense(64, activation=tf.nn.relu),
-            layers.Dense(1)
+            keras.layers.Dense(64, activation=tf.nn.relu, input_shape=[n_input]),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(64, activation=tf.nn.relu),
+            keras.layers.Dense(1)
         ])
         self.model.compile(loss='mean_squared_error',
                            optimizer=self.optimizer,

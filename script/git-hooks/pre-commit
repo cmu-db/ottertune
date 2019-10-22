@@ -14,7 +14,7 @@
 #   ln -s ../../script/git-hooks/pre-commit ./pre-commit
 
 
-FILES=$(git diff --name-only --cached --diff-filter=d | grep -E '*\.(py|java)$')
+FILES=$(git diff --name-only --cached --diff-filter=d | grep -E '.*\.(py|java)$')
 
 WEBSITE_TESTS_RESULT=0
 ANALYSIS_TESTS_RESULT=0

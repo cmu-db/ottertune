@@ -206,15 +206,15 @@ def validate_dir(root_dir):
 def get_git_files(state):
     if state == 'staged':
         # Files staged for commit
-        cmd = r"git diff --name-only --cached --diff-filter=d | grep -E '*\.(py|java)$'"
+        cmd = r"git diff --name-only --cached --diff-filter=d | grep -E '.*\.(py|java)$'"
 
     elif state == 'unstaged':
         # Tracked files not staged for commit
-        cmd = r"git diff --name-only --diff-filter=d | grep -E '*\.(py|java)$'"
+        cmd = r"git diff --name-only --diff-filter=d | grep -E '.*\.(py|java)$'"
 
     elif state == 'untracked':
         # Untracked files not staged for commit
-        cmd = r"git ls-files --other --exclude-standard | grep -E '*\.(py|java)$'"
+        cmd = r"git ls-files --other --exclude-standard | grep -E '.*\.(py|java)$'"
 
     with settings(warn_only=True):
         res = local(cmd, capture=True)

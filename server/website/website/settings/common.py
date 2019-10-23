@@ -198,6 +198,18 @@ INSTALLED_APPS = (
 )
 
 # ==============================================
+# DATABASE CONFIGURATION
+# ==============================================
+
+# Enables compression on MySQL >= 5.6 on tables:
+#  - website_backupdata
+#  - website_knobdata
+#  - website_metricdata
+#  - website_pipelinedata
+MYSQL_COMPRESSION = False
+
+
+# ==============================================
 # RABBITMQ/CELERY CONFIGURATION
 # ==============================================
 

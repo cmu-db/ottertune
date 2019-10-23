@@ -21,10 +21,12 @@ class OUProcess(object):
         self.sigma = sigma
         self.current_value = np.ones(self.n_actions) * self.mu
 
-    def reset(self, sigma=0):
+    def reset(self, sigma=0, theta=0):
         self.current_value = np.ones(self.n_actions) * self.mu
         if sigma != 0:
             self.sigma = sigma
+        if theta != 0:
+            self.theta = theta
 
     def noise(self):
         x = self.current_value

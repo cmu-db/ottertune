@@ -32,9 +32,8 @@ class TestDDPG(unittest.TestCase):
             metric_data = np.array([random.random()])
             reward = 1.0 if (prev_metric_data[0] - 0.5) * (knob_data[0] - 0.5) > 0 else 0.0
             reward = np.array([reward])
-            cls.ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data, False)
-            if len(cls.ddpg.replay_memory) > 32:
-                cls.ddpg.update()
+            cls.ddpg.add_sample(prev_metric_data, knob_data, reward, metric_data)
+            cls.ddpg.update()
 
     def test_ddpg_ypreds(self):
         total_reward = 0.0

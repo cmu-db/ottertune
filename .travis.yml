@@ -47,7 +47,7 @@ script:
   - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && coverage run --source=website manage.py test --noinput -v 2 && (codecov -F website || (sleep 5 && codecov -F website) || (sleep 5 && codecov -F website))"
   # Only run the linter once on ubuntu 18.04
   - if [ $DOCKER_OS == ubuntu-18.04 ]; then
-      docker-compose -f docker-compose.test.yml run --workdir="/app" --rm test bash -c "git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git lint";
+      docker-compose -f docker-compose.test.yml run --workdir="/app" --rm -e TRAVIS_COMMIT_RANGE=$TRAVIS_COMMIT_RANGE test bash -c "git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git status && git lint";
     fi
 
 after_script:

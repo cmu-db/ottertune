@@ -39,7 +39,7 @@ class ProjectForm(forms.ModelForm):
                 self._errors['name'] = ["Project '{}' already exists.".format(new_name)]
         return valid
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         model = Project
 
         fields = ['name', 'description']
@@ -130,7 +130,7 @@ class SessionForm(forms.ModelForm):
 
         return model
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         model = Session
 
         fields = ('name', 'description', 'tuning_session', 'dbms', 'cpu', 'memory', 'storage',
@@ -154,6 +154,6 @@ class SessionKnobForm(forms.ModelForm):
         self.fields['knob'].required = False
         self.fields['name'].widget.attrs['readonly'] = True
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         model = SessionKnob
         fields = ['session', 'knob', 'minval', 'maxval', 'tunable']

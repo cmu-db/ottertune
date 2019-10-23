@@ -1,0 +1,400 @@
+# Copyright 2013-2014 Sebastian Kreft
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Regular expression matchers like \d, \w, must be escaped as in \\d, \\w.
+# If you need to include a string like '{}' or '{foo}', you need to double the
+# braces, as in '{{}}' or '{{foo}}'. See the pylint configuration for an
+# example.
+
+# NOTE: filter are regular expressions, and for readability they are broken up
+# using '>-' line folding from YAML. This means that between each line a space
+# will be added.
+
+
+# Python
+pylint:
+  extensions:
+    - .py
+  command: pylint
+  arguments:
+    - --rcfile={REPO_HOME}/script/formatting/config/pylintrc
+    - --output-format=text
+    - >-
+      --msg-template={{abspath}}:{{line}}:{{column}}:
+      [{{category}}:{{symbol}}] {{obj}}: {{msg}}
+    - --reports=n
+    - --verbose
+  filter: >-
+    ^{filename}:(?P<line>{lines}):((?P<column>\d+):)?
+    \[(?P<severity>.+):(?P<message_id>\S+)\]\s+(:
+    )?(?P<message>.+)$
+  installation: "Run pip install pylint."
+
+# Sample output:
+# package/module.py:68:80: E501 line too long (80 > 79 characters)
+pycodestyle:
+  extensions:
+    - .py
+  command: pycodestyle
+  arguments:
+    - "--ignore=E121,E123,E126,E226,E24,E704,W503,E501"
+    - "--max-line-length=100"
+  filter: >-
+    ^{filename}:(?P<line>{lines}):((?P<column>\d+):)?
+    (?P<message_id>\S+) (?P<message>.+)$
+  installation: "Run pip install pycodestyle."
+
+# Java
+# Sample output:
+# /path_to/error.java:0: Missing package-info.java file.
+# /path_to/error.java:1:7: warning: Name 'foo' must match pattern '^[A-Z][a-zA-Z0-9]*$'.
+checkstyle:
+  command: checkstyle
+  extensions:
+    - .java
+  requirements:
+    - java
+  arguments:
+    - -c
+    - "{REPO_HOME}/script/formatting/config/google_checks.xml"
+  filter: "{filename}:(?P<line>{lines}):((?P<column>\\d+):)? (?P<message>.+)"
+  installation: >-
+    sudo apt-get install checkstyle or go to
+    http://checkstyle.sourceforge.net/cmdline.html
+
+## Sample output:
+## /path_to/error.java:1:  All methods are static.
+## Disabled rulesets because of false positives
+## rulesets/java/coupling.xml: Demeter
+## rulesets/java/design.xml: Static class
+## rulesets/java/optimizations.xml: Parameter could be final
+## rulesets/java/junit.xml: maximum asserts, asserts should have message
+#pmd:
+#  command: run.sh
+#  extensions:
+#    - .java
+#  requirements:
+#    - java
+#  arguments:
+#    - pmd
+#    - -format
+#    - text
+#    - -rulesets
+#    - "rulesets/java/android.xml,rulesets/java/basic.xml,\
+#       rulesets/java/braces.xml,rulesets/java/clone.xml,\
+#       rulesets/java/codesize.xml,rulesets/java/empty.xml,\
+#       rulesets/java/finalizers.xml,rulesets/java/imports.xml,\
+#       rulesets/java/j2ee.xml,rulesets/java/logging-jakarta-commons.xml,\
+#       rulesets/java/strictexception.xml,rulesets/java/strings.xml,\
+#       rulesets/java/sunsecure.xml,rulesets/java/typeresolution.xml,\
+#       rulesets/java/unnecessary.xml,rulesets/java/unusedcode.xml"
+#    - -d
+#  filter: "{filename}:(?P<line>{lines}):\\s+(?P<message>.+)"
+#  installation: Go to http://pmd.sourceforge.net/pmd-5.1.1/installing.html
+#
+## JSON
+## Sample output:
+## Expecting property name: line 3 column 5 (char 15)
+#json:
+#  extensions:
+#    - .json
+#  command: python
+#  arguments:
+#    - -m
+#    - json.tool
+#  # enforce that here comes a colon
+#  filter: >-
+#    ^(?P<message>[^:]+(?=:
+#    line \d+ column \d+)|No JSON object could be decoded)(:
+#    line (?P<line>\d+) column (?P<column>\d+).*)?$
+#  installation: Nothing else should be required.
+#
+## CSS
+## Sample output:
+## /path_to/error.css: line 3, col 2, Warning - Duplicate property 'width' found.
+#csslint:
+#  extensions:
+#    - .css
+#  command: csslint
+#  arguments:
+#    - "--ignore=ids,box-model,adjoining-classes,qualified-headings,\
+#       unique-headings,zero-units"
+#    - --format=compact
+#  filter: >-
+#    ^{filename}: line (?P<line>{lines}), col (?P<column>\d+)?,
+#    (?P<severity>\S+) - (?P<message>.+)
+#  installation: >-
+#    Go to https://github.com/stubbornella/csslint/wiki/Command-line-interface
+#    for installation instructions.
+#
+## SCSS
+## Sample output:
+## /path_to/error.scss:2 [W] `0px` should be written without units as `0`
+#scss:
+#  extensions:
+#    - .scss
+#  command: scss-lint
+#  filter: >-
+#    ^{filename}:(?P<line>{lines})(:(?P<column>\d+))?
+#    \[(?P<severity>.+)\]( (?P<message_id>.+):)?
+#    (?P<message>.+)
+#  installation: >-
+#    gem install scss-lint or go to https://github.com/causes/scss-lint
+#
+## Javascript
+## Sample output:
+## Line 1, E:0002: Missing space before "="
+#gjslint:
+#  extensions:
+#    - .js
+#  command: gjslint
+#  filter: >-
+#      ^Line\s+(?P<line>{lines}), (?P<severity>[^: ]+):((?P<message_id>\d+):)?
+#      (?P<message>.+)
+#  installation: >-
+#    Run pip install
+#    http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz,
+#    or visit https://developers.google.com/closure/utilities/docs/linter_howto
+#    for installation instructions.
+#
+## Sample output:
+## /path_to/error.js: line 1, col 3, Use '===' to compare with ''.
+#jshint:
+#  extensions:
+#    - .js
+#  command: jshint
+#  arguments:
+#    - --config
+#    - "{DEFAULT_CONFIGS}/jshint.json"
+#  filter: >-
+#    ^{filename}: line (?P<line>{lines}), col (?P<column>\d+), (?P<message>.+)
+#  installation: >-
+#    Visit http://www.jshint.com/install/ for installation instructions.
+#
+## PHP
+## Sample output:
+## PHP Parse error:  syntax error, unexpected 'bar' (T_STRING) in /path_to/error.php on line 3
+#php:
+#  extensions:
+#    - .php
+#  command: php
+#  arguments:
+#    - -l
+#  filter: ^(?P<message>.*) in {filename} on line (?P<line>\d+)
+#  installation: You first need to install PHP.
+#
+## Sample output:
+## 2 | ERROR | Expected "if (...) {\n"; found "if (...) {"
+#phpcs:
+#  extensions:
+#    - .php
+#  command: phpcs
+#  arguments:
+#    - --report-width=1000
+#    - --standard=PSR2
+#  filter: >-
+#    ^\s*(?P<line>{lines})\s+[|]\s+(?P<severity>\S+)\s+[|]\s+(?P<message>.+)
+#  installation: >-
+#    Visit https://github.com/squizlabs/PHP_CodeSniffer for installation
+#    instructions
+#
+#
+## RST
+## Sample output:
+## /path_to/error.rst:3: (WARNING/2) Inline interpreted text or phrase reference start-string without end-string.
+#rst:
+#  extensions:
+#    - .rst
+#  command: rst2html.py
+#  filter: >-
+#    ^{filename}:(?P<line>{lines}): [(](?P<severity>.+)[)] (?P<message>.+)
+#  installation: Run pip install docutils.
+#
+## PNG
+#pngcrush:
+#  extensions:
+#    - .png
+#  command: pngcrush-linter.sh
+#  requirements:
+#    - pngcrush
+#  filter: (?P<message>.+)$
+#  installation: Run apt-get install pngcrush.
+#
+#optipng:
+#  extensions:
+#    - .png
+#  command: optipng-linter.sh
+#  requirements:
+#    - optipng
+#  filter: (?P<message>.+)$
+#  installation: Run apt-get install optipng.
+#
+## JPEG
+#jpegtran:
+#  extensions:
+#    - .jpg
+#    - .jpeg
+#  command: jpegtran-linter.sh
+#  requirements:
+#    - jpegtran
+#  filter: (?P<message>.+)
+#  installation: Run apt-get install jpegtran.
+#
+## SHELL scripts
+## Sample output
+## /path_to/error.sh: line 3: syntax error: unexpected end of file
+#bash:
+#  extensions:
+#    - .sh
+#  command: bash
+#  arguments:
+#    - "-n"
+#  filter: >-
+#    {filename}: line (?P<line>{lines}): (?P<message>.+)
+#  installation: Please install bash in your system.
+#
+## YAML
+#yaml:
+#  extensions:
+#    - .yaml
+#    - .yml
+#  command: yamllint
+#  arguments:
+#    - --format
+#    - parsable
+#    - --config-data
+#    - "{{extends: default, rules: {{document-start: disable}}}}"
+#  # Matches either:
+#  # - syntax error, on any line
+#  # - other error, on a modified line only
+#  filter: >-
+#    ^{filename}:(?P<line>{lines}|\d+(?=:\d+:
+#    \[error\] syntax error:)):(?P<column>\d+):
+#    \[(?P<severity>\S+)\] (?P<message>.+)$
+#
+#  installation: Run pip install yamllint.
+#
+## INI
+#ini:
+#  extensions:
+#    - .ini
+#    - .cfg
+#  command: ini_linter.py
+#  filter: (?P<message>.+)$
+#  installation: ""
+#
+## HTML
+## Sample output:
+## line 2 column 1 - Warning: missing </h2> before </h3>
+#tidy:
+#  extensions:
+#    - .html
+#  command: tidy-wrapper.sh
+#  requirements:
+#    - tidy
+#    - remove_template.py
+#    - grep
+#  arguments:
+#    - -qe
+#    - --drop-empty-elements
+#    - "false"
+#  installation: Visit https://w3c.github.io/tidy-html5/
+#  filter: >-
+#    ^line (?P<line>{lines}) column (?P<column>\d+) -
+#    (?P<severity>[^:]+): (?P<message>.+)
+#
+## Sample output:
+## 1:10: Error: Javascript ...
+#html_lint:
+#  extensions:
+#    - .html
+#  command: html_lint.py
+#  arguments:
+#    - --disable
+#    - optional_tag
+#  installation: pip install html-linter.
+#  filter: >-
+#    ^(?P<line>{lines}):(?P<column>\d+): (?P<severity>\S+): (?P<message>.+)
+#
+## Ruby
+## Sample output:
+## error.rb: warning: line 1, column 1: unused constant FOO
+#rubylint:
+#  command: ruby-lint
+#  arguments:
+#    - --analysis
+#    - "argument_amount,loop_keywords,pedantics,shadowing_variables,\
+#       unused_variables,useless_equality_checks"
+#  extensions:
+#    - .rb
+#  # The first component is the basename, but it's not supported yet.
+#  filter: >-
+#    .*: (?P<severity>.+): line (?P<line>{lines}),
+#    column (?P<column>\d+): (?P<message>.+)
+#  installation: >-
+#    sudo gem install ruby-lint (requires ruby 1.9) or visit
+#    https://github.com/yorickpeterse/ruby-lint
+#
+#
+## Sample output with the --format emacs option:
+## /path_to/error.rb:1:4: C: Surrounding space missing for operator '='.
+#rubocop:
+#  command: rubocop
+#  arguments:
+#    - --format
+#    - emacs
+#    - --rails
+#  extensions:
+#    - .rb
+#  # The first component is the relpath, but it's not supported yet.
+#  filter: >-
+#    {filename}:(?P<line>{lines}):(?P<column>\d+):
+#    (?P<severity>.+): (?P<message>.+)
+#  installation: >-
+#    sudo gem install rubocop or visit https://github.com/bbatsov/rubocop
+#
+## Coffeescript
+## Sample output:
+## /path_to/error.coffee,4,,error,Operators must be spaced properly =.
+## /path_to/error.coffee,5,,error,[stdin]:5:1: error: reserved word 'yes' can't be assigned
+#coffeelint:
+#  command: coffeelint
+#  extensions:
+#    - .coffee
+#  arguments:
+#    - --reporter=csv
+#    - --file={DEFAULT_CONFIGS}/coffeelint.json
+#  filter: >-
+#    {filename},(?P<line>{lines}),.*,(?P<severity>.+),(?:\[stdin\]:\d+:(?P<column>\d+): .*: )?(?P<message>.+)
+#  installation: npm install -g coffeelint
+#
+## C++
+## Sample output:
+## main.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+#cpplint:
+#  extensions:
+#    - .c
+#    - .cc
+#    - .cpp
+#    - .c++
+#    - .h
+#    - .hpp
+#    - .h++
+#  command: cpplint
+#  requirements:
+#    - cpplint
+#  filter: >-
+#    ^{filename}:(?P<line>{lines}): (?P<message>.+) \[(?P<message_id>.+)\]
+#    \[(?P<severity>\d+)\]
+#  installation: "Run pip install cpplint."

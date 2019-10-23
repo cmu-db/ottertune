@@ -43,7 +43,7 @@ class BaseModel(models.Model):
     def _model_name(cls):
         return cls.__name__
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         abstract = True
 
 
@@ -107,7 +107,7 @@ class Project(BaseModel):
             x.delete()
         super(Project, self).delete(using, keep_parents)
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         unique_together = ('user', 'name')
 
 
@@ -125,7 +125,7 @@ class Hardware(BaseModel):
                                        default=StorageType.SSD, verbose_name='Storage Type')
     additional_specs = models.TextField(null=True, default=None)
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         unique_together = ('cpu', 'memory', 'storage', 'storage_type')
 
 
@@ -176,7 +176,7 @@ class Session(BaseModel):
             r.delete()
         super(Session, self).delete(using=DEFAULT_DB_ALIAS, keep_parents=False)
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         unique_together = ('user', 'project', 'name')
 
 
@@ -243,7 +243,7 @@ class DataModel(BaseModel):
     data = models.TextField()
     dbms = models.ForeignKey(DBMSCatalog)
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         abstract = True
 
 
@@ -334,7 +334,7 @@ class Workload(BaseModel):
             x.delete()
         super(Workload, self).delete(using, keep_parents)
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         unique_together = ("dbms", "hardware", "name")
 
     # @property
@@ -413,7 +413,7 @@ class PipelineRun(models.Model):
     def __str__(self):
         return self.__unicode__()
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         ordering = ["-id"]
 
 
@@ -424,7 +424,7 @@ class PipelineData(models.Model):
     data = models.TextField()
     creation_time = models.DateTimeField()
 
-    class Meta:  # pylint: disable=old-style-class,no-init
+    class Meta:  # pylint: disable=no-init
         unique_together = ("pipeline_run", "task_type", "workload")
 
 

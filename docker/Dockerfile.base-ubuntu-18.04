@@ -11,7 +11,7 @@ COPY ./server/website/requirements.txt /
 RUN apt-get update \
     && apt-get install -y python3.6 python3-pip mysql-client \
         libmysqlclient-dev python-mysqldb postgresql-client \
-        openjdk-11-jdk git unzip wget curl \
+        openjdk-11-jdk checkstyle git unzip wget curl \
     && wget https://services.gradle.org/distributions/${GRADLE_VERSION}-bin.zip \
     && unzip ${GRADLE_VERSION}-bin.zip -d /opt \
     && rm ${GRADLE_VERSION}-bin.zip \

@@ -4,6 +4,8 @@ import logging
 
 from django.db import migrations, ProgrammingError
 
+from website.settings import MYSQL_COMPRESSION
+
 LOG = logging.getLogger(__name__)
 
 TABLES_TO_COMPRESS = [
@@ -70,6 +72,14 @@ class Migration(migrations.Migration):
         ('website', '0001_initial'),
     ]
 
-    operations = [migrations.RunPython(enable_compression, disable_compression)]
-
+    if MYSQL_COMPRESSION:
+        operations = [
+            migrations.RunPython(enable_compression,
+                                 disable_compression)
+        ]
+    else:
+        operations = [
+            migrations.RunSQL(migrations.RunSQL.noop,
+                              migrations.RunSQL.noop),
+        ]
 

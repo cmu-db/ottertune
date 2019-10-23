@@ -1,5 +1,4 @@
 plugins {
-    id "de.undercouch.download" version "3.3.0"
     id "com.github.spotbugs" version "2.0.0"
 }
 
@@ -77,14 +76,3 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
     }
 }
 
-import de.undercouch.gradle.tasks.download.Download
-task downloadJars(type: Download) {
-    src ([
-        'https://github.com/google/google-java-format/releases/download/google-java-format-1.5/google-java-format-1.5-all-deps.jar',
-        'https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.8/checkstyle-8.8-all.jar'
-    ])
-    dest libsDir
-    overwrite false
-}
-
-build.finalizedBy(downloadJars)

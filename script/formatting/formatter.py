@@ -12,6 +12,7 @@ import subprocess
 import sys
 
 import autopep8
+from fabric.api import local
 
 EXIT_SUCCESS = 0
 EXIT_FAILURE = -1
@@ -44,8 +45,10 @@ OTTERTUNE_DIR = os.path.abspath(functools.reduce(os.path.join,
                                                   os.path.pardir,
                                                   os.path.pardir]))
 
+JAVA_JAR_VERSION = '1.5'
 JAVA_JAR_PATH = os.path.join(
-    OTTERTUNE_DIR, 'controller/build/libs/google-java-format-1.5-all-deps.jar')
+    OTTERTUNE_DIR, 'script/formatting/config',
+    'google-java-format-{}-all-deps.jar'.format(JAVA_JAR_VERSION))
 
 # ==============================================
 # FILE HEADER FORMATS
@@ -113,9 +116,16 @@ def format_java_file(file_path, update_header, format_code):
 
     if format_code:
         if not os.path.exists(JAVA_JAR_PATH):
-            controller_dir = os.path.join(OTTERTUNE_DIR, 'controller')
-            subprocess.check_output(["gradle", "downloadJars"], cwd=controller_dir)
-        subprocess.check_output(["java", "-jar", JAVA_JAR_PATH, "-r", file_path])
+            local((
+                'wget https://github.com/google/google-java-format/'
+                'releases/download/google-java-format-{0}/'
+                'google-java-format-{0}-all-deps.jar && '
+                'mv {1} {2}').format(
+                    JAVA_JAR_VERSION,
+                    os.path.basename(JAVA_JAR_PATH),
+                    JAVA_JAR_PATH))
+
+        local('java -jar {} -r {}'.format(JAVA_JAR_PATH, file_path))
 
 
 def format_python_file(file_path, update_header, format_code):

@@ -647,22 +647,36 @@ def run_loops(max_iter=1):
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)
 
 
-@task 
+@task
 def rename_batch(result_dir=None):
     result_dir = result_dir or CONF['save_path']
     results = glob.glob(os.path.join(result_dir, '*__summary.json'))
     results = sorted(results)
-    count = len(results)
     for i, result in enumerate(results):
         prefix = os.path.basename(result)
         prefix_len = os.path.basename(result).find('_') + 2
         prefix = prefix[:prefix_len]
         new_prefix = str(i) + '__'
-        files = {}
         for base in ('summary', 'knobs', 'metrics_before', 'metrics_after'):
             fpath = os.path.join(result_dir, prefix + base + '.json')
             rename_path = os.path.join(result_dir, new_prefix + base + '.json')
             os.rename(fpath, rename_path)
+
+
+def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
+    max_time_sec = int(max_time_sec)
+    interval_sec = int(interval_sec)
+    elapsed = 0
+
+    while elapsed <= max_time_sec:
+        response = requests.get(CONF['upload_url'] + '/test/pipeline/')
+        response = response.content
+        LOG.info(response)
+        if 'False' in response:
+            time.sleep(interval_sec)
+            elapsed += interval_sec
+        else:
+            return
 
 
 @task
@@ -674,17 +688,22 @@ def integration_tests():
 
     # Upload training data
     LOG.info('Upload training data to no tuning session')
-    upload_batch(result_dir='../../integrationTests/data/',upload_code='ottertuneTestNoTuning')
+    upload_batch(result_dir='../../integrationTests/data/', upload_code='ottertuneTestNoTuning')
 
     # TO DO: BG ready
+    response = requests.get(CONF['upload_url'] + '/test/pipeline/')
+    LOG.info(response.content)
+
     # Test DNN
     LOG.info('Test DNN (deep neural network)')
-    upload_result(result_dir='../../integrationTests/data/', prefix='0__', upload_code='ottertuneTestTuningDNN')
+    upload_result(result_dir='../../integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningDNN')
     response = get_result(upload_code='ottertuneTestTuningDNN')
     assert response['status'] == 'good'
 
     # Test GPR
     LOG.info('Test GPR (gaussian process regression)')
-    upload_result(result_dir='../../integrationTests/data/', prefix='0__', upload_code='ottertuneTestTuningGPR')
+    upload_result(result_dir='../../integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'good'

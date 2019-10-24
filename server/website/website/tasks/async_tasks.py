@@ -544,7 +544,7 @@ def configuration_recommendation(recommendation_input):
     X_max = np.empty(X_scaled.shape[1])
     X_scaler_matrix = np.zeros([1, X_scaled.shape[1]])
 
-    session_knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
+    session_knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session, only_session_knobs=True)
 
     # Set min/max for knob values
     for i in range(X_scaled.shape[1]):

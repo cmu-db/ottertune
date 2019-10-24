@@ -29,8 +29,8 @@ from pytz import timezone
 
 from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
-from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog,
-                     MetricData, Project, Result, Session, Workload, SessionKnob)
+from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog, User, Hardware,
+                     MetricData, Project, Result, Session, Workload, SessionKnob, PipelineRun)
 from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
@@ -1041,3 +1041,52 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
     for result in results:
         train_ddpg(result.pk)
     return HttpResponse()
+
+
+# integration test
+@csrf_exempt
+def pipeline_data_ready(request):  # pylint: disable=unused-argument
+    LOG.info(PipelineRun.objects.get_latest())
+    if PipelineRun.objects.get_latest() is None:
+        response = "Pipeline data ready: False"
+    else:
+        response = "Pipeline data ready: True"
+    return HttpResponse(response)
+
+
+# integration test
+@csrf_exempt
+def create_test_website(request):  # pylint: disable=unused-argument
+    if User.objects.filter(username='ottertune_test_user').exists():
+        User.objects.filter(username='ottertune_test_user').delete()
+    if Hardware.objects.filter(pk=1).exists():
+        test_hardware = Hardware.objects.get(pk=1)
+    else:
+        test_hardware = Hardware.objects.create(pk=1)
+
+    test_user = User.objects.create_user(username='ottertune_test_user',
+                                         password='ottertune_test_user')
+    test_project = Project.objects.create(user=test_user, name='ottertune_test_project',
+                                          creation_time=now(), last_update=now())
+    # create no tuning session
+    Session.objects.create(name='test_session_no_tuning', tuning_session='no_tuning_session',
+                           dbms_id=1, hardware=test_hardware, project=test_project,
+                           creation_time=now(), last_update=now(), user=test_user,
+                           upload_code='ottertuneTestNoTuning')
+    # create gpr session
+    Session.objects.create(name='test_session_gpr', user=test_user, tuning_session='tuning_session',
+                           dbms_id=1, hardware=test_hardware, project=test_project,
+                           creation_time=now(), last_update=now(), algorithm=AlgorithmType.GPR,
+                           upload_code='ottertuneTestTuningGPR')
+    # create dnn session
+    Session.objects.create(name='test_session_dnn', user=test_user, tuning_session='tuning_session',
+                           dbms_id=1, hardware=test_hardware, project=test_project,
+                           creation_time=now(), last_update=now(), algorithm=AlgorithmType.DNN,
+                           upload_code='ottertuneTestTuningDNN')
+    # create ddpg session
+    Session.objects.create(name='test_session_ddpg', tuning_session='tuning_session',
+                           dbms_id=1, hardware=test_hardware, project=test_project,
+                           creation_time=now(), last_update=now(), user=test_user,
+                           upload_code='ottertuneTestTuningDDPG', algorithm=AlgorithmType.DDPG)
+    response = HttpResponse("Success: create test website successfully")
+    return response

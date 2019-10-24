@@ -672,7 +672,7 @@ def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
         response = requests.get(CONF['upload_url'] + '/test/pipeline/')
         response = response.content
         LOG.info(response)
-        if 'False' in response:
+        if 'False' in str(response):
             time.sleep(interval_sec)
             elapsed += interval_sec
         else:
@@ -690,9 +690,8 @@ def integration_tests():
     LOG.info('Upload training data to no tuning session')
     upload_batch(result_dir='../../integrationTests/data/', upload_code='ottertuneTestNoTuning')
 
-    # TO DO: BG ready
-    response = requests.get(CONF['upload_url'] + '/test/pipeline/')
-    LOG.info(response.content)
+    # wait celery periodic task finishes
+    wait_pipeline_data_ready()
 
     # Test DNN
     LOG.info('Test DNN (deep neural network)')

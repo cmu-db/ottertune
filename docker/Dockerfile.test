@@ -13,6 +13,7 @@ RUN pip3 install codecov
 
 COPY ./docker/credentials.py ./website/settings
 COPY ./docker/wait-for-it.sh . 
+COPY ./docker/start-test.sh . 
 
 RUN chmod +x ./*.sh
 

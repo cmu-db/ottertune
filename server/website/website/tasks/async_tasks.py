@@ -338,7 +338,8 @@ def train_ddpg(result_id):
     if session.ddpg_reply_memory:
         ddpg.replay_memory.set(session.ddpg_reply_memory)
     ddpg.add_sample(normalized_metric_data, knob_data, reward, normalized_metric_data)
-    ddpg.update()
+    for _ in range(25):
+        ddpg.update()
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
     session.ddpg_reply_memory = ddpg.replay_memory.get()
     session.save()

@@ -3,6 +3,8 @@
   "database_name" : "tpcc",
   "database_disk": "",
   "database_conf": "/etc/postgresql/9.6/main/postgresql.conf",
+  "base_database_conf": "configs/postgres_base.conf",
+  "pg_datadir": "/var/lib/postgresql/9.6/main",
   "database_save_path": "~/ottertune/client/driver/dumpfiles",
   "username" : "dbuser",
   "password" : "dbpassword",
@@ -16,5 +18,7 @@
   "upload_code" : "I5I10PXK3PK27FM86YYS",
   "lhs_knob_path" : "~/ottertune/client/driver/knobs/postgres-96.json",
   "lhs_save_path" : "~/ottertune/client/driver/configs",
-  "oracle_awr_enabled": false
+  "oracle_awr_enabled": false,
+  "warmup_iterations": 0,
+  "sleep_time": 300
 }

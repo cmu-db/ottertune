@@ -34,8 +34,6 @@ fabric_output.update({
 RELOAD_INTERVAL = 10
 # maximum disk usage
 MAX_DISK_USAGE = 90
-# Postgres datadir
-PG_DATADIR = '/var/lib/postgresql/9.6/main'
 
 # Load config
 with open('driver_config.json', 'r') as _f:
@@ -121,7 +119,7 @@ def create_controller_config():
 @task
 def restart_database():
     if CONF['database_type'] == 'postgres':
-        cmd = 'sudo -u postgres pg_ctl -D {} -w restart'.format(PG_DATADIR)
+        cmd = 'sudo -u postgres pg_ctl -D {} -w -t 600 restart -m fast'.format(CONF['pg_datadir'])
     elif CONF['database_type'] == 'oracle':
         cmd = 'sh oracleScripts/shutdownOracle.sh && sh oracleScripts/startupOracle.sh'
     else:
@@ -167,6 +165,10 @@ def change_conf(next_conf=None):
 
     signal_idx = lines.index(signal)
     lines = lines[0:signal_idx + 1]
+    if CONF.__contains__('base_database_conf'):
+        with open(CONF['base_database_conf'], 'r') as f:
+            base_confs = f.readlines()
+        lines.extend(base_confs)
 
     if isinstance(next_conf, str):
         with open(next_conf, 'r') as f:
@@ -481,8 +483,7 @@ def lhs_samples(count=10):
 
 
 @task
-def loop():
-
+def loop(i):
     # free cache
     free_cache()
 
@@ -491,6 +492,7 @@ def loop():
 
     # restart database
     restart_database()
+    time.sleep(CONF['sleep_time'])
 
     # check disk usage
     if check_disk_usage() > MAX_DISK_USAGE:
@@ -516,6 +518,7 @@ def loop():
     # stop the experiment
     while not _ready_to_shut_down_controller():
         time.sleep(1)
+    
     signal_controller()
     LOG.info('Start the second collection, shut down the controller')
 
@@ -527,17 +530,18 @@ def loop():
     # save result
     result_timestamp = save_dbms_result()
 
-    # upload result
-    upload_result()
+    if i >= CONF['warmup_iterations']:
+        # upload result
+        upload_result()
 
-    # get result
-    response = get_result()
-
-    # save next config
-    save_next_config(response, t=result_timestamp)
-
-    # change config
-    change_conf(response['recommendation'])
+        # get result
+        response = get_result()
+    
+        # save next config
+        save_next_config(response, t=result_timestamp)
+    
+        # change config
+        change_conf(response['recommendation'])
 
 
 @task
@@ -631,10 +635,11 @@ def run_loops(max_iter=1):
         if RELOAD_INTERVAL > 0:
             if i % RELOAD_INTERVAL == 0:
                 if i == 0 and dump is False:
+                    restart_database()
                     restore_database()
                 elif i > 0:
                     restore_database()
 
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
-        loop()
+        loop(i % RELOAD_INTERVAL)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)

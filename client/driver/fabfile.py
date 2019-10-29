@@ -518,7 +518,7 @@ def loop(i):
     # stop the experiment
     while not _ready_to_shut_down_controller():
         time.sleep(1)
-    
+
     signal_controller()
     LOG.info('Start the second collection, shut down the controller')
 
@@ -536,10 +536,10 @@ def loop(i):
 
         # get result
         response = get_result()
-    
+
         # save next config
         save_next_config(response, t=result_timestamp)
-    
+
         # change config
         change_conf(response['recommendation'])
 

@@ -1069,24 +1069,28 @@ def create_test_website(request):  # pylint: disable=unused-argument
     test_project = Project.objects.create(user=test_user, name='ottertune_test_project',
                                           creation_time=now(), last_update=now())
     # create no tuning session
-    Session.objects.create(name='test_session_no_tuning', tuning_session='no_tuning_session',
-                           dbms_id=1, hardware=test_hardware, project=test_project,
-                           creation_time=now(), last_update=now(), user=test_user,
-                           upload_code='ottertuneTestNoTuning')
+    s1 = Session.objects.create(name='test_session_no_tuning', tuning_session='no_tuning_session',
+                                dbms_id=1, hardware=test_hardware, project=test_project,
+                                creation_time=now(), last_update=now(), user=test_user,
+                                upload_code='ottertuneTestNoTuning')
+    set_default_knobs(s1)
     # create gpr session
-    Session.objects.create(name='test_session_gpr', user=test_user, tuning_session='tuning_session',
-                           dbms_id=1, hardware=test_hardware, project=test_project,
-                           creation_time=now(), last_update=now(), algorithm=AlgorithmType.GPR,
-                           upload_code='ottertuneTestTuningGPR')
+    s2 = Session.objects.create(name='test_session_gpr', tuning_session='tuning_session',
+                                dbms_id=1, hardware=test_hardware, project=test_project,
+                                creation_time=now(), last_update=now(), algorithm=AlgorithmType.GPR,
+                                upload_code='ottertuneTestTuningGPR', user=test_user)
+    set_default_knobs(s2)
     # create dnn session
-    Session.objects.create(name='test_session_dnn', user=test_user, tuning_session='tuning_session',
-                           dbms_id=1, hardware=test_hardware, project=test_project,
-                           creation_time=now(), last_update=now(), algorithm=AlgorithmType.DNN,
-                           upload_code='ottertuneTestTuningDNN')
+    s3 = Session.objects.create(name='test_session_dnn', tuning_session='tuning_session',
+                                dbms_id=1, hardware=test_hardware, project=test_project,
+                                creation_time=now(), last_update=now(), algorithm=AlgorithmType.DNN,
+                                upload_code='ottertuneTestTuningDNN', user=test_user)
+    set_default_knobs(s3)
     # create ddpg session
-    Session.objects.create(name='test_session_ddpg', tuning_session='tuning_session',
-                           dbms_id=1, hardware=test_hardware, project=test_project,
-                           creation_time=now(), last_update=now(), user=test_user,
-                           upload_code='ottertuneTestTuningDDPG', algorithm=AlgorithmType.DDPG)
+    s4 = Session.objects.create(name='test_session_ddpg', tuning_session='tuning_session',
+                                dbms_id=1, hardware=test_hardware, project=test_project,
+                                creation_time=now(), last_update=now(), user=test_user,
+                                upload_code='ottertuneTestTuningDDPG', algorithm=AlgorithmType.DDPG)
+    set_default_knobs(s4)
     response = HttpResponse("Success: create test website successfully")
     return response

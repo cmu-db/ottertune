@@ -182,22 +182,17 @@ class Session(BaseModel):
 
 class SessionKnobManager(models.Manager):
     @staticmethod
-    def get_knobs_for_session(session, only_session_knobs=False):
+    def get_knobs_for_session(session):
         # Returns a dict of the knob
         knobs = KnobCatalog.objects.filter(dbms=session.dbms)
         knob_dicts = list(knobs.values())
-        session_knob_dicts = []
         for i, _ in enumerate(knob_dicts):
             if SessionKnob.objects.filter(session=session, knob=knobs[i]).exists():
                 new_knob = SessionKnob.objects.filter(session=session, knob=knobs[i])[0]
                 knob_dicts[i]["minval"] = new_knob.minval
                 knob_dicts[i]["maxval"] = new_knob.maxval
                 knob_dicts[i]["tunable"] = new_knob.tunable
-                session_knob_dicts.append(new_knob)
-        if only_session_knobs:
-            knob_dicts = session_knob_dicts
-        else:
-            knob_dicts = [knob for knob in knob_dicts if knob["tunable"]]
+        knob_dicts = [knob for knob in knob_dicts if knob["tunable"]]
         return knob_dicts
 
     @staticmethod

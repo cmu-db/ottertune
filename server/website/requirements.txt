@@ -8,6 +8,7 @@ django-request-logging==0.4.6
 mock==2.0.0
 Fabric3>=1.13.1.post1
 git-lint==0.1.2
+gpflow==1.5.0
 hurry.filesize>=0.9
 numpy==1.14.0
 requests==2.20.0

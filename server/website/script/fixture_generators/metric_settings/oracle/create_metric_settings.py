@@ -5,16 +5,10 @@
 #
 import json
 import os
+import shutil
 import sys
 from collections import OrderedDict
 
-ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
-while os.path.basename(ROOT) != 'website':
-    ROOT = os.path.dirname(ROOT)
-print('WEBSITE ROOT: {}'.format(ROOT))
-sys.path.insert(0, ROOT)
-
-from website.types import MetricType, VarType
 
 # Metric catalog fields:
 # dbms
@@ -24,42 +18,18 @@ from website.types import MetricType, VarType
 # scope
 # metric_type
 
-# Constants
-MODEL = 'website.MetricCatalog'
-SCOPE = 'global'
-VERSIONS = (12, 19)
+# Ottertune Type:
+# STRING = 1
+# INTEGER = 2
+# REAL = 3
+# BOOL = 4
+# ENUM = 5
+# TIMESTAMP = 6
 
-
-# def main():
-#     final_metrics = []
-#     with open('oracle12.txt', 'r') as f:
-#         odd = 0
-#         entry = {}
-#         fields = {}
-#         lines = f.readlines()
-#         for line in lines:
-#             line = line.strip().replace("\n", "")
-#             if not line:
-#                 continue
-#             if line == 'NAME' or line.startswith('-'):
-#                 continue
-#             if odd == 0:
-#                 entry = {}
-#                 entry['model'] = 'website.MetricCatalog'
-#                 fields = {}
-#                 fields['name'] = "global." + line
-#                 fields['summary'] = line
-#                 fields['vartype'] = 2	 # int
-#                 fields['scope'] = 'global'
-#                 fields['metric_type'] = 3	 # stat
-#                 if fields['name'] == "global.user commits":
-#                     fields['metric_type'] = 1	 # counter
-#                 fields['dbms'] = 12  # oracle
-#                 entry['fields'] = fields
-#                 final_metrics.append(entry)
-#     with open('oracle-12_metrics.json', 'w') as f:
-#         json.dump(final_metrics, f, indent=4)
-#     shutil.copy('oracle-12_metrics.json', '../../../../website/fixtures/oracle-12_metrics.json')
+# Metric Types:
+# COUNTER = 1
+# INFO = 2
+# STATISTICS = 3
 
 
 def check_type(value):
@@ -72,32 +42,31 @@ def check_type(value):
         except ValueError:
             pass
     if isinstance(value, int):
-        vtype = VarType.INTEGER
+        vtype = 2  # Integer
     elif isinstance(value, float):
-        vtype = VarType.REAL
+        vtype = 3  # Real
     else:
-        vtype = VarType.STRING
+        vtype = 1  # String
 
     return vtype
-
 
 def create_settings(metric_data, dbms):
     metrics = []
     for name, value in metric_data.items():
         vartype = check_type(value)
 
-        if vartype in (VarType.INTEGER, VarType.REAL):
+        if vartype in (2, 3):  # Numeric (integer/real)
             if 'average' in name or name.endswith('current') or \
-                    name.startswith('session pga memory'):
-                mettype = MetricType.STATISTICS
+                    name.startswith('sysstat.session pga memory'):
+                mettype = 3  # Statistic
             else:
-                mettype = MetricType.COUNTER  # Most int/float metrics are counters
+                mettype = 1  # Counter - most common type of numeric metric
         else:
-            mettype = MetricType.INFO
+            mettype = 2  # Info (anything that's not numeric)
         summary = '{}: {}'.format(name, value)
 
-        if name == 'user commits':
-            assert vartype == VarType.INTEGER and mettype == MetricType.COUNTER
+        if name == 'sysstat.user commits':
+            assert vartype == 2 and 1  # Check it's an int/counter
 
         entry = OrderedDict([
             ('dbms', dbms),
@@ -107,13 +76,17 @@ def create_settings(metric_data, dbms):
             ('scope', 'global'),
             ('metric_type', mettype),
         ])
-        metrics.append(OrderedDict([('fields', entry), ('model', MODEL)]))
+        metrics.append(OrderedDict([('fields', entry), ('model', 'website.MetricCatalog')]))
 
     return metrics
 
 
+VERSIONS = (121, 19)
+
+
 def usage():
-    print('python3 create_metric_settings.py [version] (valid versions: 12, 19)')
+    print('python3 create_metric_settings.py [version] (valid versions: {})'.format(
+        ', '.join(VERSIONS)))
     sys.exit(1)
 
 
@@ -132,10 +105,10 @@ def main():
 
         metrics = metrics['global']['global']
         meta = create_settings(metrics, version)
-        savepath = os.path.join(
-            ROOT, 'website', 'fixtures', 'oracle-{}_metrics.json'.format(version))
-        with open(savepath, 'w') as f:
+        filename = 'oracle-{}_metrics.json'.format(version)
+        with open (filename, 'w') as f:
             json.dump(meta, f, indent=4)
+        shutil.copy(filename, "../../../../website/fixtures/{}".format(filename))
 
 
 if __name__ == '__main__':

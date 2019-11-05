@@ -1,7 +1,9 @@
 #!/bin/sh
 
+USERNAME="$1"
+
 sqlplus / as sysdba <<EOF
-exec dbms_workload_repository.create_snapshot;
+drop user $USERNAME cascade;	
 quit
 EOF
 

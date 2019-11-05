@@ -43,6 +43,9 @@ DB_PORT = '5432'
 # Path to the configuration file on the database server
 DB_CONF = '/etc/postgresql/9.6/main/postgresql.conf'
 
+# Path to the directory for storing database dump files
+DB_DUMP_DIR = '/var/lib/postgresql/9.6/main/dumpfiles'
+
 # Base config settings to always include when installing new configurations
 BASE_DB_CONF = {
     'track_counts': 'on',
@@ -69,8 +72,7 @@ ORACLE_AWR_ENABLED = False
 #==========================================================
 
 # Path to this driver
-DRIVER_HOME = os.path.realpath(__file__)
-print('DRIVER HOME: {}'.format(DRIVER_HOME))
+DRIVER_HOME = os.path.dirname(os.path.realpath(__file__))
 
 # Path to the directory for storing results
 RESULT_DIR = os.path.join(DRIVER_HOME, 'results')

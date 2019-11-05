@@ -77,6 +77,9 @@ DRIVER_HOME = os.path.dirname(os.path.realpath(__file__))
 # Path to the directory for storing results
 RESULT_DIR = os.path.join(DRIVER_HOME, 'results')
 
+# Path to temp directory
+TEMP_DIR = '/tmp/driver'
+
 # Path to the directory for storing database dump files
 DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
 

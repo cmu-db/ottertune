@@ -3,8 +3,11 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import csv
 import json
 import shutil
+from collections import OrderedDict
+from operator import itemgetter
 
 # Oracle Type:
 # 1 - Boolean
@@ -156,54 +159,77 @@ def set_field(fields):
         fields['default'] = 'TRUE'
 
 
-def main():
-    final_metrics = []
-    with open('oracle12.txt', 'r') as f:
-        num = 0
+COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")
 
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip().replace("\n", "")
-            if not line:
-                continue
-            if line in ['DESCRIPTION', 'NAME', 'TYPE'] or line.startswith('-'):
-                continue
-            if num == 0:
-                entry = {}
-                entry['model'] = 'website.KnobCatalog'
-                fields = {}
-                fields['name'] = line
-            elif num == 1:
-                if line in ['3', '6']:
-                    fields['vartype'] = 2
-                    fields['default'] = 0
-                elif line == '1':
-                    fields['vartype'] = 4
-                    fields['default'] = False
+# DB_VERSIONS = {
+#     '19': 19,
+#     '12': 12,
+#     '12.1': 121,
+# }
+
+
+def process_version(version, dbms_id, delim=','):
+    fields_list = []
+    with open('oracle{}.csv'.format(version), 'r', newline='') as f:
+        reader = csv.reader(f, delimiter=delim)
+        header = [h.upper() for h in next(reader)]
+        # header = ["NUM","NAME","TYPE","VALUE","DISPLAY_VALUE","DEFAULT_VALUE","ISDEFAULT","ISSES_MODIFIABLE","ISSYS_MODIFIABLE","ISPDB_MODIFIABLE","ISINSTANCE_MODIFIABLE","ISMODIFIED","ISADJUSTED","ISDEPRECATED","ISBASIC","DESCRIPTION","UPDATE_COMMENT","HASH","CON_ID"]
+        idxs = [header.index(c) for c in COLNAMES]
+        ncols = len(header)
+
+        ri = 0
+        for row in reader:
+            assert ncols == len(row), (ri, ncols, len(row))
+            fields = {}
+            for i, cname in zip(idxs, COLNAMES):
+                value = row[i]
+                if isinstance(value, str):
+                    value = value.strip()
+                if cname == 'NAME':
+                    fields['name'] = value.upper()
+                elif cname == 'TYPE':
+                    print('TYPE: {}'.format(value))
+                    value = int(value)
+                    if value == 1:
+                        fields['vartype'] = 4  # Boolean
+                    elif value in (3, 6):
+                        fields['vartype'] = 2  # Integer
+                    else:
+                        fields['vartype'] = 1  # Assume it's a sting otherwise
+                elif cname == 'DEFAULT_VALUE':
+                    fields['default'] = value
                 else:
-                    fields['vartype'] = 1
-                    fields['default'] = ''
-            elif num == 2:
-                fields['summary'] = line
-                fields['scope'] = 'global'
-                fields['dbms'] = 12       # oracle
-                fields['category'] = ''
-                fields['enumvals'] = None
-                fields['context'] = ''
-                fields['unit'] = 3       # other
-                fields['tunable'] = False
-                fields['scope'] = 'global'
-                fields['description'] = ''
-                fields['minval'] = None
-                fields['maxval'] = None
-                set_field(fields)
-                fields['name'] = 'global.' + fields['name']
-                entry['fields'] = fields
-                final_metrics.append(entry)
-            num = (num + 1) % 3
-    with open('oracle-12_knobs.json', 'w') as f:
+                    fields['summary'] = value
+
+                fields.update(
+                    scope='global',
+                    dbms=dbms_id,
+                    category='',
+                    enumvals=None,
+                    context='',
+                    unit=3,  # Other
+                    tunable=False,
+                    description='',
+                    minval=None,
+                    maxval=None,
+                )
+
+            set_field(fields)
+            fields['name'] = ('global.' + fields['name']).lower()
+            fields_list.append(fields)
+            ri += 1
+
+    fields_list = sorted(fields_list, key=itemgetter('name'))
+    final_metrics = [dict(model='website.KnobCatalog', fields=fs) for fs in fields_list]
+    filename = 'oracle-{}_knobs.json'.format(version)
+    with open(filename, 'w') as f:
         json.dump(final_metrics, f, indent=4)
-    shutil.copy("oracle-12_knobs.json", "../../../../website/fixtures/oracle-12_knobs.json")
+    # shutil.copy(filename, "../../../../website/fixtures/{}".format(filename))
+
+def main():
+    process_version('19', 19)
+    # process_version('12', 12)
+    process_version('12.1', 121, delim='|')
 
 
 if __name__ == '__main__':

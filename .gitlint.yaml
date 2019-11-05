@@ -50,6 +50,8 @@ pycodestyle:
   arguments:
     - "--ignore=E121,E123,E126,E226,E24,E704,W503,E501"
     - "--max-line-length=100"
+    # All exclude patterns up to 'driver_config.py' are the defaults
+    - "--exclude=.svn,CVS,.bzr,.hg,.git,__pycache__,.tox,driver_config.py"
   filter: >-
     ^{filename}:(?P<line>{lines}):((?P<column>\d+):)?
     (?P<message_id>\S+) (?P<message>.+)$

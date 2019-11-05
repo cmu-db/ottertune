@@ -41,6 +41,14 @@
   },
   {
     "model":"website.DBMSCatalog",
+    "pk":121,
+    "fields":{
+        "type":4,
+        "version":"12.1.0.2.0"
+     }
+  },
+  {
+    "model":"website.DBMSCatalog",
     "pk":12,
     "fields":{
         "type":4,
@@ -55,5 +63,4 @@
         "version":"19.0.0.0.0"
      }
   }
-
 ]

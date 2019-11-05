@@ -25,11 +25,16 @@ public class OracleCollector extends DBCollector {
 
   private static final String VERSION_SQL = "select VERSION from product_component_version";
 
-  private static final String PARAMETERS_SQL = "select name, value from v$parameter";
+  private static final String PARAMETERS_SQL = 
+          "select name, value from v$parameter";
   
   private static final String PARAMETERS_SQL_WITH_HIDDEN = 
-      "select x.ksppinm name, y.ksppstvl value from sys.x$ksppi x, sys.x$ksppcv y where"
-      + " x.inst_id = userenv('Instance') and y.inst_id = userenv('Instance') and x.indx = y.indx";
+      "select x.ksppinm name, y.ksppstvl value "
+      + "from sys.x$ksppi x, sys.x$ksppcv y "
+      + "where x.inst_id = userenv('Instance') "
+      + "and y.inst_id = userenv('Instance') "
+      + "and x.indx = y.indx "
+      + "and x.ksppinm like '/_%' ESCAPE '/'";
 
   private static final String METRICS_SQL = "select name, value from v$sysstat";
 
@@ -54,14 +59,18 @@ public class OracleCollector extends DBCollector {
       }
 
       // Collect DBMS internal metrics
+      String key;
+
       out = statement.executeQuery(METRICS_SQL);
       while (out.next()) {
-        dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+        key = "sysstat." + out.getString(1).toLowerCase();
+        dbMetrics.put(key, out.getString(2));
       }
 
       out = statement.executeQuery(METRICS_SQL2);
       while (out.next()) {
-        dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+        key = "sys_time_model." + out.getString(1).toLowerCase();
+        dbMetrics.put(key, out.getString(2));
       }
 
       out = statement.executeQuery(METRICS_SQL3);
@@ -74,9 +83,9 @@ public class OracleCollector extends DBCollector {
       while (out.next()) {
         String eventName = out.getString(1).toLowerCase();
         for (int i = 2; i <= columnCount; ++i) {
-          String name = eventName + "." + columnNames[i - 1];
+          key = "system_event." + eventName + "." + columnNames[i - 1];
           Object value = out.getObject(i);
-          dbMetrics.put(name, String.valueOf(value));
+          dbMetrics.put(key, String.valueOf(value));
         }
       }
 

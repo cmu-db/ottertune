@@ -21,6 +21,8 @@ def load_initial_data(apps, schema_editor):
         "myrocks-5.6_metrics.json",
         "oracle-12_knobs.json",
         "oracle-12_metrics.json",
+        "oracle-121_knobs.json",
+        "oracle-121_metrics.json",
         "oracle-19_knobs.json",
         "oracle-19_metrics.json",
     ]

@@ -1,23 +1,19 @@
 #!/bin/sh
-su - oracle <<EON
-oracle	#system password
 
+USERNAME="$1"
+DP_FILE="${2}.dump"
+DP_DIR="DPDATA"
+
+# Import the data
+impdp 'userid="/ as sysdba"' \
+    schemas=$USERNAME \
+    dumpfile=$DP_FILE \
+    DIRECTORY=$DP_DIR
+
+# Restart the database
 sqlplus / as sysdba <<EOF
-drop user c##tpcc cascade;	
-#         username
-create user c##tpcc identified by oracle;	
-#          username              password
-quit
-EOF
-
-impdp 'userid="/ as sysdba"' schemas=c##tpcc dumpfile=orcldb.dump DIRECTORY=dpdata
-#                                    username        database_name       db_directory
-
-sqlplus / as sysdba <<EOF	#restart the database
 shutdown immediate
 startup
 quit
 EOF
 
-exit  
-EON

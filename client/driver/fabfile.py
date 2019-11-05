@@ -20,10 +20,18 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import requests
-from fabric.api import env, local, task, lcd
+from fabric.api import env, lcd, local, settings, show, task
 from fabric.state import output as fabric_output
 
-import driver_config as dconf
+from utils import file_exists, get, load_driver_conf, parse_bool, put, run, sudo
+
+fabric_output.update({
+    'running': True,
+    'stdout': True,
+})
+
+# Loads the driver config file (default: driver_config.py)
+dconf = load_driver_conf()
 
 
 def _setup():
@@ -53,20 +61,20 @@ def _setup():
         raise ValueError(("Invalid HOST_CONN: {}. Valid values are "
                           "'local', 'remote', or 'docker'.").format(dconf.HOST_CONN))
 
-    # Create all output directories
-    for d in (dconf.RESULT_DIR, dconf.LOG_DIR, dconf.DB_DUMP_DIR):
+    # Update Fabric's host list
+    env.hosts = [LOGIN]
+
+    # Create local directories
+    for d in (dconf.RESULT_DIR, dconf.LOG_DIR, dconf.TEMP_DIR):
         os.makedirs(d, exist_ok=True)
+
+    # Copy Oracle scripts
+    if dconf.DB_TYPE == 'oracle':
+        put('./oracleScripts', '/home/oracle')
+        sudo('chown -R oracle:oinstall /home/oracle/oracleScripts')
 
 
 _setup()
-
-
-# Fabric environment settings
-env.hosts = [LOGIN]
-fabric_output.update({
-    'running': True,
-    'stdout': True,
-})
 
 
 # Configure logging
@@ -84,19 +92,13 @@ FileHandler.setFormatter(Formatter)
 LOG.addHandler(FileHandler)
 
 
-def _parse_bool(value):
-    if not isinstance(value, bool):
-        value = str(value).lower() == 'true'
-    return value
-
-
 @task
 def check_disk_usage():
     partition = dconf.DATABASE_DISK
     disk_use = 0
     if partition:
         cmd = "df -h {}".format(partition)
-        out = local(cmd, capture=True).splitlines()[1]
+        out = run(cmd).splitlines()[1]
         m = re.search(r'\d+(?=%)', out)
         if m:
             disk_use = int(m.group(0))
@@ -106,22 +108,21 @@ def check_disk_usage():
 
 @task
 def check_memory_usage():
-    cmd = 'free -m -h'
-    local(cmd)
+    run('free -m -h')
 
 
 @task
 def create_controller_config():
     if dconf.DB_TYPE == 'postgres':
-        dburl_fmt = 'jdbc:postgresql://localhost:5432/{db}'.format
+        dburl_fmt = 'jdbc:postgresql://{host}:{port}/{db}'.format
     elif dconf.DB_TYPE == 'oracle':
-        dburl_fmt = 'jdbc:oracle:thin:@localhost:1521:{db}'.format
+        dburl_fmt = 'jdbc:oracle:thin:@{host}:{port}:{db}'.format
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
     config = dict(
         database_type=dconf.DB_TYPE,
-        database_url=dburl_fmt(db=dconf.DB_NAME),
+        database_url=dburl_fmt(host=dconf.DB_HOST, port=dconf.DB_PORT, db=dconf.DB_NAME),
         username=dconf.DB_USER,
         password=dconf.DB_PASSWORD,
         upload_code='DEPRECATED',
@@ -136,33 +137,59 @@ def create_controller_config():
 @task
 def restart_database():
     if dconf.DB_TYPE == 'postgres':
-        cmd = 'sudo -u postgres pg_ctl -D {} -w -t 600 restart -m fast'.format(dconf.PG_DATADIR)
+        if dconf.HOST_CONN == 'docker':
+            # Restarting the docker container here is the cleanest way to do it
+            # becaues there's no init system running and the only process running
+            # in the container is postgres itself
+            local('docker restart {}'.format(dconf.CONTAINER_NAME))
+        else:
+            sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(dconf.PG_DATADIR), user=dconf.DB_USER)
     elif dconf.DB_TYPE == 'oracle':
-        cmd = 'sh oracleScripts/shutdownOracle.sh && sh oracleScripts/startupOracle.sh'
+        run('sh oracleScripts/shutdownOracle.sh && sh oracleScripts/startupOracle.sh')
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-    local(cmd)
 
 
 @task
 def drop_database():
     if dconf.DB_TYPE == 'postgres':
-        cmd = "PGPASSWORD={} dropdb -e --if-exists {} -U {}".\
-              format(dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_USER)
+        run("PGPASSWORD={} dropdb -e --if-exists {} -U {} -h {}".format(
+            dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_USER, dconf.DB_HOST))
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-    local(cmd)
 
 
 @task
 def create_database():
     if dconf.DB_TYPE == 'postgres':
-        cmd = "PGPASSWORD={} createdb -e {} -U {}".\
-              format(dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_USER)
+        run("PGPASSWORD={} createdb -e {} -U {} -h {}".format(
+            dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_USER, dconf.DB_HOST))
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-    local(cmd)
 
+
+@task
+def create_user():
+    if dconf.DB_TYPE == 'postgres':
+        sql = "CREATE USER {} SUPERUSER PASSWORD '{}';".format(dconf.DB_USER, dconf.DB_PASSWORD)
+        run("PGPASSWORD={} psql -c \\\"{}\\\" -U postgres -h {}".format(
+            dconf.DB_PASSWORD, sql, dconf.DB_USER, dconf.DB_HOST))
+    elif dconf.DB_TYPE == 'oracle':
+        run('sh oracleScripts/createUser.sh {} {}'.format(dconf.DB_USER, dconf.DB_PASSWORD))
+    else:
+        raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+
+
+@task
+def drop_user():
+    if dconf.DB_TYPE == 'postgres':
+        sql = "DROP USER IF EXISTS {};".format(dconf.DB_USER)
+        run("PGPASSWORD={} psql -c \\\"{}\\\" -U postgres -h {}".format(
+            dconf.DB_PASSWORD, sql, dconf.DB_HOST))
+    elif dconf.DB_TYPE == 'oracle':
+        run('sh oracleScripts/dropUser.sh {}'.format(dconf.DB_USER))
+    else:
+        raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
 @task
 def reset_conf():
@@ -174,7 +201,9 @@ def change_conf(next_conf=None):
     signal = "# configurations recommended by ottertune:\n"
     next_conf = next_conf or {}
 
-    with open(dconf.DB_CONF, 'r') as f:
+    tmp_conf_in = os.path.join(dconf.TEMP_DIR, os.path.basename(dconf.DB_CONF) + '.in')
+    get(dconf.DB_CONF, tmp_conf_in)
+    with open(tmp_conf_in, 'r') as f:
         lines = f.readlines()
 
     if signal not in lines:
@@ -183,7 +212,8 @@ def change_conf(next_conf=None):
     signal_idx = lines.index(signal)
     lines = lines[0:signal_idx + 1]
     if dconf.BASE_DB_CONF:
-        assert isinstance(dconf.BASE_DB_CONF, dict)
+        assert isinstance(dconf.BASE_DB_CONF, dict), \
+            (type(dconf.BASE_DB_CONF), dconf.BASE_DB_CONF)
         base_conf = ['{} = {}\n'.format(*c) for c in sorted(dconf.BASE_DB_CONF.items())]
         lines.extend(base_conf)
 
@@ -202,12 +232,13 @@ def change_conf(next_conf=None):
         lines.append('{} = {}\n'.format(name, value))
     lines.append('\n')
 
-    tmpconf = 'tmp_' + os.path.basename(dconf.DB_CONF)
-    with open(tmpconf, 'w') as f:
+    tmp_conf_out = os.path.join(dconf.TEMP_DIR, os.path.basename(dconf.DB_CONF) + '.out')
+    with open(tmp_conf_out, 'w') as f:
         f.write(''.join(lines))
 
-    local('sudo cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF))
-    local('sudo mv {} {}'.format(tmpconf, dconf.DB_CONF))
+    run('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF))
+    put(tmp_conf_out, dconf.DB_CONF, use_sudo=False)
+    local('rm -f {} {}'.format(tmp_conf_in, tmp_conf_out))
 
 
 @task
@@ -249,7 +280,7 @@ def signal_controller():
     pidfile = os.path.join(dconf.CONTROLLER_HOME, 'pid.txt')
     with open(pidfile, 'r') as f:
         pid = int(f.read())
-    cmd = 'sudo kill -2 {}'.format(pid)
+    cmd = 'kill -2 {}'.format(pid)
     with lcd(dconf.CONTROLLER_HOME):  # pylint: disable=not-context-manager
         local(cmd)
 
@@ -276,8 +307,11 @@ def save_next_config(next_config, t=None):
 
 @task
 def free_cache():
-    cmd = 'sync; sudo bash -c "echo 1 > /proc/sys/vm/drop_caches"'
-    local(cmd)
+    if dconf.HOST_CONN != 'docker':  # Read-only file system
+        with show('everything'), settings(warn_only=True):
+            res = sudo("sync && echo 3 | tee /proc/sys/vm/drop_caches")
+            if res.failed:
+                LOG.error('%s (return code %s)', res.stderr.strip(), res.return_code)
 
 
 @task
@@ -369,7 +403,7 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
 
 @task
 def download_debug_info(pprint=False):
-    pprint = _parse_bool(pprint)
+    pprint = parse_bool(pprint)
     url = '{}/dump/{}'.format(dconf.WEBSITE_URL, dconf.UPLOAD_CODE)
     params = {'pp': int(True)} if pprint else {}
     rsp = requests.get(url, params=params)
@@ -391,14 +425,13 @@ def download_debug_info(pprint=False):
 
 @task
 def add_udf():
-    cmd = 'sudo python3 ./LatencyUDF.py ../controller/output/'
-    local(cmd)
+    local('python3 ./LatencyUDF.py ../controller/output/')
 
 
 @task
 def upload_batch(result_dir=None, sort=True, upload_code=None):
     result_dir = result_dir or dconf.RESULT_DIR
-    sort = _parse_bool(sort)
+    sort = parse_bool(sort)
     results = glob.glob(os.path.join(result_dir, '*__summary.json'))
     if sort:
         results = sorted(results)
@@ -415,44 +448,50 @@ def upload_batch(result_dir=None, sort=True, upload_code=None):
 
 @task
 def dump_database():
-    db_file_path = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
-    if os.path.exists(db_file_path):
-        LOG.info('%s already exists ! ', db_file_path)
+    dumpfile = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
+    if file_exists(dumpfile):
+        LOG.info('%s already exists ! ', dumpfile)
         return False
     else:
-        LOG.info('Dump database %s to %s', dconf.DB_NAME, db_file_path)
-        # You must create a directory named dpdata through sqlplus in your Oracle database
+        LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
+
         if dconf.DB_TYPE == 'oracle':
-            cmd = 'expdp {}/{}@{} schemas={} dumpfile={}.dump DIRECTORY=dpdata'.format(
-                'c##tpcc', 'oracle', 'orcldb', 'c##tpcc', 'orcldb')
+            cmd = 'sh oracleScripts/dumpOracle.sh {} {} {} {}'.format(
+                dconf.DB_USER, dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_DUMP_DIR)
+
         elif dconf.DB_TYPE == 'postgres':
-            cmd = 'PGPASSWORD={} pg_dump -U {} -F c -d {} > {}'.format(dconf.DB_PASSWORD,
-                                                                       dconf.DB_USER,
-                                                                       dconf.DB_NAME,
-                                                                       db_file_path)
+            cmd = 'PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
+                dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME,
+                dumpfile)
         else:
             raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-        local(cmd)
+        run(cmd)
         return True
 
 
 @task
 def restore_database():
+    dumpfile = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
+    if not file_exists(dumpfile):
+        raise FileNotFoundError("Database dumpfile '{}' does not exist!".format(dumpfile))
+
     if dconf.DB_TYPE == 'oracle':
         # You must create a directory named dpdata through sqlplus in your Oracle database
         # The following script assumes such directory exists.
-        # You may want to modify the username, password, and dump file name in the script
-        cmd = 'sh oracleScripts/restoreOracle.sh'
+        drop_user()
+        create_user()
+        cmd = 'sh oracleScripts/restoreOracle.sh {} {}'.format(dconf.DB_USER, dconf.DB_NAME)
+
     elif dconf.DB_TYPE == 'postgres':
-        db_file_path = '{}/{}.dump'.format(dconf.DB_DUMP_DIR, dconf.DB_NAME)
         drop_database()
         create_database()
-        cmd = 'PGPASSWORD={} pg_restore -U {} -n public -j 8 -F c -d {} {}'.\
-              format(dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_NAME, db_file_path)
+        cmd = 'PGPASSWORD={} pg_restore -U {} -h {} -n public -j 8 -F c -d {} {}'.format(
+            dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME, dumpfile)
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+
     LOG.info('Start restoring database')
-    local(cmd)
+    run(cmd)
     LOG.info('Finish restoring database')
 
 
@@ -485,17 +524,14 @@ def _ready_to_shut_down_controller():
 
 
 def clean_logs():
-    # remove oltpbench log
-    cmd = 'rm -f {}'.format(dconf.OLTPBENCH_LOG)
-    local(cmd)
-
-    # remove controller log
-    cmd = 'rm -f {}'.format(dconf.CONTROLLER_LOG)
-    local(cmd)
+    # remove oltpbench and controller log files
+    local('rm -f {} {}'.format(dconf.OLTPBENCH_LOG, dconf.CONTROLLER_LOG))
 
 
 @task
 def loop(i):
+    i = int(i)
+
     # free cache
     free_cache()
 
@@ -571,7 +607,7 @@ def run_loops(max_iter=1):
                     restore_database()
 
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
-        loop(i % dconf.RELOAD_INTERVAL)
+        loop(i % dconf.RELOAD_INTERVAL if dconf.RELOAD_INTERVAL > 0 else i)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)
 
 

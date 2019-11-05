@@ -6,7 +6,7 @@ local_settings.py
 
 # celery/celerybeat #
 #####################
-celerybeat-schedule
+celerybeat-schedule*
 *.pid
 
 # Raw data files #

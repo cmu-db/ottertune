@@ -108,7 +108,7 @@ def main():
         metrics = metrics['global']['global']
         meta = create_settings(metrics, version)
         filename = 'oracle-{}_metrics.json'.format(version)
-        with open (filename, 'w') as f:
+        with open(filename, 'w') as f:
             json.dump(meta, f, indent=4)
         shutil.copy(filename, "../../../../website/fixtures/{}".format(filename))
 

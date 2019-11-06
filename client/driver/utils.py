@@ -8,14 +8,43 @@ dconf = None
 
 
 def load_driver_conf():
-    driver_conf = os.environ.get('DRIVER_CONFIG', 'driver_config')
-    if driver_conf.endswith('.py'):
-        driver_conf = driver_conf[:-len('.py')]
-    dmod = importlib.import_module(driver_conf)
+    # The default config file is 'driver_config.py' but you can use
+    # set the env 'DRIVER_CONFIG' to the path of a different config
+    # file to override it.
     global dconf
     if not dconf:
-        dconf = dmod
-    return dmod
+        driver_conf = os.environ.get('DRIVER_CONFIG', 'driver_config')
+        if driver_conf.endswith('.py'):
+            driver_conf = driver_conf[:-len('.py')]
+        mod = importlib.import_module(driver_conf)
+        dconf = mod
+
+        # Generate the login string of the host connection
+        if dconf.HOST_CONN == 'local':
+            login_str = 'localhost'
+
+        elif dconf.HOST_CONN == 'remote':
+            if not dconf.LOGIN_HOST:
+                raise ValueError("LOGIN_HOST must be set if HOST_CONN=remote")
+
+            login_str = dconf.LOGIN_HOST
+            if dconf.LOGIN_NAME:
+                login_str = '{}@{}'.format(dconf.LOGIN_NAME, login_str)
+
+            if dconf.LOGIN_PORT:
+                login_str += ':{}'.format(dconf.LOGIN_PORT)
+
+        elif dconf.HOST_CONN == 'docker':
+            if not dconf.CONTAINER_NAME:
+                raise ValueError("CONTAINER_NAME must be set if HOST_CONN=docker")
+            login_str = 'localhost'
+
+        else:
+            raise ValueError(("Invalid HOST_CONN: {}. Valid values are "
+                              "'local', 'remote', or 'docker'.").format(dconf.HOST_CONN))
+        dconf.LOGIN = login_str
+
+    return dconf
 
 
 def parse_bool(value):
@@ -104,7 +133,34 @@ def put(local_path, remote_path, use_sudo=False):
 
 
 @task
+def run_sql_script(scriptfile, *args):
+    if dconf.DB_TYPE == 'oracle':
+        if dconf.HOST_CONN != 'local':
+            scriptdir = '/home/oracle/oracleScripts'
+            remote_path = os.path.join(scriptdir, scriptfile)
+            if not file_exists(remote_path):
+                run('mkdir -p {}'.format(scriptdir))
+                put(os.path.join('./oracleScripts', scriptfile), remote_path)
+                sudo('chown -R oracle:oinstall /home/oracle/oracleScripts')
+        res = run('sh {} {}'.format(remote_path, ' '.join(args)))
+    else:
+        raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+    return res
+
+
+@task
 def file_exists(filename):
     with settings(warn_only=True), hide('warnings'):
         res = run('[ -f {} ]'.format(filename))
     return res.return_code == 0
+
+
+@task
+def dir_exists(dirname):
+    with settings(warn_only=True), hide('warnings'):
+        res = run('[ -d {} ]'.format(dirname))
+    return res.return_code == 0
+
+
+class FabricException(Exception):
+    pass

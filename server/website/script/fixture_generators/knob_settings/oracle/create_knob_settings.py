@@ -219,9 +219,9 @@ def process_version(version, delim=','):
 
 
 def main():
-    process_version(19)
-    # process_version(12)
-    process_version(121, delim='|')
+    process_version(19)              # v19c
+    process_version(12)              # v12.2c
+    process_version(121, delim='|')  # v12.1c
 
 
 if __name__ == '__main__':

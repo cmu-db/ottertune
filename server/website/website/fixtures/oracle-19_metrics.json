@@ -20455,7 +20455,7 @@
             "vartype": 2,
             "summary": "sysstat.session uga memory: 50184056",
             "scope": "global",
-            "metric_type": 1
+            "metric_type": 3
         },
         "model": "website.MetricCatalog"
     },
@@ -20466,7 +20466,7 @@
             "vartype": 2,
             "summary": "sysstat.session uga memory max: 168308472",
             "scope": "global",
-            "metric_type": 1
+            "metric_type": 3
         },
         "model": "website.MetricCatalog"
     },

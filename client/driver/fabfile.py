@@ -23,58 +23,23 @@ import requests
 from fabric.api import env, lcd, local, settings, show, task
 from fabric.state import output as fabric_output
 
-from utils import file_exists, get, load_driver_conf, parse_bool, put, run, sudo
+from utils import (file_exists, get, load_driver_conf, parse_bool,
+                   put, run, run_sql_script, sudo, FabricException)
 
+# Loads the driver config file (defaults to driver_config.py)
+dconf = load_driver_conf()
+
+# Fabric settings
 fabric_output.update({
     'running': True,
     'stdout': True,
 })
+env.abort_exception = FabricException
+env.hosts = [dconf.LOGIN]
 
-# Loads the driver config file (default: driver_config.py)
-dconf = load_driver_conf()
-
-
-def _setup():
-    global LOGIN
-
-    # Determine correct login for the type of host connection
-    if dconf.HOST_CONN == 'local':
-        LOGIN = 'localhost'
-
-    elif dconf.HOST_CONN == 'remote':
-        if not dconf.LOGIN_HOST:
-            raise ValueError("LOGIN_HOST must be set if HOST_CONN=remote")
-
-        LOGIN = dconf.LOGIN_HOST
-        if dconf.LOGIN_NAME:
-            LOGIN = '{}@{}'.format(dconf.LOGIN_NAME, LOGIN)
-
-        if dconf.LOGIN_PORT:
-            LOGIN += ':{}'.format(dconf.LOGIN_PORT)
-
-    elif dconf.HOST_CONN == 'docker':
-        if not dconf.CONTAINER_NAME:
-            raise ValueError("CONTAINER_NAME must be set if HOST_CONN=docker")
-        LOGIN = 'localhost'
-
-    else:
-        raise ValueError(("Invalid HOST_CONN: {}. Valid values are "
-                          "'local', 'remote', or 'docker'.").format(dconf.HOST_CONN))
-
-    # Update Fabric's host list
-    env.hosts = [LOGIN]
-
-    # Create local directories
-    for d in (dconf.RESULT_DIR, dconf.LOG_DIR, dconf.TEMP_DIR):
-        os.makedirs(d, exist_ok=True)
-
-    # Copy Oracle scripts
-    if dconf.DB_TYPE == 'oracle':
-        put('./oracleScripts', '/home/oracle')
-        sudo('chown -R oracle:oinstall /home/oracle/oracleScripts')
-
-
-_setup()
+# Create local directories
+for _d in (dconf.RESULT_DIR, dconf.LOG_DIR, dconf.TEMP_DIR):
+    os.makedirs(_d, exist_ok=True)
 
 
 # Configure logging
@@ -145,7 +110,7 @@ def restart_database():
         else:
             sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(dconf.PG_DATADIR), user=dconf.DB_USER)
     elif dconf.DB_TYPE == 'oracle':
-        run('sh oracleScripts/shutdownOracle.sh && sh oracleScripts/startupOracle.sh')
+        run_sql_script('restartOracle.sh')
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
@@ -175,7 +140,7 @@ def create_user():
         run("PGPASSWORD={} psql -c \\\"{}\\\" -U postgres -h {}".format(
             dconf.DB_PASSWORD, sql, dconf.DB_USER, dconf.DB_HOST))
     elif dconf.DB_TYPE == 'oracle':
-        run('sh oracleScripts/createUser.sh {} {}'.format(dconf.DB_USER, dconf.DB_PASSWORD))
+        run_sql_script('createUser.sh', dconf.DB_USER, dconf.DB_PASSWORD)
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
@@ -187,7 +152,7 @@ def drop_user():
         run("PGPASSWORD={} psql -c \\\"{}\\\" -U postgres -h {}".format(
             dconf.DB_PASSWORD, sql, dconf.DB_HOST))
     elif dconf.DB_TYPE == 'oracle':
-        run('sh oracleScripts/dropUser.sh {}'.format(dconf.DB_USER))
+        run_sql_script('dropUser.sh', dconf.DB_USER)
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
@@ -456,16 +421,15 @@ def dump_database():
         LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
 
         if dconf.DB_TYPE == 'oracle':
-            cmd = 'sh oracleScripts/dumpOracle.sh {} {} {} {}'.format(
-                dconf.DB_USER, dconf.DB_PASSWORD, dconf.DB_NAME, dconf.DB_DUMP_DIR)
+            run_sql_script('dumpOracle.sh', dconf.DB_USER, dconf.DB_PASSWORD,
+                           dconf.DB_NAME, dconf.DB_DUMP_DIR)
 
         elif dconf.DB_TYPE == 'postgres':
-            cmd = 'PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
+            run('PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
                 dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME,
-                dumpfile)
+                dumpfile))
         else:
             raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-        run(cmd)
         return True
 
 
@@ -475,23 +439,20 @@ def restore_database():
     if not file_exists(dumpfile):
         raise FileNotFoundError("Database dumpfile '{}' does not exist!".format(dumpfile))
 
+    LOG.info('Start restoring database')
     if dconf.DB_TYPE == 'oracle':
         # You must create a directory named dpdata through sqlplus in your Oracle database
         # The following script assumes such directory exists.
         drop_user()
         create_user()
-        cmd = 'sh oracleScripts/restoreOracle.sh {} {}'.format(dconf.DB_USER, dconf.DB_NAME)
-
+        run_sql_script('restoreOracle.sh', dconf.DB_USER, dconf.DB_NAME)
     elif dconf.DB_TYPE == 'postgres':
         drop_database()
         create_database()
-        cmd = 'PGPASSWORD={} pg_restore -U {} -h {} -n public -j 8 -F c -d {} {}'.format(
-            dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME, dumpfile)
+        run('PGPASSWORD={} pg_restore -U {} -h {} -n public -j 8 -F c -d {} {}'.format(
+            dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME, dumpfile))
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-
-    LOG.info('Start restoring database')
-    run(cmd)
     LOG.info('Finish restoring database')
 
 

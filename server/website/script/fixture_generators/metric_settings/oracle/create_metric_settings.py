@@ -57,7 +57,8 @@ def create_settings(metric_data, dbms):
 
         if vartype in (2, 3):  # Numeric (integer/real)
             if 'average' in name or name.endswith('current') or \
-                    name.startswith('sysstat.session pga memory'):
+                    name.startswith('sysstat.session pga memory') or \
+                    name.startswith('sysstat.session uga memory'):
                 mettype = 3  # Statistic
             else:
                 mettype = 1  # Counter - most common type of numeric metric
@@ -81,7 +82,8 @@ def create_settings(metric_data, dbms):
     return metrics
 
 
-VERSIONS = (121, 19)
+# Versions 12.1c, 12.2c, and 19c
+VERSIONS = (121, 12, 19)
 
 
 def usage():

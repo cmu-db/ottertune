@@ -4,14 +4,14 @@ import os
 from fabric.api import hide, local, settings, task
 from fabric.api import get as _get, put as _put, run as _run, sudo as _sudo
 
-dconf = None
+dconf = None  # pylint: disable=invalid-name
 
 
 def load_driver_conf():
     # The default config file is 'driver_config.py' but you can use
     # set the env 'DRIVER_CONFIG' to the path of a different config
     # file to override it.
-    global dconf
+    global dconf  # pylint: disable=global-statement,invalid-name
     if not dconf:
         driver_conf = os.environ.get('DRIVER_CONFIG', 'driver_config')
         if driver_conf.endswith('.py'):
@@ -67,8 +67,8 @@ def run(cmd, **kwargs):
                 cmdd = cmd[:-1].strip()
                 opts = '-d '
             res = local('docker exec {} -ti {} /bin/bash -c "{}"'.format(
-                opts, dconf.CONTAINER_NAME, cmdd),
-                capture=True, **kwargs)
+                        opts, dconf.CONTAINER_NAME, cmdd),
+                        capture=True, **kwargs)
     except TypeError as e:
         err = str(e).strip()
         if 'unexpected keyword argument' in err:
@@ -150,14 +150,14 @@ def run_sql_script(scriptfile, *args):
 
 @task
 def file_exists(filename):
-    with settings(warn_only=True), hide('warnings'):
+    with settings(warn_only=True), hide('warnings'):  # pylint: disable=not-context-manager
         res = run('[ -f {} ]'.format(filename))
     return res.return_code == 0
 
 
 @task
 def dir_exists(dirname):
-    with settings(warn_only=True), hide('warnings'):
+    with settings(warn_only=True), hide('warnings'):  # pylint: disable=not-context-manager
         res = run('[ -d {} ]'.format(dirname))
     return res.return_code == 0
 

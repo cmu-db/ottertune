@@ -27,7 +27,7 @@ from utils import (file_exists, get, load_driver_conf, parse_bool,
                    put, run, run_sql_script, sudo, FabricException)
 
 # Loads the driver config file (defaults to driver_config.py)
-dconf = load_driver_conf()
+dconf = load_driver_conf()  # pylint: disable=invalid-name
 
 # Fabric settings
 fabric_output.update({
@@ -108,7 +108,8 @@ def restart_database():
             # in the container is postgres itself
             local('docker restart {}'.format(dconf.CONTAINER_NAME))
         else:
-            sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(dconf.PG_DATADIR), user=dconf.DB_USER)
+            sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(
+                dconf.PG_DATADIR), user=dconf.DB_USER)
     elif dconf.DB_TYPE == 'oracle':
         run_sql_script('restartOracle.sh')
     else:
@@ -138,7 +139,7 @@ def create_user():
     if dconf.DB_TYPE == 'postgres':
         sql = "CREATE USER {} SUPERUSER PASSWORD '{}';".format(dconf.DB_USER, dconf.DB_PASSWORD)
         run("PGPASSWORD={} psql -c \\\"{}\\\" -U postgres -h {}".format(
-            dconf.DB_PASSWORD, sql, dconf.DB_USER, dconf.DB_HOST))
+            dconf.DB_PASSWORD, sql, dconf.DB_HOST))
     elif dconf.DB_TYPE == 'oracle':
         run_sql_script('createUser.sh', dconf.DB_USER, dconf.DB_PASSWORD)
     else:
@@ -272,7 +273,7 @@ def save_next_config(next_config, t=None):
 
 @task
 def free_cache():
-    if dconf.HOST_CONN != 'docker':  # Read-only file system
+    if dconf.HOST_CONN != 'docker':  # pylint: disable=not-context-manager
         with show('everything'), settings(warn_only=True):
             res = sudo("sync && echo 3 | tee /proc/sys/vm/drop_caches")
             if res.failed:
@@ -417,20 +418,20 @@ def dump_database():
     if file_exists(dumpfile):
         LOG.info('%s already exists ! ', dumpfile)
         return False
+
+    LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
+
+    if dconf.DB_TYPE == 'oracle':
+        run_sql_script('dumpOracle.sh', dconf.DB_USER, dconf.DB_PASSWORD,
+                       dconf.DB_NAME, dconf.DB_DUMP_DIR)
+
+    elif dconf.DB_TYPE == 'postgres':
+        run('PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
+            dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME,
+            dumpfile))
     else:
-        LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
-
-        if dconf.DB_TYPE == 'oracle':
-            run_sql_script('dumpOracle.sh', dconf.DB_USER, dconf.DB_PASSWORD,
-                           dconf.DB_NAME, dconf.DB_DUMP_DIR)
-
-        elif dconf.DB_TYPE == 'postgres':
-            run('PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
-                dconf.DB_PASSWORD, dconf.DB_USER, dconf.DB_HOST, dconf.DB_NAME,
-                dumpfile))
-        else:
-            raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-        return True
+        raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+    return True
 
 
 @task

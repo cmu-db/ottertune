@@ -67,8 +67,7 @@ def run(cmd, **kwargs):
                 cmdd = cmd[:-1].strip()
                 opts = '-d '
             res = local('docker exec {} -ti {} /bin/bash -c "{}"'.format(
-                opts, dconf.CONTAINER_NAME, cmdd),
-                capture=True, **kwargs)
+                opts, dconf.CONTAINER_NAME, cmdd), capture=True, **kwargs)
     except TypeError as e:
         err = str(e).strip()
         if 'unexpected keyword argument' in err:

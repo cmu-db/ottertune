@@ -1200,6 +1200,7 @@ def alt_create_or_edit_session(request):
     if 'algorithm' in data:
         data['algorithm'] = AlgorithmType.type(data['algorithm'])
     session_knobs = data.pop('session_knobs', None)
+    disable_others = session_knobs.pop('disable_others', False)
     ts = now()
 
     if request.path == reverse('backdoor_create_session'):
@@ -1227,7 +1228,6 @@ def alt_create_or_edit_session(request):
 
     if session_knobs:
         session_knobs = JSONUtil.loads(session_knobs)
-        disable_others = session_knobs.pop('disable_others', False)
         SessionKnob.objects.set_knob_min_max_tunability(session, session_knobs,
                                                         disable_others=disable_others)
 
@@ -1237,8 +1237,13 @@ def alt_create_or_edit_session(request):
     res['hardware_id'] = res['hardware']
     res['hardware'] = model_to_dict(session.hardware)
     res['algorithm'] = AlgorithmType.name(res['algorithm'])
-    sess_knobs = SessionKnob.objects.get_knobs_for_session(
-        session, fields=('name', 'minval', 'maxval'))
+    sk = SessionKnob.objects.get_knobs_for_session(session)
+    sess_knobs = []
+    for knob in sk:
+        sess_knobs.append(dict(
+            minval=knob['minval'],
+            maxval=knob['maxval'],
+            tunable=knob['tunable']))
     res['session_knobs'] = sess_knobs
     response.update(created=True, session=res)
     return HttpResponse(JSONUtil.dumps(response))

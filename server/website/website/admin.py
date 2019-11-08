@@ -50,7 +50,7 @@ class SessionKnobAdmin(admin.ModelAdmin):
     list_display = ('knob', 'dbms', 'session', 'minval', 'maxval', 'tunable')
     list_filter = (('session__dbms', admin.RelatedOnlyFieldListFilter),
                    ('session', admin.RelatedOnlyFieldListFilter),
-                   ('tunable', admin.FieldListFilter))
+                   'tunable')
     ordering = ('session__dbms', 'session__name', '-tunable', 'knob__name')
 
     def dbms(self, instance):  # pylint: disable=no-self-use

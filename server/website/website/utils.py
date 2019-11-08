@@ -16,6 +16,7 @@ from io import BytesIO
 from random import choice
 
 import numpy as np
+from django.contrib.auth.models import User
 from django.utils.text import capfirst
 from django_db_logger.models import StatusLog
 from djcelery.models import TaskMeta
@@ -437,3 +438,32 @@ def dump_debug_info(session, pretty_print=False):
 
     tarstream.seek(0)
     return tarstream, root
+
+
+def create_user(username, password, email=None, superuser=False):
+    user = User.objects.filter(username=username).first()
+    if user:
+        created = False
+    else:
+        if superuser:
+            email = email or '{}@noemail.com'.format(username)
+            _create_user = User.objects.create_superuser
+        else:
+            _create_user = User.objects.create_user
+
+        user = _create_user(username=username, password=password, email=email)
+        created = True
+
+    return user, created
+
+
+def delete_user(username):
+    user = User.objects.filter(username=username).first()
+    if user:
+        delete_info = user.delete()
+        deleted = True
+    else:
+        delete_info = None
+        deleted = False
+
+    return delete_info, deleted

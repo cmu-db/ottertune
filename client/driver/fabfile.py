@@ -663,6 +663,89 @@ def rename_batch(result_dir=None):
             os.rename(fpath, rename_path)
 
 
+def _http_content_to_json(content):
+    if isinstance(content, bytes):
+        content = content.decode('utf-8')
+    try:
+        json_content = json.loads(content)
+        decoded = True
+    except (TypeError, json.decoder.JSONDecodeError):
+        json_content = None
+        decoded = False
+
+    return json_content, decoded
+
+
+def _modify_website_object(obj_name, action, verbose=False, **kwargs):
+    verbose = _parse_bool(verbose)
+    if obj_name == 'project':
+        valid_actions = ('create', 'edit')
+    elif obj_name == 'session':
+        valid_actions = ('create', 'edit')
+    elif obj_name == 'user':
+        valid_actions = ('create', 'delete')
+    else:
+        raise ValueError('Invalid object: {}. Valid objects: project, session'.format(obj_name))
+
+    if action not in valid_actions:
+        raise ValueError('Invalid action: {}. Valid actions: {}'.format(
+            action, ', '.join(valid_actions)))
+
+    data = {}
+    for k, v in kwargs.items():
+        if isinstance(v, (dict, list, tuple)):
+            v = json.dumps(v)
+        data[k] = v
+
+    url_path = '/{}/{}/'.format(action, obj_name)
+    response = requests.post(CONF['upload_url'] + url_path, data=data)
+
+    content = response.content.decode('utf-8')
+    if response.status_code != 200:
+        raise Exception("Failed to {} new {}.\nStatus: {}\nMessage: {}\n".format(
+            action, obj_name, response.status_code, content))
+
+    json_content, decoded = _http_content_to_json(content)
+    if verbose:
+        if decoded:
+            LOG.info('\n%s_%s = %s', action.upper(), obj_name.upper(),
+                     json.dumps(json_content, indent=4))
+        else:
+            LOG.warning("Content could not be decoded.\n\n%s\n", content)
+
+    return response, json_content, decoded
+
+
+@task
+def create_website_user(**kwargs):
+    return _modify_website_object('user', 'create', **kwargs)
+
+
+@task
+def delete_website_user(**kwargs):
+    return _modify_website_object('user', 'delete', **kwargs)
+
+
+@task
+def create_website_project(**kwargs):
+    return _modify_website_object('project', 'create', **kwargs)
+
+
+@task
+def edit_website_project(**kwargs):
+    return _modify_website_object('project', 'edit', **kwargs)
+
+
+@task
+def create_website_session(**kwargs):
+    return _modify_website_object('session', 'create', **kwargs)
+
+
+@task
+def edit_website_session(**kwargs):
+    return _modify_website_object('session', 'edit', **kwargs)
+
+
 def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
     max_time_sec = int(max_time_sec)
     interval_sec = int(interval_sec)

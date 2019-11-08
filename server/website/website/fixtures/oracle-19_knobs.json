@@ -471,7 +471,8 @@
             "maxval": 5000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "maximum memory allow for BITMAP MERGE"
+            "summary": "maximum memory allow for BITMAP MERGE",
+            "resource": 1
         }
     },
     {
@@ -1136,7 +1137,8 @@
             "maxval": 5000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "size of create bitmap buffer for bitmap index"
+            "summary": "size of create bitmap buffer for bitmap index",
+            "resource": 1
         }
     },
     {
@@ -1535,7 +1537,8 @@
             "maxval": 25000000000,
             "vartype": 2,
             "default": 4000000000,
-            "summary": "Size of DEFAULT buffer pool for standard block size buffers"
+            "summary": "Size of DEFAULT buffer pool for standard block size buffers",
+            "resource": 1
         }
     },
     {
@@ -1681,9 +1684,9 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
-            "minval": 64,
+            "minval": 20,
             "maxval": 256,
             "vartype": 2,
             "default": 128,
@@ -1820,7 +1823,8 @@
             "maxval": 2000000000,
             "vartype": 2,
             "default": 500000000,
-            "summary": "Size of KEEP buffer pool for standard block size buffers"
+            "summary": "Size of KEEP buffer pool for standard block size buffers",
+            "resource": 1
         }
     },
     {
@@ -1934,7 +1938,8 @@
             "maxval": 2000000000,
             "vartype": 2,
             "default": 500000000,
-            "summary": "Size of RECYCLE buffer pool for standard block size buffers"
+            "summary": "Size of RECYCLE buffer pool for standard block size buffers",
+            "resource": 1
         }
     },
     {
@@ -2789,7 +2794,8 @@
             "maxval": 3000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "size of in-memory hash work area"
+            "summary": "size of in-memory hash work area",
+            "resource": 1
         }
     },
     {
@@ -3416,7 +3422,8 @@
             "maxval": 2000000000,
             "vartype": 2,
             "default": 500000000,
-            "summary": "size in bytes of large pool"
+            "summary": "size in bytes of large pool",
+            "resource": 1
         }
     },
     {
@@ -4955,7 +4962,8 @@
             "maxval": 2000000000,
             "vartype": 2,
             "default": 50000000,
-            "summary": "redo circular buffer size"
+            "summary": "redo circular buffer size",
+            "resource": 1
         }
     },
     {
@@ -5297,7 +5305,8 @@
             "maxval": 33000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "Max size for Memory Target"
+            "summary": "Max size for Memory Target",
+            "resource": 1
         }
     },
     {
@@ -5316,7 +5325,8 @@
             "maxval": 33000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "Target size of Oracle SGA and PGA memory"
+            "summary": "Target size of Oracle SGA and PGA memory",
+            "resource": 1
         }
     },
     {
@@ -5804,7 +5814,7 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
             "minval": 200,
             "maxval": 400,
@@ -5861,12 +5871,12 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
             "minval": null,
             "maxval": null,
             "vartype": 4,
-            "default": "TRUE",
+            "default": true,
             "summary": "controls all types of adaptive plans"
         }
     },
@@ -5937,12 +5947,12 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
-            "minval": null,
-            "maxval": null,
+            "minval": 0,
+            "maxval": 11,
             "vartype": 2,
-            "default": "2",
+            "default": 2,
             "summary": "optimizer dynamic sampling"
         }
     },
@@ -6583,13 +6593,14 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
             "minval": 0,
             "maxval": 33000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "Target size for the aggregate PGA memory consumed by the instance"
+            "summary": "Target size for the aggregate PGA memory consumed by the instance",
+            "resource": 1
         }
     },
     {
@@ -7482,7 +7493,8 @@
             "maxval": 33000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "max total SGA size"
+            "summary": "max total SGA size",
+            "resource": 1
         }
     },
     {
@@ -7520,7 +7532,8 @@
             "maxval": 33000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "Target size of SGA"
+            "summary": "Target size of SGA",
+            "resource": 1
         }
     },
     {
@@ -7571,13 +7584,14 @@
             "enumvals": null,
             "context": "",
             "unit": 3,
-            "tunable": false,
+            "tunable": true,
             "description": "",
-            "minval": null,
-            "maxval": null,
+            "minval": 0,
+            "maxval": 4000000000,
             "vartype": 2,
-            "default": "0",
-            "summary": "size in bytes of reserved area of shared pool"
+            "default": 1000000000,
+            "summary": "size in bytes of reserved area of shared pool",
+            "resource": 1
         }
     },
     {
@@ -7596,7 +7610,8 @@
             "maxval": 4000000000,
             "vartype": 2,
             "default": 1000000000,
-            "summary": "size in bytes of shared pool"
+            "summary": "size in bytes of shared pool",
+            "resource": 1
         }
     },
     {
@@ -7729,7 +7744,8 @@
             "maxval": 3000000000,
             "vartype": 2,
             "default": 0,
-            "summary": "size of in-memory sort work area"
+            "summary": "size of in-memory sort work area",
+            "resource": 1
         }
     },
     {
@@ -7976,7 +7992,8 @@
             "maxval": 4000000000,
             "vartype": 2,
             "default": 20000000,
-            "summary": "size in bytes of the streams pool"
+            "summary": "size in bytes of the streams pool",
+            "resource": 1
         }
     },
     {

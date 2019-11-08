@@ -273,8 +273,8 @@ def save_next_config(next_config, t=None):
 
 @task
 def free_cache():
-    if dconf.HOST_CONN != 'docker':  # pylint: disable=not-context-manager
-        with show('everything'), settings(warn_only=True):
+    if dconf.HOST_CONN != 'docker':
+        with show('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
             res = sudo("sync && echo 3 | tee /proc/sys/vm/drop_caches")
             if res.failed:
                 LOG.error('%s (return code %s)', res.stderr.strip(), res.return_code)

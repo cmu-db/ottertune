@@ -1200,7 +1200,7 @@ def alt_create_or_edit_session(request):
     if 'algorithm' in data:
         data['algorithm'] = AlgorithmType.type(data['algorithm'])
     session_knobs = data.pop('session_knobs', None)
-    disable_others = session_knobs.pop('disable_others', False)
+    disable_others = data.pop('disable_others', False)
     ts = now()
 
     if request.path == reverse('backdoor_create_session'):

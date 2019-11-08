@@ -15,12 +15,7 @@ class DBTime(BaseTargetObjective):
                          improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        metric_names = (
-            'global.sys_time_model.db cpu',
-            'global.system_event.cursor: pin s wait on x.time_waited',
-            'global.sysstat.user i/o wait time')
-        db_time = float(sum(metrics[mname] for mname in metric_names)) / observation_time
-        return db_time
+        return float('global.sys_time_model.db time')
 
 
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name

@@ -24,7 +24,17 @@ DEFAULT_TUNABLE_KNOBS = {
         "global.temp_buffers",
         "global.wal_buffers",
         "global.work_mem",
-    }
+    },
+    DBMSType.ORACLE: {
+        "global.db_cache_size",
+        "global.log_buffer",
+        "global.hash_area_size",
+        "global.open_cursors",
+        "global.pga_aggregate_size",
+        "global.shared_pool_reserved_size",
+        "global.shared_pool_size",
+        "global.sort_area_size",
+    },
 }
 
 # Bytes in a GB

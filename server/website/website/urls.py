@@ -67,6 +67,12 @@ urlpatterns = [
     # Back door
     url(r'^query_and_get/(?P<upload_code>[0-9a-zA-Z]+)$', website_views.give_result, name="backdoor"),
     url(r'^dump/(?P<upload_code>[0-9a-zA-Z]+)', website_views.get_debug_info, name="backdoor_debug"),
+    url(r'^create/project/', website_views.alt_create_or_edit_project, name='backdoor_create_project'),
+    url(r'^edit/project/', website_views.alt_create_or_edit_project, name='backdoor_edit_project'),
+    url(r'^create/session/', website_views.alt_create_or_edit_session, name='backdoor_create_session'),
+    url(r'^edit/session/', website_views.alt_create_or_edit_session, name='backdoor_edit_session'),
+    url(r'^create/user/', website_views.alt_create_user, name='backdoor_create_user'),
+    url(r'^delete/user/', website_views.alt_delete_user, name='backdoor_delete_user'),
 
     # train ddpg with results in the given session
     url(r'^train_ddpg/sessions/(?P<session_id>[0-9]+)$', website_views.train_ddpg_loops, name='train_ddpg_loops'),

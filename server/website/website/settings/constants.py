@@ -77,7 +77,16 @@ DNN_DEBUG_INTERVAL = 100
 DDPG_BATCH_SIZE = 32
 
 #  Learning rate of actor network
-ACTOR_LEARNING_RATE = 0.01
+ACTOR_LEARNING_RATE = 0.02
 
 #  Learning rate of critic network
 CRITIC_LEARNING_RATE = 0.001
+
+#  Number of update epochs per iteration
+UPDATE_EPOCHS = 30
+
+#  The number of hidden units in each layer of the actor MLP
+ACTOR_HIDDEN_SIZES = [128, 128, 64]
+
+#  The number of hidden units in each layer of the critic MLP
+CRITIC_HIDDEN_SIZES = [64, 128, 64]

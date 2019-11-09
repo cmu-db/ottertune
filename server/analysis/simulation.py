@@ -25,6 +25,7 @@ from analysis.gpr import gpr_models  # noqa
 from analysis.gpr import ucb  # noqa
 from analysis.gpr.optimize import tf_optimize  # noqa
 
+
 LOG = get_analysis_logger(__name__)
 
 
@@ -106,8 +107,10 @@ def ddpg(env, config, n_loops=100):
     a_lr = config['a_lr']
     c_lr = config['c_lr']
     n_epochs = config['n_epochs']
+    ahs = config['a_hidden_sizes']
+    chs = config['c_hidden_sizes']
     model_ddpg = DDPG(n_actions=env.knob_dim, n_states=env.metric_dim, gamma=gamma,
-                      clr=c_lr, alr=a_lr, shift=0.1)
+                      clr=c_lr, alr=a_lr, shift=0, a_hidden_sizes=ahs, c_hidden_sizes=chs)
     knob_data = np.random.rand(env.knob_dim)
     prev_metric_data = np.zeros(env.metric_dim)
 
@@ -122,7 +125,7 @@ def ddpg(env, config, n_loops=100):
 
     for i in range(n_loops):
         reward, metric_data = env.simulate(knob_data)
-        model_ddpg.add_sample(prev_metric_data, prev_knob_data, prev_reward, metric_data)
+        model_ddpg.add_sample(prev_metric_data, prev_knob_data, prev_reward, prev_metric_data)
         prev_metric_data = metric_data
         prev_knob_data = knob_data
         prev_reward = reward
@@ -184,6 +187,7 @@ def dnn(env, config, n_loops=100):
         actions, rewards = memory.get_all()
         model_nn.fit(np.array(actions), -np.array(rewards), fit_epochs=50)
         res = model_nn.recommend(X_samples, Xmin, Xmax, recommend_epochs=10, explore=False)
+
         best_config_idx = np.argmin(res.minl.ravel())
         best_config = res.minl_conf[best_config_idx, :]
         if ou_process:
@@ -313,12 +317,12 @@ def gpr_new(env, config, n_loops=100):
             model_kwargs['hyperparameters'] = None
         model_kwargs['optimize_hyperparameters'] = optimize_hyperparams
 
-        X_new, ypred, model_params, hyperparameters = run_optimize(np.array(actions),
-                                                                   -np.array(rewards),
-                                                                   X_samples,
-                                                                   model_name,
-                                                                   opt_kwargs,
-                                                                   model_kwargs)
+        X_new, ypred, _, hyperparameters = run_optimize(np.array(actions),
+                                                        -np.array(rewards),
+                                                        X_samples,
+                                                        model_name,
+                                                        opt_kwargs,
+                                                        model_kwargs)
 
         sort_index = np.argsort(ypred.squeeze())
         X_new = X_new[sort_index]
@@ -342,8 +346,8 @@ def plotlines(xs, results, labels, title, path):
         N = 1
         weights = np.ones(N)
         for x_axis, result, label in zip(xs, results, labels):
-            result = np.convolve(weights/weights.sum(), result.flatten())[N-1:-N+1]
-            lines.append(plt.plot(x_axis[:-N+1], result, label=label, lw=4)[0])
+            result = np.convolve(weights/weights.sum(), result.flatten())[N-1:-N]
+            lines.append(plt.plot(x_axis[:-N], result, label=label, lw=4)[0])
         plt.legend(handles=lines, fontsize=30)
         plt.title(title, fontsize=25)
         plt.xticks(fontsize=25)
@@ -357,8 +361,8 @@ def plotlines(xs, results, labels, title, path):
 def run(tuners, configs, labels, title, env, n_loops, n_repeats):
     if not plt:
         LOG.info("Cannot import matplotlib. Will write results to files instead of figures.")
-    random.seed(0)
-    np.random.seed(1)
+    random.seed(2)
+    np.random.seed(2)
     torch.manual_seed(0)
     results = []
     xs = []
@@ -385,16 +389,17 @@ def run(tuners, configs, labels, title, env, n_loops, n_repeats):
 
 
 def main():
-    env = Environment(knob_dim=24, metric_dim=60, modes=[2], reward_variance=0.05)
-    title = 'compare'
-    n_repeats = [1, 1, 1, 1]
-    n_loops = 80
-    configs = [{'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.01, 'num_collections': 50, 'n_epochs': 50},
-               {'num_samples': 30, 'num_collections': 50},
-               {'num_samples': 30, 'num_collections': 50},
-               {'num_samples': 30, 'num_collections': 50}]
-    tuners = [ddpg, gpr_new, dnn, gpr]
-    labels = [tuner.__name__ for tuner in tuners]
+    env = Environment(knob_dim=8, metric_dim=60, modes=[2], reward_variance=0.15)
+    title = 'ddpg_structure_nodrop'
+    n_repeats = [2, 2]
+    n_loops = 100
+    configs = [{'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.02, 'num_collections': 1, 'n_epochs': 30,
+                'a_hidden_sizes': [128, 128, 64], 'c_hidden_sizes': [64, 128, 64]},
+               {'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.02, 'num_collections': 1, 'n_epochs': 30,
+                'a_hidden_sizes': [64, 64, 32], 'c_hidden_sizes': [64, 128, 64]},
+               ]
+    tuners = [ddpg, ddpg]
+    labels = ['1', '2']
     run(tuners, configs, labels, title, env, n_loops, n_repeats)
 
 

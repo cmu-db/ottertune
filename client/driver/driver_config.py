@@ -34,6 +34,9 @@ DB_USER = 'dbuser'
 # Password for DB_USER
 DB_PASSWORD = 'dbpassword'
 
+# Database admin username (for tasks like restarting the database)
+ADMIN_USER = DB_USER
+
 # Database host address
 DB_HOST = 'localhost'
 

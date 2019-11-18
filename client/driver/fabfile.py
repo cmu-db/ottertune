@@ -109,7 +109,7 @@ def restart_database():
             local('docker restart {}'.format(dconf.CONTAINER_NAME))
         else:
             sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(
-                dconf.PG_DATADIR), user=dconf.DB_USER)
+                dconf.PG_DATADIR), user=dconf.ADMIN_USER, capture=False)
     elif dconf.DB_TYPE == 'oracle':
         run_sql_script('restartOracle.sh')
     else:
@@ -202,7 +202,7 @@ def change_conf(next_conf=None):
     with open(tmp_conf_out, 'w') as f:
         f.write(''.join(lines))
 
-    run('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF))
+    sudo('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF))
     put(tmp_conf_out, dconf.DB_CONF, use_sudo=False)
     local('rm -f {} {}'.format(tmp_conf_in, tmp_conf_out))
 
@@ -275,7 +275,7 @@ def save_next_config(next_config, t=None):
 def free_cache():
     if dconf.HOST_CONN != 'docker':
         with show('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
-            res = sudo("sync && echo 3 | tee /proc/sys/vm/drop_caches")
+            res = sudo("sh -c \"echo 3 > /proc/sys/vm/drop_caches\"")
             if res.failed:
                 LOG.error('%s (return code %s)', res.stderr.strip(), res.return_code)
 

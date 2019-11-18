@@ -54,12 +54,14 @@ def parse_bool(value):
 
 
 @task
-def run(cmd, **kwargs):
+def run(cmd, capture=True, **kwargs):
+    capture = parse_bool(capture)
+
     try:
         if dconf.HOST_CONN == 'remote':
             res = _run(cmd, **kwargs)
         elif dconf.HOST_CONN == 'local':
-            res = local(cmd, capture=True, **kwargs)
+            res = local(cmd, capture=capture, **kwargs)
         else:  # docker
             opts = ''
             cmdd = cmd
@@ -67,7 +69,7 @@ def run(cmd, **kwargs):
                 cmdd = cmd[:-1].strip()
                 opts = '-d '
             res = local('docker exec {} -ti {} /bin/bash -c "{}"'.format(
-                opts, dconf.CONTAINER_NAME, cmdd), capture=True, **kwargs)
+                opts, dconf.CONTAINER_NAME, cmdd), capture=capture, **kwargs)
     except TypeError as e:
         err = str(e).strip()
         if 'unexpected keyword argument' in err:
@@ -80,7 +82,9 @@ def run(cmd, **kwargs):
 
 
 @task
-def sudo(cmd, user=None, **kwargs):
+def sudo(cmd, user=None, capture=True, **kwargs):
+    capture = parse_bool(capture)
+
     if dconf.HOST_CONN == 'remote':
         res = _sudo(cmd, user=user, **kwargs)
 
@@ -88,7 +92,7 @@ def sudo(cmd, user=None, **kwargs):
         pre_cmd = 'sudo '
         if user:
             pre_cmd += '-u {} '.format(user)
-        res = local(pre_cmd + cmd, capture=True, **kwargs)
+        res = local(pre_cmd + cmd, capture=capture, **kwargs)
 
     else:  # docker
         user = user or 'root'
@@ -96,7 +100,7 @@ def sudo(cmd, user=None, **kwargs):
         if user == 'root':
             opts += ' -w /'
         res = local('docker exec {} {} /bin/bash -c "{}"'.format(
-            opts, dconf.CONTAINER_NAME, cmd), capture=True)
+            opts, dconf.CONTAINER_NAME, cmd), capture=capture)
 
     return res
 

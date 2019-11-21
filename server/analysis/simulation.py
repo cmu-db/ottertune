@@ -179,7 +179,7 @@ def dnn(env, config, n_loops=100):
             for entry in top10:
                 X_samples = np.vstack((X_samples, np.array(entry[0])))
         tf.reset_default_graph()
-        sess = tf.InteractiveSession()
+        tf.InteractiveSession()
         model_nn = NeuralNet(n_input=X_samples.shape[1],
                              batch_size=X_samples.shape[0],
                              learning_rate=0.005,
@@ -267,7 +267,7 @@ def run_optimize(X, y, X_samples, model_name, opt_kwargs, model_kwargs):
 
     # Optimize the DBMS's configuration knobs
     timer.start()
-    X_news, ypreds, yvar, loss = tf_optimize(m._model, X_samples, **opt_kwargs)
+    X_news, ypreds, _, _ = tf_optimize(m.model, X_samples, **opt_kwargs)
     timer.stop()
     config_optimize_sec = timer.elapsed_seconds
 
@@ -313,7 +313,8 @@ def gpr_new(env, config, n_loops=100):
         actions, rewards = memory.get_all()
 
         ucb_beta = config['beta']
-        opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, scale=config['scale'], t=i + 1., ndim=env.knob_dim)
+        opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, scale=config['scale'],
+                                                  t=i + 1., ndim=env.knob_dim)
         if model_opt_frequency > 0:
             optimize_hyperparams = i % model_opt_frequency == 0
             if not optimize_hyperparams:
@@ -397,15 +398,13 @@ def main():
     title = 'dim=192'
     n_repeats = [1, 1, 1, 1, 1, 1]
     n_loops = 200
-    configs = [
-               {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.1},
+    configs = [{'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.1},
                {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.2},
                {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.6},
                {'num_collections': 5, 'num_samples': 30},
                {'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.02, 'num_collections': 1, 'n_epochs': 30,
                 'a_hidden_sizes': [128, 128, 64], 'c_hidden_sizes': [64, 128, 64]},
-               {'num_collections': 5, 'num_samples': 30}
-               ]
+               {'num_collections': 5, 'num_samples': 30}]
     tuners = [gpr_new, gpr_new, gpr_new, gpr, ddpg, dnn]
     labels = ['gpr_new_0.5', 'gpr_new_1', 'gpr_new_3', 'gpr', 'ddpg', 'dnn']
     run(tuners, configs, labels, title, env, n_loops, n_repeats)

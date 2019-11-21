@@ -263,15 +263,15 @@ def run_optimize(X, y, X_samples, model_name, opt_kwargs, model_kwargs):
     m = gpr_models.create_model(model_name, X=X, y=y, **model_kwargs)
     timer.stop()
     model_creation_sec = timer.elapsed_seconds
-    LOG.info(m._model.as_pandas_table())
+    LOG.info(m.model.as_pandas_table())
 
     # Optimize the DBMS's configuration knobs
     timer.start()
-    X_news, ypreds, _, _ = tf_optimize(m.model, X_samples, **opt_kwargs)
+    X_news, _, _, loss = tf_optimize(m.model, X_samples, **opt_kwargs)
     timer.stop()
     config_optimize_sec = timer.elapsed_seconds
 
-    return X_news, ypreds, m.get_model_parameters(), m.get_hyperparameters()
+    return X_news, loss, m.get_model_parameters(), m.get_hyperparameters()
 
 
 def gpr_new(env, config, n_loops=100):

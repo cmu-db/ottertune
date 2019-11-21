@@ -163,7 +163,7 @@ class BaseParser:
         return float(mdata.minval) <= value <= float(mdata.maxval)
 
     def _check_knob_bool_val(self, value):
-        if isinstance(str, value):
+        if isinstance(value, str):
             value = value.lower()
         return value in self.valid_true_val or value in self.valid_false_val
 

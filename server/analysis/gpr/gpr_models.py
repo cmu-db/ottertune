@@ -55,7 +55,7 @@ class BaseModel(object):
         if optimize_hyperparameters:
             opt = gpflow.train.AdamOptimizer(learning_rate)
             opt.minimize(m, maxiter=maxiter)
-        self._model = m
+        self.model = m
 
     def _get_kernel_kwargs(self, **kwargs):
         return []
@@ -65,7 +65,7 @@ class BaseModel(object):
 
     def get_hyperparameters(self):
         return {k: float(v) if v.ndim == 0 else v.tolist()
-                for k, v in self._model.read_values().items()}
+                for k, v in self.model.read_values().items()}
 
     def get_model_parameters(self):
         return {

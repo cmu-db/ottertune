@@ -45,7 +45,7 @@ def tf_optimize(model, Xnew_arr, learning_rate=0.01, maxiter=100, ucb_beta=3.,
     beta_t = tf.constant(ucb_beta, name='ucb_beta', dtype=settings.float_type)
     y_mean_var = model.likelihood.predict_mean_and_var(*model._build_predict(Xin))
     loss = tf.subtract(y_mean_var[0], tf.multiply(beta_t, y_mean_var[1]), name='loss_fn')
-    opt = tf.train.AdamOptimizer(learning_rate)
+    opt = tf.train.AdamOptimizer(learning_rate, epsilon=1e-6)
     train_op = opt.minimize(loss)
     variables = opt.variables()
     init_op = tf.variables_initializer([Xnew] + variables)

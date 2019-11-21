@@ -109,7 +109,7 @@ class BasicGP(BaseModel):
         return [
             {
                 'input_dim': X_dim,
-                'ARD': True
+                'ARD': False
             },
             {
                 'input_dim': X_dim,

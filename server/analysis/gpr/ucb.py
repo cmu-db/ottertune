@@ -20,11 +20,12 @@ _UCB_MAP = {
 }
 
 
-def get_ucb_beta(ucb_beta, **kwargs):
+def get_ucb_beta(ucb_beta, scale = 1., **kwargs):
     check_valid(ucb_beta)
     if not isinstance(ucb_beta, float):
         ucb_beta = _UCB_MAP[ucb_beta](**kwargs)
     assert isinstance(ucb_beta, float), type(ucb_beta)
+    ucb_beta *= scale
     assert ucb_beta >= 0.0
     return ucb_beta
 

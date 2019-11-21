@@ -14,6 +14,8 @@ try:
 except (ModuleNotFoundError, ImportError):
     plt = None
 import numpy as np
+import tensorflow as tf
+import gpflow
 import torch
 sys.path.append("../")
 from analysis.util import get_analysis_logger, TimerStruct  # noqa
@@ -176,17 +178,19 @@ def dnn(env, config, n_loops=100):
             top10 = heapq.nlargest(10, tuples, key=lambda e: e[1])
             for entry in top10:
                 X_samples = np.vstack((X_samples, np.array(entry[0])))
+        tf.reset_default_graph()
+        sess = tf.InteractiveSession()
         model_nn = NeuralNet(n_input=X_samples.shape[1],
                              batch_size=X_samples.shape[0],
-                             learning_rate=0.01,
+                             learning_rate=0.005,
                              explore_iters=100,
                              noise_scale_begin=0.1,
                              noise_scale_end=0.0,
                              debug=False,
                              debug_interval=100)
         actions, rewards = memory.get_all()
-        model_nn.fit(np.array(actions), -np.array(rewards), fit_epochs=50)
-        res = model_nn.recommend(X_samples, Xmin, Xmax, recommend_epochs=10, explore=False)
+        model_nn.fit(np.array(actions), -np.array(rewards), fit_epochs=100)
+        res = model_nn.recommend(X_samples, Xmin, Xmax, recommend_epochs=20, explore=False)
 
         best_config_idx = np.argmin(res.minl.ravel())
         best_config = res.minl_conf[best_config_idx, :]
@@ -248,11 +252,14 @@ def gpr(env, config, n_loops=100):
     return np.array(results), np.array(x_axis)
 
 
-def run_optimize(X, y, X_sample, model_name, opt_kwargs, model_kwargs):
+def run_optimize(X, y, X_samples, model_name, opt_kwargs, model_kwargs):
     timer = TimerStruct()
 
     # Create model (this also optimizes the hyperparameters if that option is enabled
     timer.start()
+    tf.reset_default_graph()
+    graph = tf.get_default_graph()
+    gpflow.reset_default_session(graph=graph)
     m = gpr_models.create_model(model_name, X=X, y=y, **model_kwargs)
     timer.stop()
     model_creation_sec = timer.elapsed_seconds
@@ -260,23 +267,22 @@ def run_optimize(X, y, X_sample, model_name, opt_kwargs, model_kwargs):
 
     # Optimize the DBMS's configuration knobs
     timer.start()
-    X_new, ypred, yvar, loss = tf_optimize(m._model, X_sample, **opt_kwargs)
+    X_news, ypreds, yvar, loss = tf_optimize(m._model, X_samples, **opt_kwargs)
     timer.stop()
     config_optimize_sec = timer.elapsed_seconds
 
-    return X_new, ypred, m.get_model_parameters(), m.get_hyperparameters()
+    return X_news, ypreds, m.get_model_parameters(), m.get_hyperparameters()
 
 
 def gpr_new(env, config, n_loops=100):
     model_name = 'BasicGP'
-    model_opt_frequency = 5
+    model_opt_frequency = 0
     model_kwargs = {}
     model_kwargs['model_learning_rate'] = 0.001
     model_kwargs['model_maxiter'] = 5000
     opt_kwargs = {}
-    opt_kwargs['learning_rate'] = 0.001
-    opt_kwargs['maxiter'] = 100
-    opt_kwargs['ucb_beta'] = 3.0
+    opt_kwargs['learning_rate'] = 0.01
+    opt_kwargs['maxiter'] = 500
 
     results = []
     x_axis = []
@@ -306,8 +312,8 @@ def gpr_new(env, config, n_loops=100):
 
         actions, rewards = memory.get_all()
 
-        ucb_beta = opt_kwargs.pop('ucb_beta')
-        opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, t=i + 1., ndim=env.knob_dim)
+        ucb_beta = config['beta']
+        opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, scale=config['scale'], t=i + 1., ndim=env.knob_dim)
         if model_opt_frequency > 0:
             optimize_hyperparams = i % model_opt_frequency == 0
             if not optimize_hyperparams:
@@ -316,7 +322,6 @@ def gpr_new(env, config, n_loops=100):
             optimize_hyperparams = False
             model_kwargs['hyperparameters'] = None
         model_kwargs['optimize_hyperparameters'] = optimize_hyperparams
-
         X_new, ypred, _, hyperparameters = run_optimize(np.array(actions),
                                                         -np.array(rewards),
                                                         X_samples,
@@ -327,7 +332,6 @@ def gpr_new(env, config, n_loops=100):
         sort_index = np.argsort(ypred.squeeze())
         X_new = X_new[sort_index]
         ypred = ypred[sort_index].squeeze()
-
         action = X_new[0]
         reward, _ = env.simulate(action)
         memory.push(action, reward)
@@ -361,8 +365,8 @@ def plotlines(xs, results, labels, title, path):
 def run(tuners, configs, labels, title, env, n_loops, n_repeats):
     if not plt:
         LOG.info("Cannot import matplotlib. Will write results to files instead of figures.")
-    random.seed(2)
-    np.random.seed(2)
+    random.seed(1)
+    np.random.seed(1)
     torch.manual_seed(0)
     results = []
     xs = []
@@ -389,17 +393,21 @@ def run(tuners, configs, labels, title, env, n_loops, n_repeats):
 
 
 def main():
-    env = Environment(knob_dim=8, metric_dim=60, modes=[2], reward_variance=0.15)
-    title = 'ddpg_structure_nodrop'
-    n_repeats = [2, 2]
-    n_loops = 100
-    configs = [{'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.02, 'num_collections': 1, 'n_epochs': 30,
-                'a_hidden_sizes': [128, 128, 64], 'c_hidden_sizes': [64, 128, 64]},
+    env = Environment(knob_dim=192, metric_dim=60, modes=[2], reward_variance=0.15)
+    title = 'dim=192'
+    n_repeats = [1, 1, 1, 1, 1, 1]
+    n_loops = 200
+    configs = [
+               {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.1},
+               {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.2},
+               {'num_collections': 5, 'num_samples': 30, 'beta': 'get_beta_td', 'scale': 0.6},
+               {'num_collections': 5, 'num_samples': 30},
                {'gamma': 0., 'c_lr': 0.001, 'a_lr': 0.02, 'num_collections': 1, 'n_epochs': 30,
-                'a_hidden_sizes': [64, 64, 32], 'c_hidden_sizes': [64, 128, 64]},
+                'a_hidden_sizes': [128, 128, 64], 'c_hidden_sizes': [64, 128, 64]},
+               {'num_collections': 5, 'num_samples': 30}
                ]
-    tuners = [ddpg, ddpg]
-    labels = ['1', '2']
+    tuners = [gpr_new, gpr_new, gpr_new, gpr, ddpg, dnn]
+    labels = ['gpr_new_0.5', 'gpr_new_1', 'gpr_new_3', 'gpr', 'ddpg', 'dnn']
     run(tuners, configs, labels, title, env, n_loops, n_repeats)
 
 

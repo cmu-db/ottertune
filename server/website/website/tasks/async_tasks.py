@@ -6,6 +6,8 @@
 import random
 import queue
 import numpy as np
+import tensorflow as tf
+import gpflow
 from pyDOE import lhs
 from scipy.stats import uniform
 
@@ -18,6 +20,9 @@ from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
 from analysis.nn_tf import NeuralNet
+from analysis.gpr import gpr_models
+from analysis.gpr import ucb
+from analysis.gpr.optimize import tf_optimize
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import PipelineData, PipelineRun, Result, Workload, KnobCatalog, SessionKnob
@@ -25,11 +30,12 @@ from website import db
 from website.types import PipelineTaskType, AlgorithmType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
-from website.settings import (DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
+from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
                               MAX_TRAIN_SIZE, BATCH_SIZE, NUM_THREADS,
                               DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
+                              DEFAULT_UCB_SCALE, HP_LEARNING_RATE, HP_MAX_ITER,
                               DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
                               CRITIC_LEARNING_RATE, UPDATE_EPOCHS,
                               ACTOR_HIDDEN_SIZES, CRITIC_HIDDEN_SIZES,
@@ -613,18 +619,35 @@ def configuration_recommendation(recommendation_input):
 
     elif algorithm == AlgorithmType.GPR:
         # default gpr model
-        model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
-                      magnitude=DEFAULT_MAGNITUDE,
-                      max_train_size=MAX_TRAIN_SIZE,
-                      batch_size=BATCH_SIZE,
-                      num_threads=NUM_THREADS,
-                      learning_rate=DEFAULT_LEARNING_RATE,
-                      epsilon=DEFAULT_EPSILON,
-                      max_iter=MAX_ITER,
-                      sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
-                      mu_multiplier=DEFAULT_MU_MULTIPLIER)
-        model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
-        res = model.predict(X_samples, constraint_helper=constraint_helper)
+        if USE_GPFLOW:
+            model_kwargs = {}
+            model_kwargs['model_learning_rate'] = HP_LEARNING_RATE
+            model_kwargs['model_maxiter'] = HP_MAX_ITER
+            opt_kwargs = {}
+            opt_kwargs['learning_rate'] = DEFAULT_LEARNING_RATE
+            opt_kwargs['maxiter'] = MAX_ITER
+            opt_kwargs['bounds'] = [X_min, X_max]
+            ucb_beta = 'get_beta_td'
+            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, scale=DEFAULT_UCB_SCALE,
+                                                      t=i + 1., ndim=X_scaled.shape[1])
+            tf.reset_default_graph()
+            graph = tf.get_default_graph()
+            gpflow.reset_default_session(graph=graph)
+            m = gpr_models.create_model('BasicGP', X=X_scaled, y=y_scaled, **model_kwargs)
+            res = tf_optimize(m.model, X_samples, **opt_kwargs)
+        else:
+            model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
+                          magnitude=DEFAULT_MAGNITUDE,
+                          max_train_size=MAX_TRAIN_SIZE,
+                          batch_size=BATCH_SIZE,
+                          num_threads=NUM_THREADS,
+                          learning_rate=DEFAULT_LEARNING_RATE,
+                          epsilon=DEFAULT_EPSILON,
+                          max_iter=MAX_ITER,
+                          sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
+                          mu_multiplier=DEFAULT_MU_MULTIPLIER)
+            model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
+            res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())
     best_config = res.minl_conf[best_config_idx, :]

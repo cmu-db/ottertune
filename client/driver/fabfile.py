@@ -415,15 +415,23 @@ def upload_batch(result_dir=None, sort=True, upload_code=None):
 @task
 def dump_database():
     dumpfile = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
-    if file_exists(dumpfile):
+    if not dconf.ORACLE_FLASH_BACK and file_exists(dumpfile):
         LOG.info('%s already exists ! ', dumpfile)
         return False
 
-    LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
+    if dconf.ORACLE_FLASH_BACK:
+        LOG.info('create restore point %s for database %s in %s', dconf.RESTORE_POINT,
+                 dconf.DB_NAME, dconf.RECOVERY_FILE_DEST)
+    else:
+        LOG.info('Dump database %s to %s', dconf.DB_NAME, dumpfile)
 
     if dconf.DB_TYPE == 'oracle':
-        run_sql_script('dumpOracle.sh', dconf.DB_USER, dconf.DB_PASSWORD,
-                       dconf.DB_NAME, dconf.DB_DUMP_DIR)
+        if dconf.ORACLE_FLASH_BACK:
+            run_sql_script('createRestore.sh', dconf.RESTORE_POINT,
+                           dconf.RECOVERY_FILE_DEST_SIZE, dconf.RECOVERY_FILE_DEST)
+        else:
+            run_sql_script('dumpOracle.sh', dconf.DB_USER, dconf.DB_PASSWORD,
+                           dconf.DB_NAME, dconf.DB_DUMP_DIR)
 
     elif dconf.DB_TYPE == 'postgres':
         run('PGPASSWORD={} pg_dump -U {} -h {} -F c -d {} > {}'.format(
@@ -435,18 +443,27 @@ def dump_database():
 
 
 @task
+def clean_recovery():
+    run_sql_script('removeRestore.sh', dconf.RESTORE_POINT)
+    cmds = ("""rman TARGET / <<EOF\nDELETE ARCHIVELOG ALL;\nexit\nEOF""")
+    run(cmds)
+
+
+@task
 def restore_database():
     dumpfile = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
-    if not file_exists(dumpfile):
+    if not dconf.ORACLE_FLASH_BACK and not file_exists(dumpfile):
         raise FileNotFoundError("Database dumpfile '{}' does not exist!".format(dumpfile))
 
     LOG.info('Start restoring database')
     if dconf.DB_TYPE == 'oracle':
-        # You must create a directory named dpdata through sqlplus in your Oracle database
-        # The following script assumes such directory exists.
-        drop_user()
-        create_user()
-        run_sql_script('restoreOracle.sh', dconf.DB_USER, dconf.DB_NAME)
+        if dconf.ORACLE_FLASH_BACK:
+            run_sql_script('flashBack.sh', dconf.RESTORE_POINT)
+            clean_recovery()
+        else:
+            drop_user()
+            create_user()
+            run_sql_script('restoreOracle.sh', dconf.DB_USER, dconf.DB_NAME)
     elif dconf.DB_TYPE == 'postgres':
         drop_database()
         create_database()

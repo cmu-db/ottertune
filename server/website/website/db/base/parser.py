@@ -3,12 +3,16 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import logging
+
 from collections import OrderedDict
 
 from website.models import KnobCatalog, KnobUnitType, MetricCatalog
 from website.types import BooleanType, MetricType, VarType
 from website.utils import ConversionUtil
 from .. import target_objectives
+
+LOG = logging.getLogger(__name__)
 
 
 # pylint: disable=no-self-use
@@ -300,7 +304,7 @@ class BaseParser:
                     'Invalid metric type: {}'.format(metric.metric_type))
         return valid_metrics, diffs
 
-    def calculate_change_in_metrics(self, metrics_start, metrics_end):
+    def calculate_change_in_metrics(self, metrics_start, metrics_end, fix_metric_type=True):
         adjusted_metrics = {}
         for met_name, start_val in list(metrics_start.items()):
             end_val = metrics_end[met_name]
@@ -316,6 +320,13 @@ class BaseParser:
                     adj_val = end_val - start_val
                 else:  # MetricType.STATISTICS or MetricType.INFO
                     adj_val = end_val
+                if fix_metric_type:
+                    if adj_val < 0:
+                        adj_val = end_val
+                        LOG.debug("Changing metric %s from COUNTER to STATISTICS", met_name)
+                        metric_fixed = self.metric_catalog_[met_name]
+                        metric_fixed.metric_type = MetricType.STATISTICS
+                        metric_fixed.save()
                 assert adj_val >= 0, \
                     '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
                         met_name, MetricType.name(met_info.metric_type), start_val,

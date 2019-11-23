@@ -52,6 +52,7 @@ dependencies {
 
     // For Oracle, create the directory client/controller/libs and copy the driver
     // (e.g., ojdbc8.jar) into it. The driver must be manually downloaded from Oracle.
+    dependencies {compile files('lib/ojdbc8.jar')}
 }
 
 run {

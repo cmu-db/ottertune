@@ -68,6 +68,10 @@ PG_DATADIR = '/var/lib/postgresql/9.6/main'
 
 # ORACLE-SPECIFIC OPTIONS >>>
 ORACLE_AWR_ENABLED = False
+ORACLE_FLASH_BACK = True
+RESTORE_POINT = 'tpcc_point'
+RECOVERY_FILE_DEST = '/opt/oracle/oradata/ORCL'
+RECOVERY_FILE_DEST_SIZE = '15G'
 
 
 #==========================================================

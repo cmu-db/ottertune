@@ -16,6 +16,15 @@ from analysis.util import get_analysis_logger
 LOG = get_analysis_logger(__name__)
 
 
+class GPRGDResult():
+
+    def __init__(self, ypreds=None, sigmas=None, minl=None, minl_conf=None):
+        self.ypreds = ypreds
+        self.sigmas = sigmas
+        self.minl = minl
+        self.minl_conf = minl_conf
+
+
 def tf_optimize(model, Xnew_arr, learning_rate=0.01, maxiter=100, ucb_beta=3.,
                 active_dims=None, bounds=None):
     Xnew_arr = check_array(Xnew_arr, copy=False, warn_on_dtype=True, dtype=FLOAT_DTYPES)
@@ -61,4 +70,4 @@ def tf_optimize(model, Xnew_arr, learning_rate=0.01, maxiter=100, ucb_beta=3.,
         assert_all_finite(y_mean_value)
         assert_all_finite(y_var_value)
         assert_all_finite(loss_value)
-        return Xnew_value, y_mean_value, y_var_value, loss_value
+        return GPRGDResult(y_mean_value, y_var_value, loss_value, Xnew_value)

@@ -698,7 +698,7 @@ def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
     while elapsed <= max_time_sec:
         response = requests.get(dconf.WEBSITE_URL + '/test/pipeline/')
         content = get_content(response)
-        LOG.info("%s (elapsed: %ss)", content, interval_sec)
+        LOG.info("%s (elapsed: %ss)", content, elapsed)
         if 'False' in content:
             time.sleep(interval_sec)
             elapsed += interval_sec

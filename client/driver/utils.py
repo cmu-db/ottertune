@@ -53,6 +53,13 @@ def parse_bool(value):
     return value
 
 
+def get_content(response):
+    content = response.content
+    if isinstance(content, bytes):
+        content = content.decode('utf-8')
+    return content
+
+
 @task
 def run(cmd, capture=True, **kwargs):
     capture = parse_bool(capture)

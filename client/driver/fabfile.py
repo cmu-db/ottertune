@@ -23,7 +23,7 @@ import requests
 from fabric.api import env, lcd, local, settings, show, task
 from fabric.state import output as fabric_output
 
-from utils import (file_exists, get, load_driver_conf, parse_bool,
+from utils import (file_exists, get, get_content, load_driver_conf, parse_bool,
                    put, run, run_sql_script, sudo, FabricException)
 
 # Loads the driver config file (defaults to driver_config.py)
@@ -306,12 +306,12 @@ def upload_result(result_dir=None, prefix=None, upload_code=None):
                              data={'upload_code': upload_code})
     if response.status_code != 200:
         raise Exception('Error uploading result.\nStatus: {}\nMessage: {}\n'.format(
-            response.status_code, response.content))
+            response.status_code, get_content(response)))
 
     for f in files.values():  # pylint: disable=not-an-iterable
         f.close()
 
-    LOG.info(response.content)
+    LOG.info(get_content(response))
 
     return response
 
@@ -328,7 +328,7 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
 
     while elapsed <= max_time_sec:
         rsp = requests.get(url)
-        response = rsp.content.decode()
+        response = get_content(rsp)
         assert response != 'null'
 
         LOG.debug('%s [status code: %d, content_type: %s, elapsed: %ds]', response,
@@ -693,16 +693,20 @@ def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
     max_time_sec = int(max_time_sec)
     interval_sec = int(interval_sec)
     elapsed = 0
+    ready = False
 
     while elapsed <= max_time_sec:
         response = requests.get(dconf.WEBSITE_URL + '/test/pipeline/')
-        response = response.content
-        LOG.info(response)
-        if 'False' in str(response):
+        content = get_content(response)
+        LOG.info("%s (elapsed: %ss)", content, interval_sec)
+        if 'False' in content:
             time.sleep(interval_sec)
             elapsed += interval_sec
         else:
-            return
+            ready = True
+            break
+
+    return ready
 
 
 @task
@@ -710,14 +714,14 @@ def integration_tests():
 
     # Create test website
     response = requests.get(dconf.WEBSITE_URL + '/test/create/')
-    LOG.info(response.content)
+    LOG.info(get_content(response))
 
     # Upload training data
     LOG.info('Upload training data to no tuning session')
     upload_batch(result_dir='../../integrationTests/data/', upload_code='ottertuneTestNoTuning')
 
     # wait celery periodic task finishes
-    wait_pipeline_data_ready()
+    assert wait_pipeline_data_ready(), "Pipeline data failed"
 
     # Test DNN
     LOG.info('Test DNN (deep neural network)')

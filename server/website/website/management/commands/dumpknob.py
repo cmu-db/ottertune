@@ -5,6 +5,7 @@
 #
 import json
 import os
+from collections import OrderedDict
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -22,13 +23,18 @@ class Command(BaseCommand):
         parser.add_argument(
             '-f', '--filename',
             metavar='FILE',
+            default='session_knobs.json',
             help='Name of the file to write the session knob tunability to. '
-                 'Default: knob.json')
+                 'Default: session_knobs.json')
         parser.add_argument(
             '-d', '--directory',
             metavar='DIR',
             help='Path of the directory to write the session knob tunability to. '
                  'Default: current directory')
+        parser.add_argument(
+            '--tunable-only',
+            action='store_true',
+            help='Dump tunable knobs only. Default: False')
 
     def handle(self, *args, **options):
         directory = options['directory'] or ''
@@ -40,13 +46,13 @@ class Command(BaseCommand):
             raise CommandError(
                 "ERROR: Session with upload code '{}' not exist.".format(options['uploadcode']))
 
-        session_knobs = SessionKnobManager.get_knob_min_max_tunability(session)
+        session_knobs = SessionKnobManager.get_knob_min_max_tunability(
+            session, tunable_only=options['tunable_only'])
 
-        filename = options['filename'] or 'knobs.json'
-        path = os.path.join(directory, filename)
+        path = os.path.join(directory, options['filename'])
 
         with open(path, 'w') as f:
-            json.dump(session_knobs, f, indent=4)
+            json.dump(OrderedDict(sorted(session_knobs.items())), f, indent=4)
 
         self.stdout.write(self.style.SUCCESS(
             "Successfully dumped knob information to '{}'.".format(path)))

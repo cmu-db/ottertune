@@ -6,6 +6,8 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
+from website.utils import create_user  # pylint: disable=no-name-in-module,import-error
+
 
 class Command(BaseCommand):
     help = 'Create a new user.'
@@ -31,22 +33,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         username = options['username']
-        if User.objects.filter(username=username).exists():
-            self.stdout.write(self.style.NOTICE(
-                "ERROR: User '{}' already exists.".format(username)))
-        else:
-            password = options['password']
-            email = options['email']
-            superuser = options['superuser']
+        password = options['password']
+        email = options['email']
+        superuser = options['superuser']
 
-            if superuser:
-                email = email or '{}@noemail.com'.format(username)
-                create_user = User.objects.create_superuser
-            else:
-                create_user = User.objects.create_user
+        _, created = create_user(username, password, email, superuser)
 
-            create_user(username=username, password=password, email=email)
-
+        if created:
             self.stdout.write(self.style.SUCCESS("Successfully created {} '{}'{}.".format(
                 'superuser' if superuser else 'user', username,
                 " ('{}')".format(email) if email else '')))
+        else:
+            self.stdout.write(self.style.NOTICE(
+                "ERROR: User '{}' already exists.".format(username)))

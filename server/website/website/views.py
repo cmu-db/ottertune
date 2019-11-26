@@ -1005,9 +1005,12 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
             # If the task status was incomplete when we first queried latest_result
             # but succeeded before the call to TaskUtil.get_task_status() finished
             # then latest_result is stale and must be updated.
+            LOG.debug("Updating stale result (pk=%s)", latest_result.pk)
             latest_result = Result.objects.get(id=latest_result.pk)
 
         if not latest_result.next_configuration:
+            LOG.warning("Failed to get the next configuration from the latest result: %s",
+                        model_to_dict(latest_result))
             overall_status = 'FAILURE'
             response = _failed_response(latest_result, tasks, num_completed, overall_status,
                                         'Failed to get the next configuration.')

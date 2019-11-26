@@ -9,6 +9,8 @@ local_settings.py
 celerybeat-schedule*
 *.pid
 
-# Raw data files #
-##################
-data/media/*
+# Management commands #
+#######################
+debug_*.tar.gz
+session_knobs.json
+dump_website.json

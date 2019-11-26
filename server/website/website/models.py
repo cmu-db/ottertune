@@ -198,7 +198,7 @@ class SessionKnobManager(models.Manager):
     @staticmethod
     def get_knob_min_max_tunability(session, tunable_only=False):
         # Returns a dict of the knob
-        filter_args=dict(session=session)
+        filter_args = dict(session=session)
         if tunable_only:
             filter_args['tunable'] = True
         session_knobs = SessionKnob.objects.filter(**filter_args).values(

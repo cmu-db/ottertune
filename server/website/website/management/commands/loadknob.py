@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         directory = options['directory'] or ''
-        path = os.path.join(directory, filename)
+        path = os.path.join(directory, options['filename'])
 
         try:
             with open(path, 'r') as f:

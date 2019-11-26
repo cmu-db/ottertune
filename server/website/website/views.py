@@ -761,7 +761,7 @@ def tuner_status_view(request, project_id, session_id, result_id):  # pylint: di
     tasks = TaskUtil.get_tasks(res.task_ids)
 
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
-    if overall_status in ['PENDING', 'RECEIVED', 'STARTED']:
+    if overall_status in ['PENDING', 'RECEIVED', 'STARTED', None]:
         completion_time = 'N/A'
         total_runtime = 'N/A'
     else:
@@ -1001,13 +1001,18 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
     if overall_status == 'SUCCESS':
-        next_config = latest_result.next_configuration
-        if not next_config:
+        if not latest_result.next_configuration:
+            # If the task status was incomplete when we first queried latest_result
+            # but succeeded before the call to TaskUtil.get_task_status() finished
+            # then latest_result is stale and must be updated.
+            latest_result = Result.objects.get(id=latest_result.pk)
+
+        if not latest_result.next_configuration:
             overall_status = 'FAILURE'
             response = _failed_response(latest_result, tasks, num_completed, overall_status,
                                         'Failed to get the next configuration.')
         else:
-            response = HttpResponse(JSONUtil.dumps(next_config),
+            response = HttpResponse(JSONUtil.dumps(latest_result.next_configuration),
                                     content_type='application/json')
 
     elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
@@ -1252,7 +1257,7 @@ def alt_create_or_edit_session(request):
 # integration test
 @csrf_exempt
 def pipeline_data_ready(request):  # pylint: disable=unused-argument
-    LOG.info(PipelineRun.objects.get_latest())
+    LOG.debug("Latest pipeline run: %s", PipelineRun.objects.get_latest())
     if PipelineRun.objects.get_latest() is None:
         response = "Pipeline data ready: False"
     else:

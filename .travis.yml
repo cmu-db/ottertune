@@ -1,60 +1,128 @@
 dist: bionic
-sudo: required
 
-services:
-  - docker
+language: python
+python:
+- 3.6
 
 env:
   global:
-    - DOCKER_COMPOSE_VERSION=1.24.1
-  matrix:
-    - DOCKER_OS=ubuntu-18.04
-    - DOCKER_OS=centos-7
+  - DB_NAME=ottertune
+  - ADMIN_PASSWORD=changeme
+  - ROOT=$TRAVIS_BUILD_DIR
+  - WEB=$ROOT/server/website
+  - CONTROLLER=$ROOT/client/controller
+  - DRIVER=$ROOT/client/driver
 
-before_install:
-  # Install latest versions of docker and docker-compose
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  - sudo apt-get update
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-  - docker --version
-  - docker-compose --version
+matrix:
+  include:
+  - name: Docker
+    env:
+    - BUILD=docker
+    - BACKEND=postgresql
+    - secure: PZAe5iDaipqsfzQ0/mjFdcQhEMQ0alI3Ap+hWR0X9uWfK8dH6XU/RJLzJXj2o+kpGiCGlj7DJ9uuJy6+/75hq2f7vcs+6JJInPQHUlkj2TPDYWNWaFw0XvIAvV9EA73l4kDy26m/+JiSaF1GsyVD5wdJpVRmw6o7liGfYlQX3fY8kQ4p51+5ufb9QCAselrE70302fTyX4GqxaT1xC2L5fzzIcuKllFVlRILc+04gldiq8u0EAcUO2ovYiW/3+qGPkDcdwd2j3UC1tEGQ+x+Q/7g5JqBHGz6iMy8omH77p3rk4aKV/HCRTZLQLe/Kcd5UiSrQvSIHl5jfIYbzBx7//Ub64c7TlgX+UckK+GPYiwr2N6VmiducFnSjmm3RSW959m1M+M+bqIPbS510zqnIs28xjqIgnWvtpA8mgKdRAtQyDFMYcLc7GQyw0alUo1CQuTf4+Ter+78vt3vYVlCD8lNoMG78xBaLg//pgNQ8sdGWGbUsAYuxxrqI056Ayw16LgrcakL0JWLR/7p+HmCtH2ZT1nQEZJJHSUP3ekibGrE6wgNVpt3DAOwQUG/JiceLn4uVoeljpT+neCoM29wvf4M7JGWg+8SPtg4DHJIAocOVt5EDi8/CtoIa3WJLD2AMI4ladd4PKNzHT4tsYdE2V9d+xkuhXv1/OakAJedtEc=
+    - secure: RN4SGagKXgn8gEk9pG2CdM5a/rrBPqkD1nONLcvcqjYzlbniKmhmKT+OxhjVw7Qtoy/RACr4zpIupIjA6COpndSd8/m6WBsWnYD0dt6cDBDLFgHyIh9XNi6/bhNgqPksY9XrENfmeijTENiqpuXeXCuHdaVF0quwvGBxDAIWFNOpPwceAJrwRv9Yb/7w5rmlotSVesScPhwV92Rmu3NK+r/FYANSOFXoBFAYctJSi7dj4A/y3lOFmzE5Y12+Kf6kHuoP+FZO/S/zL1OAPSzedqctRcDpVctEt4AqA7cpGe+Qvate2Hnj63YNlykQD+zlCFHLrqCCKZecdNe+SQVcYqgNk78SX7Nvhfr/xH5lq8HjovqjrfQFc4pVDryomtMeTb7wilN9wsYu6zCneMDHF57hfSKTmiqhz0utEqUiPYwxhkU5uXsXO8VA3aOUlIhM3QPnB6tvkB1h0+qnNzU/lJk6LXy9KkNy9HI8ab+58FSEhj4Uyo9AaBGOB2bEu/d8BsdW1qjGYTI6t4tWZQ8lduOw3xqT5hHhwGB9bz5DomfbECanOGShR3NeMJJGYWETEWek2WK9viP3pllbTFnU3yXfv4ssb00eD2tK+7pyWuP+hL7S1yvrMs5qYRFAEfJhuzTEjtN2uAKumCvU/eh0JjiAPK6XhdT49K1Cd+HC1h4=
+    - DOCKER_REPO="${DOCKER_USER}/ottertune"
+    services:
+    - docker
+    before_install:
+    - docker --version
+    - docker-compose --version
+    install: []
+    before_script:
+    - sudo service mysql stop || true
+    - sudo service postgresql stop || true
+    - cd $ROOT/docker
+    - docker-compose build
+    - dcfile_mysql=docker-compose.mysql.yml
+    - dcfile_postgres=docker-compose.postgresql.yml
+    - BACKEND=mysql WEB_ENTRYPOINT="''" sh create-docker-compose.sh $dcfile_mysql
+    - BACKEND=postgresql WEB_ENTRYPOINT="''" sh create-docker-compose.sh $dcfile_postgres 
+    script:
+    - docker-compose -f $dcfile_postgres run --workdir="/app" --no-deps --rm web bash -c "pip3 freeze"
+    - docker-compose -f $dcfile_postgres run --workdir="/app/controller" --no-deps --rm driver gradle build
+    - docker-compose -f $dcfile_postgres run --workdir="/app" --no-deps --rm web bash -c "python3 -m unittest discover -s analysis/tests -v"
+    - docker-compose -f $dcfile_postgres run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
+    - docker-compose -f $dcfile_postgres rm -f -s -v
+    - docker-compose -f $dcfile_mysql run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
+    - docker-compose -f $dcfile_mysql rm -f -s -v
+    before_deploy:
+    - echo "$DOCKER_PASSWD" | docker login -u "$DOCKER_USER" --password-stdin
+    - docker tag ottertune-web "${DOCKER_REPO}:web"
+    - docker tag ottertune-driver "${DOCKER_REPO}:driver"
+    deploy:
+      provider: script
+      script: docker push "${DOCKER_REPO}:web" && docker push "${DOCKER_REPO}:driver"
+      on:
+        branch: master
 
+  - name: Tests (MySQL v5.7)
+    env:
+    - BUILD=tests
+    - BACKEND=mysql
+    services:
+    - mysql
+    addons:
+      apt:
+        update: true
+        packages:
+        - mysql-server
+        - python-mysqldb
+        - rabbitmq-server
+        - openjdk-11-jdk
+        - gradle
+        - checkstyle
+    before_install:
+    - mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
+    - mysql -e "CREATE DATABASE IF NOT EXISTS test_${DB_NAME}"
+    - sed -i '/psycopg2/d' $WEB/requirements.txt
+
+  - name: Tests (PostgreSQL v9.6)
+    env:
+    - BUILD=unittests
+    - BACKEND=postgresql
+    addons:
+      postgresql: "9.6"
+      apt:
+        update: true
+        packages:
+        - rabbitmq-server
+        - openjdk-11-jdk
+        - gradle
+        - checkstyle
+    before_install:
+    - psql -U postgres -c "CREATE DATABASE ${DB_NAME}"
+    - psql -U postgres -c "CREATE DATABASE test_${DB_NAME}"
+    - sed -i '/mysqlclient/d' $WEB/requirements.txt
+
+install:
+- pip install codecov -r $WEB/requirements.txt
+- pip freeze
 before_script:
-  # Set correct dockerfile
-  - cd $TRAVIS_BUILD_DIR/docker
-  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.yml
-  - sed -i "s|Dockerfile\.base-.*|Dockerfile\.base-$DOCKER_OS|" docker-compose.test.yml
-  - sudo service mysql stop || true
-
+- cd $WEB
+- sed -i  "s|\('celery', 'db.*$\)|'console', \1|" website/settings/common.py
+- cp $ROOT/docker/credentials.py website/settings
+- cat website/settings/credentials.py
+- python manage.py makemigrations
+- python manage.py migrate
+- python manage.py startcelery
+- python manage.py createuser admin $ADMIN_PASSWORD --superuser
 script:
-  - env | grep TRAVIS | sort
-  - cd $TRAVIS_BUILD_DIR/docker
-  # Build master images and run the webserver
-  - docker-compose build
-  - docker-compose up -d
-  - docker logs ottertune
-  - docker-compose rm -f -s -v
-  # Build test images and run tests
-  - ci_env=`bash <(curl -s https://codecov.io/env)`
-  - docker-compose -f docker-compose.test.yml build
-  - docker-compose -f docker-compose.test.yml up -d
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/client/controller" --rm test gradle build
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/server" --rm $ci_env test bash -c "coverage run --omit=\"*/tests/*\" -m unittest discover -s analysis/tests -v && (codecov -F analysis || (sleep 5 && codecov -F analysis) || (sleep 5 && codecov -F analysis))"
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm $ci_env test bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && coverage run --source=website manage.py test --noinput -v 2 && (codecov -F website || (sleep 5 && codecov -F website) || (sleep 5 && codecov -F website))"
-  - docker-compose -f docker-compose.test.yml run --workdir="/app/server/website" --rm test bash -c "./start-test.sh"
-  # Only run the linter once on ubuntu 18.04
-  - if [ $DOCKER_OS == ubuntu-18.04 ]; then
-      docker-compose -f docker-compose.test.yml run --workdir="/app" --rm -e TRAVIS_COMMIT_RANGE=$TRAVIS_COMMIT_RANGE test bash -c "git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git status && git log | head -n 1 && git lint";
-    fi
-
-after_script:
-  # Cleanup docker containers, images, and volumes
-  - docker-compose rm -f -s -v
-  - docker system prune -a -f
-  - docker volume prune -f
-
+- cd $ROOT/server && coverage run --omit="*/tests/*" -m unittest discover -s analysis/tests -v
+- cd $WEB && coverage run manage.py test --noinput -v 2
+- cd $CONTROLLER && gradle build
+- cd $WEB
+- python manage.py runserver 0.0.0.0:8000 &
+- sleep 10 && cd $DRIVER && fab integration_tests
+- cd $ROOT && git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git status && git
+  log | head -n 1 && git lint
+after_success:
+- >
+  codecov -F analysis -f "${ROOT}/server/.coverage" ||
+  (sleep 5 && codecov -F analysis -f "${ROOT}/server/.coverage") ||
+  (sleep 5 && codecov -F analysis -f "${ROOT}/server/.coverage") &&
+  echo "Codecov did not collect coverage reports"
+- >
+  codecov -F website -f "${WEB}/.coverage" ||
+  (sleep 5 && codecov -F website -f "${WEB}/.coverage") ||
+  (sleep 5 && codecov -F website -f "${WEB}/.coverage") &&
+  echo "Codecov did not collect coverage reports"

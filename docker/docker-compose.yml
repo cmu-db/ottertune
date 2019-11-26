@@ -1,48 +1,59 @@
 version: "3"
 services:
-    base:
-        build:
-          context: ../
-          dockerfile: ./docker/Dockerfile.base-ubuntu-18.04
-        image: ottertune-base
-        container_name: ottertune-base
-        labels:
-          NAME: "ottertune-base"
 
     web:
         build:
           context: ../
-          dockerfile: ./docker/Dockerfile
-        image: ottertune
-        container_name: ottertune
+          dockerfile: ./docker/Dockerfile.web
+        image: ottertune-web
+        container_name: web
         expose:
           - "8000"
         ports:
           - "8000:8000"
         links:
-          - mysql
+          - backend
           - rabbitmq
         depends_on:
-          - base
-          - mysql
+          - backend
           - rabbitmq
         environment:
-          DEBUG: 'True'
+          DEBUG: 'true'
           ADMIN_PASSWORD: 'changeme'
-          MYSQL_USER: 'root'
-          MYSQL_PASSWORD: 'ottertune'
-          MYSQL_HOST: 'mysql'
-          MAX_DB_CONN_ATTEMPTS: 15
+          BACKEND: 'mysql'
+          DB_NAME: 'ottertune'
+          DB_USER: 'root'
+          DB_PASSWORD: 'ottertune'
+          DB_HOST: 'backend'
+          DB_PORT: '3306'
+          DB_OPTS: '{}'
+          MAX_DB_CONN_ATTEMPTS: 30
+        working_dir: /app/website
+        entrypoint: ./start.sh
         labels:
-          NAME: "ottertune"
-        volumes:
-          - media_data:/app/server/website/media
+          NAME: "ottertune-web"
         networks:
           - ottertune-net
 
-    mysql:
+    driver:
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile.driver
+        image: ottertune-driver
+        container_name: driver
+        depends_on:
+          - web
+        environment:
+          DEBUG: 'true'
+        working_dir: /app/driver
+        labels:
+          NAME: "ottertune-driver"
+        networks:
+          - ottertune-net
+
+    backend:
         image: mysql:5.7
-        container_name: mysql
+        container_name: backend
         restart: always
         environment:
           MYSQL_ROOT_PASSWORD: 'ottertune'
@@ -53,7 +64,7 @@ services:
         ports:
           - "3306:3306"
         labels:
-          NAME: "mysql"
+          NAME: "ottertune-backend"
         volumes:
           - mysql_data:/var/lib/mysql
         networks:
@@ -72,15 +83,14 @@ services:
            - "15672"
            - "5672"
         ports:
-           - "15672:15672"
-           - "5672:5672"
+           - "15673:15672"
+           - "5673:5672"
         labels:
            NAME: "rabbitmq"
         networks:
           - ottertune-net
 volumes:
    mysql_data:
-   media_data:
 networks:
    ottertune-net:
       driver: bridge

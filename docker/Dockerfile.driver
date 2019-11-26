@@ -1,0 +1,19 @@
+FROM ubuntu:18.04
+
+ARG GRADLE_VERSION=gradle-5.5.1
+
+ENV DEBIAN_FRONTEND=noninteractive 
+ENV GRADLE_HOME=/opt/${GRADLE_VERSION}
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
+
+COPY ./docker/install.sh ./server/website/requirements.txt /
+WORKDIR /
+
+RUN mkdir -p /app \
+    && chmod +x install.sh \
+    && sh install.sh driver
+
+COPY ./client /app
+
+WORKDIR /app/driver
+

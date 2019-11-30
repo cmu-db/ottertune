@@ -33,10 +33,10 @@ class TestNN(unittest.TestCase):
 
     def test_nn_ypreds(self):
         ypreds_round = ['%.3f' % x[0] for x in self.nn_result]
-        expected_ypreds = ['21.279', '22.668', '23.115', '27.228', '25.892', '23.967']
+        expected_ypreds = ['20.021', '22.578', '22.722', '26.889', '24.362', '23.258']
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_nn_yrecommend(self):
         recommends_round = ['%.3f' % x[0] for x in self.nn_recommend.minl]
-        expected_recommends = ['21.279', '21.279', '21.279', '21.279', '21.279', '21.279']
+        expected_recommends = ['13.321', '15.482', '15.621', '18.648', '16.982', '15.986']
         self.assertEqual(recommends_round, expected_recommends)

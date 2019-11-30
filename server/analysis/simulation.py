@@ -228,7 +228,7 @@ def gpr(env, config, n_loops=100):
                 # Tensorflow get broken if we use the training data points as
                 # starting points for GPRGD.
                 X_samples = np.vstack((X_samples, np.array(entry[0]) * 0.97 + 0.01))
-        model = GPRGD(length_scale=1.0,
+        model = GPRGD(length_scale=2.0,
                       magnitude=1.0,
                       max_train_size=2000,
                       batch_size=100,
@@ -236,11 +236,14 @@ def gpr(env, config, n_loops=100):
                       learning_rate=0.01,
                       epsilon=1e-6,
                       max_iter=500,
-                      sigma_multiplier=3.0,
-                      mu_multiplier=1.0)
+                      sigma_multiplier=1.0,
+                      mu_multiplier=1.0,
+                      ridge=1.0,
+                      debug=False,
+                      hyperparameter_trainable=True)
 
         actions, rewards = memory.get_all()
-        model.fit(np.array(actions), -np.array(rewards), X_min, X_max, ridge=0.01)
+        model.fit(np.array(actions), -np.array(rewards), X_min, X_max)
         res = model.predict(X_samples)
         best_config_idx = np.argmin(res.minl.ravel())
         best_config = res.minl_conf[best_config_idx, :]

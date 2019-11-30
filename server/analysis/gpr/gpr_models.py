@@ -111,7 +111,7 @@ class BasicGP(BaseModel):
         ]
 
     def _build_kernel(self, kernel_kwargs, **kwargs):
-        k = gpflow.kernels.Exponential(**kernel_kwargs[0])
+        k = gpflow.kernels.Matern12(lengthscales=2, **kernel_kwargs[0])
         if kwargs.pop('optimize_hyperparameters'):
             k.lengthscales.transform = gpflow.transforms.Logistic(
                 *self._LENGTHSCALE_BOUNDS)

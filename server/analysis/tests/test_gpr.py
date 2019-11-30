@@ -47,8 +47,8 @@ class TestGPRTF(unittest.TestCase):
         X_train = data[0:500]
         X_test = data[500:]
         y_train = boston['target'][0:500].reshape(500, 1)
-        cls.model = GPR(length_scale=1.0, magnitude=1.0)
-        cls.model.fit(X_train, y_train, ridge=1.0)
+        cls.model = GPR(length_scale=1.0, magnitude=1.0, ridge=1.0)
+        cls.model.fit(X_train, y_train)
         cls.gpr_result = cls.model.predict(X_test)
 
     def test_gprnp_ypreds(self):
@@ -75,8 +75,8 @@ class TestGPRGD(unittest.TestCase):
         y_train = boston['target'][0:500].reshape(500, 1)
         Xmin = np.min(X_train, 0)
         Xmax = np.max(X_train, 0)
-        cls.model = GPRGD(length_scale=1.0, magnitude=1.0, max_iter=1, learning_rate=0)
-        cls.model.fit(X_train, y_train, Xmin, Xmax, ridge=1.0)
+        cls.model = GPRGD(length_scale=1.0, magnitude=1.0, max_iter=1, learning_rate=0, ridge=1.0)
+        cls.model.fit(X_train, y_train, Xmin, Xmax)
         cls.gpr_result = cls.model.predict(X_test)
 
     def test_gprnp_ypreds(self):

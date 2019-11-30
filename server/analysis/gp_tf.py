@@ -56,6 +56,7 @@ class GPR(object):
         self.graph = None
         self.vars = None
         self.ops = None
+        self.ridge = None
 
     def build_graph(self):
         self.vars = {}
@@ -117,13 +118,15 @@ class GPR(object):
             # Nodes for yhat/sigma computation
             K2 = tf.placeholder(tf.float32, name="K2")
             K3 = tf.placeholder(tf.float32, name="K3")
+            ridge_test_ph = tf.placeholder(tf.float32, name="ridge_test_ph")
             yhat_ = tf.cast(tf.matmul(tf.transpose(K2), xy_), tf.float32)
             if self.check_numerics:
                 yhat_ = tf.check_numerics(yhat_, "yhat_: ")
             sv1 = tf.matmul(tf.transpose(K2), tf.matmul(K_inv, K2))
             if self.check_numerics:
                 sv1 = tf.check_numerics(sv1, "sv1: ")
-            sig_val = tf.cast((tf.sqrt(tf.diag_part(K3 - sv1))), tf.float32)
+            sig_val = tf.cast((tf.sqrt(tf.diag_part(K3 + tf.diag(ridge_test_ph) - sv1))),
+                              tf.float32)
             if self.check_numerics:
                 sig_val = tf.check_numerics(sig_val, "sig_val: ")
 
@@ -131,6 +134,7 @@ class GPR(object):
             self.vars['K3_h'] = K3
             self.ops['yhat_op'] = yhat_
             self.ops['sig_op'] = sig_val
+            self.ops['ridge_test_h'] = ridge_test_ph
 
             # Compute y_best (min y)
             y_best_op = tf.cast(tf.reduce_min(yt_, 0, True), tf.float32)
@@ -186,6 +190,7 @@ class GPR(object):
         self.X_train = np.float32(X_train)
         self.y_train = np.float32(y_train)
         sample_size = self.X_train.shape[0]
+        self.ridge = ridge
 
         if np.isscalar(ridge):
             ridge = np.ones(sample_size) * ridge
@@ -224,7 +229,9 @@ class GPR(object):
         X_test = np.float32(GPR.check_array(X_test))
         test_size = X_test.shape[0]
         sample_size = self.X_train.shape[0]
-
+        ridge = self.ridge
+        if np.isscalar(ridge):
+            ridge_test = np.ones(test_size) * ridge
         arr_offset = 0
         yhats = np.zeros([test_size, 1])
         sigmas = np.zeros([test_size, 1])
@@ -246,7 +253,7 @@ class GPR(object):
             K2 = self.vars['K2_h']
             K3 = self.vars['K3_h']
             xy_ph = self.vars['xy_h']
-
+            ridge_test_ph = self.ops['ridge_test_h']
             while arr_offset < test_size:
                 if arr_offset + self.batch_size_ > test_size:
                     end_offset = test_size
@@ -270,7 +277,8 @@ class GPR(object):
                 K3_ = sess.run(K_op, feed_dict={X_dists: dists2})
 
                 sigma = np.zeros([1, batch_len], np.float32)
-                sigma[0] = sess.run(sig_val, feed_dict={K_inv_ph: self.K_inv, K2: K2_, K3: K3_})
+                sigma[0] = sess.run(sig_val, feed_dict={K_inv_ph: self.K_inv, K2: K2_,
+                                                        K3: K3_, ridge_test_ph: ridge_test})
                 sigma = np.transpose(sigma)
                 yhats[arr_offset: end_offset] = yhat
                 sigmas[arr_offset: end_offset] = sigma
@@ -356,7 +364,7 @@ class GPRGD(GPR):
             yhat_gd = tf.cast(tf.matmul(tf.transpose(K2__), self.xy_), tf.float32)
             if self.check_numerics is True:
                 yhat_gd = tf.check_numerics(yhat_gd, message="yhat: ")
-            sig_val = tf.cast((tf.sqrt(self.magnitude - tf.matmul(
+            sig_val = tf.cast((tf.sqrt(self.magnitude + ridge - tf.matmul(
                 tf.transpose(K2__), tf.matmul(self.K_inv, K2__)))), tf.float32)
             if self.check_numerics is True:
                 sig_val = tf.check_numerics(sig_val, message="sigma: ")

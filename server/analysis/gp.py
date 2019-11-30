@@ -33,6 +33,7 @@ class GPRNP(object):
         self.K = None
         self.K_inv = None
         self.y_best = None
+        self.ridge = None
 
     def __repr__(self):
         rep = ""
@@ -77,7 +78,7 @@ class GPRNP(object):
             raise Exception("Input contains non-finite values: {}"
                             .format(X[~finite_els]))
 
-    def fit(self, X_train, y_train, ridge=0.01):
+    def fit(self, X_train, y_train, ridge=1.0):
         self._reset()
         X_train, y_train = self.check_X_y(X_train, y_train)
         if X_train.ndim != 2 or y_train.ndim != 2:
@@ -86,6 +87,7 @@ class GPRNP(object):
         self.X_train = np.float32(X_train)
         self.y_train = np.float32(y_train)
         sample_size = self.X_train.shape[0]
+        self.ridge = ridge
         if np.isscalar(ridge):
             ridge = np.ones(sample_size) * ridge
         assert isinstance(ridge, np.ndarray)
@@ -120,8 +122,12 @@ class GPRNP(object):
             K3 = self.magnitude * np.exp(-ed(xt_, xt_) / length_scale)
             K2_trans = np.transpose(K2)
             yhat = np.matmul(K2_trans, np.matmul(self.K_inv, self.y_train))
-            sigma = np.sqrt(np.diag(K3 - np.matmul(K2_trans, np.matmul(self.K_inv, K2)))) \
-                .reshape(xt_.shape[0], 1)
+            xt_size = K3.shape[0]
+            ridge = self.ridge
+            if np.isscalar(ridge):
+                ridge = np.ones(xt_size) * ridge
+            sigma = np.sqrt(np.diag(K3 - np.matmul(K2_trans, np.matmul(self.K_inv, K2))
+                                    + np.diag(ridge))).reshape(xt_.shape[0], 1)
             u = (self.y_best - yhat) / sigma
             phi1 = 0.5 * special.erf(u / np.sqrt(2.0)) + 0.5
             phi2 = (1.0 / np.sqrt(2.0 * np.pi)) * np.exp(np.square(u) * (-0.5))

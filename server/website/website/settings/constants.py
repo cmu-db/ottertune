@@ -50,7 +50,7 @@ DEFAULT_LEARNING_RATE = 0.01
 #  a small bias when using training data points as starting points.
 GPR_EPS = 0.001
 
-DEFAULT_RIDGE = 0.01
+DEFAULT_RIDGE = 1.0
 
 DEFAULT_EPSILON = 1e-6
 

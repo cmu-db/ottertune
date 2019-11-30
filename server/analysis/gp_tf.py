@@ -36,7 +36,7 @@ class GPRGDResult(GPRResult):
 
 class GPR(object):
 
-    def __init__(self, length_scale=1.0, magnitude=1.0, ridge=1.0, max_train_size=7000,
+    def __init__(self, length_scale=2.0, magnitude=1.0, ridge=1.0, max_train_size=7000,
                  batch_size=3000, num_threads=4, check_numerics=True, debug=False,
                  hyperparameter_trainable=False):
         assert np.isscalar(length_scale)
@@ -348,7 +348,7 @@ class GPRGD(GPR):
     GP_BETA_CONST = "CONST"
 
     def __init__(self,
-                 length_scale=1.0,
+                 length_scale=2.0,
                  magnitude=1.0,
                  ridge=1.0,
                  max_train_size=7000,

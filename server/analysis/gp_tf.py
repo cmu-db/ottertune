@@ -67,6 +67,16 @@ class GPR(object):
         self.graph = tf.Graph()
         with self.graph.as_default():
             if self.hyperparameter_trainable:
+                r"""
+                A transform of the form
+                .. math::
+
+                y = \log(1 + \exp(x))
+
+                x is a free variable, y is always positive.
+                This function is known as 'softplus' in tensorflow.
+                This transformation gaurantees y value is always positive
+                """
                 mag_ = np.log(np.exp(self.magnitude) - 1)
                 ls_ = np.log(np.exp(self.length_scale) - 1)
                 noise_ = np.log(np.exp(self.ridge) - 1)

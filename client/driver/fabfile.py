@@ -114,6 +114,7 @@ def restart_database():
         run_sql_script('restartOracle.sh')
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+    return True
 
 
 @task
@@ -518,7 +519,19 @@ def loop(i):
     clean_logs()
 
     # restart database
-    restart_database()
+    restart_succeeded = restart_database()
+    if not restart_succeeded:
+        files = {'summary':b'{error:"DB_RESTART_ERROR"}',
+                 'knobs':b'',
+                 'metrics_before':b'',
+                 'metrics_after':b''}
+        response = requests.post(dconf.WEBSITE_URL + '/new_result/', files=files,
+                             data={'upload_code': dconf.UPLOAD_CODE})
+        response = get_result()
+        save_next_config(response, t=result_timestamp)
+        change_conf(response['recommendation'])
+        return
+
     time.sleep(dconf.RESTART_SLEEP_SEC)
 
     # check disk usage

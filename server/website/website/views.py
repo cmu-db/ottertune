@@ -455,85 +455,124 @@ def handle_result_files(session, files):
 
     # Load the contents of the controller's summary file
     summary = JSONUtil.loads(files['summary'])
-    dbms_type = DBMSType.type(summary['database_type'])
-    dbms_version = summary['database_version']  # TODO: fix parse_version_string
-    workload_name = summary['workload_name']
-    observation_time = summary['observation_time']
-    start_time = datetime.fromtimestamp(
-        # int(summary['start_time']), # unit: seconds
-        int(float(summary['start_time']) / 1000),  # unit: ms
-        timezone(TIME_ZONE))
-    end_time = datetime.fromtimestamp(
-        # int(summary['end_time']), # unit: seconds
-        int(float(summary['end_time']) / 1000),  # unit: ms
-        timezone(TIME_ZONE))
 
-    # Check if workload name only contains alpha-numeric, underscore and hyphen
-    if not re.match('^[a-zA-Z0-9_-]+$', workload_name):
-        return HttpResponse('Your workload name ' + workload_name + ' contains '
-                            'invalid characters! It should only contain '
-                            'alpha-numeric, underscore(_) and hyphen(-)')
+    # If database crashed on restart, pull latest result and worst throughput so far
+    if 'error' in summary and summary['error']=="DB_RESTART_ERROR":
 
-    try:
-        # Check that we support this DBMS and version
-        dbms = DBMSCatalog.objects.get(
-            type=dbms_type, version=dbms_version)
-    except ObjectDoesNotExist:
-        return HttpResponse('{} v{} is not yet supported.'.format(
-            dbms_type, dbms_version))
+        LOG.debug("Error in restarting database")
+        # Find worst throughput
+        past_configs = MetricData.objects.filter(session=session)
+        worst_throughput = None
+        for curr_config in past_configs:
+            throughput = JSONUtil.loads(curr_config.data)["throughput_txn_per_sec"]
+            if worst_throughput is None or throughput < worst_throughput:
+                worst_throughput = throughput
+        LOG.debug("Worst throughput so far is:%d",worst_throughput)
 
-    if dbms != session.dbms:
-        return HttpResponse('The DBMS must match the type and version '
-                            'specified when creating the session. '
-                            '(expected=' + session.dbms.full_name + ') '
-                            '(actual=' + dbms.full_name + ')')
+        # Copy latest data and modify
+        knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
+        knob_data.pk = None
+        knob_data.save()
 
-    # Load, process, and store the knobs in the DBMS's configuration
-    knob_dict, knob_diffs = parser.parse_dbms_knobs(
-        dbms.pk, JSONUtil.loads(files['knobs']))
-    tunable_knob_dict = parser.convert_dbms_knobs(
-        dbms.pk, knob_dict)
-    knob_data = KnobData.objects.create_knob_data(
-        session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
-        JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
+        metric_data = MetricData.objects.filter(session=session).order_by("-id").first()
+        metric_cpy = JSONUtil.loads(metric_data.data)
+        metric_cpy["throughput_txn_per_sec"]=worst_throughput
+        metric_cpy = JSONUtil.dumps(metric_cpy)
+        metric_data.pk = None
+        metric_data.data = metric_cpy
+        metric_data.save()
 
-    # Load, process, and store the runtime metrics exposed by the DBMS
-    initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
-        dbms.pk, JSONUtil.loads(files['metrics_before']))
-    final_metric_dict, final_metric_diffs = parser.parse_dbms_metrics(
-        dbms.pk, JSONUtil.loads(files['metrics_after']))
-    metric_dict = parser.calculate_change_in_metrics(
-        dbms.pk, initial_metric_dict, final_metric_dict)
-    initial_metric_diffs.extend(final_metric_diffs)
-    numeric_metric_dict = parser.convert_dbms_metrics(
-        dbms.pk, metric_dict, observation_time, session.target_objective)
-    metric_data = MetricData.objects.create_metric_data(
-        session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
-        JSONUtil.dumps(numeric_metric_dict, pprint=True, sort=True), dbms)
+        result = Result.objects.filter(session=session).order_by("-id").first()
+        result.pk = None
+        result.knob_data = knob_data
+        result.metric_data = metric_data
+        result.save()
 
-    # Create a new workload if this one does not already exist
-    workload = Workload.objects.create_workload(
-        dbms, session.hardware, workload_name)
+        backup_data = BackupData.objects.filter(result=result).first()
+        backup_data.pk = None
+        backup_data.result = result
+        backup_data.save()
 
-    # Save this result
-    result = Result.objects.create_result(
-        session, dbms, workload, knob_data, metric_data,
-        start_time, end_time, observation_time)
-    result.save()
+    else:
+        dbms_type = DBMSType.type(summary['database_type'])
+        dbms_version = summary['database_version']  # TODO: fix parse_version_string
+        workload_name = summary['workload_name']
+        observation_time = summary['observation_time']
+        start_time = datetime.fromtimestamp(
+            # int(summary['start_time']), # unit: seconds
+            int(float(summary['start_time']) / 1000),  # unit: ms
+            timezone(TIME_ZONE))
+        end_time = datetime.fromtimestamp(
+            # int(summary['end_time']), # unit: seconds
+            int(float(summary['end_time']) / 1000),  # unit: ms
+            timezone(TIME_ZONE))
 
-    # Workload is now modified so backgroundTasks can make calculationw
-    workload.status = WorkloadStatusType.MODIFIED
-    workload.save()
+        # Check if workload name only contains alpha-numeric, underscore and hyphen
+        if not re.match('^[a-zA-Z0-9_-]+$', workload_name):
+            return HttpResponse('Your workload name ' + workload_name + ' contains '
+                                'invalid characters! It should only contain '
+                                'alpha-numeric, underscore(_) and hyphen(-)')
 
-    # Save all original data
-    backup_data = BackupData.objects.create(
-        result=result, raw_knobs=files['knobs'],
-        raw_initial_metrics=files['metrics_before'],
-        raw_final_metrics=files['metrics_after'],
-        raw_summary=files['summary'],
-        knob_log=knob_diffs,
-        metric_log=initial_metric_diffs)
-    backup_data.save()
+        try:
+            # Check that we support this DBMS and version
+            dbms = DBMSCatalog.objects.get(
+                type=dbms_type, version=dbms_version)
+        except ObjectDoesNotExist:
+            return HttpResponse('{} v{} is not yet supported.'.format(
+                dbms_type, dbms_version))
+
+        if dbms != session.dbms:
+            return HttpResponse('The DBMS must match the type and version '
+                                'specified when creating the session. '
+                                '(expected=' + session.dbms.full_name + ') '
+                                '(actual=' + dbms.full_name + ')')
+
+        # Load, process, and store the knobs in the DBMS's configuration
+        knob_dict, knob_diffs = parser.parse_dbms_knobs(
+            dbms.pk, JSONUtil.loads(files['knobs']))
+        tunable_knob_dict = parser.convert_dbms_knobs(
+            dbms.pk, knob_dict)
+        knob_data = KnobData.objects.create_knob_data(
+            session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
+            JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
+
+        # Load, process, and store the runtime metrics exposed by the DBMS
+        initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
+            dbms.pk, JSONUtil.loads(files['metrics_before']))
+        final_metric_dict, final_metric_diffs = parser.parse_dbms_metrics(
+            dbms.pk, JSONUtil.loads(files['metrics_after']))
+        metric_dict = parser.calculate_change_in_metrics(
+            dbms.pk, initial_metric_dict, final_metric_dict)
+        initial_metric_diffs.extend(final_metric_diffs)
+        numeric_metric_dict = parser.convert_dbms_metrics(
+            dbms.pk, metric_dict, observation_time, session.target_objective)
+        metric_data = MetricData.objects.create_metric_data(
+            session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
+            JSONUtil.dumps(numeric_metric_dict, pprint=True, sort=True), dbms)
+
+        # Create a new workload if this one does not already exist
+        workload = Workload.objects.create_workload(
+            dbms, session.hardware, workload_name)
+
+        # Save this result
+        result = Result.objects.create_result(
+            session, dbms, workload, knob_data, metric_data,
+            start_time, end_time, observation_time)
+        result.save()
+
+        # Workload is now modified so backgroundTasks can make calculationw
+        workload.status = WorkloadStatusType.MODIFIED
+        workload.save()
+
+        # Save all original data
+        backup_data = BackupData.objects.create(
+            result=result, raw_knobs=files['knobs'],
+            raw_initial_metrics=files['metrics_before'],
+            raw_final_metrics=files['metrics_after'],
+            raw_summary=files['summary'],
+            knob_log=knob_diffs,
+            metric_log=initial_metric_diffs)
+        backup_data.save()
 
     session.project.last_update = now()
     session.last_update = now()

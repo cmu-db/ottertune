@@ -111,7 +111,20 @@ def restart_database():
             sudo('pg_ctl -D {} -w -t 600 restart -m fast'.format(
                 dconf.PG_DATADIR), user=dconf.ADMIN_USER, capture=False)
     elif dconf.DB_TYPE == 'oracle':
-        run_sql_script('restartOracle.sh')
+        db_log_path = os.path.join(os.path.split(dconf.DB_CONF)[0], 'startup.log')
+        local_log_path = os.path.join(dconf.LOG_DIR, 'startup.log')
+        local_logs_path = os.path.join(dconf.LOG_DIR, 'startups.log')
+        run_sql_script('restartOracle.sh', db_log_path)
+        get(db_log_path, local_log_path)
+        with open(local_log_path, 'r') as fin, open(local_logs_path, 'a') as fout:
+            lines = fin.readlines()
+            for line in lines:
+                if line.startswith('ORACLE instance started.'):
+                    return True
+                if not line.startswith('SQL>'):
+                    fout.write(line)
+            fout.write('\n')
+        return False
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
     return True

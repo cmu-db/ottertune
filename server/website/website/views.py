@@ -37,7 +37,7 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil, ConversionUtil
 from .settings import TIME_ZONE
 
 from .set_default_knobs import set_default_knobs
@@ -464,9 +464,15 @@ def handle_result_files(session, files):
         past_configs = MetricData.objects.filter(session=session)
         worst_throughput = None
         for curr_config in past_configs:
-            throughput = JSONUtil.loads(curr_config.data)["throughput_txn_per_sec"]
-            if worst_throughput is None or throughput < worst_throughput:
-                worst_throughput = throughput
+            throughput = JSONUtil.loads(curr_config.data)[session.target_objective]
+            metric_meta = target_objectives.get_instance(
+                session.dbms.pk, session.target_objective)
+            if metric_meta.improvement==target_objectives.MORE_IS_BETTER:
+                if worst_throughput is None or throughput < worst_throughput:
+                    worst_throughput = throughput
+            else:
+                if worst_throughput is None or throughput > worst_throughput:
+                    worst_throughput = throughput
         LOG.debug("Worst throughput so far is:%d",worst_throughput)
 
         result = Result.objects.filter(session=session).order_by("-id").first()
@@ -481,7 +487,6 @@ def handle_result_files(session, files):
         for knob in all_knobs.keys():
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:
-                    print(tunable_knob, knob)
                     all_knobs[knob] = last_conf[tunable_knob]
         knob_data.knobs = JSONUtil.dumps(all_knobs)
 
@@ -489,9 +494,19 @@ def handle_result_files(session, files):
         for knob in data_knobs.keys():
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:
-                    data_knobs[knob] = last_conf[tunable_knob]
+                    unit = KnobCatalog.objects.get(dbms=session.dbms, name=knob).unit
+                    if unit == 1:
+                        data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
+                                                                       ConversionUtil.DEFAULT_BYTES_SYSTEM)
+                    elif unit == 2:
+                        data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
+                                                                       ConversionUtil.DEFAULT_TIME_SYSTEM)
+                    else:
+                        data_knobs[knob] = last_conf[tunable_knob]
+
         knob_data.data = JSONUtil.dumps(data_knobs)
         knob_data.name = knob_data.name + '*'
+        knob_data.creation_time = now()
         knob_data.save()
         knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
 
@@ -502,17 +517,22 @@ def handle_result_files(session, files):
         metric_data.pk = None
         metric_data.name = metric_data.name + '*'
         metric_data.data = metric_cpy
+        metric_data.creation_time = now()
         metric_data.save()
         metric_data = MetricData.objects.filter(session=session).order_by("-id").first()
 
         result.pk = None
         result.knob_data = knob_data
         result.metric_data = metric_data
+        result.creation_time = now()
+        result.observation_start_time = now()
+        result.observation_end_time = now()
         result.save()
         result = Result.objects.filter(session=session).order_by("-id").first()
 
         backup_data.pk = None
         backup_data.result = result
+        backup_data.creation_time = now()
         backup_data.save()
 
     else:

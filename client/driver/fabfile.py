@@ -127,7 +127,7 @@ def restart_database():
         return False
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
-    return True
+    return False
 
 
 @task

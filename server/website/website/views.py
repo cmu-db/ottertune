@@ -457,7 +457,7 @@ def handle_result_files(session, files):
     summary = JSONUtil.loads(files['summary'])
 
     # If database crashed on restart, pull latest result and worst throughput so far
-    if 'error' in summary and summary['error']=="DB_RESTART_ERROR":
+    if 'error' in summary and summary['error'] == "DB_RESTART_ERROR":
 
         LOG.debug("Error in restarting database")
         # Find worst throughput
@@ -467,13 +467,13 @@ def handle_result_files(session, files):
             throughput = JSONUtil.loads(curr_config.data)[session.target_objective]
             metric_meta = target_objectives.get_instance(
                 session.dbms.pk, session.target_objective)
-            if metric_meta.improvement==target_objectives.MORE_IS_BETTER:
+            if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
                 if worst_throughput is None or throughput < worst_throughput:
                     worst_throughput = throughput
             else:
                 if worst_throughput is None or throughput > worst_throughput:
                     worst_throughput = throughput
-        LOG.debug("Worst throughput so far is:%d",worst_throughput)
+        LOG.debug("Worst throughput so far is:%d", worst_throughput)
 
         result = Result.objects.filter(session=session).order_by("-id").first()
         backup_data = BackupData.objects.filter(result=result).first()
@@ -495,12 +495,14 @@ def handle_result_files(session, files):
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:
                     unit = KnobCatalog.objects.get(dbms=session.dbms, name=knob).unit
+                    bytes_system = ConversionUtil.DEFAULT_BYTES_SYSTEM
+                    time_system = ConversionUtil.DEFAULT_TIME_SYSTEM
                     if unit == 1:
                         data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
-                                                                       ConversionUtil.DEFAULT_BYTES_SYSTEM)
+                                                                       bytes_system)
                     elif unit == 2:
                         data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
-                                                                       ConversionUtil.DEFAULT_TIME_SYSTEM)
+                                                                       time_system)
                     else:
                         data_knobs[knob] = last_conf[tunable_knob]
 
@@ -512,7 +514,7 @@ def handle_result_files(session, files):
 
         metric_data = result.metric_data
         metric_cpy = JSONUtil.loads(metric_data.data)
-        metric_cpy["throughput_txn_per_sec"]=worst_throughput
+        metric_cpy["throughput_txn_per_sec"] = worst_throughput
         metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
         metric_data.name = metric_data.name + '*'

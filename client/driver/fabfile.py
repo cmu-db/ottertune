@@ -538,7 +538,7 @@ def loop(i):
                  'metrics_before': b'{}',
                  'metrics_after': b'{}'}
         response = requests.post(dconf.WEBSITE_URL + '/new_result/', files=files,
-                             data={'upload_code': dconf.UPLOAD_CODE})
+                                 data={'upload_code': dconf.UPLOAD_CODE})
         response = get_result()
         result_timestamp = int(time.time())
         save_next_config(response, t=result_timestamp)

@@ -469,26 +469,48 @@ def handle_result_files(session, files):
                 worst_throughput = throughput
         LOG.debug("Worst throughput so far is:%d",worst_throughput)
 
-        # Copy latest data and modify
-        knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
-        knob_data.pk = None
-        knob_data.save()
+        result = Result.objects.filter(session=session).order_by("-id").first()
+        backup_data = BackupData.objects.filter(result=result).first()
+        last_conf = JSONUtil.loads(result.next_configuration)
+        last_conf = last_conf["recommendation"]
 
-        metric_data = MetricData.objects.filter(session=session).order_by("-id").first()
+        # Copy latest data and modify
+        knob_data = result.knob_data
+        knob_data.pk = None
+        all_knobs = JSONUtil.loads(knob_data.knobs)
+        for knob in all_knobs.keys():
+            for tunable_knob in last_conf.keys():
+                if tunable_knob in knob:
+                    print(tunable_knob, knob)
+                    all_knobs[knob] = last_conf[tunable_knob]
+        knob_data.knobs = JSONUtil.dumps(all_knobs)
+
+        data_knobs = JSONUtil.loads(knob_data.data)
+        for knob in data_knobs.keys():
+            for tunable_knob in last_conf.keys():
+                if tunable_knob in knob:
+                    data_knobs[knob] = last_conf[tunable_knob]
+        knob_data.data = JSONUtil.dumps(data_knobs)
+        knob_data.name = knob_data.name + '*'
+        knob_data.save()
+        knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
+
+        metric_data = result.metric_data
         metric_cpy = JSONUtil.loads(metric_data.data)
         metric_cpy["throughput_txn_per_sec"]=worst_throughput
         metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
+        metric_data.name = metric_data.name + '*'
         metric_data.data = metric_cpy
         metric_data.save()
+        metric_data = MetricData.objects.filter(session=session).order_by("-id").first()
 
-        result = Result.objects.filter(session=session).order_by("-id").first()
         result.pk = None
         result.knob_data = knob_data
         result.metric_data = metric_data
         result.save()
+        result = Result.objects.filter(session=session).order_by("-id").first()
 
-        backup_data = BackupData.objects.filter(result=result).first()
         backup_data.pk = None
         backup_data.result = result
         backup_data.save()

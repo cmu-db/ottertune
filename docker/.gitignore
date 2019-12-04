@@ -1,0 +1,3 @@
+docker-compose*.yml
+!docker-compose.build.yml
+!docker-compose.up.yml

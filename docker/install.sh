@@ -2,16 +2,6 @@
 
 service="$1"
 
-
-echo ""
-if [ -z "$service" ] || ([ "$service" != "web" ] && [ "$service" != "driver" ]) 
-then
-    echo "Invalid value for service: '$service'"
-    echo ""
-    echo "Usage: $0 [web|driver]"
-    exit 1
-fi
-
 echo ""
 echo "-=------------------------------------------------------"
 echo " Starting installation for service '$service'..."
@@ -20,38 +10,64 @@ echo "-=------------------------------------------------------"
 if [ "$DEBUG" = true ]
 then
     echo ""
+    echo "Command-line Args:"
+    echo " - service: $service"
+    echo ""
     echo "Environment Variables:"
     echo " - DEBIAN_FRONTEND: $DEBIAN_FRONTEND"
+    echo " - PATH:            $PATH"
     echo " - GRADLE_VERSION:  $GRADLE_VERSION"
     echo " - GRADLE_HOME:     $GRADLE_HOME"
-    echo " - PATH:            $PATH"
     echo ""
 fi
 
-apt_pkgs="python3.6 python3-setuptools python3-pip libssl-dev git"
+apt_pkgs=""
 rm_pkgs=""
 install_gradle=false
-pip_reqs=/requirements.txt
+pip_common_pkgs="Fabric3 numpy requests"
+master_pip_reqs_file=/requirements.txt
+pip_reqs_file="/${service}-requirements.txt"
 
-if [ "$service" = "web" ]
+if [ "$service" = "base" ]
 then
-    apt_pkgs="$apt_pkgs python3-dev gcc mysql-client libmysqlclient-dev python-mysqldb postgresql-client"
+    apt_pkgs="python3.6 python3-setuptools python3-pip libssl-dev"
 
-    rm_pkgs="$rm_pkgs gcc"
+    # Filter common pip packages
+    for pip_pkg in $pip_common_pkgs
+    do
+        grep "^$pip_pkg" "$master_pip_reqs_file" >> "$pip_reqs_file"
+    done
+
+elif [ "$service" = "web" ]
+then
+    apt_pkgs="python3-dev gcc mysql-client libmysqlclient-dev python-mysqldb postgresql-client"
+
+    rm_pkgs="gcc"
+
+    pip_skip_pkgs="$pip_common_pkgs astroid autopep8 git-lint pycodestyle pylint"
+    cp "$master_pip_reqs_file" "$pip_reqs_file"
+
+    for pip_pkg in $pip_skip_pkgs
+    do
+        sed -i "/$pip_pkg/d" "$pip_reqs_file"
+    done
+
+elif [ "$service" = "driver" ]
+then
+    apt_pkgs="openssh-server openjdk-11-jdk unzip wget"
+    rm_pkgs="unzip wget"
+    install_gradle=true
+
+elif [ "$service" = "driver-internal" ]
+then
+    apt_pkgs="openssh-server vim"
 
 else
-    apt_pkgs="$apt_pkgs openssh-server openjdk-11-jdk checkstyle unzip wget"
-
-    # Hack: filter driver pip dependencies
-    >tmp.txt
-    for pip_pkg in autopep8 Fabric3 numpy requests pycodestyle pylint git-lint
-    do
-        grep "^$pip_pkg" "$pip_reqs" >> tmp.txt
-    done
-    mv tmp.txt "$pip_reqs"
-
-    install_gradle=true
-    rm_pkgs="$rm_pkgs unzip wget"
+    echo ""
+    echo "ERROR: Invalid value for service: '$service'"
+    echo ""
+    echo "Usage: $0 [base|web|driver|driver-internal]"
+    exit 1
 fi
 
 echo -e "\nUpdating package index..."
@@ -64,13 +80,13 @@ then
     apt-get install -y --no-install-recommends $apt_pkgs
 fi
 
-if [ -f "$pip_reqs" ]
+if [ -f "$pip_reqs_file" ] && [ -s "$pip_reqs_file" ]
 then
     # Install required pip packages
     python3 --version
     pip3 --version
-    echo -e "\nInstalling pip packages: `cat "$pip_reqs" | tr '\n' ' '`" 
-    pip3 install --no-cache-dir --disable-pip-version-check -r "$pip_reqs"
+    echo -e "\nInstalling pip packages: `cat "$pip_reqs_file" | tr '\n' ' '`"
+    pip3 install --no-cache-dir --disable-pip-version-check -r "$pip_reqs_file"
 fi
 
 if [ "$install_gradle" = true ]

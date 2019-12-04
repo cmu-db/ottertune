@@ -20,7 +20,7 @@ else
     DB_PORT="${DB_PORT:-5432}"
 fi
 
-WEB_ENTRYPOINT="${WEB_ENTRYPOINT:-start.sh}"
+WEB_ENTRYPOINT="${WEB_ENTRYPOINT:-./start.sh}"
 
 file="$(test -z "$1" && echo "docker-compose.$BACKEND.yml" || echo "$1")"
 
@@ -30,9 +30,6 @@ version: "3"
 services:
 
     web:
-        build:
-          context: ../
-          dockerfile: ./docker/Dockerfile.web
         image: ottertune-web
         container_name: web
         expose:
@@ -56,16 +53,13 @@ services:
           DB_PORT: '$DB_PORT'
           MAX_DB_CONN_ATTEMPTS: 30
         working_dir: /app/website
-        entrypoint: $WEB_ENTRYPOINT 
+        entrypoint: $WEB_ENTRYPOINT
         labels:
           NAME: "ottertune-web"
         networks:
           - ottertune-net
 
     driver:
-        build:
-          context: ../
-          dockerfile: ./docker/Dockerfile.driver
         image: ottertune-driver
         container_name: driver
         depends_on:

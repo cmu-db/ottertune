@@ -1,0 +1,14 @@
+FROM ubuntu:18.04
+
+ARG DEBUG=true
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY ./docker/install.sh ./server/website/requirements.txt /
+WORKDIR /
+
+RUN mkdir -p /app \
+    && chmod +x install.sh \
+    && ./install.sh base
+
+ENV DEBUG=$DEBUG

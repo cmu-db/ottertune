@@ -4,7 +4,7 @@ import string
 from os import environ as env
 
 debug = env.get('DEBUG', 'true').lower() == 'true'
-backend = env.get('BACKEND', 'mysql')
+backend = env.get('BACKEND', 'postgresql')
 db_name = env.get('DB_NAME', 'ottertune')
 db_host = env.get('DB_HOST', 'localhost')
 db_pwd = env.get('DB_PASSWORD', '')

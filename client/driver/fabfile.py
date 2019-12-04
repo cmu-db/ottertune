@@ -530,22 +530,6 @@ def loop(i):
 
     # remove oltpbench log and controller log
     clean_logs()
-    # restart database
-    restart_succeeded = restart_database()
-    if not restart_succeeded:
-        files = {'summary': b'{"error": "DB_RESTART_ERROR"}',
-                 'knobs': b'{}',
-                 'metrics_before': b'{}',
-                 'metrics_after': b'{}'}
-        response = requests.post(dconf.WEBSITE_URL + '/new_result/', files=files,
-                                 data={'upload_code': dconf.UPLOAD_CODE})
-        response = get_result()
-        result_timestamp = int(time.time())
-        save_next_config(response, t=result_timestamp)
-        change_conf(response['recommendation'])
-        return
-
-    time.sleep(dconf.RESTART_SLEEP_SEC)
 
     # check disk usage
     if check_disk_usage() > dconf.MAX_DISK_USAGE:
@@ -603,14 +587,30 @@ def run_loops(max_iter=1):
     dump = dump_database()
 
     for i in range(int(max_iter)):
+        # restart database
+        restart_succeeded = restart_database()
+        if not restart_succeeded:
+            files = {'summary': b'{"error": "DB_RESTART_ERROR"}',
+                     'knobs': b'{}',
+                     'metrics_before': b'{}',
+                     'metrics_after': b'{}'}
+            response = requests.post(dconf.WEBSITE_URL + '/new_result/', files=files,
+                                     data={'upload_code': dconf.UPLOAD_CODE})
+            response = get_result()
+            result_timestamp = int(time.time())
+            save_next_config(response, t=result_timestamp)
+            change_conf(response['recommendation'])
+            continue
+        
+        # reload database periodically
         if dconf.RELOAD_INTERVAL > 0:
             if i % dconf.RELOAD_INTERVAL == 0:
                 if i == 0 and dump is False:
-                    restart_database()
                     restore_database()
                 elif i > 0:
                     restore_database()
 
+        time.sleep(dconf.RESTART_SLEEP_SEC)
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
         loop(i % dconf.RELOAD_INTERVAL if dconf.RELOAD_INTERVAL > 0 else i)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)

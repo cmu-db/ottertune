@@ -601,7 +601,7 @@ def run_loops(max_iter=1):
             save_next_config(response, t=result_timestamp)
             change_conf(response['recommendation'])
             continue
-        
+
         # reload database periodically
         if dconf.RELOAD_INTERVAL > 0:
             if i % dconf.RELOAD_INTERVAL == 0:

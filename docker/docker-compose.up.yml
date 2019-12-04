@@ -2,9 +2,6 @@ version: "3"
 services:
 
     web:
-        build:
-          context: ../
-          dockerfile: ./docker/Dockerfile.web
         image: ottertune-web
         container_name: web
         expose:
@@ -20,12 +17,12 @@ services:
         environment:
           DEBUG: 'true'
           ADMIN_PASSWORD: 'changeme'
-          BACKEND: 'mysql'
+          BACKEND: 'postgresql'
           DB_NAME: 'ottertune'
-          DB_USER: 'root'
+          DB_USER: 'postgres'
           DB_PASSWORD: 'ottertune'
           DB_HOST: 'backend'
-          DB_PORT: '3306'
+          DB_PORT: '5432'
           DB_OPTS: '{}'
           MAX_DB_CONN_ATTEMPTS: 30
         working_dir: /app/website
@@ -36,9 +33,6 @@ services:
           - ottertune-net
 
     driver:
-        build:
-          context: ../
-          dockerfile: ./docker/Dockerfile.driver
         image: ottertune-driver
         container_name: driver
         depends_on:
@@ -48,25 +42,6 @@ services:
         working_dir: /app/driver
         labels:
           NAME: "ottertune-driver"
-        networks:
-          - ottertune-net
-
-    backend:
-        image: mysql:5.7
-        container_name: backend
-        restart: always
-        environment:
-          MYSQL_ROOT_PASSWORD: 'ottertune'
-          MYSQL_PASSWORD: 'ottertune'
-          MYSQL_DATABASE: 'ottertune'
-        expose:
-          - "3306"
-        ports:
-          - "3306:3306"
-        labels:
-          NAME: "ottertune-backend"
-        volumes:
-          - mysql_data:/var/lib/mysql
         networks:
           - ottertune-net
 
@@ -89,9 +64,24 @@ services:
            NAME: "rabbitmq"
         networks:
           - ottertune-net
-volumes:
-   mysql_data:
+
+    backend:
+        container_name: backend
+        restart: always
+        image: postgres:9.6
+        environment:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'ottertune'
+          POSTGRES_DB: 'ottertune'
+        expose:
+          - "5432"
+        ports:
+          - "5432:5432"
+        labels:
+          NAME: "ottertune-backend"
+        networks:
+          - ottertune-net
+
 networks:
    ottertune-net:
       driver: bridge
-

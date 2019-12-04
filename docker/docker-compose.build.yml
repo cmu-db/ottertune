@@ -1,0 +1,32 @@
+version: "3"
+services:
+
+    base:
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile.base
+          args:
+            DEBUG: "true"
+        image: ottertune-base
+        labels:
+          NAME: "ottertune-base"
+
+    web:
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile.web
+        image: ottertune-web
+        depends_on:
+          - base
+        labels:
+          NAME: "ottertune-web"
+
+    driver:
+        build:
+          context: ../
+          dockerfile: ./docker/Dockerfile.driver
+        image: ottertune-driver
+        depends_on:
+          - base
+        labels:
+          NAME: "ottertune-driver"

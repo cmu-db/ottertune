@@ -744,21 +744,21 @@ def integration_tests():
 
     # Upload training data
     LOG.info('Upload training data to no tuning session')
-    upload_batch(result_dir='../../integrationTests/data/', upload_code='ottertuneTestNoTuning')
+    upload_batch(result_dir='./integrationTests/data/', upload_code='ottertuneTestNoTuning')
 
     # wait celery periodic task finishes
     assert wait_pipeline_data_ready(), "Pipeline data failed"
 
     # Test DNN
     LOG.info('Test DNN (deep neural network)')
-    upload_result(result_dir='../../integrationTests/data/', prefix='0__',
+    upload_result(result_dir='./integrationTests/data/', prefix='0__',
                   upload_code='ottertuneTestTuningDNN')
     response = get_result(upload_code='ottertuneTestTuningDNN')
     assert response['status'] == 'good'
 
     # Test GPR
     LOG.info('Test GPR (gaussian process regression)')
-    upload_result(result_dir='../../integrationTests/data/', prefix='0__',
+    upload_result(result_dir='./integrationTests/data/', prefix='0__',
                   upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'good'

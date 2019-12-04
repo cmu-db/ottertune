@@ -1,13 +1,4 @@
-FROM ubuntu:18.04
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-COPY ./docker/install.sh ./server/website/requirements.txt /
-WORKDIR /
-
-RUN mkdir -p /app \
-    && chmod +x install.sh \
-    && sh install.sh web
+FROM ottertune-base
 
 COPY ./server /app
 
@@ -16,7 +7,8 @@ WORKDIR /app/website
 COPY ./docker/credentials.py ./website/settings
 COPY ./docker/start.sh ./docker/start-test.sh ./docker/wait-for-it.sh ./
 
-RUN chmod +x ./*.sh \
+RUN /install.sh web \
+    && chmod +x ./*.sh \
     && sed s/'@localhost'/'@rabbitmq'/g ./website/settings/common.py > tmp \
     && mv tmp ./website/settings/common.py
 

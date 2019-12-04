@@ -17,22 +17,25 @@ matrix:
   include:
   - name: Docker
     env:
-    - BUILD=docker
     - BACKEND=postgresql
     - secure: PZAe5iDaipqsfzQ0/mjFdcQhEMQ0alI3Ap+hWR0X9uWfK8dH6XU/RJLzJXj2o+kpGiCGlj7DJ9uuJy6+/75hq2f7vcs+6JJInPQHUlkj2TPDYWNWaFw0XvIAvV9EA73l4kDy26m/+JiSaF1GsyVD5wdJpVRmw6o7liGfYlQX3fY8kQ4p51+5ufb9QCAselrE70302fTyX4GqxaT1xC2L5fzzIcuKllFVlRILc+04gldiq8u0EAcUO2ovYiW/3+qGPkDcdwd2j3UC1tEGQ+x+Q/7g5JqBHGz6iMy8omH77p3rk4aKV/HCRTZLQLe/Kcd5UiSrQvSIHl5jfIYbzBx7//Ub64c7TlgX+UckK+GPYiwr2N6VmiducFnSjmm3RSW959m1M+M+bqIPbS510zqnIs28xjqIgnWvtpA8mgKdRAtQyDFMYcLc7GQyw0alUo1CQuTf4+Ter+78vt3vYVlCD8lNoMG78xBaLg//pgNQ8sdGWGbUsAYuxxrqI056Ayw16LgrcakL0JWLR/7p+HmCtH2ZT1nQEZJJHSUP3ekibGrE6wgNVpt3DAOwQUG/JiceLn4uVoeljpT+neCoM29wvf4M7JGWg+8SPtg4DHJIAocOVt5EDi8/CtoIa3WJLD2AMI4ladd4PKNzHT4tsYdE2V9d+xkuhXv1/OakAJedtEc=
     - secure: RN4SGagKXgn8gEk9pG2CdM5a/rrBPqkD1nONLcvcqjYzlbniKmhmKT+OxhjVw7Qtoy/RACr4zpIupIjA6COpndSd8/m6WBsWnYD0dt6cDBDLFgHyIh9XNi6/bhNgqPksY9XrENfmeijTENiqpuXeXCuHdaVF0quwvGBxDAIWFNOpPwceAJrwRv9Yb/7w5rmlotSVesScPhwV92Rmu3NK+r/FYANSOFXoBFAYctJSi7dj4A/y3lOFmzE5Y12+Kf6kHuoP+FZO/S/zL1OAPSzedqctRcDpVctEt4AqA7cpGe+Qvate2Hnj63YNlykQD+zlCFHLrqCCKZecdNe+SQVcYqgNk78SX7Nvhfr/xH5lq8HjovqjrfQFc4pVDryomtMeTb7wilN9wsYu6zCneMDHF57hfSKTmiqhz0utEqUiPYwxhkU5uXsXO8VA3aOUlIhM3QPnB6tvkB1h0+qnNzU/lJk6LXy9KkNy9HI8ab+58FSEhj4Uyo9AaBGOB2bEu/d8BsdW1qjGYTI6t4tWZQ8lduOw3xqT5hHhwGB9bz5DomfbECanOGShR3NeMJJGYWETEWek2WK9viP3pllbTFnU3yXfv4ssb00eD2tK+7pyWuP+hL7S1yvrMs5qYRFAEfJhuzTEjtN2uAKumCvU/eh0JjiAPK6XhdT49K1Cd+HC1h4=
+    - secure: "il9BGo4uQhjWOb/+TDdAkXhl4n22DQgmp9F1zP/dFVm/ZgdqNZnIzA9Libe4CiQEUQ+JSEXJqeJCyj657rNUntFZUM6bEzjCSpkDDzkArY4R7ZQQsMOmI5Pv1aKsU+qO899URe9hxmbqnuM23Ke42aY7vT+2qnRTSaC9N6c+4gRXzrcUeAdWU92nt+XPED05LNCr6nTgqrEVAh1434yQsRZZlB54iZKd7n6Plpldr6md7UMe3EmToaOpOHCcEWZmHkHVjWtDxUqb77upTknL2sf83hlhtX0Z3u8o0VQ6wzb6P5dH0jgm08JC+APT03q+iyF87xS7R8BvnkjLhf9iLUpdAfbGzRM98y3hgATkR++E2oSXoqyK4ArMjMLkhntemfMtjMYHYAvXo7IZ9Gh+5JL0fRQvb6XRUX2jGOvtCujPZjMbwCPcWkP9qBL6JRMkrSECzW8yNReW4VR+67blhb9CPT/OVIJYZT69QA+QcWcyU/+tGbBuw/F0vXP6GvntHU/ybwCIu17JoyaBuQJ/YwYR2se1pojYhFX8kUVpRMn1w+a0D/8UdmEJpwwTZuEsNu6y86IUO6B+Tc+jQbNS/nAWfHrsSiFqPjntLThjRr+Uf+1g0qoyKfK54GHuAAEX9xxOZhA3kfeDlyBaTKaU1efT9/rHGQ1PVcOLPaGzrrQ="
+    - secure: "Qi5rZ/CSWspEa1JNAPbq9YU7d8ql4JEJs5pQ+Mo+O8SyoMAJzkWGKKk98zTIWfCASZEnckgXMe8jqrhtPq9kmWWulHOR4P9FrO0+JX7Z47hkeXcqJN4LxP3R4BQgZZQCtYpXYfMAEvPs+nJp7IOQ6cTe80Xiz9eAD3385Hpcmz7tiZcgnnc/Eys90RqjK1GZyWRfeekXVvz39e08goW2y4W5DXZWGQ6QDqLr3Wrg7aK6A9e01otNxJGs8eqd12wzkeSiYi8l96taUnLKW9uUIMhhdoDPrHt4o6BjeWmW7OWzWbppcd3oV1IrUo2WngBsamUohL8PYilt/aEDItsdgLb7RBkFoP0prAlOUIPW6Plk34rk4Sk03KFxeBWSXULE+DgGlJZCFobj8MgxW9IQnJBg3Gk6nmadWAA831Aa3LzmC3dhShwQzFrGAxw/xeVHxodUDD0lwVb1UA4EZJuuNCr4/oyDqgjUcSiTHvR+wLdMFzG0+ySnxtoYt+hmTZJaV6ZffFMn8MIdR1tz+W56H+BwJeDxCpGhBuzyYDFDWH3u5Q08lBK3icgpG6wqfCCaZpjCOuGL8GIMkOEtznmGrrYzqsgJ0AbGizahXIQ57Qh/Wob0qVKGXnDqz6jxPH99aRugNa+snp+SaChz6Q5ojY1bbe4jIW03iOY1m51394A="
     - DOCKER_REPO="${DOCKER_USER}/ottertune"
+    - GIT_REPO="ottertune-driver-internal"
     services:
     - docker
     before_install:
     - docker --version
     - docker-compose --version
+    - env | sort
     install: []
     before_script:
     - sudo service mysql stop || true
     - sudo service postgresql stop || true
     - cd $ROOT/docker
-    - docker-compose build
+    - docker-compose -f docker-compose.build.yml build
     - dcfile_mysql=docker-compose.mysql.yml
     - dcfile_postgres=docker-compose.postgresql.yml
     - BACKEND=mysql WEB_ENTRYPOINT="''" sh create-docker-compose.sh $dcfile_mysql
@@ -45,19 +48,18 @@ matrix:
     - docker-compose -f $dcfile_postgres rm -f -s -v
     - docker-compose -f $dcfile_mysql run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
     - docker-compose -f $dcfile_mysql rm -f -s -v
+    after_success: []
     before_deploy:
-    - echo "$DOCKER_PASSWD" | docker login -u "$DOCKER_USER" --password-stdin
-    - docker tag ottertune-web "${DOCKER_REPO}:web"
-    - docker tag ottertune-driver "${DOCKER_REPO}:driver"
+    - /$ROOT/.travis/before_deploy.sh
     deploy:
       provider: script
-      script: docker push "${DOCKER_REPO}:web" && docker push "${DOCKER_REPO}:driver"
+      script: /$ROOT/.travis/deploy.sh 
       on:
+        repo: cmu-db/ottertune
         branch: master
 
   - name: Tests (MySQL v5.7)
     env:
-    - BUILD=tests
     - BACKEND=mysql
     services:
     - mysql
@@ -73,12 +75,10 @@ matrix:
         - checkstyle
     before_install:
     - mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
-    - mysql -e "CREATE DATABASE IF NOT EXISTS test_${DB_NAME}"
     - sed -i '/psycopg2/d' $WEB/requirements.txt
 
   - name: Tests (PostgreSQL v9.6)
     env:
-    - BUILD=unittests
     - BACKEND=postgresql
     addons:
       postgresql: "9.6"
@@ -91,13 +91,13 @@ matrix:
         - checkstyle
     before_install:
     - psql -U postgres -c "CREATE DATABASE ${DB_NAME}"
-    - psql -U postgres -c "CREATE DATABASE test_${DB_NAME}"
     - sed -i '/mysqlclient/d' $WEB/requirements.txt
 
 install:
 - pip install codecov -r $WEB/requirements.txt
 - pip freeze
 before_script:
+- env | sort
 - cd $WEB
 - sed -i  "s|\('celery', 'db.*$\)|'console', \1|" website/settings/common.py
 - cp $ROOT/docker/credentials.py website/settings

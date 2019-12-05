@@ -107,6 +107,7 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
     def on_success(self, retval, task_id, args, kwargs):
         super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
 
+        LOG.info("NEXT CONFIG: %s", retval['recommendation'])
         result_id = retval['result_id']
         result = Result.objects.get(pk=result_id)
 

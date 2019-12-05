@@ -670,8 +670,9 @@ def configuration_recommendation(recommendation_input):
                           epsilon=DEFAULT_EPSILON,
                           max_iter=MAX_ITER,
                           sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
-                          mu_multiplier=DEFAULT_MU_MULTIPLIER)
-            model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
+                          mu_multiplier=DEFAULT_MU_MULTIPLIER,
+                          ridge=DEFAULT_RIDGE)
+            model.fit(X_scaled, y_scaled, X_min, X_max)
             res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())

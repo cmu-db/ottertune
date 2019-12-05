@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-# from: https://github.com/KqSMea8/use_default
+# from: https://github.com/KqSMea8/CDBTune
 # Zhang, Ji, et al. "An end-to-end automatic cloud database tuning system using
 # deep reinforcement learning." Proceedings of the 2019 International Conference
 # on Management of Data. ACM, 2019

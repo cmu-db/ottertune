@@ -52,11 +52,11 @@ DEFAULT_LEARNING_RATE = 0.01
 #  a small bias when using training data points as starting points.
 GPR_EPS = 0.001
 
-DEFAULT_RIDGE = 1.0
+DEFAULT_RIDGE = 0.01
 
 DEFAULT_EPSILON = 1e-6
 
-DEFAULT_SIGMA_MULTIPLIER = 1.0
+DEFAULT_SIGMA_MULTIPLIER = 3.0
 
 DEFAULT_MU_MULTIPLIER = 1.0
 
@@ -84,6 +84,13 @@ DNN_DEBUG = True
 DNN_DEBUG_INTERVAL = 100
 
 # ---DDPG CONSTRAINTS CONSTANTS---
+
+#  Use a simple reward
+DDPG_SIMPLE_REWARD = True
+
+#  The weight of future rewards in Q value
+DDPG_GAMMA = 0.0
+
 #  Batch size in DDPG model
 DDPG_BATCH_SIZE = 32
 
@@ -101,3 +108,14 @@ ACTOR_HIDDEN_SIZES = [128, 128, 64]
 
 #  The number of hidden units in each layer of the critic MLP
 CRITIC_HIDDEN_SIZES = [64, 128, 64]
+
+#  Use the same setting from the CDBTune paper
+USE_DEFAULT = True
+#  Overwrite the DDPG settings if using CDBTune
+if USE_DEFAULT:
+    DDPG_SIMPLE_REWARD = False
+    DDPG_GAMMA = 0.99
+    DDPG_BATCH_SIZE = 32
+    ACTOR_LEARNING_RATE = 0.001
+    CRITIC_LEARNING_RATE = 0.001
+    UPDATE_EPOCHS = 1

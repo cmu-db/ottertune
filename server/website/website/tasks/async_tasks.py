@@ -36,6 +36,7 @@ from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUD
                               DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
                               DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
                               DEFAULT_UCB_SCALE, HP_LEARNING_RATE, HP_MAX_ITER,
+                              DDPG_SIMPLE_REWARD, DDPG_GAMMA, USE_DEFAULT,
                               DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
                               CRITIC_LEARNING_RATE, UPDATE_EPOCHS,
                               ACTOR_HIDDEN_SIZES, CRITIC_HIDDEN_SIZES,
@@ -285,18 +286,25 @@ def train_ddpg(result_id):
     result = Result.objects.get(pk=result_id)
     session = Result.objects.get(pk=result_id).session
     session_results = Result.objects.filter(session=session,
-                                            creation_time__lte=result.creation_time)
+                                            creation_time__lt=result.creation_time)
     result_info = {}
     result_info['newest_result_id'] = result_id
 
-    # Extract data from result
+    # Extract data from result and previous results
     result = Result.objects.filter(pk=result_id)
-    base_result_id = session_results[0].pk
+    if len(session_results) == 0:
+        base_result_id = result_id
+        prev_result_id = result_id
+    else:
+        base_result_id = session_results[0].pk
+        prev_result_id = session_results[len(session_results)-1].pk
     base_result = Result.objects.filter(pk=base_result_id)
+    prev_result = Result.objects.filter(pk=prev_result_id)
 
     agg_data = DataUtil.aggregate_data(result)
     metric_data = agg_data['y_matrix'].flatten()
     base_metric_data = (DataUtil.aggregate_data(base_result))['y_matrix'].flatten()
+    prev_metric_data = (DataUtil.aggregate_data(prev_result))['y_matrix'].flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
 
@@ -323,21 +331,37 @@ def train_ddpg(result_id):
                                                            target_objective))
     objective = metric_data[target_obj_idx]
     base_objective = base_metric_data[target_obj_idx]
+    prev_objective = prev_metric_data[target_obj_idx]
     metric_meta = db.target_objectives.get_metric_metadata(
         result.session.dbms.pk, result.session.target_objective)
 
     # Calculate the reward
-    objective = objective / base_objective
-    if metric_meta[target_objective].improvement == '(less is better)':
-        reward = -objective
+    if DDPG_SIMPLE_REWARD:
+        objective = objective / base_objective
+        if metric_meta[target_objective].improvement == '(less is better)':
+            reward = -objective
+        else:
+            reward = objective
     else:
-        reward = objective
+        if metric_meta[target_objective].improvement == '(less is better)':
+            if objective - base_objective <= 0:  # positive reward
+                reward = (np.square((2 * base_objective - objective) / base_objective) - 1)\
+                    * abs(2 * prev_objective - objective) / prev_objective
+            else:  # negative reward
+                reward = -(np.square(objective / base_objective) - 1) * objective / prev_objective
+        else:
+            if objective - base_objective > 0:  # positive reward
+                reward = (np.square(objective / base_objective) - 1) * objective / prev_objective
+            else:  # negative reward
+                reward = -(np.square((2 * base_objective - objective) / base_objective) - 1)\
+                    * abs(2 * prev_objective - objective) / prev_objective
     LOG.info('reward: %f', reward)
 
     # Update ddpg
     ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
-                clr=CRITIC_LEARNING_RATE, gamma=0, batch_size=DDPG_BATCH_SIZE,
-                a_hidden_sizes=ACTOR_HIDDEN_SIZES, c_hidden_sizes=CRITIC_HIDDEN_SIZES)
+                clr=CRITIC_LEARNING_RATE, gamma=DDPG_GAMMA, batch_size=DDPG_BATCH_SIZE,
+                a_hidden_sizes=ACTOR_HIDDEN_SIZES, c_hidden_sizes=CRITIC_HIDDEN_SIZES,
+                use_default=USE_DEFAULT)
     if session.ddpg_actor_model and session.ddpg_critic_model:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory:
@@ -368,7 +392,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     metric_num = len(metric_data)
 
     ddpg = DDPG(n_actions=knob_num, n_states=metric_num, a_hidden_sizes=ACTOR_HIDDEN_SIZES,
-                c_hidden_sizes=CRITIC_HIDDEN_SIZES)
+                c_hidden_sizes=CRITIC_HIDDEN_SIZES, use_default=USE_DEFAULT)
     if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory is not None:
@@ -646,9 +670,8 @@ def configuration_recommendation(recommendation_input):
                           epsilon=DEFAULT_EPSILON,
                           max_iter=MAX_ITER,
                           sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
-                          mu_multiplier=DEFAULT_MU_MULTIPLIER,
-                          ridge=DEFAULT_RIDGE)
-            model.fit(X_scaled, y_scaled, X_min, X_max)
+                          mu_multiplier=DEFAULT_MU_MULTIPLIER)
+            model.fit(X_scaled, y_scaled, X_min, X_max, ridge=DEFAULT_RIDGE)
             res = model.predict(X_samples, constraint_helper=constraint_helper)
 
     best_config_idx = np.argmin(res.minl.ravel())

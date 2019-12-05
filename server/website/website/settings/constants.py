@@ -5,6 +5,9 @@
 #
 
 # ---PIPELINE CONSTANTS---
+#  how often to run the background tests, in seconds
+RUN_EVERY = 300
+
 #  the number of samples (staring points) in gradient descent
 NUM_SAMPLES = 30
 

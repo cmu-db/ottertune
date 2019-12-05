@@ -18,6 +18,7 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
 from website.models import PipelineData, PipelineRun, Result, Workload
+from website.settings import RUN_EVERY
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
@@ -27,8 +28,8 @@ LOG = get_task_logger(__name__)
 MIN_WORKLOAD_RESULTS_COUNT = 5
 
 
-# Run the background tasks every 5 minutes
-@periodic_task(run_every=300, name="run_background_tasks")
+# Run the background tasks every 'RUN_EVERY' seconds
+@periodic_task(run_every=RUN_EVERY, name="run_background_tasks")
 def run_background_tasks():
     LOG.debug("Starting background tasks")
     # Find modified and not modified workloads, we only have to calculate for the

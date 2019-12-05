@@ -58,7 +58,7 @@ matrix:
         repo: cmu-db/ottertune
         branch: master
 
-  - name: Tests (MySQL v5.7)
+  - name: Unit Tests (MySQL v5.7)
     env:
     - BACKEND=mysql
     services:
@@ -76,8 +76,9 @@ matrix:
     before_install:
     - mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
     - sed -i '/psycopg2/d' $WEB/requirements.txt
+    - echo "codecov" >> $WEB/requirements.txt
 
-  - name: Tests (PostgreSQL v9.6)
+  - name: Unit Tests (PostgreSQL v9.6)
     env:
     - BACKEND=postgresql
     addons:
@@ -92,9 +93,49 @@ matrix:
     before_install:
     - psql -U postgres -c "CREATE DATABASE ${DB_NAME}"
     - sed -i '/mysqlclient/d' $WEB/requirements.txt
+    - echo "codecov" >> $WEB/requirements.txt
+
+  - name: Integration Tests (MySQL v5.7)
+    env:
+    - BACKEND=mysql
+    services:
+    - mysql
+    addons:
+      apt:
+        update: true
+        packages:
+        - mysql-server
+        - python-mysqldb
+        - rabbitmq-server
+    before_install:
+    - mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
+    - sed -i '/psycopg2/d' $WEB/requirements.txt
+    - sed -i 's/^RUN_EVERY =.*$/RUN_EVERY = 60/' $WEB/website/settings/constants.py
+    script:
+    - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
+    - sleep 10 && cd $DRIVER && fab integration_tests
+    after_success: []
+
+  - name: Integration Tests (PostgreSQL v9.6)
+    env:
+    - BACKEND=postgresql
+    addons:
+      postgresql: "9.6"
+      apt:
+        update: true
+        packages:
+        - rabbitmq-server
+    before_install:
+    - psql -U postgres -c "CREATE DATABASE ${DB_NAME}"
+    - sed -i '/mysqlclient/d' $WEB/requirements.txt
+    - sed -i 's/^RUN_EVERY =.*$/RUN_EVERY = 60/' $WEB/website/settings/constants.py
+    script:
+    - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
+    - sleep 10 && cd $DRIVER && fab integration_tests
+    after_success: []
 
 install:
-- pip install codecov -r $WEB/requirements.txt
+- pip install -r $WEB/requirements.txt
 - pip freeze
 before_script:
 - env | sort
@@ -110,9 +151,6 @@ script:
 - cd $ROOT/server && coverage run --omit="*/tests/*" -m unittest discover -s analysis/tests -v
 - cd $WEB && coverage run manage.py test --noinput -v 2
 - cd $CONTROLLER && gradle build
-- cd $WEB
-- python manage.py runserver 0.0.0.0:8000 &
-- sleep 10 && cd $DRIVER && fab integration_tests
 - cd $ROOT && git reset --soft ${TRAVIS_COMMIT_RANGE%...*} && git status && git
   log | head -n 1 && git lint
 after_success:

@@ -146,7 +146,7 @@ class TaskMetaAdmin(admin.ModelAdmin):
 
     def task_result(self, instance):
         res = self.format_field(instance.result)
-        return self.color_field(res, instance.status)
+        return res
     task_result.short_description = 'Result'
 
 

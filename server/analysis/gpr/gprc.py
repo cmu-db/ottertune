@@ -45,4 +45,4 @@ class GPRC(GPR):
         else:
             fvar = self.kern.Kdiag(Xnew) - tf.reduce_sum(tf.square(A), 0)
             fvar = tf.tile(tf.reshape(fvar, (-1, 1)), [1, tf.shape(self.Y)[1]])
-        return fmean, fvar
+        return fmean, fvar, self.kern.variance, self.kern.lengthscales, self.likelihood.variance

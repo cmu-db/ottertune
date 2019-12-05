@@ -360,18 +360,13 @@ def edit_knobs(request, project_id, session_id):
         instance.save()
         return HttpResponse(status=204)
     else:
-        # knobs = KnobCatalog.objects.filter(dbms=session.dbms).order_by('-tunable')
-        knobs = SessionKnob.objects.filter(session=session).order_by('-tunable', 'knob__name')
+        knobs = SessionKnob.objects.filter(session=session).prefetch_related(
+            'knob').order_by('-tunable', 'knob__name')
         forms = []
         for knob in knobs:
             knob_values = model_to_dict(knob)
             knob_values['session'] = session
-            knob_values['name'] = KnobCatalog.objects.get(pk=knob.knob.pk).name
-            # if SessionKnob.objects.filter(session=session, knob=knob).exists():
-            #     new_knob = SessionKnob.objects.filter(session=session, knob=knob)[0]
-            #     knob_values["minval"] = new_knob.minval
-            #     knob_values["maxval"] = new_knob.maxval
-            #     knob_values["tunable"] = new_knob.tunable
+            knob_values['name'] = knob.knob.name
             forms.append(SessionKnobForm(initial=knob_values))
         context = {
             'project': project,

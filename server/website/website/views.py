@@ -7,6 +7,7 @@
 import logging
 import datetime
 import re
+import time
 from collections import OrderedDict
 
 from django.contrib.auth import authenticate, login, logout
@@ -1079,16 +1080,22 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
 
     if overall_status == 'SUCCESS':
-        if not latest_result.next_configuration:
-            # If the task status was incomplete when we first queried latest_result
-            # but succeeded before the call to TaskUtil.get_task_status() finished
-            # then latest_result is stale and must be updated.
-            LOG.debug("Updating stale result (pk=%s)", latest_result.pk)
+        # The task status is set to SUCCESS before the next config is saved in
+        # the latest result so we must wait for it to be updated
+        max_wait_sec = 20
+        elapsed_sec = 0
+        while not latest_result.next_configuration and elapsed_sec <= max_wait_sec:
+            time.sleep(5)
+            elapsed_sec += 5
             latest_result = Result.objects.get(id=latest_result.pk)
+            LOG.debug("Waiting for the next config for result %s to be updated... "
+                      "(elapsed: %ss): %s", latest_result.pk, elapsed_sec,
+                      model_to_dict(latest_result))
 
         if not latest_result.next_configuration:
-            LOG.warning("Failed to get the next configuration from the latest result: %s",
-                        model_to_dict(latest_result))
+            LOG.warning(
+                "Failed to get the next configuration from the latest result after %ss: %s",
+                elapsed_sec, model_to_dict(latest_result))
             overall_status = 'FAILURE'
             response = _failed_response(latest_result, tasks, num_completed, overall_status,
                                         'Failed to get the next configuration.')

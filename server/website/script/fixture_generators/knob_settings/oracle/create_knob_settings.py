@@ -68,7 +68,7 @@ def add_fields(fields_list, version):
             default=500000,
         )
         new_field.update(custom_fields)
-        fields_list.append(new_field) 
+        fields_list.append(new_field)
 
 
 def set_field(fields):

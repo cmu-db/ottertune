@@ -45,6 +45,12 @@ BATCH_SIZE = 3000
 #  Threads for TensorFlow config
 NUM_THREADS = 4
 
+#  Value of beta for UCB
+UCB_BETA = 'get_beta_td'
+
+#  Name of the GPR model to use (GPFLOW only)
+GPR_MODEL_NAME = 'BasicGP'
+
 # ---GRADIENT DESCENT CONSTANTS---
 #  the maximum iterations of gradient descent
 MAX_ITER = 500

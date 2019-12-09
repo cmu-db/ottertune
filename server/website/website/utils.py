@@ -342,6 +342,19 @@ class LabelUtil(object):
         return style_labels
 
 
+def set_constant(name, value):
+    getattr(constants, name)  # Throw exception if not a valid option
+    setattr(constants, name, value)
+
+
+def get_constants():
+    constants_dict = OrderedDict()
+    for name, value in sorted(constants.__dict__.items()):
+        if not name.startswith('_') and name == name.upper():
+            constants_dict[name] = value
+    return constants_dict
+
+
 def dump_debug_info(session, pretty_print=False):
     files = {}
 
@@ -418,11 +431,7 @@ def dump_debug_info(session, pretty_print=False):
         files['logs/{}.log'.format(logger_name)] = log_values
 
     # Save settings
-    constants_dict = OrderedDict()
-    for name, value in sorted(constants.__dict__.items()):
-        if not name.startswith('_') and name == name.upper():
-            constants_dict[name] = value
-    files['constants.json'] = constants_dict
+    files['constants.json'] = get_constants()
 
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     root = 'debug_{}'.format(timestamp)

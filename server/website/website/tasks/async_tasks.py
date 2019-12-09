@@ -42,7 +42,8 @@ from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUD
                               ACTOR_HIDDEN_SIZES, CRITIC_HIDDEN_SIZES,
                               DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
                               DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
-                              DNN_DEBUG, DNN_DEBUG_INTERVAL, GPR_DEBUG)
+                              DNN_DEBUG, DNN_DEBUG_INTERVAL, GPR_DEBUG, UCB_BETA,
+                              GPR_MODEL_NAME)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
@@ -660,13 +661,12 @@ def configuration_recommendation(recommendation_input):
             opt_kwargs['maxiter'] = MAX_ITER
             opt_kwargs['bounds'] = [X_min, X_max]
             opt_kwargs['debug'] = GPR_DEBUG
-            ucb_beta = 'get_beta_td'
-            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(ucb_beta, scale=DEFAULT_UCB_SCALE,
+            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(UCB_BETA, scale=DEFAULT_UCB_SCALE,
                                                       t=i + 1., ndim=X_scaled.shape[1])
             tf.reset_default_graph()
             graph = tf.get_default_graph()
             gpflow.reset_default_session(graph=graph)
-            m = gpr_models.create_model('BasicGP', X=X_scaled, y=y_scaled, **model_kwargs)
+            m = gpr_models.create_model(GPR_MODEL_NAME, X=X_scaled, y=y_scaled, **model_kwargs)
             res = tf_optimize(m.model, X_samples, **opt_kwargs)
         else:
             model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,

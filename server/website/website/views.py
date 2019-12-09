@@ -1130,6 +1130,33 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
 
 
 @csrf_exempt
+def alt_get_info(request, name):
+    # Backdoor method for getting basic info
+    if name == 'constants':
+        info = utils.get_constants()
+        return HttpResponse(JSONUtil.dumps(info))
+    else:
+        LOG.warning("Invalid name for info request: %s", name)
+        return HttpResponse("Invalid name for info request: {}".format(name), status=400)
+
+
+@csrf_exempt
+def alt_set_constant(request, name):
+    # Sets a constant defined in settings/constants.py
+    LOG.info('POST: %s', request.POST)
+    LOG.info('POST.lists(): %s', request.POST.lists())
+    value = request.POST['value']
+    LOG.info('name: %s, value: %s, type: %s', name, value, type(value))
+    #data = {k: v[0] for k, v in request.POST.lists()}
+    try:
+        utils.set_constant(name, value)
+    except AttributeError as e:
+        LOG.warning(e)
+        return HttpResponse(e, status=400)
+    return HttpResponse("Successfully updated {} to '{}'".format(name, value))
+
+
+@csrf_exempt
 def alt_create_user(request):
     response = dict(created=False, error=None, user=None)
     if request.method != 'POST':

@@ -2,6 +2,63 @@
     {
         "model": "website.KnobCatalog",
         "fields": {
+            "name": "global._pga_max_size",
+            "scope": "global",
+            "dbms": 12,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 2,
+            "minval": 0,
+            "maxval": 2000000000,
+            "default": 200000000
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global._smm_max_size",
+            "scope": "global",
+            "dbms": 12,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 2,
+            "minval": 0,
+            "maxval": 2000000000,
+            "default": 100000
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global._smm_px_max_size",
+            "scope": "global",
+            "dbms": 12,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 2,
+            "minval": 0,
+            "maxval": 2000000000,
+            "default": 300000
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
             "name": "global.active_instance_count",
             "scope": "global",
             "dbms": 12,

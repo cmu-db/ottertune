@@ -36,6 +36,41 @@ from operator import itemgetter
 # cursor_sharing
 
 
+EXTRA_KNOBS = {
+    '_pga_max_size': {
+        'default': 200000000,
+    },
+    '_smm_max_size': {
+        'default': 100000,
+    },
+    '_smm_px_max_size': {
+        'default': 300000,
+    },
+}
+
+
+def add_fields(fields_list, version):
+    for name, custom_fields in EXTRA_KNOBS.items():
+        new_field = dict(
+            name=('global.' + name).lower(),
+            scope='global',
+            dbms=version,
+            category='',
+            enumvals=None,
+            context='',
+            unit=3,  # other
+            tunable=False,
+            description='',
+            summary='',
+            vartype=2,  # integer
+            minval=0,
+            maxval=2000000000,
+            default=500000,
+        )
+        new_field.update(custom_fields)
+        fields_list.append(new_field) 
+
+
 def set_field(fields):
     if fields['name'].upper() == 'MEMORY_TARGET':
         fields['tunable'] = False
@@ -202,6 +237,7 @@ COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")
 
 def process_version(version, delim=','):
     fields_list = []
+    add_fields(fields_list, version)
     with open('oracle{}.csv'.format(version), 'r', newline='') as f:
         reader = csv.reader(f, delimiter=delim)
         header = [h.upper() for h in next(reader)]

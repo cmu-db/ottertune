@@ -1141,19 +1141,16 @@ def alt_get_info(request, name):
 
 
 @csrf_exempt
-def alt_set_constant(request, name):
-    # Sets a constant defined in settings/constants.py
-    LOG.info('POST: %s', request.POST)
-    LOG.info('POST.lists(): %s', request.POST.lists())
-    value = request.POST['value']
-    LOG.info('name: %s, value: %s, type: %s', name, value, type(value))
-    #data = {k: v[0] for k, v in request.POST.lists()}
-    try:
-        utils.set_constant(name, value)
-    except AttributeError as e:
-        LOG.warning(e)
-        return HttpResponse(e, status=400)
-    return HttpResponse("Successfully updated {} to '{}'".format(name, value))
+def alt_set_constants(request):
+    constants = JSONUtil.loads(request.POST.get('constants', '{}'))
+    for name, value in constants.items():
+        try:
+            utils.set_constant(name, value)
+        except AttributeError as e:
+            LOG.warning(e)
+            return HttpResponse(e, status=400)
+    return HttpResponse("Successfully updated constants: {}".format(
+        ', '.join('{}={}'.format(k, v) for k, v in constants.items())))
 
 
 @csrf_exempt

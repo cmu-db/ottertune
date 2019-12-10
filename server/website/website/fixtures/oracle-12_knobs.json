@@ -1324,11 +1324,12 @@
             "unit": 3,
             "tunable": false,
             "description": "",
-            "minval": null,
-            "maxval": null,
+            "minval": 0,
+            "maxval": 2000000000,
             "vartype": 2,
-            "default": "0",
-            "summary": "Size of cache for 32K buffers"
+            "default": 500000000,
+            "summary": "Size of cache for 32K buffers",
+            "resource": 1
         }
     },
     {

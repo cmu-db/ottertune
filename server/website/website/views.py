@@ -491,17 +491,7 @@ def handle_result_files(session, files):
         for knob in data_knobs.keys():
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:
-                    unit = KnobCatalog.objects.get(dbms=session.dbms, name=knob).unit
-                    bytes_system = ConversionUtil.DEFAULT_BYTES_SYSTEM
-                    time_system = ConversionUtil.DEFAULT_TIME_SYSTEM
-                    if unit == 1:
-                        data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
-                                                                       bytes_system)
-                    elif unit == 2:
-                        data_knobs[knob] = ConversionUtil.get_raw_size(last_conf[tunable_knob],
-                                                                       time_system)
-                    else:
-                        data_knobs[knob] = last_conf[tunable_knob]
+                    data_knobs[knob] = last_conf[tunable_knob]
 
         knob_data.data = JSONUtil.dumps(data_knobs)
         knob_data.name = knob_data.name + '*'

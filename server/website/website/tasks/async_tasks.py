@@ -110,18 +110,18 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
         result_id = retval['result_id']
         result = Result.objects.get(pk=result_id)
 
-        # Create next configuration to try
-        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
-        retval['recommendation'] = config
-        result.next_configuration = JSONUtil.dumps(retval)
-        result.save()
-
         # Replace result with formatted result
         formatted_params = db.parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
         task_meta = TaskMeta.objects.get(task_id=task_id)
         retval['recommendation'] = formatted_params
         task_meta.result = retval
         task_meta.save()
+
+        # Create next configuration to try
+        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
+        retval['recommendation'] = config
+        result.next_configuration = JSONUtil.dumps(retval)
+        result.save()
 
 
 def clean_knob_data(knob_matrix, knob_labels, session):
@@ -138,7 +138,11 @@ def clean_knob_data(knob_matrix, knob_labels, session):
         for knob in missing_columns:
             knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
             index = knob_cat.index(knob)
-            matrix = np.insert(matrix, index, knob_object.default, axis=1)
+            try:
+                default_val = float(knob_object.default)
+            except ValueError:
+                default_val = 0
+            matrix = np.insert(matrix, index, default_val, axis=1)
             knob_labels.insert(index, knob)
     # If they are useless columns in the matrix
     if unused_columns:
@@ -271,6 +275,10 @@ def gen_lhs_samples(knobs, nsamples):
         lhs_samples.append(dict())
         for fidx in range(nfeats):
             if types[fidx] == VarType.INTEGER:
+                lhs_samples[-1][names[fidx]] = int(round(samples[sidx][fidx]))
+            elif types[fidx] == VarType.BOOL:
+                lhs_samples[-1][names[fidx]] = int(round(samples[sidx][fidx]))
+            elif types[fidx] == VarType.ENUM:
                 lhs_samples[-1][names[fidx]] = int(round(samples[sidx][fidx]))
             elif types[fidx] == VarType.REAL:
                 lhs_samples[-1][names[fidx]] = float(samples[sidx][fidx])
@@ -461,10 +469,12 @@ def configuration_recommendation(recommendation_input):
 
     if not np.array_equal(X_columnlabels, target_data['X_columnlabels']):
         raise Exception(('The workload and target data should have '
-                         'identical X columnlabels (sorted knob names)'))
+                         'identical X columnlabels (sorted knob names)'),
+                        X_columnlabels, target_data['X_columnlabels'])
     if not np.array_equal(y_columnlabels, target_data['y_columnlabels']):
         raise Exception(('The workload and target data should have '
-                         'identical y columnlabels (sorted metric names)'))
+                         'identical y columnlabels (sorted metric names)'),
+                        y_columnlabels, target_data['y_columnlabels'])
 
     # Filter Xs by top 10 ranked knobs
     ranked_knobs = PipelineData.objects.get(

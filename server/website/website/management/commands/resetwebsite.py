@@ -22,7 +22,7 @@ class Command(BaseCommand):
         port = DATABASES['default']['PORT']
 
         if engine.endswith('mysql'):
-            db_cmd_fmt = 'mysql -u {user} -p{passwd} -h {host} -P {port} -N -B -e "{{cmd}}"'
+            db_cmd_fmt = 'mysql -u {user} -p -h {host} -P {port} -N -B -e "{{cmd}}"'
         elif engine.endswith('postgresql'):
             db_cmd_fmt = 'PGPASSWORD={passwd} psql -U {user} -h {host} -p {port} -c "{{cmd}}"'
         else:

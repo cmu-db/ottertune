@@ -113,7 +113,14 @@ class DataUtil(object):
             knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
             knob_session_object = SessionKnob.objects.filter(knob=knob_object, session=session,
                                                              tunable=True)
-            if knob_session_object.exists():
+            if knob_object.vartype is VarType.ENUM:
+                enumvals = knob_object.enumvals.split(',')
+                minval = 0
+                maxval = len(enumvals) - 1
+            elif knob_object.vartype is VarType.BOOL:
+                minval = 0
+                maxval = 1
+            elif knob_session_object.exists():
                 minval = float(knob_session_object[0].minval)
                 maxval = float(knob_session_object[0].maxval)
             else:

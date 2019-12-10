@@ -119,7 +119,7 @@ ACTOR_HIDDEN_SIZES = [128, 128, 64]
 CRITIC_HIDDEN_SIZES = [64, 128, 64]
 
 #  Use the same setting from the CDBTune paper
-USE_DEFAULT = True
+USE_DEFAULT = False
 #  Overwrite the DDPG settings if using CDBTune
 if USE_DEFAULT:
     DDPG_SIMPLE_REWARD = False

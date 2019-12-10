@@ -110,18 +110,18 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
         result_id = retval['result_id']
         result = Result.objects.get(pk=result_id)
 
+        # Create next configuration to try
+        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
+        retval['recommendation'] = config
+        result.next_configuration = JSONUtil.dumps(retval)
+        result.save()
+
         # Replace result with formatted result
         formatted_params = db.parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
         task_meta = TaskMeta.objects.get(task_id=task_id)
         retval['recommendation'] = formatted_params
         task_meta.result = retval
         task_meta.save()
-
-        # Create next configuration to try
-        config = db.parser.create_knob_configuration(result.dbms.pk, retval['recommendation'])
-        retval['recommendation'] = config
-        result.next_configuration = JSONUtil.dumps(retval)
-        result.save()
 
 
 def clean_knob_data(knob_matrix, knob_labels, session):

@@ -75,7 +75,7 @@ def run(cmd, capture=True, **kwargs):
             if cmd.endswith('&'):
                 cmdd = cmd[:-1].strip()
                 opts = '-d '
-            res = local('sudo docker exec {} -ti {} /bin/bash -c "{}"'.format(
+            res = local('docker exec {} -ti {} /bin/bash -c "{}"'.format(
                 opts, dconf.CONTAINER_NAME, cmdd), capture=capture, **kwargs)
     except TypeError as e:
         err = str(e).strip()
@@ -106,7 +106,7 @@ def sudo(cmd, user=None, capture=True, **kwargs):
         opts = '-ti -u {}'.format(user or 'root')
         if user == 'root':
             opts += ' -w /'
-        res = local('sudo docker exec {} {} /bin/bash -c "{}"'.format(
+        res = local('docker exec {} {} /bin/bash -c "{}"'.format(
             opts, dconf.CONTAINER_NAME, cmd), capture=capture)
 
     return res
@@ -123,7 +123,7 @@ def get(remote_path, local_path, use_sudo=False):
         opts = '-r' if os.path.isdir(remote_path) else ''
         res = local('{}cp {} {} {}'.format(pre_cmd, opts, remote_path, local_path))
     else:  # docker
-        res = local('sudo docker cp {}:{} {}'.format(dconf.CONTAINER_NAME, remote_path, local_path))
+        res = local('docker cp {}:{} {}'.format(dconf.CONTAINER_NAME, remote_path, local_path))
     return res
 
 
@@ -138,7 +138,7 @@ def put(local_path, remote_path, use_sudo=False):
         opts = '-r' if os.path.isdir(local_path) else ''
         res = local('{}cp {} {} {}'.format(pre_cmd, opts, local_path, remote_path))
     else:  # docker
-        res = local('sudo docker cp {} {}:{}'.format(local_path, dconf.CONTAINER_NAME, remote_path))
+        res = local('docker cp {} {}:{}'.format(local_path, dconf.CONTAINER_NAME, remote_path))
     return res
 
 

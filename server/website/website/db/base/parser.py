@@ -361,7 +361,7 @@ class BaseParser:
         return configuration
 
     def format_bool(self, bool_value, metadata):
-        return self.true_value if bool_value == BooleanType.TRUE else self.false_value
+        return self.true_value if int(round(bool_value)) == BooleanType.TRUE else self.false_value
 
     def format_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')

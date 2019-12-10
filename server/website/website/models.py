@@ -193,6 +193,14 @@ class SessionKnobManager(models.Manager):
             knob_dict['minval'] = sess_knob.minval
             knob_dict['maxval'] = sess_knob.maxval
             knob_dict['tunable'] = sess_knob.tunable
+            if knob_dict['vartype'] is VarType.ENUM:
+                enumvals = knob_dict['enumvals'].split(',')
+                knob_dict["minval"] = 0
+                knob_dict["maxval"] = len(enumvals) - 1
+            if knob_dict['vartype'] is VarType.BOOL:
+                knob_dict["minval"] = 0
+                knob_dict["maxval"] = 1
+
         return knob_dicts
 
     @staticmethod

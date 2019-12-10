@@ -487,6 +487,7 @@ def handle_result_files(session, files):
         knob_data.knobs = JSONUtil.dumps(all_knobs)
 
         data_knobs = JSONUtil.loads(knob_data.data)
+        last_conf = parser.convert_dbms_knobs(result.dbms.pk, last_conf)
         for knob in data_knobs.keys():
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:

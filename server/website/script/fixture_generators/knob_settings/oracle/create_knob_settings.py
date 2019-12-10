@@ -231,6 +231,14 @@ def set_field(fields):
         fields['minval'] = None
         fields['maxval'] = None
         fields['default'] = True
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'optimizer_features_enable':
+        fields['tunable'] = True
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = '12.2.0.1'
+        fields['vartype'] = 5
+        fields['enumvals'] = '11.2.0.1,11.2.0.2,11.2.0.3,11.2.0.4,12.1.0.1,12.1.0.2,12.2.0.1' 
     if fields['name'].upper() == 'DISK_ASYNCH_IO':
         fields['tunable'] = True
         fields['vartype'] = 5

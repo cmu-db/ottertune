@@ -1130,14 +1130,15 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
 
 
 @csrf_exempt
-def alt_get_info(request, name):
+def alt_get_info(request, name):  # pylint: disable=unused-argument
     # Backdoor method for getting basic info
     if name == 'constants':
         info = utils.get_constants()
-        return HttpResponse(JSONUtil.dumps(info))
+        response = HttpResponse(JSONUtil.dumps(info))
     else:
         LOG.warning("Invalid name for info request: %s", name)
-        return HttpResponse("Invalid name for info request: {}".format(name), status=400)
+        response = HttpResponse("Invalid name for info request: {}".format(name), status=400)
+    return response
 
 
 @csrf_exempt
@@ -1320,7 +1321,7 @@ def alt_create_or_edit_session(request):
                                              upload_code=upload_code, creation_time=ts,
                                              last_update=ts, **data)
         except IntegrityError:
-            err_msg = "ERROR: Project '{}' already exists.".format(session_name)
+            err_msg = "ERROR: Session '{}' already exists.".format(session_name)
             session = Session.objects.get(user=user, project=project, name=session_name)
             response.update(error=err_msg, project=model_to_dict(session))
             LOG.warning(err_msg)

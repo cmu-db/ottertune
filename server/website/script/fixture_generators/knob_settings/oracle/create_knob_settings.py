@@ -138,6 +138,12 @@ def set_field(fields):
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 500000000  # 500M
         fields['resource'] = 1
+    if fields['name'].lower() == 'db_32k_cache_size':
+        fields['tunable'] = False
+        fields['minval'] = 0
+        fields['maxval'] = 2000000000  # 2GB
+        fields['default'] = 500000000  # 500M
+        fields['resource'] = 1
     if fields['name'].upper() == 'DB_RECYCLE_CACHE_SIZE':
         fields['tunable'] = False
         fields['minval'] = 0

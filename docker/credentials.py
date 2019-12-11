@@ -4,6 +4,7 @@ import string
 from os import environ as env
 
 debug = env.get('DEBUG', 'true').lower() == 'true'
+rabbitmq_host = env.get('RABBITMQ_HOST', 'rabbitmq')
 backend = env.get('BACKEND', 'postgresql')
 db_name = env.get('DB_NAME', 'ottertune')
 db_host = env.get('DB_HOST', 'localhost')
@@ -41,3 +42,4 @@ DEBUG = debug
 ADMINS = ()
 MANAGERS = ADMINS
 ALLOWED_HOSTS = ['*']
+BROKER_URL = 'amqp://guest:guest@{}:5672//'.format(rabbitmq_host)

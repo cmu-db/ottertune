@@ -30,7 +30,7 @@ pip_reqs_file="/${service}-requirements.txt"
 
 if [ "$service" = "base" ]
 then
-    apt_pkgs="python3.6 python3-setuptools python3-pip libssl-dev"
+    apt_pkgs="python3.6 python3-setuptools python3-pip libssl-dev vim dnsutils iputils-ping"
 
     # Filter common pip packages
     for pip_pkg in $pip_common_pkgs

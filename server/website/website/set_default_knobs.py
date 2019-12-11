@@ -14,8 +14,8 @@ LOG = logging.getLogger(__name__)
 # tunable knobs in the KnobCatalog will be used instead.
 DEFAULT_TUNABLE_KNOBS = {
     DBMSType.POSTGRES: {
-        "global.checkpoint_completion_target",
-        "global.default_statistics_target",
+        "global.autovacuum",
+        "global.archive_mode",
         "global.effective_cache_size",
         "global.maintenance_work_mem",
         "global.max_wal_size",
@@ -59,7 +59,7 @@ STORAGE_PERCENT = 0.8
 SESSION_NUM = 50.0
 
 
-def set_default_knobs(session):
+def set_default_knobs(session, cascade=True):
     dbtype = session.dbms.type
     default_tunable_knobs = DEFAULT_TUNABLE_KNOBS.get(dbtype)
 
@@ -71,7 +71,19 @@ def set_default_knobs(session):
         tunable = knob.name in default_tunable_knobs
         minval = knob.minval
 
-        if knob.vartype in (VarType.INTEGER, VarType.REAL):
+        # set session knob tunable in knob catalog
+        if tunable and cascade:
+            knob.tunable = True
+            knob.save()
+
+        if knob.vartype is VarType.ENUM:
+            enumvals = knob.enumvals.split(',')
+            minval = 0
+            maxval = len(enumvals) - 1
+        elif knob.vartype is VarType.BOOL:
+            minval = 0
+            maxval = 1
+        elif knob.vartype in (VarType.INTEGER, VarType.REAL):
             vtype = int if knob.vartype == VarType.INTEGER else float
 
             minval = vtype(minval) if minval is not None else MINVAL

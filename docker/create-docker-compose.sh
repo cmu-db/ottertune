@@ -52,6 +52,7 @@ services:
           DB_HOST: 'backend'
           DB_PORT: '$DB_PORT'
           MAX_DB_CONN_ATTEMPTS: 30
+          RABBITMQ_HOST: 'rabbitmq'
         working_dir: /app/website
         entrypoint: $WEB_ENTRYPOINT
         labels:

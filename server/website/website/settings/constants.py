@@ -19,6 +19,9 @@ TOP_NUM_CONFIG = 10
 
 # ---CONSTRAINTS CONSTANTS---
 
+# address categorical knobs (enum, boolean)
+ENABLE_DUMMY_ENCODER = False
+
 #  Initial probability to flip categorical feature in apply_constraints
 #  server/analysis/constraints.py
 INIT_FLIP_PROB = 0.3

@@ -425,13 +425,17 @@ def upload_batch(result_dir=None, sort=True, upload_code=None):
         upload_result(result_dir=result_dir, prefix=prefix, upload_code=upload_code)
         LOG.info('Uploaded result %d/%d: %s__*.json', i + 1, count, prefix)
 
-
 @task
 def dump_database():
     dumpfile = os.path.join(dconf.DB_DUMP_DIR, dconf.DB_NAME + '.dump')
-    if not dconf.ORACLE_FLASH_BACK and file_exists(dumpfile):
-        LOG.info('%s already exists ! ', dumpfile)
-        return False
+    if dconf.DB_TYPE == 'oracle':
+        if not dconf.ORACLE_FLASH_BACK and file_exists(dumpfile):
+            LOG.info('%s already exists ! ', dumpfile)
+            return False
+    else:
+        if file_exists(dumpfile):
+            LOG.info('%s already exists ! ', dumpfile)
+            return False
 
     if dconf.ORACLE_FLASH_BACK:
         LOG.info('create restore point %s for database %s in %s', dconf.RESTORE_POINT,
@@ -582,7 +586,7 @@ def loop(i):
 
 
 @task
-def run_loops(max_iter=1):
+def run_loops(max_iter=10):
     # dump database if it's not done before.
     dump = dump_database()
 

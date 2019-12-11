@@ -43,7 +43,7 @@ from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUD
                               DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
                               DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
                               DNN_DEBUG, DNN_DEBUG_INTERVAL, GPR_DEBUG, UCB_BETA,
-                              GPR_MODEL_NAME)
+                              GPR_MODEL_NAME, ENABLE_DUMMY_ENCODER)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
 from website.types import VarType
@@ -526,17 +526,23 @@ def configuration_recommendation(recommendation_input):
     X_matrix = np.vstack([X_target, X_workload])
 
     # Dummy encode categorial variables
-    categorical_info = DataUtil.dummy_encoder_helper(X_columnlabels,
-                                                     mapped_workload.dbms)
-    dummy_encoder = DummyEncoder(categorical_info['n_values'],
-                                 categorical_info['categorical_features'],
-                                 categorical_info['cat_columnlabels'],
-                                 categorical_info['noncat_columnlabels'])
-    X_matrix = dummy_encoder.fit_transform(X_matrix)
-
-    # below two variables are needed for correctly determing max/min on dummies
-    binary_index_set = set(categorical_info['binary_vars'])
-    total_dummies = dummy_encoder.total_dummies()
+    if ENABLE_DUMMY_ENCODER:
+        categorical_info = DataUtil.dummy_encoder_helper(X_columnlabels,
+                                                         mapped_workload.dbms)
+        dummy_encoder = DummyEncoder(categorical_info['n_values'],
+                                     categorical_info['categorical_features'],
+                                     categorical_info['cat_columnlabels'],
+                                     categorical_info['noncat_columnlabels'])
+        X_matrix = dummy_encoder.fit_transform(X_matrix)
+        binary_encoder = categorical_info['binary_vars']
+        # below two variables are needed for correctly determing max/min on dummies
+        binary_index_set = set(categorical_info['binary_vars'])
+        total_dummies = dummy_encoder.total_dummies()
+    else:
+        dummy_encoder = None
+        binary_encoder = None
+        binary_index_set = []
+        total_dummies = 0
 
     # Scale to N(0, 1)
     X_scaler = StandardScaler()
@@ -566,7 +572,7 @@ def configuration_recommendation(recommendation_input):
     # Set up constraint helper
     constraint_helper = ParamConstraintHelper(scaler=X_scaler,
                                               encoder=dummy_encoder,
-                                              binary_vars=categorical_info['binary_vars'],
+                                              binary_vars=binary_encoder,
                                               init_flip_prob=INIT_FLIP_PROB,
                                               flip_prob_decay=FLIP_PROB_DECAY)
 
@@ -686,8 +692,10 @@ def configuration_recommendation(recommendation_input):
     best_config_idx = np.argmin(res.minl.ravel())
     best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
-    # Decode one-hot encoding into categorical knobs
-    best_config = dummy_encoder.inverse_transform(best_config)
+
+    if ENABLE_DUMMY_ENCODER:
+        # Decode one-hot encoding into categorical knobs
+        best_config = dummy_encoder.inverse_transform(best_config)
 
     # Although we have max/min limits in the GPRGD training session, it may
     # lose some precisions. e.g. 0.99..99 >= 1.0 may be True on the scaled data,

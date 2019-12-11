@@ -283,6 +283,7 @@ def gen_lhs_samples(knobs, nsamples):
                 lhs_samples[-1][names[fidx]] = float(samples[sidx][fidx])
             else:
                 LOG.debug("LHS type not supported: %s", types[fidx])
+    random.shuffle(lhs_samples)
 
     return lhs_samples
 

@@ -482,8 +482,6 @@ def configuration_recommendation(recommendation_input):
         workload=mapped_workload,
         task_type=PipelineTaskType.RANKED_KNOBS)
     ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:IMPORTANT_KNOB_NUMBER]
-    # Sort the important knobs to fix the columns of input X
-    ranked_knobs = sorted(ranked_knobs)
     ranked_knob_idxs = [i for i, cl in enumerate(X_columnlabels) if cl in ranked_knobs]
     X_workload = X_workload[:, ranked_knob_idxs]
     X_target = X_target[:, ranked_knob_idxs]

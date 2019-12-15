@@ -566,7 +566,6 @@ def handle_result_files(session, files):
         knob_data = KnobData.objects.create_knob_data(
             session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
             JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
-        LOG.debug(knob_data.data)
 
         # Load, process, and store the runtime metrics exposed by the DBMS
         initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(

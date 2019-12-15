@@ -311,6 +311,7 @@ def run_knob_identification(knob_data, metric_data, dbms):
         encoded_knob_columnlabels = dummy_encoder.new_labels
     else:
         encoded_knob_columnlabels = nonconst_knob_columnlabels
+        encoded_knob_matrix = nonconst_knob_matrix
 
     # standardize values in each column to N(0, 1)
     standardizer = StandardScaler()

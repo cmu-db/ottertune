@@ -7,7 +7,7 @@ import copy
 import numpy as np
 from django.test import TestCase, override_settings
 from django.db import transaction
-from website.models import (Workload, PipelineRun, PipelineData,
+from website.models import (Workload, PipelineRun, PipelineData, Project,
                             Result, Session, DBMSCatalog, Hardware)
 from website.tasks.periodic_tasks import (run_background_tasks,
                                           aggregate_data,

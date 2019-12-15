@@ -14,7 +14,7 @@ NUM_SAMPLES = 30
 #  the number of selected tuning knobs
 #  set it to a large value if you want to disable the knob identification
 #  phase (i.e. tune all session knobs)
-IMPORTANT_KNOB_NUMBER = 10
+IMPORTANT_KNOB_NUMBER = 10000
 
 #  top K config with best performance put into prediction
 TOP_NUM_CONFIG = 10

@@ -213,8 +213,8 @@ def aggregate_target_results(result_id, algorithm):
         agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
         agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
 
-        LOG.debug('%s: Finished aggregating target results.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
+        LOG.debug('%s: Finished aggregating target results.\n\n',
+                  AlgorithmType.name(algorithm))
 
     return agg_data, algorithm
 
@@ -418,22 +418,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     return conf_map_res
 
 
-@task(base=ConfigurationRecommendation, name='configuration_recommendation')
-def configuration_recommendation(recommendation_input):
-    target_data, algorithm = recommendation_input
-    LOG.info('configuration_recommendation called')
-
-    if target_data['bad'] is True:
-        target_data_res = dict(
-            status='bad',
-            result_id=target_data['newest_result_id'],
-            info='WARNING: no training data, the config is generated randomly',
-            recommendation=target_data['config_recommend'],
-            pipeline_run=target_data['pipeline_run'])
-        LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
-        return target_data_res
-
+def combine_workload(target_data):
     # Load mapped workload data
     mapped_workload_id = target_data['mapped_workload'][0]
 
@@ -497,10 +482,6 @@ def configuration_recommendation(recommendation_input):
         raise Exception(('Found {} instances of target objective in '
                          'metrics (target_obj={})').format(len(target_obj_idx),
                                                            target_objective))
-
-    metric_meta = db.target_objectives.get_metric_metadata(
-        newest_result.session.dbms.pk, newest_result.session.target_objective)
-    lessisbetter = metric_meta[target_objective].improvement == db.target_objectives.LESS_IS_BETTER
 
     y_workload = y_workload[:, target_obj_idx]
     y_target = y_target[:, target_obj_idx]
@@ -570,6 +551,14 @@ def configuration_recommendation(recommendation_input):
             y_workload_scaler = StandardScaler()
             y_scaled = y_workload_scaler.fit_transform(y_target)
 
+    metric_meta = db.target_objectives.get_metric_metadata(
+        newest_result.session.dbms.pk, newest_result.session.target_objective)
+    lessisbetter = metric_meta[target_objective].improvement == db.target_objectives.LESS_IS_BETTER
+    # Maximize the throughput, moreisbetter
+    # Use gradient descent to minimize -throughput
+    if not lessisbetter:
+        y_scaled = -y_scaled
+
     # Set up constraint helper
     constraint_helper = ParamConstraintHelper(scaler=X_scaler,
                                               encoder=dummy_encoder,
@@ -582,10 +571,6 @@ def configuration_recommendation(recommendation_input):
     # ridge[:X_target.shape[0]] = 0.01
     # ridge[X_target.shape[0]:] = 0.1
 
-    # FIXME: we should generate more samples and use a smarter sampling
-    # technique
-    num_samples = NUM_SAMPLES
-    X_samples = np.empty((num_samples, X_scaled.shape[1]))
     X_min = np.empty(X_scaled.shape[1])
     X_max = np.empty(X_scaled.shape[1])
     X_scaler_matrix = np.zeros([1, X_scaled.shape[1]])
@@ -608,12 +593,37 @@ def configuration_recommendation(recommendation_input):
                     col_max = X_scaler.transform(X_scaler_matrix)[0][i]
         X_min[i] = col_min
         X_max[i] = col_max
-        X_samples[:, i] = np.random.rand(num_samples) * (col_max - col_min) + col_min
 
-    # Maximize the throughput, moreisbetter
-    # Use gradient descent to minimize -throughput
-    if not lessisbetter:
-        y_scaled = -y_scaled
+    return X_columnlabels, X_scaler, X_scaled, y_scaled, X_max, X_min
+
+
+@task(base=ConfigurationRecommendation, name='configuration_recommendation')
+def configuration_recommendation(recommendation_input):
+    target_data, algorithm = recommendation_input
+    LOG.info('configuration_recommendation called')
+
+    if target_data['bad'] is True:
+        target_data_res = dict(
+            status='bad',
+            result_id=target_data['newest_result_id'],
+            info='WARNING: no training data, the config is generated randomly',
+            recommendation=target_data['config_recommend'],
+            pipeline_run=target_data['pipeline_run'])
+        LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
+                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+        return target_data_res
+
+    latest_pipeline_run = PipelineRun.objects.get(pk=target_data['pipeline_run'])
+    newest_result = Result.objects.get(pk=target_data['newest_result_id'])
+
+    X_columnlabels, X_scaler, X_scaled, y_scaled, X_max, X_min = combine_workload(target_data)
+
+    # FIXME: we should generate more samples and use a smarter sampling
+    # technique
+    num_samples = NUM_SAMPLES
+    X_samples = np.empty((num_samples, X_scaled.shape[1]))
+    for i in range(X_scaled.shape[1]):
+        X_samples[:, i] = np.random.rand(num_samples) * (X_max[i] - X_min[i]) + X_min[i]
 
     q = queue.PriorityQueue()
     for x in range(0, y_scaled.shape[0]):
@@ -755,7 +765,8 @@ def map_workload(map_workload_input):
     pipeline_data = PipelineData.objects.filter(
         pipeline_run=latest_pipeline_run,
         workload__dbms=target_workload.dbms,
-        workload__hardware=target_workload.hardware)
+        workload__hardware=target_workload.hardware,
+        workload__project=target_workload.project)
 
     # FIXME (dva): we should also compute the global (i.e., overall) ranked_knobs
     # and pruned metrics but we just use those from the first workload for now

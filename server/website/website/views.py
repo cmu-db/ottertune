@@ -566,6 +566,7 @@ def handle_result_files(session, files):
         knob_data = KnobData.objects.create_knob_data(
             session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
             JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
+        LOG.debug(knob_data.data)
 
         # Load, process, and store the runtime metrics exposed by the DBMS
         initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
@@ -583,7 +584,7 @@ def handle_result_files(session, files):
 
         # Create a new workload if this one does not already exist
         workload = Workload.objects.create_workload(
-            dbms, session.hardware, workload_name)
+            dbms, session.hardware, workload_name, session.project)
 
         # Save this result
         result = Result.objects.create_result(
@@ -591,7 +592,7 @@ def handle_result_files(session, files):
             start_time, end_time, observation_time)
         result.save()
 
-        # Workload is now modified so backgroundTasks can make calculationw
+        # Workload is now modified so backgroundTasks can make calculation
         workload.status = WorkloadStatusType.MODIFIED
         workload.save()
 

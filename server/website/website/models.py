@@ -317,14 +317,15 @@ class MetricData(DataModel):
 
 class WorkloadManager(models.Manager):
 
-    def create_workload(self, dbms, hardware, name):
+    def create_workload(self, dbms, hardware, name, project):
         # (dbms,hardware,name) should be unique for each workload
         try:
-            return Workload.objects.get(dbms=dbms, hardware=hardware, name=name)
+            return Workload.objects.get(dbms=dbms, hardware=hardware, name=name, project=project)
         except Workload.DoesNotExist:
             return self.create(dbms=dbms,
                                hardware=hardware,
-                               name=name)
+                               name=name,
+                               project=project)
 
 
 class Workload(BaseModel):
@@ -336,6 +337,7 @@ class Workload(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
     hardware = models.ForeignKey(Hardware)
     name = models.CharField(max_length=128, verbose_name='workload name')
+    project = models.ForeignKey(Project)
     status = models.IntegerField(choices=WorkloadStatusType.choices(),
                                  default=WorkloadStatusType.MODIFIED,
                                  editable=False)
@@ -353,7 +355,7 @@ class Workload(BaseModel):
         super(Workload, self).delete(using, keep_parents)
 
     class Meta:  # pylint: disable=no-init
-        unique_together = ("dbms", "hardware", "name")
+        unique_together = ("dbms", "hardware", "name", "project")
 
     # @property
     # def isdefault(self):

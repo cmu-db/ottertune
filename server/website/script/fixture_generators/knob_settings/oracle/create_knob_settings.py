@@ -46,6 +46,28 @@ EXTRA_KNOBS = {
     '_smm_px_max_size': {
         'default': 300000,
     },
+    '_optimizer_use_feedback': {
+        'default': True,
+        'minval': None,
+        'maxval': None,
+        'vartype': 4,
+    },
+    'ioseektim': {
+        'default': 10,
+        'minval': 1,
+        'maxval': 10,
+    },
+    'iotfrspeed': {
+        'default': 4096,
+        'minval': 4096,
+        'maxval': 190000,
+    },
+    '_enable_numa_optimization': {
+        'default': False,
+        'minval': None,
+        'maxval': None,
+        'vartype': 4,
+    },
 }
 
 
@@ -223,10 +245,16 @@ def set_field(fields):
         fields['default'] = False
     if fields['name'].lower() == 'optimizer_dynamic_sampling':
         fields['tunable'] = True
-        fields['minval'] = 0
-        fields['maxval'] = 11
+        fields['minval'] = 2
+        fields['maxval'] = 10
         fields['default'] = 2
     if fields['name'].lower() == 'optimizer_adaptive_plans':
+        fields['tunable'] = True
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = True
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'optimizer_adaptive_statistics':
         fields['tunable'] = True
         fields['minval'] = None
         fields['maxval'] = None
@@ -241,9 +269,21 @@ def set_field(fields):
         fields['enumvals'] = '11.2.0.1,11.2.0.2,11.2.0.3,11.2.0.4,12.1.0.1,12.1.0.2,12.2.0.1'
     if fields['name'].upper() == 'DISK_ASYNCH_IO':
         fields['tunable'] = True
+        fields['vartype'] = 4
+        fields['default'] = True
+        fields['minval'] = None
+        fields['maxval'] = None
+    if fields['name'].lower() == 'db_writer_processes':
+        fields['tunable'] = False
+        fields['minval'] = 1
+        fields['maxval'] = 10
+        fields['default'] = 1
+    if fields['name'].lower() == 'filesystemio_options':
+        fields['default'] = 'none'
+        fields['minval'] = None
+        fields['maxval'] = None
         fields['vartype'] = 5
-        fields['enumvals'] = 'TRUE,FALSE'
-        fields['default'] = 'TRUE'
+        fields['enumvals'] = 'asynch,directio,none,setall'
 
 
 COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")

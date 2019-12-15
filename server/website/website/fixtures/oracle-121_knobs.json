@@ -2,6 +2,44 @@
     {
         "model": "website.KnobCatalog",
         "fields": {
+            "name": "global._enable_numa_optimization",
+            "scope": "global",
+            "dbms": 121,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 4,
+            "minval": null,
+            "maxval": null,
+            "default": false
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global._optimizer_use_feedback",
+            "scope": "global",
+            "dbms": 121,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 4,
+            "minval": null,
+            "maxval": null,
+            "default": true
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
             "name": "global._pga_max_size",
             "scope": "global",
             "dbms": 121,
@@ -1708,10 +1746,10 @@
             "unit": 3,
             "tunable": false,
             "description": "",
-            "minval": null,
-            "maxval": null,
+            "minval": 1,
+            "maxval": 10,
             "vartype": 2,
-            "default": "1",
+            "default": 1,
             "summary": "number of background database writer  processes to start"
         }
     },
@@ -1874,15 +1912,15 @@
             "scope": "global",
             "dbms": 121,
             "category": "",
-            "enumvals": "TRUE,FALSE",
+            "enumvals": null,
             "context": "",
             "unit": 3,
             "tunable": true,
             "description": "",
             "minval": null,
             "maxval": null,
-            "vartype": 5,
-            "default": "TRUE",
+            "vartype": 4,
+            "default": true,
             "summary": "Use asynch I/O for random access devices"
         }
     },
@@ -2216,15 +2254,15 @@
             "scope": "global",
             "dbms": 121,
             "category": "",
-            "enumvals": null,
+            "enumvals": "asynch,directio,none,setall",
             "context": "",
             "unit": 3,
             "tunable": false,
             "description": "",
             "minval": null,
             "maxval": null,
-            "vartype": 1,
-            "default": "NULL",
+            "vartype": 5,
+            "default": "none",
             "summary": "IO operations on filesystem files"
         }
     },
@@ -2626,6 +2664,44 @@
             "vartype": 4,
             "default": "FALSE",
             "summary": "instant repopulation of datafiles"
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global.ioseektim",
+            "scope": "global",
+            "dbms": 121,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 2,
+            "minval": 1,
+            "maxval": 10,
+            "default": 10
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global.iotfrspeed",
+            "scope": "global",
+            "dbms": 121,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 2,
+            "minval": 4096,
+            "maxval": 190000,
+            "default": 4096
         }
     },
     {
@@ -5038,8 +5114,8 @@
             "unit": 3,
             "tunable": true,
             "description": "",
-            "minval": 0,
-            "maxval": 11,
+            "minval": 2,
+            "maxval": 10,
             "vartype": 2,
             "default": 2,
             "summary": "optimizer dynamic sampling"

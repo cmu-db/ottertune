@@ -15,7 +15,7 @@ class DBTime(BaseTargetObjective):
                          improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        return float(metrics['global.sys_time_model.db time'])
+        return float(metrics['global.sys_time_model.db time']) / observation_time
 
 
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name

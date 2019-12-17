@@ -457,19 +457,19 @@ def handle_result_files(session, files):
 
         LOG.debug("Error in restarting database")
         # Find worst throughput
-        past_configs = MetricData.objects.filter(session=session)
-        worst_throughput = None
-        for curr_config in past_configs:
-            throughput = JSONUtil.loads(curr_config.data)[session.target_objective]
+        past_metrics = MetricData.objects.filter(session=session)
+        worst_target_value = None
+        for past_metric in past_metrics:
+            target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
             metric_meta = target_objectives.get_instance(
                 session.dbms.pk, session.target_objective)
             if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-                if worst_throughput is None or throughput < worst_throughput:
-                    worst_throughput = throughput
+                if worst_target_value is None or target_value < worst_target_value:
+                    worst_target_value = target_value
             else:
-                if worst_throughput is None or throughput > worst_throughput:
-                    worst_throughput = throughput
-        LOG.debug("Worst throughput so far is:%d", worst_throughput)
+                if worst_target_value is None or target_value > worst_target_value:
+                    worst_target_value = target_value
+        LOG.debug("Worst target value so far is: %d", worst_target_value)
 
         result = Result.objects.filter(session=session).order_by("-id").first()
         backup_data = BackupData.objects.filter(result=result).first()
@@ -501,7 +501,7 @@ def handle_result_files(session, files):
 
         metric_data = result.metric_data
         metric_cpy = JSONUtil.loads(metric_data.data)
-        metric_cpy["throughput_txn_per_sec"] = worst_throughput
+        metric_cpy[session.target_objective] = worst_target_value
         metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
         metric_data.name = metric_data.name + '*'

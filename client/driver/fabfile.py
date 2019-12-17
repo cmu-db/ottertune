@@ -760,9 +760,21 @@ def integration_tests():
     response = get_result(upload_code='ottertuneTestTuningDNN')
     assert response['status'] == 'good'
 
+    # 2rd iteration Test DNN
+    upload_result(result_dir='./integrationTests/data/', prefix='1__',
+                  upload_code='ottertuneTestTuningDNN')
+    response = get_result(upload_code='ottertuneTestTuningDNN')
+    assert response['status'] == 'good'
+
     # Test GPR
     LOG.info('Test GPR (gaussian process regression)')
     upload_result(result_dir='./integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningGPR')
+    response = get_result(upload_code='ottertuneTestTuningGPR')
+    assert response['status'] == 'good'
+
+    # 2rd iteration Test GPR
+    upload_result(result_dir='./integrationTests/data/', prefix='1__',
                   upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'good'

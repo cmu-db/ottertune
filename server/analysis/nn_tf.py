@@ -34,7 +34,8 @@ class NeuralNet(object):
                  batch_size=1,
                  explore_iters=500,
                  noise_scale_begin=0.1,
-                 noise_scale_end=0):
+                 noise_scale_end=0,
+                 reset_seed=False):
 
         self.history = None
         self.recommend_iters = 0
@@ -49,6 +50,9 @@ class NeuralNet(object):
         self.vars = {}
         self.ops = {}
 
+        tf.reset_default_graph()
+        if reset_seed:
+            tf.set_random_seed(0)
         self.session = tf.Session()
         self.graph = tf.get_default_graph()
         with self.graph.as_default():

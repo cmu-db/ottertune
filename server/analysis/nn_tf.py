@@ -239,8 +239,9 @@ class NeuralNet(object):
                                                   self.vars['b2_']: b2, self.vars['b3_']: b3,
                                                   self.vars['X_max_']: X_max,
                                                   self.vars['X_min_']: X_min})
-                X_recommend = sess.run(self.vars['x_bounded_'], feed_dict={self.vars['X_max_']: X_max,
-                                                                           self.vars['X_min_']: X_min})
+                X_recommend = sess.run(self.vars['x_bounded_'],
+                                       feed_dict={self.vars['X_max_']: X_max,
+                                                  self.vars['X_min_']: X_min})
                 res = NeuralNetResult(minl=y_recommend, minl_conf=X_recommend)
 
                 if self.debug:

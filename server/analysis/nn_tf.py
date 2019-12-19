@@ -210,7 +210,8 @@ class NeuralNet(object):
                                     feed_dict={self.vars['w1_']: w1, self.vars['w2_']: w2,
                                                self.vars['w3_']: w3, self.vars['b1_']: b1,
                                                self.vars['b2_']: b2, self.vars['b3_']: b3,
-                                               self.vars['X_max_']: X_max, self.vars['X_min_']: X_min})
+                                               self.vars['X_max_']: X_max,
+                                               self.vars['X_min_']: X_min})
                 if self.debug:
                     LOG.info("Recommend phase, y before gradient descent: min %f, max %f, mean %f",
                              np.min(y_before), np.max(y_before), np.mean(y_before))
@@ -227,7 +228,8 @@ class NeuralNet(object):
                                            feed_dict={self.vars['w1_']: w1, self.vars['w2_']: w2,
                                                       self.vars['w3_']: w3, self.vars['b1_']: b1,
                                                       self.vars['b2_']: b2, self.vars['b3_']: b3,
-                                                      self.vars['X_max_']: X_max, self.vars['X_min_']: X_min})
+                                                      self.vars['X_max_']: X_max,
+                                                      self.vars['X_min_']: X_min})
                         LOG.info("Recommend phase, epoch %d, y: min %f, max %f, mean %f",
                                  i, np.min(y_train), np.max(y_train), np.mean(y_train))
 
@@ -235,8 +237,10 @@ class NeuralNet(object):
                                        feed_dict={self.vars['w1_']: w1, self.vars['w2_']: w2,
                                                   self.vars['w3_']: w3, self.vars['b1_']: b1,
                                                   self.vars['b2_']: b2, self.vars['b3_']: b3,
-                                                  self.vars['X_max_']: X_max, self.vars['X_min_']: X_min})
-                X_recommend = sess.run(self.vars['x_bounded_'], feed_dict={self.vars['X_max_']: X_max, self.vars['X_min_']: X_min})
+                                                  self.vars['X_max_']: X_max,
+                                                  self.vars['X_min_']: X_min})
+                X_recommend = sess.run(self.vars['x_bounded_'], feed_dict={self.vars['X_max_']: X_max,
+                                                                           self.vars['X_min_']: X_min})
                 res = NeuralNetResult(minl=y_recommend, minl_conf=X_recommend)
 
                 if self.debug:

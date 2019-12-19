@@ -84,6 +84,9 @@ HP_LEARNING_RATE = 0.001
 # ---GRADIENT DESCENT FOR DNN---
 DNN_TRAIN_ITER = 100
 
+# Gradient Descent iteration for recommendation
+DNN_GD_ITER = 100
+
 DNN_EXPLORE = False
 
 DNN_EXPLORE_ITER = 500

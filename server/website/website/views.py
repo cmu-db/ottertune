@@ -731,6 +731,7 @@ def metric_data_view(request, project_id, session_id, data_id):  # pylint: disab
     target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
     return dbms_data_view(request, context, metric_data, session, target_obj)
 
+
 def dbms_data_view(request, context, dbms_data, session, target_obj):
     if context['data_type'] == 'knobs':
         model_class = KnobData

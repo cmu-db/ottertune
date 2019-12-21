@@ -708,8 +708,10 @@ def knob_data_view(request, project_id, session_id, data_id):  # pylint: disable
         'labels': labels,
         'data_type': 'knobs'
     }
-    return dbms_data_view(request, context, knob_data)
-
+    result = Result.objects.filter(knob_data=knob_data)[0]
+    session = get_object_or_404(Session, pk=session_id)
+    target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
+    return dbms_data_view(request, context, knob_data, session, target_obj)
 
 @login_required(login_url=reverse_lazy('login'))
 def metric_data_view(request, project_id, session_id, data_id):  # pylint: disable=unused-argument
@@ -724,10 +726,12 @@ def metric_data_view(request, project_id, session_id, data_id):  # pylint: disab
         'labels': labels,
         'data_type': 'metrics'
     }
-    return dbms_data_view(request, context, metric_data)
+    result = Result.objects.filter(metric_data=metric_data)[0]
+    session = get_object_or_404(Session, pk=session_id)
+    target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
+    return dbms_data_view(request, context, metric_data, session, target_obj)
 
-
-def dbms_data_view(request, context, dbms_data):
+def dbms_data_view(request, context, dbms_data, session, target_obj):
     if context['data_type'] == 'knobs':
         model_class = KnobData
         filter_fn = parser.filter_tunable_knobs
@@ -741,6 +745,9 @@ def dbms_data_view(request, context, dbms_data):
     all_data_dict = JSONUtil.loads(obj_data)
     featured_dict = filter_fn(dbms_id, all_data_dict)
 
+    target_obj_name = target_objectives.get_instance(
+        session.dbms.pk, session.target_objective).pprint
+    target_obj = '('+target_obj_name+'='+str(int(target_obj))+')'
     if 'compare' in request.GET and request.GET['compare'] != 'none':
         comp_id = request.GET['compare']
         compare_obj = model_class.objects.get(pk=comp_id)
@@ -752,10 +759,15 @@ def dbms_data_view(request, context, dbms_data):
         all_data = [(k, v, comp_dict[k]) for k, v in list(all_data_dict.items())]
         featured_data = [(k, v, comp_featured_dict[k])
                          for k, v in list(featured_dict.items())]
+
+        result = Result.objects.filter(knob_data=compare_obj)[0]
+        cmp_target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
+        cmp_target_obj = '('+target_obj_name+'='+str(int(cmp_target_obj))+')'
     else:
         comp_id = None
         all_data = list(all_data_dict.items())
         featured_data = list(featured_dict.items())
+        cmp_target_obj = ""
     peer_data = model_class.objects.filter(
         dbms=dbms_data.dbms, session=dbms_data.session)
     peer_data = [peer for peer in peer_data if peer.pk != dbms_data.pk]
@@ -765,6 +777,8 @@ def dbms_data_view(request, context, dbms_data):
     context['dbms_data'] = dbms_data
     context['compare'] = comp_id
     context['peer_data'] = peer_data
+    context['target_obj'] = target_obj
+    context['cmp_target_obj'] = cmp_target_obj
     return render(request, 'dbms_data.html', context)
 
 

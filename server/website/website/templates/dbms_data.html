@@ -41,9 +41,9 @@
         <caption></caption>
         <tr>
             <td><h5><strong>Name</strong><h5></td>
-            <td><h5><strong>Value</strong></h5></td>
+            <td><h5><strong>Value {{ target_obj }}</strong></h5></td>
             {% if compare != "none" %}
-                <td><h5><strong>Comparing Value</strong></h5></td>
+                <td><h5><strong>Comparing Value {{ cmp_target_obj }}</strong></h5></td>
             {% endif %}
         </tr>
         {% for pair in featured_data %}

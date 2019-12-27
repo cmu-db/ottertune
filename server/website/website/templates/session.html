@@ -24,6 +24,19 @@ padding-left: 25px;
 border: 2px solid #F5F5F5;
 }
 
+#sidepanel {
+    flex: 1;
+    height:165px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #999999;
+    margin-left:10px;
+    margin-top:2em;
+    background-color: #FDFBF4;
+    color: #5F5F5F;
+    font-size: 14px;
+}
+
 caption > h4 { 
   display: inline-block;
   position: relative;
@@ -201,11 +214,23 @@ caption span {float: right;}
         </div>
         <div class="col-sm-2 checkbox">
             <label><input id="equidistant" class="option" name="equidistant" type="checkbox"/> Equidistant</label>
+            <label><input id="sidePanelOnButton" class="option" type="checkbox" onclick="toggleSidePanel()" checked="true"/> Side Panel</label>
         </div>
     </div>
 
     <div id="content" class="col-sm-12">
-        <div id="plotgrid" class="plotcontainer row"></div>
+        <div style="display:flex;">
+          <div id="plotgrid" class="plotcontainer row" style="flex: 0 0 85%;"></div>
+          <div id="sidepanel">
+              <center>
+                 <u>Information</u><br>
+                 Knobs Tuned: {{num_knobs}}<br>
+                 Pruned Metrics: {{num_metrics}}<br>
+                 Results: {{num_sample_points}}<br>
+                 Preprocessing: {{pipeline_time}}
+              </center>
+          </div>
+        </div>
         <div id="result_table">
             <h4>Filtered Results</h4>
             <table id="dataTable">
@@ -302,6 +327,26 @@ $(document).ready(function(){
     });
   });
 });
+</script>
+
+<script>
+function toggleSidePanel(){
+  var sidePanelOnButton = document.getElementById("sidePanelOnButton");
+  var sidePanel = document.getElementById("sidepanel");
+  var plotGrid = document.getElementById("plotgrid");
+  var equidistantButton = document.getElementById("equidistant");
+  if (sidePanelOnButton.checked == true){
+    sidePanel.style.display="block";
+    plotGrid.style.flex="0 0 85%";
+    equidistantButton.click();
+    equidistantButton.click(); //This is to refresh the graph
+  }else{
+    sidePanel.style.display="none";
+    plotGrid.style.flex="1";
+    equidistantButton.click();
+    equidistantButton.click(); //This is to refresh the graph
+  }
+}
 </script>
 
 {% endblock body %}

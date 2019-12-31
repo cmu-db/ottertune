@@ -21,15 +21,6 @@ import djcelery
 # Absolute path to this Django project directory.
 PROJECT_ROOT = dirname(dirname(dirname(abspath(__file__))))
 
-# Directory holding all uploaded and intermediate result files
-DATA_ROOT = join(PROJECT_ROOT, 'data')
-
-# Absolute path to directory where all oltpbench data is uploaded
-UPLOAD_DIR = join(DATA_ROOT, 'media')
-
-# Path to the base DBMS configuration files
-CONFIG_DIR = join(PROJECT_ROOT, 'config')
-
 # Where the log files are stored
 LOG_DIR = join(PROJECT_ROOT, 'log')
 
@@ -91,7 +82,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = join(DATA_ROOT, 'media')
+MEDIA_ROOT = join(PROJECT_ROOT, 'media')
 MEDIA_ROOT_URL = '/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
@@ -136,7 +127,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             # TEMPLATE_DIRS (use absolute paths)
-            join(PROJECT_ROOT, 'website', 'template')
+            join(PROJECT_ROOT, 'website', 'templates')
         ],
         'OPTIONS': {
             'context_processors': [
@@ -254,16 +245,16 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': join(LOG_DIR, 'website.log'),
-            'maxBytes': 50000,
-            'backupCount': 2,
+            'maxBytes': 2097152,
+            'backupCount': 5,
             'formatter': 'standard',
         },
         'celery': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': join(LOG_DIR, 'celery.log'),
-            'maxBytes': 50000,
-            'backupCount': 2,
+            'maxBytes': 2097152,
+            'backupCount': 15,
             'formatter': 'standard',
         },
         'dblog': {

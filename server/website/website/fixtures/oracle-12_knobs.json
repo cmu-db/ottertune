@@ -2,7 +2,7 @@
     {
         "model": "website.KnobCatalog",
         "fields": {
-            "name": "global._enable_numa_optimization",
+            "name": "global._enable_numa_support",
             "scope": "global",
             "dbms": 12,
             "category": "",
@@ -92,6 +92,25 @@
             "minval": 0,
             "maxval": 2000000000,
             "default": 300000
+        }
+    },
+    {
+        "model": "website.KnobCatalog",
+        "fields": {
+            "name": "global._unnest_subquery",
+            "scope": "global",
+            "dbms": 12,
+            "category": "",
+            "enumvals": null,
+            "context": "",
+            "unit": 3,
+            "tunable": false,
+            "description": "",
+            "summary": "",
+            "vartype": 4,
+            "minval": null,
+            "maxval": null,
+            "default": true
         }
     },
     {
@@ -5850,15 +5869,15 @@
             "scope": "global",
             "dbms": 12,
             "category": "",
-            "enumvals": null,
+            "enumvals": "FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS",
             "context": "",
             "unit": 3,
             "tunable": false,
             "description": "",
             "minval": null,
             "maxval": null,
-            "vartype": 1,
-            "default": "all_rows",
+            "vartype": 5,
+            "default": "ALL_ROWS",
             "summary": "optimizer mode"
         }
     },
@@ -8042,14 +8061,14 @@
             "scope": "global",
             "dbms": 12,
             "category": "",
-            "enumvals": null,
+            "enumvals": "AUTO,MANUAL",
             "context": "",
             "unit": 3,
             "tunable": false,
             "description": "",
             "minval": null,
             "maxval": null,
-            "vartype": 1,
+            "vartype": 5,
             "default": "AUTO",
             "summary": "policy used to size SQL working areas (MANUAL/AUTO)"
         }

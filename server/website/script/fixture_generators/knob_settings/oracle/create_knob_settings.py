@@ -68,6 +68,18 @@ EXTRA_KNOBS = {
         'maxval': None,
         'vartype': 4,
     },
+    '_enable_numa_support': {
+        'default': False,
+        'minval': None,
+        'maxval': None,
+        'vartype': 4,
+    },
+    '_unnest_subquery': {
+        'default': True,
+        'minval': None,
+        'maxval': None,
+        'vartype': 4,
+    },
 }
 
 
@@ -284,6 +296,24 @@ def set_field(fields):
         fields['maxval'] = None
         fields['vartype'] = 5
         fields['enumvals'] = 'asynch,directio,none,setall'
+    if fields['name'].lower() == 'optimizer_mode':
+        fields['default'] = 'ALL_ROWS'
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = 'FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS'
+    if fields['name'].lower() == 'workarea_size_policy':
+        fields['default'] = 'AUTO'
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = 'AUTO,MANUAL'
+    if fields['name'].lower() == 'cursor_sharing':
+        fields['default'] = 'EXACT'
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = 'SIMILAR,EXACT,FORCE'
 
 
 COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")

@@ -372,10 +372,10 @@ class BaseParser:
         if metadata.unit != KnobUnitType.OTHER and int_value > 0:
             if metadata.unit == KnobUnitType.BYTES:
                 int_value = ConversionUtil.get_human_readable2(
-                    int_value, self.bytes_system, 'kB')
+                    int_value, self.bytes_system, self.min_bytes_unit)
             elif metadata.unit == KnobUnitType.MILLISECONDS:
                 int_value = ConversionUtil.get_human_readable2(
-                    int_value, self.time_system, 'ms')
+                    int_value, self.time_system, self.min_time_unit)
             else:
                 raise Exception(
                     'Invalid unit type for {}: {}'.format(

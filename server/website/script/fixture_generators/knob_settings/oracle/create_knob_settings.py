@@ -39,12 +39,18 @@ from operator import itemgetter
 EXTRA_KNOBS = {
     '_pga_max_size': {
         'default': 200000000,
+        'resource': 1,
+        'unit': 1,
     },
     '_smm_max_size': {
         'default': 100000,
+        'resource': 1,
+        'unit': 1,
     },
     '_smm_px_max_size': {
         'default': 300000,
+        'resource': 1,
+        'unit': 1,
     },
     '_optimizer_use_feedback': {
         'default': True,
@@ -112,114 +118,133 @@ def set_field(fields):
         fields['maxval'] = 33000000000  # 33G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'MEMORY_MAX_TARGET':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 33000000000  # 33G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'SGA_TARGET':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 33000000000  # 33G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'SGA_MAX_SIZE':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 33000000000  # 33G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'DB_CACHE_SIZE':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 25000000000  # 24G
         fields['default'] = 4000000000  # 4G
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'SHARED_POOL_SIZE':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 4000000000  # 4G
         fields['default'] = 1000000000  # 1G
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'SHARED_POOL_RESERVED_SIZE':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 4000000000  # 4G
         fields['default'] = 1000000000  # 1G
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'SHARED_IO_POOL_SIZE':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 4000000000  # 4G
         fields['default'] = 1000000000  # 1G
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'STREAMS_POOL_SIZE':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 4000000000  # 4G
         fields['default'] = 20000000  # 20M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'LOG_BUFFER':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 50000000  # 50M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'DB_KEEP_CACHE_SIZE':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 500000000  # 500M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].lower() == 'db_32k_cache_size':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 500000000  # 500M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'DB_RECYCLE_CACHE_SIZE':
         fields['tunable'] = False
         fields['minval'] = 0
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 500000000  # 500M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'LARGE_POOL_SIZE':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 2000000000  # 2GB
         fields['default'] = 500000000  # 500M
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'PGA_AGGREGATE_TARGET':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 33000000000  # 33G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].lower() == 'bitmap_merge_area_size':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 5000000000  # 3G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].lower() == 'create_bitmap_area_size':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 5000000000  # 3G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].lower() == 'hash_area_size':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 3000000000  # 3G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].lower() == 'sort_area_size':
         fields['tunable'] = True
         fields['minval'] = 0
         fields['maxval'] = 3000000000  # 3G
         fields['default'] = 0
         fields['resource'] = 1
+        fields['unit'] = 1
     if fields['name'].upper() == 'OPEN_CURSORS':
         fields['tunable'] = True
         fields['minval'] = 200
@@ -240,21 +265,25 @@ def set_field(fields):
         fields['minval'] = None
         fields['maxval'] = None
         fields['default'] = False
+        fields['vartype'] = 4
     if fields['name'].upper() == 'OPTIMIZER_USE_INVISIBLE_INDEXES':
         fields['tunable'] = False
         fields['minval'] = None
         fields['maxval'] = None
         fields['default'] = False
+        fields['vartype'] = 4
     if fields['name'].upper() == 'OPTIMIZER_USE_SQL_PLAN_BASELINES':
         fields['tunable'] = False
         fields['minval'] = None
         fields['maxval'] = None
         fields['default'] = True
+        fields['vartype'] = 4
     if fields['name'].upper() == 'OPTIMIZER_CAPTURE_SQL_PLAN_BASELINES':
         fields['tunable'] = False
         fields['minval'] = None
         fields['maxval'] = None
         fields['default'] = False
+        fields['vartype'] = 4
     if fields['name'].lower() == 'optimizer_dynamic_sampling':
         fields['tunable'] = True
         fields['minval'] = 2
@@ -279,6 +308,12 @@ def set_field(fields):
         fields['default'] = '12.2.0.1'
         fields['vartype'] = 5
         fields['enumvals'] = '11.2.0.1,11.2.0.2,11.2.0.3,11.2.0.4,12.1.0.1,12.1.0.2,12.2.0.1'
+    if fields['name'].lower() == 'optimizer_inmemory_aware':
+        fields['tunable'] = True
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = True
+        fields['vartype'] = 4
     if fields['name'].upper() == 'DISK_ASYNCH_IO':
         fields['tunable'] = True
         fields['vartype'] = 4
@@ -314,6 +349,81 @@ def set_field(fields):
         fields['maxval'] = None
         fields['vartype'] = 5
         fields['enumvals'] = 'SIMILAR,EXACT,FORCE'
+    if fields['name'].lower() == 'java_jit_enabled':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = True
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'java_pool_size':
+        fields['minval'] = 0
+        fields['maxval'] = 1000000000
+        fields['default'] = 0
+        fields['resource'] = 1
+        fields['unit'] = 1
+    if fields['name'].lower() == 'log_archive_max_processes':
+        fields['minval'] = 1
+        fields['maxval'] = 30
+        fields['default'] = 4
+    if fields['name'].lower() == 'commit_logging':
+        fields['default'] = ''
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = ',IMMEDIATE,BATCH'
+    if fields['name'].lower() == 'result_cache_max_result':
+        fields['minval'] = 0
+        fields['maxval'] = 100
+        fields['default'] = 5
+    if fields['name'].lower() == 'approx_for_aggregation':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = False
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'approx_for_count_distinct':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = False
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'approx_for_percentile':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = False
+        fields['vartype'] = 5
+        fields['enumvals'] = 'NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC'
+    if fields['name'].lower() == 'session_cached_cursors':
+        fields['minval'] = 0
+        fields['maxval'] = 100
+        fields['default'] = 50
+    if fields['name'].lower() == 'use_large_pages':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = True
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'hs_autoregister':
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['default'] = True
+        fields['vartype'] = 4
+    if fields['name'].lower() == 'cursor_invalidation':
+        fields['default'] = 'IMMEDIATE'
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = 'IMMEDIATE,DEFERRED'
+    if fields['name'].lower() == 'plsql_optimize_level':
+        fields['minval'] = 0
+        fields['maxval'] = 3
+        fields['default'] = 2
+    if fields['name'].lower() == 'db_big_table_cache_percent_target':
+        fields['minval'] = 0
+        fields['maxval'] = 90
+        fields['default'] = 0
+    if fields['name'].lower() == 'query_rewrite_enabled':
+        fields['default'] = 'TRUE'
+        fields['minval'] = None
+        fields['maxval'] = None
+        fields['vartype'] = 5
+        fields['enumvals'] = 'TRUE,FALSE,FORCE'
 
 
 COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")

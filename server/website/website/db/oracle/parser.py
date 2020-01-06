@@ -19,7 +19,7 @@ class OracleParser(BaseParser):
             (1024 ** 2, 'M'),
             (1024 ** 1, 'k'),
         )
-        self.min_bytes_unit = 'k'
+        self.min_bytes_unit = 'M'
 
     def format_enum(self, enum_value, metadata):
         enum = super().format_enum(enum_value, metadata)

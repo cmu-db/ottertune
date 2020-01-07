@@ -17,6 +17,7 @@ from random import choice
 
 import numpy as np
 from django.contrib.auth.models import User
+from django.db.models import Case, When
 from django.utils.text import capfirst
 from django_db_logger.models import StatusLog
 from djcelery.models import TaskMeta
@@ -72,34 +73,34 @@ class MediaUtil(object):
 class TaskUtil(object):
 
     @staticmethod
-    def get_tasks(tasks):
-        if not tasks:
-            return []
-        task_ids = tasks.split(',')
-        res = []
-        for task_id in task_ids:
-            task = TaskMeta.objects.filter(task_id=task_id)
-            if len(task) == 0:
-                continue  # Task Not Finished
-            res.append(task[0])
-        return res
+    def get_tasks(task_ids):
+        task_ids = task_ids or []
+        if isinstance(task_ids, str):
+            task_ids = task_ids.split(',')
+        preserved = Case(*[
+            When(task_id=task_id, then=pos) for pos, task_id in enumerate(task_ids)])
+        return TaskMeta.objects.filter(task_id__in=task_ids).order_by(preserved)
 
     @staticmethod
     def get_task_status(tasks):
-        if len(tasks) == 0:
+        if not tasks:
             return None, 0
+
         overall_status = 'SUCCESS'
         num_completed = 0
         for task in tasks:
             status = task.status
             if status == "SUCCESS":
                 num_completed += 1
-            elif status in ['FAILURE', 'REVOKED', 'RETRY']:
+            elif status in ('FAILURE', 'REVOKED', 'RETRY'):
                 overall_status = status
                 break
             else:
-                assert status in ['PENDING', 'RECEIVED', 'STARTED']
+                if status not in ('PENDING', 'RECEIVED', 'STARTED'):
+                    LOG.warning("Task %s: invalid task status: '%s' (task_id=%s)",
+                                task.id, status, task.task_id)
                 overall_status = status
+
         return overall_status, num_completed
 
 

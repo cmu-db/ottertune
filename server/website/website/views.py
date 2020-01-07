@@ -1067,14 +1067,6 @@ def get_timeline_data(request):
 # get the lastest result
 def give_result(request, upload_code):  # pylint: disable=unused-argument
 
-    def _failed_response(_latest_result, _tasks, _num_completed, _status, _msg):
-        _msg = "{}\nSTATUS: {}\nRESULT ID: {}\n".format(_msg, _status, _latest_result)
-        if tasks:
-            _failed_task_idx = min(len(_tasks) - 1, _num_completed + 1)
-            _failed_task = _tasks[_failed_task_idx]
-            _msg += "TRACEBACK: {}".format(_failed_task.traceback)
-        return HttpResponse(_msg, status=400)
-
     try:
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
@@ -1084,39 +1076,31 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
     latest_result = Result.objects.filter(session=session).latest('creation_time')
     tasks = TaskUtil.get_tasks(latest_result.task_ids)
     overall_status, num_completed = TaskUtil.get_task_status(tasks)
+    response = {
+        'celery_status': overall_status,
+        'result_id': latest_result.pk,
+        'message': '',
+        'errors': [],
+    }
 
     if overall_status == 'SUCCESS':
-        # The task status is set to SUCCESS before the next config is saved in
-        # the latest result so we must wait for it to be updated
-        max_wait_sec = 20
-        elapsed_sec = 0
-        while not latest_result.next_configuration and elapsed_sec <= max_wait_sec:
-            time.sleep(5)
-            elapsed_sec += 5
-            latest_result = Result.objects.get(id=latest_result.pk)
-            LOG.debug("Waiting for the next config for result %s to be updated... "
-                      "(elapsed: %ss): %s", latest_result.pk, elapsed_sec,
-                      model_to_dict(latest_result))
-
-        if not latest_result.next_configuration:
-            LOG.warning(
-                "Failed to get the next configuration from the latest result after %ss: %s",
-                elapsed_sec, model_to_dict(latest_result))
-            overall_status = 'FAILURE'
-            response = _failed_response(latest_result, tasks, num_completed, overall_status,
-                                        'Failed to get the next configuration.')
-        else:
-            response = HttpResponse(JSONUtil.dumps(latest_result.next_configuration),
-                                    content_type='application/json')
+        response.update(JSONUtil.loads(latest_result.next_configuration),
+                        message='Celery successfully recommended the next configuration')
+        status_code = 200
 
     elif overall_status in ('FAILURE', 'REVOKED', 'RETRY'):
-        response = _failed_response(latest_result, tasks, num_completed, overall_status,
-                                    'Celery failed to get the next configuration.')
+        task_errors = [t.traceback for t in tasks if t.traceback]
+        if task_errors:
+            LOG.warning('\n\n'.join(task_errors))
+        response.update(message='Celery failed to get the next configuration', errors=task_errors)
+        status_code = 400
 
     else:  # overall_status in ('PENDING', 'RECEIVED', 'STARTED'):
-        response = HttpResponse("{}: Result not ready".format(overall_status), status=202)
+        response.update(message='Result not ready')
+        status_code = 202
 
-    return response
+    return HttpResponse(JSONUtil.dumps(response, pprint=True), status=status_code,
+                        content_type='application/json')
 
 
 # get the lastest result

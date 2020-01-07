@@ -109,19 +109,9 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
     def on_success(self, retval, task_id, args, kwargs):
         super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
 
-        result_id = retval['result_id']
-        result = Result.objects.get(pk=result_id)
-
-        # Replace result with formatted result
-        formatted_params = db.parser.format_dbms_knobs(result.dbms.pk, retval['recommendation'])
-        # Create next configuration to try
-        config = db.parser.create_knob_configuration(result.dbms.pk, formatted_params)
         task_meta = TaskMeta.objects.get(task_id=task_id)
-        retval['recommendation'] = config
         task_meta.result = retval
         task_meta.save()
-        result.next_configuration = JSONUtil.dumps(retval)
-        result.save()
 
 
 def clean_knob_data(knob_matrix, knob_labels, session):
@@ -419,13 +409,31 @@ def train_ddpg(result_id):
     return result_info
 
 
+def create_and_save_recommendation(recommended_knobs, result, status, **kwargs):
+    dbms_id = result.dbms.pk
+    formatted_knobs = db.parser.format_dbms_knobs(dbms_id, recommended_knobs)
+    config = db.parser.create_knob_configuration(dbms_id, formatted_knobs)
+
+    retval = dict(**kwargs)
+    retval.update(
+        status=status,
+        result_id=result.pk,
+        recommendation=config,
+    )
+    result.next_configuration = JSONUtil.dumps(retval)
+    result.save()
+
+    return retval
+
+
 @task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
 def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
     LOG.info('Use ddpg to recommend configuration')
     result_id = result_info['newest_result_id']
-    result = Result.objects.filter(pk=result_id)
-    session = Result.objects.get(pk=result_id).session
-    agg_data = DataUtil.aggregate_data(result)
+    result_list = Result.objects.filter(pk=result_id)
+    result = result_list.first()
+    session = result.session
+    agg_data = DataUtil.aggregate_data(result_list)
     metric_data, _ = clean_metric_data(agg_data['y_matrix'], agg_data['y_columnlabels'], session)
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
@@ -447,11 +455,10 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     knob_bounds = np.vstack(DataUtil.get_knob_bounds(knob_labels, session))
     knob_data = MinMaxScaler().fit(knob_bounds).inverse_transform(knob_data.reshape(1, -1))[0]
     conf_map = {k: knob_data[i] for i, k in enumerate(knob_labels)}
-    conf_map_res = {}
-    conf_map_res['status'] = 'good'
-    conf_map_res['result_id'] = result_id
-    conf_map_res['recommendation'] = conf_map
-    conf_map_res['info'] = 'INFO: ddpg'
+
+    conf_map_res = create_and_save_recommendation(recommended_knobs=conf_map, result=result,
+                                                  status='good', info='INFO: ddpg')
+
     return conf_map_res
 
 
@@ -638,20 +645,18 @@ def combine_workload(target_data):
 def configuration_recommendation(recommendation_input):
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
+    newest_result = Result.objects.get(pk=target_data['newest_result_id'])
 
     if target_data['bad'] is True:
-        target_data_res = dict(
-            status='bad',
-            result_id=target_data['newest_result_id'],
-            info='WARNING: no training data, the config is generated randomly',
-            recommendation=target_data['config_recommend'],
+        target_data_res = create_and_save_recommendation(
+            recommended_knobs=target_data['config_recommend'], result=newest_result,
+            status='bad', info='WARNING: no training data, the config is generated randomly',
             pipeline_run=target_data['pipeline_run'])
         LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
         return target_data_res
 
     latest_pipeline_run = PipelineRun.objects.get(pk=target_data['pipeline_run'])
-    newest_result = Result.objects.get(pk=target_data['newest_result_id'])
 
     X_columnlabels, X_scaler, X_scaled, y_scaled, X_max, X_min = combine_workload(target_data)
 
@@ -756,12 +761,10 @@ def configuration_recommendation(recommendation_input):
     best_config = np.maximum(best_config, X_min_inv)
 
     conf_map = {k: best_config[i] for i, k in enumerate(X_columnlabels)}
-    conf_map_res = dict(
-        status='good',
-        result_id=target_data['newest_result_id'],
-        recommendation=conf_map,
-        info='INFO: training data size is {}'.format(X_scaled.shape[0]),
-        pipeline_run=latest_pipeline_run.pk)
+    conf_map_res = create_and_save_recommendation(
+        recommended_knobs=conf_map, result=newest_result,
+        status='good', info='INFO: training data size is {}'.format(X_scaled.shape[0]),
+        pipeline_run=target_data['pipeline_run'])
     LOG.debug('%s: Finished selecting the next config.\n\ndata=%s\n',
               AlgorithmType.name(algorithm), JSONUtil.dumps(conf_map_res, pprint=True))
 

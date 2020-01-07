@@ -339,18 +339,20 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
     elapsed = 0
     response_dict = None
     response = ''
+    rout = ''
 
     while elapsed <= max_time_sec:
         rsp = requests.get(url)
         response = get_content(rsp)
         assert response != 'null'
+        rout = json.dumps(response, indent=4) if isinstance(response, dict) else response
 
-        LOG.debug('%s [status code: %d, content_type: %s, elapsed: %ds]', response,
-                  rsp.status_code, rsp.headers.get('content-type', ''), elapsed)
+        LOG.debug('%s [status code: %d, content_type: %s, elapsed: %ds]', rout,
+                  rsp.status_code, rsp.headers.get('Content-Type', ''), elapsed)
 
         if rsp.status_code == 200:
             # Success
-            response_dict = json.loads(rsp.json(), object_pairs_hook=OrderedDict)
+            response_dict = response
             break
 
         elif rsp.status_code == 202:
@@ -362,11 +364,23 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
             # Failure
             raise Exception(
                 "Failed to download the next config.\nStatus code: {}\nMessage: {}\n".format(
-                    rsp.status_code, response))
+                    rsp.status_code, rout))
+
+        elif rsp.status_code == 500:
+            # Failure
+            if len(response) > 5000:
+                with open('error.html', 'w') as f:
+                    f.write(response)
+                msg = "Saved HTML error to 'error.html'."
+            else:
+                msg = rout
+            raise Exception(
+                "Failed to download the next config.\nStatus code: {}\nMessage: {}\n".format(
+                    rsp.status_code, msg))
 
         else:
             raise NotImplementedError(
-                "Unhandled status code: '{}'.\nMessage: {}".format(rsp.status_code, response))
+                "Unhandled status code: '{}'.\nMessage: {}".format(rsp.status_code, rout))
 
     if not response_dict:
         assert elapsed > max_time_sec, \
@@ -374,9 +388,9 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
                 response, elapsed, max_time_sec)
         raise Exception(
             'Failed to download the next config in {}s: {} (elapsed: {}s)'.format(
-                max_time_sec, response, elapsed))
+                max_time_sec, rout, elapsed))
 
-    LOG.info('Downloaded the next config in %ds: %s', elapsed, json.dumps(response_dict, indent=4))
+    LOG.info('Downloaded the next config in %ds: %s', elapsed, rout)
 
     return response_dict
 

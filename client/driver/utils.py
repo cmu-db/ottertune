@@ -54,9 +54,13 @@ def parse_bool(value):
 
 
 def get_content(response):
-    content = response.content
-    if isinstance(content, bytes):
-        content = content.decode('utf-8')
+    content_type = response.headers.get('Content-Type', '')
+    if content_type == 'application/json':
+        content = response.json()
+    else:
+        content = response.content
+        if isinstance(content, bytes):
+            content = content.decode('utf-8')
     return content
 
 

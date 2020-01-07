@@ -17,11 +17,12 @@ class Command(BaseCommand):
     max_wait_sec = 15
 
     def add_arguments(self, parser):
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             '--celery-only',
             action='store_true',
             help='Start celery only (skip celerybeat).')
-        parser.add_argument(
+        group.add_argument(
             '--celerybeat-only',
             action='store_true',
             help='Start celerybeat only (skip celery).')
@@ -63,7 +64,8 @@ class Command(BaseCommand):
                  "IMPORTANT: the option's initial -/-- must be omitted. "
                  "Example: '--celerybeat-options uid=123,q'.")
 
-    def _parse_suboptions(self, suboptions):
+    @staticmethod
+    def _parse_suboptions(suboptions):
         suboptions = suboptions or ''
         parsed = []
         for opt in suboptions.split(','):
@@ -73,6 +75,21 @@ class Command(BaseCommand):
         return parsed
 
     def handle(self, *args, **options):
+        # Stealth option to disable stdout
+        if options.get('silent', False):
+            self.stdout = open(os.devnull, 'w')
+
+        # Stealth option that assigns where to pipe initial output
+        pipe = options.get('pipe', None)
+        if pipe is None:
+            pipe = '> /dev/null 2>&1'
+            try:
+                if 'celery' in settings.LOGGING['loggers']['celery']['handlers']:
+                    logfile = settings.LOGGING['handlers']['celery']['filename']
+                    pipe = '>> {} 2>&1'.format(logfile)
+            except KeyError:
+                pass
+
         loglevel = options['loglevel'] or ('DEBUG' if settings.DEBUG else 'INFO')
         celery_options = [
             '--loglevel={}'.format(loglevel),
@@ -84,10 +101,7 @@ class Command(BaseCommand):
             '--pidfile={}'.format(options['celerybeat_pidfile']),
         ] + self._parse_suboptions(options['celerybeat_options'])
 
-        pipe = '' if 'console' in settings.LOGGING['loggers']['celery']['handlers'] \
-            else '> /dev/null 2>&1'
-
-        with lcd(settings.PROJECT_ROOT), hide('commands'):
+        with lcd(settings.PROJECT_ROOT), hide('commands'):  # pylint: disable=not-context-manager
             if not options['celerybeat_only']:
                 local(self.celery_cmd(
                     cmd='celery worker', opts=' '.join(celery_options), pipe=pipe))

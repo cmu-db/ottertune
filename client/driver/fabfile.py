@@ -338,7 +338,6 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
     url = dconf.WEBSITE_URL + '/query_and_get/' + upload_code
     elapsed = 0
     response_dict = None
-    response = ''
     rout = ''
 
     while elapsed <= max_time_sec:
@@ -347,8 +346,9 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
         assert response != 'null'
         rout = json.dumps(response, indent=4) if isinstance(response, dict) else response
 
-        LOG.debug('%s [status code: %d, content_type: %s, elapsed: %ds]', rout,
-                  rsp.status_code, rsp.headers.get('Content-Type', ''), elapsed)
+        LOG.debug('%s\n\n[status code: %d, type(response): %s, elapsed: %ds, %s]', rout,
+                  rsp.status_code, type(response), elapsed,
+                  ', '.join(['{}: {}'.format(k, v) for k, v in rsp.headers.items()]))
 
         if rsp.status_code == 200:
             # Success
@@ -368,12 +368,12 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
 
         elif rsp.status_code == 500:
             # Failure
-            if len(response) > 5000:
-                with open('error.html', 'w') as f:
+            msg = rout
+            if isinstance(response, str):
+                savepath = os.path.join(dconf.LOG_DIR, 'error.html')
+                with open(savepath, 'w') as f:
                     f.write(response)
-                msg = "Saved HTML error to 'error.html'."
-            else:
-                msg = rout
+                msg = "Saved HTML error to '{}'.".format(os.path.relpath(savepath))
             raise Exception(
                 "Failed to download the next config.\nStatus code: {}\nMessage: {}\n".format(
                     rsp.status_code, msg))
@@ -385,12 +385,12 @@ def get_result(max_time_sec=180, interval_sec=5, upload_code=None):
     if not response_dict:
         assert elapsed > max_time_sec, \
             'response={} but elapsed={}s <= max_time={}s'.format(
-                response, elapsed, max_time_sec)
+                rout, elapsed, max_time_sec)
         raise Exception(
             'Failed to download the next config in {}s: {} (elapsed: {}s)'.format(
                 max_time_sec, rout, elapsed))
 
-    LOG.info('Downloaded the next config in %ds: %s', elapsed, rout)
+    LOG.info('Downloaded the next config in %ds', elapsed)
 
     return response_dict
 
@@ -792,3 +792,5 @@ def integration_tests():
                   upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'good'
+
+    LOG.info("\n\nIntegration Tests: PASSED!!\n")

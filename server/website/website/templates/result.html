@@ -13,8 +13,12 @@
         <td style="width: 50%">{{ result.pk }}</td>
     </tr>
     <tr>
+        <td><div class="text-right">{{ labels.creation_time }}</div></td>
+        <td>{{ result.creation_time }}</td>
+    </tr>
+    <tr>
         <td><div class="text-right">{{ labels.session }}</div></td>
-        <td>{{ result.session.name }}</td>
+        <td><a href="{% url 'session' project_id session_id %}">{{ result.session.name }}</a></td>
     </tr>
     <tr>
         <td><div class="text-right">{{ labels.workload }}</div></td>
@@ -27,10 +31,6 @@
     <tr>
         <td><div class="text-top text-right">{{ labels.metric_data }}</div></td>
         <td><a href="{% url 'metric_data' project_id session_id result.metric_data.pk %}">{{ result.metric_data.name }}</a></td>
-    </tr>
-    <tr>
-        <td><div class="text-right">{{ labels.creation_time }}</div></td>
-        <td>{{ result.creation_time }}</td>
     </tr>
     {% for key, value in default_metrics.items %}
     <tr>
@@ -47,8 +47,16 @@
     {% endif %}
     {% if next_conf_available %}
     <tr>
-        <td><div class="text-right">{{ labels.next_conf_available }}</div></td>
-        <td><a href="/get_result_data_file/?id={{ result.pk }}&type=next_conf">Download</a></td>
+        <td>
+            <div class="text-right">
+                {{ labels.next_conf }}<br>
+                <button type="submit" style="margin-top:15px;" class="btn btn-default btn-lg alert alert-info"
+                  onclick="location.href='/get_result_data_file/?id={{ result.pk }}&type=next_conf'">
+                    <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                </button>
+            </div>
+        </td>
+        <td><pre style="display:inline-block">{{ next_conf }}</pre></td>
     </tr>
     {% endif %}
     </tbody>

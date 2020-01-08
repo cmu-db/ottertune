@@ -398,18 +398,33 @@ def result_view(request, project_id, session_id, result_id):
     # default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
     #                    for mname in default_metrics}
 
-    status = None
-    if target.task_ids is not None:
-        tasks = TaskUtil.get_tasks(target.task_ids)
-        status, _ = TaskUtil.get_task_status(tasks)
-        if status is None:
-            status = 'UNAVAILABLE'
+    task_ids = [t for t in (target.task_ids or '').split(',') if t.strip() != '']
+    tasks = TaskUtil.get_tasks(task_ids)
+    status, _ = TaskUtil.get_task_status(tasks, len(task_ids))
 
     next_conf_available = True if status == 'SUCCESS' else False
+    next_conf = ''
+    cfg = target.next_configuration
+    LOG.debug("status: %s, next_conf_available: %s, next_conf: %s, type: %s",
+              status, next_conf_available, cfg, type(cfg))
+
+    if next_conf_available:
+        try:
+            cfg = JSONUtil.loads(cfg)['recommendation']
+            kwidth = max(len(k) for k in cfg.keys())
+            vwidth = max(len(str(v)) for v in cfg.values())
+            next_conf = ''
+            for k, v in cfg.items():
+                next_conf += '{: <{kwidth}}  = {: >{vwidth}}\n'.format(
+                    k, v, kwidth=kwidth, vwidth=vwidth)
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.exception("Failed to format the next config (type=%s): %s.\n\n%s\n",
+                          type(cfg), cfg, e)
+
     form_labels = Result.get_labels()
     form_labels.update(LabelUtil.style_labels({
         'status': 'status',
-        'next_conf_available': 'next configuration'
+        'next_conf': 'next configuration',
     }))
     form_labels['title'] = 'Result Info'
     context = {
@@ -417,6 +432,7 @@ def result_view(request, project_id, session_id, result_id):
         'metric_meta': metric_meta,
         'status': status,
         'next_conf_available': next_conf_available,
+        'next_conf': next_conf,
         'labels': form_labels,
         'project_id': project_id,
         'session_id': session_id
@@ -843,14 +859,15 @@ def download_debug_info(request, project_id, session_id):  # pylint: disable=unu
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
 
-    tasks = TaskUtil.get_tasks(res.task_ids)
+    task_ids = [t for t in (res.task_ids or '').split(',') if t.strip() != '']
+    tasks = TaskUtil.get_tasks(task_ids)
 
-    overall_status, num_completed = TaskUtil.get_task_status(tasks)
-    if overall_status in ['PENDING', 'RECEIVED', 'STARTED', None]:
+    overall_status, num_completed = TaskUtil.get_task_status(tasks, len(task_ids))
+    if overall_status in ['PENDING', 'RECEIVED', 'STARTED', 'UNAVAILABLE']:
         completion_time = 'N/A'
         total_runtime = 'N/A'
     else:
-        completion_time = tasks[-1].date_done
+        completion_time = tasks.reverse()[0].date_done
         total_runtime = (completion_time - res.creation_time).total_seconds()
         total_runtime = '{0:.2f} seconds'.format(total_runtime)
 
@@ -1066,7 +1083,6 @@ def get_timeline_data(request):
 
 # get the lastest result
 def give_result(request, upload_code):  # pylint: disable=unused-argument
-
     try:
         session = Session.objects.get(upload_code=upload_code)
     except Session.DoesNotExist:
@@ -1074,17 +1090,19 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
     latest_result = Result.objects.filter(session=session).latest('creation_time')
-    tasks = TaskUtil.get_tasks(latest_result.task_ids)
-    overall_status, num_completed = TaskUtil.get_task_status(tasks)
-    response = {
-        'celery_status': overall_status,
-        'result_id': latest_result.pk,
-        'message': '',
-        'errors': [],
-    }
+    task_ids = [t for t in (latest_result.task_ids or '').split(',') if t.strip() != '']
+    tasks = TaskUtil.get_tasks(task_ids)
+    overall_status, num_completed = TaskUtil.get_task_status(tasks, len(task_ids))
+    next_config = latest_result.next_configuration
 
+    LOG.debug("result_id: %s, overall_status: %s, tasks_completed: %s/%s, "
+              "next_config: %s\n", latest_result.pk, overall_status, num_completed,
+              len(task_ids), next_config)
+
+    response = dict(celery_status=overall_status, result_id=latest_result.pk, message='', errors=[])
     if overall_status == 'SUCCESS':
-        response.update(JSONUtil.loads(latest_result.next_configuration),
+        next_config = JSONUtil.loads(next_config)
+        response.update(next_config,
                         message='Celery successfully recommended the next configuration')
         status_code = 200
 

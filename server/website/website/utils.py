@@ -82,11 +82,8 @@ class TaskUtil(object):
         return TaskMeta.objects.filter(task_id__in=task_ids).order_by(preserved)
 
     @staticmethod
-    def get_task_status(tasks):
-        if not tasks:
-            return None, 0
-
-        overall_status = 'SUCCESS'
+    def get_task_status(tasks, num_tasks):
+        overall_status = 'UNAVAILABLE'
         num_completed = 0
         for task in tasks:
             status = task.status
@@ -100,6 +97,9 @@ class TaskUtil(object):
                     LOG.warning("Task %s: invalid task status: '%s' (task_id=%s)",
                                 task.id, status, task.task_id)
                 overall_status = status
+
+        if num_tasks > 0 and num_tasks == num_completed:
+            overall_status = 'SUCCESS'
 
         return overall_status, num_completed
 
@@ -484,3 +484,13 @@ def delete_user(username):
         deleted = False
 
     return delete_info, deleted
+
+
+def model_to_dict2(m, exclude=None):
+    exclude = exclude or []
+    d = {}
+    for f in m._meta.fields:  # pylint: disable=protected-access
+        fname = f.name
+        if fname not in exclude:
+            d[fname] = getattr(m, fname, None)
+    return d

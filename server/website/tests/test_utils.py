@@ -83,57 +83,55 @@ class TaskUtilTest(TestCase):
         # FIXME: Actually setup celery tasks instead of a dummy class?
         test_tasks = []
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks)
-        self.assertTrue(status is None and num_complete == 0)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks, 1)
+        self.assertTrue(status is 'UNAVAILABLE' and num_complete == 0)
+
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks, 0)
+        self.assertTrue(status is 'UNAVAILABLE' and num_complete == 0)
 
         test_tasks2 = [VarType() for i in range(5)]
         for task in test_tasks2:
             task.status = "SUCCESS"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks2)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks2, 5)
         self.assertTrue(status == "SUCCESS" and num_complete == 5)
 
         test_tasks3 = test_tasks2
         test_tasks3[3].status = "FAILURE"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks3)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks3, 5)
         self.assertTrue(status == "FAILURE" and num_complete == 3)
 
         test_tasks4 = test_tasks3
         test_tasks4[2].status = "REVOKED"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks4)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks4, 5)
         self.assertTrue(status == "REVOKED" and num_complete == 2)
 
         test_tasks5 = test_tasks4
         test_tasks5[1].status = "RETRY"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks5)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks5, 5)
         self.assertTrue(status == "RETRY" and num_complete == 1)
 
         test_tasks6 = [VarType() for i in range(10)]
         for i, task in enumerate(test_tasks6):
             task.status = "PENDING" if i % 2 == 0 else "SUCCESS"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks6)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks6, 10)
         self.assertTrue(status == "PENDING" and num_complete == 5)
 
         test_tasks7 = test_tasks6
         test_tasks7[9].status = "STARTED"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks7)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks7, 10)
         self.assertTrue(status == "STARTED" and num_complete == 4)
 
         test_tasks8 = test_tasks7
         test_tasks8[9].status = "RECEIVED"
 
-        (status, num_complete) = TaskUtil.get_task_status(test_tasks8)
+        (status, num_complete) = TaskUtil.get_task_status(test_tasks8, 10)
         self.assertTrue(status == "RECEIVED" and num_complete == 4)
-
-        with self.assertRaises(Exception):
-            test_tasks9 = [VarType() for i in range(1)]
-            test_tasks9[0].status = "attemped"
-            TaskUtil.get_task_status(test_tasks9)
 
 
 class DataUtilTest(TestCase):

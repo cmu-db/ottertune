@@ -28,7 +28,7 @@ from analysis.constraints import ParamConstraintHelper
 from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCatalog, SessionKnob,
                             MetricCatalog)
 from website import db
-from website.types import PipelineTaskType, AlgorithmType
+from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
 from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
 from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
@@ -47,7 +47,6 @@ from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUD
                               GPR_MODEL_NAME, ENABLE_DUMMY_ENCODER, DNN_GD_ITER)
 
 from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
-from website.types import VarType
 
 
 LOG = get_task_logger(__name__)
@@ -116,32 +115,59 @@ class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-metho
 
 def clean_knob_data(knob_matrix, knob_labels, session):
     # Makes sure that all knobs in the dbms are included in the knob_matrix and knob_labels
-    knob_cat = SessionKnob.objects.get_knobs_for_session(session)
-    knob_cat = [knob["name"] for knob in knob_cat if knob["tunable"]]
-    matrix = np.array(knob_matrix)
-    missing_columns = set(knob_cat) - set(knob_labels)
-    unused_columns = set(knob_labels) - set(knob_cat)
-    LOG.debug("clean_knob_data added %d knobs and removed %d knobs.", len(missing_columns),
-              len(unused_columns))
-    # If columns are missing from the matrix
-    if missing_columns:
-        for knob in missing_columns:
-            knob_object = KnobCatalog.objects.get(dbms=session.dbms, name=knob, tunable=True)
-            index = knob_cat.index(knob)
+    knob_matrix = np.array(knob_matrix)
+    session_knobs = SessionKnob.objects.get_knobs_for_session(session)
+    knob_cat = [k['name'] for k in session_knobs]
+
+    if knob_cat == knob_labels:
+        # Nothing to do!
+        return knob_matrix, knob_labels
+
+    LOG.info("session_knobs: %s, knob_labels: %s, missing: %s, extra: %s", len(knob_cat),
+             len(knob_labels), len(set(knob_cat) - set(knob_labels)),
+             len(set(knob_labels) - set(knob_cat)))
+
+    nrows = knob_matrix.shape[0]  # pylint: disable=unsubscriptable-object
+    new_labels = []
+    new_columns = []
+
+    for knob in session_knobs:
+        knob_name = knob['name']
+        if knob_name not in knob_labels:
+            # Add missing column initialized to knob's default value
+            default_val = knob['default']
             try:
-                default_val = float(knob_object.default)
+                if knob['vartype'] == VarType.ENUM:
+                    default_val = knob['enumvals'].split(',').index(default_val)
+                elif knob['vartype'] == VarType.BOOL:
+                    default_val = str(default_val).lower() in ("on", "true", "yes", "0")
+                else:
+                    default_val = float(default_val)
             except ValueError:
                 default_val = 0
-            matrix = np.insert(matrix, index, default_val, axis=1)
-            knob_labels.insert(index, knob)
-    # If they are useless columns in the matrix
-    if unused_columns:
-        indexes = [i for i, n in enumerate(knob_labels) if n in unused_columns]
-        # Delete unused columns
-        matrix = np.delete(matrix, indexes, 1)
-        for i in sorted(indexes, reverse=True):
-            del knob_labels[i]
-    return matrix, knob_labels
+                LOG.exception("Error parsing knob default: %s=%s", knob_name, default_val)
+            new_col = np.ones((nrows, 1), dtype=float) * default_val
+            new_lab = knob_name
+        else:
+            index = knob_labels.index(knob_name)
+            new_col = knob_matrix[:, index]
+            new_lab = knob_labels[index]
+
+        new_labels.append(new_lab)
+        new_columns.append(new_col)
+
+    new_matrix = np.hstack(new_columns).reshape(nrows, -1)
+    LOG.debug("Cleaned matrix: %s, knobs (%s): %s", new_matrix.shape,
+              len(new_labels), new_labels)
+
+    assert new_labels == knob_cat, \
+        "Expected knobs: {}\nActual knobs:  {}\n".format(
+            knob_cat, new_labels)
+    assert new_matrix.shape == (nrows, len(knob_cat)), \
+        "Expected shape: {}, Actual shape:  {}".format(
+            (nrows, len(knob_cat)), new_matrix.shape)
+
+    return new_matrix, new_labels
 
 
 def clean_metric_data(metric_matrix, metric_labels, session):
@@ -438,8 +464,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
-    cleaned_knob_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                        session)
+    cleaned_knob_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'], session)
     knob_labels = np.array(cleaned_knob_data[1]).flatten()
     knob_num = len(knob_labels)
     metric_num = len(metric_data)
@@ -834,7 +859,6 @@ def map_workload(map_workload_input):
         knob_data["data"], knob_data["columnlabels"] = clean_knob_data(knob_data["data"],
                                                                        knob_data["columnlabels"],
                                                                        newest_result.session)
-
         metric_data = load_data_helper(pipeline_data, unique_workload, PipelineTaskType.METRIC_DATA)
         X_matrix = np.array(knob_data["data"])
         y_matrix = np.array(metric_data["data"])

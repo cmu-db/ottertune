@@ -84,10 +84,10 @@ class TaskUtilTest(TestCase):
         test_tasks = []
 
         (status, num_complete) = TaskUtil.get_task_status(test_tasks, 1)
-        self.assertTrue(status is 'UNAVAILABLE' and num_complete == 0)
+        self.assertTrue(status == 'UNAVAILABLE' and num_complete == 0)
 
         (status, num_complete) = TaskUtil.get_task_status(test_tasks, 0)
-        self.assertTrue(status is 'UNAVAILABLE' and num_complete == 0)
+        self.assertTrue(status == 'UNAVAILABLE' and num_complete == 0)
 
         test_tasks2 = [VarType() for i in range(5)]
         for task in test_tasks2:

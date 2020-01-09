@@ -237,7 +237,7 @@
             "scope": "global",
             "dbms": 12,
             "category": "",
-            "enumvals": "NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC",
+            "enumvals": "none,NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC",
             "context": "",
             "unit": 3,
             "tunable": false,
@@ -1463,7 +1463,7 @@
             "description": "",
             "minval": 0,
             "maxval": 90,
-            "vartype": 1,
+            "vartype": 2,
             "default": 0,
             "summary": "Big table cache target size in percentage"
         }

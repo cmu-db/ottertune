@@ -1178,7 +1178,7 @@
             "description": "",
             "minval": 0,
             "maxval": 90,
-            "vartype": 1,
+            "vartype": 2,
             "default": 0,
             "summary": "Big table cache target size in percentage"
         }

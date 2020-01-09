@@ -73,14 +73,6 @@ def format_dbms_knobs(dbms_id, knobs):
     return _get(dbms_id).format_dbms_knobs(knobs)
 
 
-def filter_numeric_metrics(dbms_id, metrics):
-    return _get(dbms_id).filter_numeric_metrics(metrics)
-
-
-def filter_tunable_knobs(dbms_id, knobs):
-    return _get(dbms_id).filter_tunable_knobs(knobs)
-
-
 def calculate_change_in_metrics(dbms_id, metrics_start, metrics_end):
     return _get(dbms_id).calculate_change_in_metrics(
         metrics_start, metrics_end)

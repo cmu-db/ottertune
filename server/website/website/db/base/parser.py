@@ -420,12 +420,4 @@ class BaseParser:
             formatted_knobs[knob_name] = fvalue
         return formatted_knobs
 
-    def filter_numeric_metrics(self, metrics):
-        return OrderedDict(((k, v) for k, v in list(metrics.items()) if
-                            k in self.numeric_metric_catalog_))
-
-    def filter_tunable_knobs(self, knobs):
-        return OrderedDict(((k, v) for k, v in list(knobs.items()) if
-                            k in self.tunable_knob_catalog_))
-
 # pylint: enable=no-self-use

@@ -310,8 +310,6 @@ class ConversionUtil(object):
             raise ValueError('Invalid min suffix for system: suffix={}, system={}'.format(
                 min_suffix, system))
 
-        LOG.info('min_suffix: %s, min_factor: %s, unit: %s, value: %s\nMOD_SYS:\n%s\n\n',
-                 min_suffix, min_factor, unit, value, mod_system)
         for factor, suffix in mod_system:
             adj_factor = factor / min_factor
             if value % adj_factor == 0:

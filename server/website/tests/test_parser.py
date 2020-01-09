@@ -207,14 +207,6 @@ class BaseParserTests(object, metaclass=ABCMeta):
         with self.assertRaises(Exception):
             self.test_dbms.format_dbms_knobs(test_exceptions)
 
-    @abstractmethod
-    def test_filter_numeric_metrics(self):
-        pass
-
-    @abstractmethod
-    def test_filter_tunable_knobs(self):
-        pass
-
 
 class PostgresParserTests(BaseParserTests, TestCase):
 
@@ -500,57 +492,6 @@ class PostgresParserTests(BaseParserTests, TestCase):
         self.assertEqual(test_formatted_knobs.get('global.enable_hashjoin'), 'on')
         self.assertEqual(test_formatted_knobs.get('global.geqo_effort'), 5)
         self.assertEqual(test_formatted_knobs.get('global.wal_buffers'), '1kB')
-
-    def test_filter_numeric_metrics(self):
-        super().test_filter_numeric_metrics()
-
-        test_metrics = {'pg_stat_bgwriter.checkpoints_req': (2, 'global'),
-                        'pg_stat_archiver.last_failed_wal': (1, 'global'),
-                        'pg_stat_database.stats_reset': (6, 'database'),
-                        'pg_statio_user_indexes.indexrelname': (1, 'index'),
-                        'pg_stat_bgwriter.maxwritten_clean': (2, 'global'),
-                        'pg_stat_database.tup_fetched': (2, 'database'),
-                        'pg_statio_user_tables.heap_blks_read': (2, 'table'),
-                        'pg_FAKE_METRIC': (2, 'database')}
-
-        filtered_metrics = self.test_dbms.filter_numeric_metrics(test_metrics)
-
-        self.assertEqual(len(list(filtered_metrics.keys())), 4)
-        self.assertEqual(filtered_metrics.get('pg_stat_bgwriter.checkpoints_req'),
-                         (2, 'global'))
-        self.assertEqual(filtered_metrics.get('pg_stat_archiver.last_failed_wal'), None)
-        self.assertEqual(filtered_metrics.get('pg_stat_database.stats_reset'), None)
-        self.assertEqual(filtered_metrics.get('pg_statio_user_indexes.indexrelname'),
-                         None)
-        self.assertEqual(filtered_metrics.get('pg_stat_bgwriter.maxwritten_clean'),
-                         (2, 'global'))
-        self.assertEqual(filtered_metrics.get('pg_stat_database.tup_fetched'),
-                         (2, 'database'))
-        self.assertEqual(filtered_metrics.get('pg_statio_user_tables.heap_blks_read'),
-                         (2, 'table'))
-        self.assertEqual(filtered_metrics.get('pg_FAKE_KNOB'), None)
-
-    def test_filter_tunable_knobs(self):
-        super().test_filter_tunable_knobs()
-
-        test_knobs = {'global.wal_sync_method': 5,
-                      'global.random_page_cost': 3,
-                      'global.archive_command': 1,
-                      'global.cpu_tuple_cost': 3,
-                      'global.force_parallel_mode': 5,
-                      'global.enable_hashjoin': 3,
-                      'global.geqo_effort': 2,
-                      'global.wal_buffers': 2,
-                      'global.FAKE_KNOB': 2}
-
-        filtered_knobs = self.test_dbms.filter_tunable_knobs(test_knobs)
-
-        self.assertEqual(len(list(filtered_knobs.keys())), 3)
-        self.assertEqual(filtered_knobs.get('global.wal_sync_method'), 5)
-        self.assertEqual(filtered_knobs.get('global.wal_buffers'), 2)
-        self.assertEqual(filtered_knobs.get('global.random_page_cost'), 3)
-        self.assertEqual(filtered_knobs.get('global.cpu_tuple_cost'), None)
-        self.assertEqual(filtered_knobs.get('global.FAKE_KNOB'), None)
 
     def test_parse_helper(self):
         super().test_parse_helper()

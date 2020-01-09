@@ -415,7 +415,7 @@ def result_view(request, project_id, session_id, result_id):
             vwidth = max(len(str(v)) for v in cfg.values())
             next_conf = ''
             for k, v in cfg.items():
-                next_conf += '{: <{kwidth}}  = {: >{vwidth}}\n'.format(
+                next_conf += '{: <{kwidth}}  = {: <{vwidth}}\n'.format(
                     k, v, kwidth=kwidth, vwidth=vwidth)
         except Exception as e:  # pylint: disable=broad-except
             LOG.exception("Failed to format the next config (type=%s): %s.\n\n%s\n",
@@ -749,45 +749,69 @@ def metric_data_view(request, project_id, session_id, data_id):  # pylint: disab
 
 
 def dbms_data_view(request, context, dbms_data, session, target_obj):
-    if context['data_type'] == 'knobs':
+    data_type = context['data_type']
+    dbms_id = session.dbms.pk
+
+    def _format_knobs(_dict):
+        if data_type == 'knobs' and session.dbms.type in (DBMSType.ORACLE,):
+            _knob_meta = KnobCatalog.objects.filter(
+                dbms_id=dbms_id, unit=KnobUnitType.BYTES)
+            _parser = parser._get(dbms_id)  # pylint: disable=protected-access
+            for _meta in _knob_meta:
+                if _meta.name in _dict:
+                    try:
+                        _v = int(_dict[_meta.name])
+                        _v = _parser.format_integer(_v, _meta)
+                    except (ValueError, TypeError):
+                        LOG.warning("Error parsing knob %s=%s.", _meta.name,
+                                    _v, exc_info=True)
+                    _dict[_meta.name] = _v
+
+    if data_type == 'knobs':
         model_class = KnobData
-        filter_fn = parser.filter_tunable_knobs
-        obj_data = dbms_data.knobs
+        featured_names = set(SessionKnob.objects.filter(
+            session=session, tunable=True).values_list(
+                'knob__name', flat=True))
     else:
         model_class = MetricData
-        filter_fn = parser.filter_numeric_metrics
-        obj_data = dbms_data.metrics
+        num_types = (MetricType.COUNTER, MetricType.STATISTICS)
+        featured_names = set(MetricCatalog.objects.filter(
+            dbms=session.dbms, metric_type__in=num_types).values_list(
+                'name', flat=True))
 
-    dbms_id = dbms_data.dbms.pk
+    obj_data = getattr(dbms_data, data_type)
     all_data_dict = JSONUtil.loads(obj_data)
-    featured_dict = filter_fn(dbms_id, all_data_dict)
+    _format_knobs(all_data_dict)
 
-    target_obj_name = target_objectives.get_instance(
-        session.dbms.pk, session.target_objective).pprint
-    target_obj = '('+target_obj_name+'='+str(int(target_obj))+')'
-    if 'compare' in request.GET and request.GET['compare'] != 'none':
-        comp_id = request.GET['compare']
+    featured_dict = OrderedDict([(k, v) for k, v in all_data_dict.items()
+                                 if k in featured_names])
+    target_inst = target_objectives.get_instance(dbms_id, session.target_objective)
+    target_obj_name = target_inst.pprint
+    target_fmt = "({}: {{v:.0f}}{})".format(target_obj_name, target_inst.short_unit).format
+    target_obj = target_fmt(v=target_obj)
+
+    comp_id = request.GET.get('compare', 'none')
+    if comp_id != 'none':
         compare_obj = model_class.objects.get(pk=comp_id)
-        comp_data = compare_obj.knobs if \
-            context['data_type'] == 'knobs' else compare_obj.metrics
+        comp_data = getattr(compare_obj, data_type)
         comp_dict = JSONUtil.loads(comp_data)
-        comp_featured_dict = filter_fn(dbms_id, comp_dict)
+        _format_knobs(comp_dict)
 
         all_data = [(k, v, comp_dict[k]) for k, v in list(all_data_dict.items())]
-        featured_data = [(k, v, comp_featured_dict[k])
-                         for k, v in list(featured_dict.items())]
+        featured_data = [(k, v, comp_dict[k]) for k, v in list(featured_dict.items())]
 
-        result = Result.objects.filter(knob_data=compare_obj)[0]
-        cmp_target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
-        cmp_target_obj = '('+target_obj_name+'='+str(int(cmp_target_obj))+')'
+        if data_type == 'knobs':
+            met_data = Result.objects.get(knob_data=compare_obj).metric_data.data
+        else:
+            met_data = dbms_data.data
+
+        cmp_target_obj = JSONUtil.loads(met_data)[session.target_objective]
+        cmp_target_obj = target_fmt(v=cmp_target_obj)
     else:
-        comp_id = None
         all_data = list(all_data_dict.items())
         featured_data = list(featured_dict.items())
         cmp_target_obj = ""
-    peer_data = model_class.objects.filter(
-        dbms=dbms_data.dbms, session=dbms_data.session)
-    peer_data = [peer for peer in peer_data if peer.pk != dbms_data.pk]
+    peer_data = model_class.objects.filter(session=session).exclude(pk=dbms_data.pk)
 
     context['all_data'] = all_data
     context['featured_data'] = featured_data

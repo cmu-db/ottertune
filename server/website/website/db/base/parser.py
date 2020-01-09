@@ -61,8 +61,10 @@ class BaseParser:
 
     def convert_enum(self, enum_value, metadata):
         enumvals = metadata.enumvals.split(',')
+        lower_enumvals = [ev.lower() for ev in enumvals]
+        lower_enum_value = enum_value.lower()
         try:
-            res = enumvals.index(enum_value)
+            res = lower_enumvals.index(lower_enum_value)
         except ValueError:
             raise Exception('Invalid enum value for variable {} ({})'.format(
                 metadata.name, enum_value))

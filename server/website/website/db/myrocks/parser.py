@@ -206,10 +206,3 @@ class MyRocksParser(BaseParser):
                 knob_data[name] = conv_value
         return knob_data
 
-    def filter_numeric_metrics(self, metrics):
-        return OrderedDict([(k, v) for k, v in list(metrics.items()) if
-                            self.partial_name(k) in self.numeric_metric_catalog_])
-
-    def filter_tunable_knobs(self, knobs):
-        return OrderedDict([(k, v) for k, v in list(knobs.items()) if
-                            self.partial_name(k) in self.tunable_knob_catalog_])

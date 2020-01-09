@@ -389,7 +389,7 @@ def set_field(fields):
         fields['maxval'] = None
         fields['default'] = False
         fields['vartype'] = 5
-        fields['enumvals'] = 'NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC'
+        fields['enumvals'] = 'none,NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC'
     if fields['name'].lower() == 'session_cached_cursors':
         fields['minval'] = 0
         fields['maxval'] = 100
@@ -418,6 +418,7 @@ def set_field(fields):
         fields['minval'] = 0
         fields['maxval'] = 90
         fields['default'] = 0
+        fields['vartype'] = 2
     if fields['name'].lower() == 'query_rewrite_enabled':
         fields['default'] = 'TRUE'
         fields['minval'] = None

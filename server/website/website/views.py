@@ -1457,29 +1457,36 @@ def create_test_website(request):  # pylint: disable=unused-argument
                                          password='ottertune_test_user')
     test_project = Project.objects.create(user=test_user, name='ottertune_test_project',
                                           creation_time=now(), last_update=now())
+    hyper_parameters = JSONUtil.dumps(utils.get_constants())
+
     # create no tuning session
     s1 = Session.objects.create(name='test_session_no_tuning', tuning_session='no_tuning_session',
                                 dbms_id=1, hardware=test_hardware, project=test_project,
                                 creation_time=now(), last_update=now(), user=test_user,
-                                upload_code='ottertuneTestNoTuning')
+                                upload_code='ottertuneTestNoTuning',
+                                hyper_parameters=hyper_parameters)
     set_default_knobs(s1)
     # create gpr session
     s2 = Session.objects.create(name='test_session_gpr', tuning_session='tuning_session',
                                 dbms_id=1, hardware=test_hardware, project=test_project,
                                 creation_time=now(), last_update=now(), algorithm=AlgorithmType.GPR,
-                                upload_code='ottertuneTestTuningGPR', user=test_user)
+                                upload_code='ottertuneTestTuningGPR', user=test_user,
+                                hyper_parameters=hyper_parameters)
     set_default_knobs(s2)
     # create dnn session
     s3 = Session.objects.create(name='test_session_dnn', tuning_session='tuning_session',
                                 dbms_id=1, hardware=test_hardware, project=test_project,
                                 creation_time=now(), last_update=now(), algorithm=AlgorithmType.DNN,
-                                upload_code='ottertuneTestTuningDNN', user=test_user)
+                                upload_code='ottertuneTestTuningDNN', user=test_user,
+                                hyper_parameters=hyper_parameters)
     set_default_knobs(s3)
     # create ddpg session
     s4 = Session.objects.create(name='test_session_ddpg', tuning_session='tuning_session',
                                 dbms_id=1, hardware=test_hardware, project=test_project,
                                 creation_time=now(), last_update=now(), user=test_user,
-                                upload_code='ottertuneTestTuningDDPG', algorithm=AlgorithmType.DDPG)
+                                upload_code='ottertuneTestTuningDDPG',
+                                algorithm=AlgorithmType.DDPG,
+                                hyper_parameters=hyper_parameters)
     set_default_knobs(s4)
     response = HttpResponse("Success: create test website successfully")
     return response

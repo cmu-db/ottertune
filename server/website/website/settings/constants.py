@@ -9,11 +9,11 @@
 # These parameters are not specified for any session, so they can only be set here
 
 # address categorical knobs (enum, boolean)
-enable_dummy_encoder = False
+ENABLE_DUMMY_ENCODER = False
 
 # ---PIPELINE CONSTANTS---
 #  how often to run the background tests, in seconds
-run_every = 300
+RUN_EVERY = 300
 
 
 # ---------------------------------------------

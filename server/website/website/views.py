@@ -40,7 +40,7 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil, ConversionUtil, get_constants)
+from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
 from .settings import LOG_DIR, TIME_ZONE
 
 from .set_default_knobs import set_default_knobs

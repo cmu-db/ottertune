@@ -29,7 +29,7 @@ from website.models import PipelineData, PipelineRun, Result, Workload, SessionK
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
-from website.settings import enable_dummy_encoder
+from website.settings import ENABLE_DUMMY_ENCODER
 
 
 LOG = get_task_logger(__name__)
@@ -565,7 +565,7 @@ def combine_workload(target_data):
     X_matrix = np.vstack([X_target, X_workload])
 
     # Dummy encode categorial variables
-    if enable_dummy_encoder:
+    if ENABLE_DUMMY_ENCODER:
         categorical_info = DataUtil.dummy_encoder_helper(X_columnlabels,
                                                          mapped_workload.dbms)
         dummy_encoder = DummyEncoder(categorical_info['n_values'],
@@ -763,7 +763,7 @@ def configuration_recommendation(recommendation_input):
     best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
 
-    if enable_dummy_encoder:
+    if ENABLE_DUMMY_ENCODER:
         # Decode one-hot encoding into categorical knobs
         best_config = dummy_encoder.inverse_transform(best_config)
 

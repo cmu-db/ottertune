@@ -18,7 +18,7 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
 from website.models import PipelineData, PipelineRun, Result, Workload
-from website.settings import RUN_EVERY, ENABLE_DUMMY_ENCODER
+from website.settings import run_every, enable_dummy_encoder
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
@@ -29,7 +29,7 @@ MIN_WORKLOAD_RESULTS_COUNT = 5
 
 
 # Run the background tasks every 'RUN_EVERY' seconds
-@periodic_task(run_every=RUN_EVERY, name="run_background_tasks")
+@periodic_task(run_every=run_every, name="run_background_tasks")
 def run_background_tasks():
     LOG.debug("Starting background tasks")
     # Find modified and not modified workloads, we only have to calculate for the
@@ -296,7 +296,7 @@ def run_knob_identification(knob_data, metric_data, dbms):
             nonconst_metric_columnlabels.append(cl)
     nonconst_metric_matrix = np.hstack(nonconst_metric_matrix)
 
-    if ENABLE_DUMMY_ENCODER:
+    if enable_dummy_encoder:
         # determine which knobs need encoding (enums with >2 possible values)
 
         categorical_info = DataUtil.dummy_encoder_helper(nonconst_knob_columnlabels,

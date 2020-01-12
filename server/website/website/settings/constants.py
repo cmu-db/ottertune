@@ -4,10 +4,22 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
+
+# ---------------------------------------------
+# These parameters are not specified for any session, so they can only be set here
+
+# address categorical knobs (enum, boolean)
+enable_dummy_encoder = False
+
 # ---PIPELINE CONSTANTS---
 #  how often to run the background tests, in seconds
-RUN_EVERY = 300
+run_every = 300
 
+
+# ---------------------------------------------
+# The following parameters can be viewed and modified on the session page on the website
+
+# ---SAMPLING CONSTANTS---
 #  the number of samples (staring points) in gradient descent
 NUM_SAMPLES = 30
 
@@ -20,10 +32,6 @@ IMPORTANT_KNOB_NUMBER = 10000
 TOP_NUM_CONFIG = 10
 
 # ---CONSTRAINTS CONSTANTS---
-
-# address categorical knobs (enum, boolean)
-ENABLE_DUMMY_ENCODER = False
-
 #  Initial probability to flip categorical feature in apply_constraints
 #  server/analysis/constraints.py
 INIT_FLIP_PROB = 0.3

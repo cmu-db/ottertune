@@ -162,6 +162,7 @@ class Session(BaseModel):
 
     target_objective = models.CharField(
         max_length=64, default=target_objectives.default())
+    hyper_parameters = models.TextField(default="{}")
 
     def clean(self):
         if self.target_objective is None:

@@ -134,11 +134,12 @@ class SessionForm(forms.ModelForm):
         model = Session
 
         fields = ('name', 'description', 'tuning_session', 'dbms', 'cpu', 'memory', 'storage',
-                  'algorithm', 'target_objective')
+                  'algorithm', 'target_objective', 'hyper_parameters')
 
         widgets = {
             'name': forms.TextInput(attrs={'required': True}),
             'description': forms.Textarea(attrs={'maxlength': 500, 'rows': 5}),
+            'hyper_parameters': forms.Textarea(attrs={'maxlength': 2000, 'rows': 10}),
         }
         labels = {
             'dbms': 'DBMS',

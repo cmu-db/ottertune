@@ -40,7 +40,7 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil, ConversionUtil, get_constants)
 from .settings import LOG_DIR, TIME_ZONE
 
 from .set_default_knobs import set_default_knobs
@@ -330,12 +330,14 @@ def create_or_edit_session(request, project_id, session_id=''):
         else:
             # Return a new form with defaults for creating a new session
             session = None
+            hyper_parameters = JSONUtil.dumps(utils.get_constants())
             form_kwargs.update(
                 initial={
                     'dbms': DBMSCatalog.objects.get(
                         type=DBMSType.POSTGRES, version='9.6'),
                     'algorithm': AlgorithmType.GPR,
                     'target_objective': target_objectives.default(),
+                    'hyper_parameters': hyper_parameters
                 })
             form = SessionForm(**form_kwargs)
         context = {

@@ -30,23 +30,7 @@ from website.models import (PipelineData, PipelineRun, Result, Workload, KnobCat
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
-from website.settings import IMPORTANT_KNOB_NUMBER, NUM_SAMPLES, TOP_NUM_CONFIG  # pylint: disable=no-name-in-module
-from website.settings import (USE_GPFLOW, DEFAULT_LENGTH_SCALE, DEFAULT_MAGNITUDE,
-                              MAX_TRAIN_SIZE, BATCH_SIZE, NUM_THREADS,
-                              DEFAULT_RIDGE, DEFAULT_LEARNING_RATE,
-                              DEFAULT_EPSILON, MAX_ITER, GPR_EPS,
-                              DEFAULT_SIGMA_MULTIPLIER, DEFAULT_MU_MULTIPLIER,
-                              DEFAULT_UCB_SCALE, HP_LEARNING_RATE, HP_MAX_ITER,
-                              DDPG_SIMPLE_REWARD, DDPG_GAMMA, USE_DEFAULT,
-                              DDPG_BATCH_SIZE, ACTOR_LEARNING_RATE,
-                              CRITIC_LEARNING_RATE, UPDATE_EPOCHS,
-                              ACTOR_HIDDEN_SIZES, CRITIC_HIDDEN_SIZES,
-                              DNN_TRAIN_ITER, DNN_EXPLORE, DNN_EXPLORE_ITER,
-                              DNN_NOISE_SCALE_BEGIN, DNN_NOISE_SCALE_END,
-                              DNN_DEBUG, DNN_DEBUG_INTERVAL, GPR_DEBUG, UCB_BETA,
-                              GPR_MODEL_NAME, ENABLE_DUMMY_ENCODER, DNN_GD_ITER)
-
-from website.settings import INIT_FLIP_PROB, FLIP_PROB_DECAY
+from website.settings import enable_dummy_encoder
 
 
 LOG = get_task_logger(__name__)
@@ -339,6 +323,7 @@ def train_ddpg(result_id):
     LOG.info('Add training data to ddpg and train ddpg')
     result = Result.objects.get(pk=result_id)
     session = Result.objects.get(pk=result_id).session
+    params = JSONUtil.loads(session.hyper_parameters)
     session_results = Result.objects.filter(session=session,
                                             creation_time__lt=result.creation_time)
     result_info = {}
@@ -418,16 +403,16 @@ def train_ddpg(result_id):
     LOG.info('reward: %f', reward)
 
     # Update ddpg
-    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=ACTOR_LEARNING_RATE,
-                clr=CRITIC_LEARNING_RATE, gamma=DDPG_GAMMA, batch_size=DDPG_BATCH_SIZE,
-                a_hidden_sizes=ACTOR_HIDDEN_SIZES, c_hidden_sizes=CRITIC_HIDDEN_SIZES,
-                use_default=USE_DEFAULT)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=params['ACTOR_LEARNING_RATE'],
+                clr=params['CRITIC_LEARNING_RATE'], gamma=params['DDPG_GAMMA'],
+                batch_size=params['DDPG_BATCH_SIZE'], a_hidden_sizes=params['ACTOR_HIDDEN_SIZES'],
+                c_hidden_sizes=params['CRITIC_HIDDEN_SIZES'], use_default=params['USE_DEFAULT'])
     if session.ddpg_actor_model and session.ddpg_critic_model:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory:
         ddpg.replay_memory.set(session.ddpg_reply_memory)
     ddpg.add_sample(normalized_metric_data, knob_data, reward, normalized_metric_data)
-    for _ in range(UPDATE_EPOCHS):
+    for _ in range(params['UPDATE_EPOCHS']):
         ddpg.update()
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
     session.ddpg_reply_memory = ddpg.replay_memory.get()
@@ -459,6 +444,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     result_list = Result.objects.filter(pk=result_id)
     result = result_list.first()
     session = result.session
+    params = JSONUtil.loads(session.hyper_parameters)
     agg_data = DataUtil.aggregate_data(result_list)
     metric_data, _ = clean_metric_data(agg_data['y_matrix'], agg_data['y_columnlabels'], session)
     metric_data = metric_data.flatten()
@@ -469,8 +455,9 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     knob_num = len(knob_labels)
     metric_num = len(metric_data)
 
-    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, a_hidden_sizes=ACTOR_HIDDEN_SIZES,
-                c_hidden_sizes=CRITIC_HIDDEN_SIZES, use_default=USE_DEFAULT)
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num,
+                a_hidden_sizes=params['ACTOR_HIDDEN_SIZES'],
+                c_hidden_sizes=params['CRITIC_HIDDEN_SIZES'], use_default=params['USE_DEFAULT'])
     if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory is not None:
@@ -505,6 +492,8 @@ def combine_workload(target_data):
     workload_metric_data = JSONUtil.loads(workload_metric_data.data)
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
+    session = newest_result.session
+    params = JSONUtil.loads(session.hyper_parameters)
     cleaned_workload_knob_data = clean_knob_data(workload_knob_data["data"],
                                                  workload_knob_data["columnlabels"],
                                                  newest_result.session)
@@ -516,7 +505,7 @@ def combine_workload(target_data):
     rowlabels_workload = np.array(workload_metric_data['rowlabels'])
 
     # Target workload data
-    newest_result = Result.objects.get(pk=target_data['newest_result_id'])
+    newest_result = Result.objects.get(pk=target_data['newest_result_id']) 
     X_target = target_data['X_matrix']
     y_target = target_data['y_matrix']
     rowlabels_target = np.array(target_data['rowlabels'])
@@ -535,7 +524,7 @@ def combine_workload(target_data):
         pipeline_run=latest_pipeline_run,
         workload=mapped_workload,
         task_type=PipelineTaskType.RANKED_KNOBS)
-    ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:IMPORTANT_KNOB_NUMBER]
+    ranked_knobs = JSONUtil.loads(ranked_knobs.data)[:params['IMPORTANT_KNOB_NUMBER']]
     ranked_knob_idxs = [i for i, cl in enumerate(X_columnlabels) if cl in ranked_knobs]
     X_workload = X_workload[:, ranked_knob_idxs]
     X_target = X_target[:, ranked_knob_idxs]
@@ -577,7 +566,7 @@ def combine_workload(target_data):
     X_matrix = np.vstack([X_target, X_workload])
 
     # Dummy encode categorial variables
-    if ENABLE_DUMMY_ENCODER:
+    if enable_dummy_encoder:
         categorical_info = DataUtil.dummy_encoder_helper(X_columnlabels,
                                                          mapped_workload.dbms)
         dummy_encoder = DummyEncoder(categorical_info['n_values'],
@@ -632,8 +621,8 @@ def combine_workload(target_data):
     constraint_helper = ParamConstraintHelper(scaler=X_scaler,
                                               encoder=dummy_encoder,
                                               binary_vars=binary_encoder,
-                                              init_flip_prob=INIT_FLIP_PROB,
-                                              flip_prob_decay=FLIP_PROB_DECAY)
+                                              init_flip_prob=params['INIT_FLIP_PROB'],
+                                              flip_prob_decay=params['FLIP_PROB_DECAY'])
 
     # FIXME (dva): check if these are good values for the ridge
     # ridge = np.empty(X_scaled.shape[0])
@@ -671,6 +660,8 @@ def configuration_recommendation(recommendation_input):
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
+    session = newest_result.session
+    params = session.hyper_parameters
 
     if target_data['bad'] is True:
         target_data_res = create_and_save_recommendation(
@@ -687,7 +678,7 @@ def configuration_recommendation(recommendation_input):
 
     # FIXME: we should generate more samples and use a smarter sampling
     # technique
-    num_samples = NUM_SAMPLES
+    num_samples = params['NUM_SAMPLES']
     X_samples = np.empty((num_samples, X_scaled.shape[1]))
     for i in range(X_scaled.shape[1]):
         X_samples[:, i] = np.random.rand(num_samples) * (X_max[i] - X_min[i]) + X_min[i]
@@ -697,7 +688,7 @@ def configuration_recommendation(recommendation_input):
         q.put((y_scaled[x][0], x))
 
     i = 0
-    while i < TOP_NUM_CONFIG:
+    while i < params['TOP_NUM_CONFIG']:
         try:
             item = q.get_nowait()
             # Tensorflow get broken if we use the training data points as
@@ -714,56 +705,58 @@ def configuration_recommendation(recommendation_input):
         except queue.Empty:
             break
 
-    session = newest_result.session
     res = None
 
     if algorithm == AlgorithmType.DNN:
         # neural network model
         model_nn = NeuralNet(n_input=X_samples.shape[1],
                              batch_size=X_samples.shape[0],
-                             explore_iters=DNN_EXPLORE_ITER,
-                             noise_scale_begin=DNN_NOISE_SCALE_BEGIN,
-                             noise_scale_end=DNN_NOISE_SCALE_END,
-                             debug=DNN_DEBUG,
-                             debug_interval=DNN_DEBUG_INTERVAL)
+                             explore_iters=params['DNN_EXPLORE_ITER'],
+                             noise_scale_begin=params['DNN_NOISE_SCALE_BEGIN'],
+                             noise_scale_end=params['DNN_NOISE_SCALE_END'],
+                             debug=params['DNN_DEBUG'],
+                             debug_interval=params['DNN_DEBUG_INTERVAL'])
         if session.dnn_model is not None:
             model_nn.set_weights_bin(session.dnn_model)
-        model_nn.fit(X_scaled, y_scaled, fit_epochs=DNN_TRAIN_ITER)
+        model_nn.fit(X_scaled, y_scaled, fit_epochs=params['DNN_TRAIN_ITER'])
         res = model_nn.recommend(X_samples, X_min, X_max,
-                                 explore=DNN_EXPLORE, recommend_epochs=DNN_GD_ITER)
+                                 explore=params['DNN_EXPLORE'],
+                                 recommend_epochs=params['DNN_GD_ITER'])
         session.dnn_model = model_nn.get_weights_bin()
         session.save()
 
     elif algorithm == AlgorithmType.GPR:
         # default gpr model
-        if USE_GPFLOW:
+        if params['USE_GPFLOW']:
             model_kwargs = {}
-            model_kwargs['model_learning_rate'] = HP_LEARNING_RATE
-            model_kwargs['model_maxiter'] = HP_MAX_ITER
+            model_kwargs['model_learning_rate'] = params['HP_LEARNING_RATE']
+            model_kwargs['model_maxiter'] = params['HP_MAX_ITER']
             opt_kwargs = {}
-            opt_kwargs['learning_rate'] = DEFAULT_LEARNING_RATE
-            opt_kwargs['maxiter'] = MAX_ITER
+            opt_kwargs['learning_rate'] = params['DEFAULT_LEARNING_RATE']
+            opt_kwargs['maxiter'] = params['MAX_ITER']
             opt_kwargs['bounds'] = [X_min, X_max]
-            opt_kwargs['debug'] = GPR_DEBUG
-            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(UCB_BETA, scale=DEFAULT_UCB_SCALE,
+            opt_kwargs['debug'] = params['GPR_DEBUG']
+            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(params['UCB_BETA'],
+                                                      scale=params['DEFAULT_UCB_SCALE'],
                                                       t=i + 1., ndim=X_scaled.shape[1])
             tf.reset_default_graph()
             graph = tf.get_default_graph()
             gpflow.reset_default_session(graph=graph)
-            m = gpr_models.create_model(GPR_MODEL_NAME, X=X_scaled, y=y_scaled, **model_kwargs)
+            m = gpr_models.create_model(params['GPR_MODEL_NAME'], X=X_scaled, y=y_scaled,
+                                        **model_kwargs)
             res = tf_optimize(m.model, X_samples, **opt_kwargs)
         else:
-            model = GPRGD(length_scale=DEFAULT_LENGTH_SCALE,
-                          magnitude=DEFAULT_MAGNITUDE,
-                          max_train_size=MAX_TRAIN_SIZE,
-                          batch_size=BATCH_SIZE,
-                          num_threads=NUM_THREADS,
-                          learning_rate=DEFAULT_LEARNING_RATE,
-                          epsilon=DEFAULT_EPSILON,
-                          max_iter=MAX_ITER,
-                          sigma_multiplier=DEFAULT_SIGMA_MULTIPLIER,
-                          mu_multiplier=DEFAULT_MU_MULTIPLIER,
-                          ridge=DEFAULT_RIDGE)
+            model = GPRGD(length_scale=params['DEFAULT_LENGTH_SCALE'],
+                          magnitude=params['DEFAULT_MAGNITUDE'],
+                          max_train_size=params['MAX_TRAIN_SIZE'],
+                          batch_size=params['BATCH_SIZE'],
+                          num_threads=params['NUM_THREADS'],
+                          learning_rate=params['DEFAULT_LEARNING_RATE'],
+                          epsilon=params['DEFAULT_EPSILON'],
+                          max_iter=params['MAX_ITER'],
+                          sigma_multiplier=params['DEFAULT_SIGMA_MULTIPLIER'],
+                          mu_multiplier=params['DEFAULT_MU_MULTIPLIER'],
+                          ridge=params['DEFAULT_RIDGE'])
             model.fit(X_scaled, y_scaled, X_min, X_max)
             res = model.predict(X_samples, constraint_helper=constraint_helper)
 
@@ -771,7 +764,7 @@ def configuration_recommendation(recommendation_input):
     best_config = res.minl_conf[best_config_idx, :]
     best_config = X_scaler.inverse_transform(best_config)
 
-    if ENABLE_DUMMY_ENCODER:
+    if enable_dummy_encoder:
         # Decode one-hot encoding into categorical knobs
         best_config = dummy_encoder.inverse_transform(best_config)
 
@@ -821,6 +814,8 @@ def map_workload(map_workload_input):
     target_data['pipeline_run'] = latest_pipeline_run.pk
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
+    session = newest_result.session
+    params = JSONUtil.loads(session.hyper_parameters)
     target_workload = newest_result.workload
     X_columnlabels = np.array(target_data['X_columnlabels'])
     y_columnlabels = np.array(target_data['y_columnlabels'])
@@ -870,7 +865,7 @@ def map_workload(map_workload_input):
             # for the first workload
             global_ranked_knobs = load_data_helper(
                 pipeline_data, unique_workload,
-                PipelineTaskType.RANKED_KNOBS)[:IMPORTANT_KNOB_NUMBER]
+                PipelineTaskType.RANKED_KNOBS)[:params['IMPORTANT_KNOB_NUMBER']]
             global_pruned_metrics = load_data_helper(
                 pipeline_data, unique_workload, PipelineTaskType.PRUNED_METRICS)
             ranked_knob_idxs = [i for i in range(X_matrix.shape[1]) if X_columnlabels[
@@ -935,11 +930,11 @@ def map_workload(map_workload_input):
             # and then predict the performance of each metric for each of
             # the knob configurations attempted so far by the target.
             y_col = y_col.reshape(-1, 1)
-            model = GPRNP(length_scale=DEFAULT_LENGTH_SCALE,
-                          magnitude=DEFAULT_MAGNITUDE,
-                          max_train_size=MAX_TRAIN_SIZE,
-                          batch_size=BATCH_SIZE)
-            model.fit(X_scaled, y_col, ridge=DEFAULT_RIDGE)
+            model = GPRNP(length_scale=params['DEFAULT_LENGTH_SCALE'],
+                          magnitude=params['DEFAULT_MAGNITUDE'],
+                          max_train_size=params['MAX_TRAIN_SIZE'],
+                          batch_size=params['BATCH_SIZE'])
+            model.fit(X_scaled, y_col, ridge=params['DEFAULT_RIDGE'])
             predictions[:, j] = model.predict(X_target).ypreds.ravel()
         # Bin each of the predicted metric columns by deciles and then
         # compute the score (i.e., distance) between the target workload

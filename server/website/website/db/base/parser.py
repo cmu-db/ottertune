@@ -7,8 +7,8 @@ import logging
 
 from collections import OrderedDict
 
-from website.models import KnobCatalog, KnobUnitType, MetricCatalog
-from website.types import BooleanType, MetricType, VarType
+from website.models import KnobCatalog, MetricCatalog
+from website.types import BooleanType, KnobUnitType, MetricType, VarType
 from website.utils import ConversionUtil
 from .. import target_objectives
 
@@ -20,18 +20,6 @@ class BaseParser:
 
     def __init__(self, dbms_obj):
         self.dbms_id = int(dbms_obj.pk)
-        knobs = KnobCatalog.objects.filter(dbms=dbms_obj)
-        self.knob_catalog_ = {k.name: k for k in knobs}
-        self.tunable_knob_catalog_ = {
-            k: v for k, v in self.knob_catalog_.items() if
-            v.tunable is True}
-
-        metrics = MetricCatalog.objects.filter(dbms=dbms_obj)
-        self.metric_catalog_ = {m.name: m for m in metrics}
-        numeric_mtypes = (MetricType.COUNTER, MetricType.STATISTICS)
-        self.numeric_metric_catalog_ = {
-            m: v for m, v in self.metric_catalog_.items() if
-            v.metric_type in numeric_mtypes}
 
         self.valid_true_val = ("on", "true", "yes")
         self.valid_false_val = ("off", "false", "no")
@@ -113,9 +101,9 @@ class BaseParser:
 
     def convert_dbms_knobs(self, knobs):
         knob_data = {}
-        for name, metadata in list(self.tunable_knob_catalog_.items()):
-            if metadata.tunable is False:
-                continue
+        tunable_knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
+        for metadata in tunable_knob_catalog:
+            name = metadata.name
             if name not in knobs:
                 continue
             value = knobs[name]
@@ -187,8 +175,11 @@ class BaseParser:
         metric_data = {}
         # Same as metric_data except COUNTER metrics are not divided by the time
         base_metric_data = {}
+        numeric_metric_catalog = MetricCatalog.objects.filter(
+            dbms__id=self.dbms_id, metric_type__in=MetricType.numeric())
 
-        for name, metadata in self.numeric_metric_catalog_.items():
+        for metadata in numeric_metric_catalog:
+            name = metadata.name
             value = metrics[name]
 
             if metadata.vartype == VarType.INTEGER:
@@ -223,7 +214,7 @@ class BaseParser:
     def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
         diff_log = []
-        valid_lc_variables = {k.lower(): v for k, v in list(catalog.items())}
+        valid_lc_variables = {k.name.lower(): k for k in catalog}
 
         # First check that the names of all variables are valid (i.e., listed
         # in the official catalog). Invalid variables are logged as 'extras'.
@@ -286,7 +277,8 @@ class BaseParser:
             assert len(valid_knobs[k]) == 1
             valid_knobs[k] = valid_knobs[k][0]
         # Extract all valid knobs
-        return self.extract_valid_variables(valid_knobs, self.knob_catalog_)
+        knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id)
+        return self.extract_valid_variables(valid_knobs, knob_catalog)
 
     def parse_dbms_metrics(self, metrics):
         # Some DBMSs measure different types of stats (e.g., global, local)
@@ -295,16 +287,16 @@ class BaseParser:
         valid_metrics = self.parse_dbms_variables(metrics)
 
         # Extract all valid metrics
+        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
         valid_metrics, diffs = self.extract_valid_variables(
-            valid_metrics, self.metric_catalog_, default_value='0')
+            valid_metrics, metric_catalog, default_value='0')
 
         # Combine values
         for name, values in list(valid_metrics.items()):
-            metric = self.metric_catalog_[name]
-            if metric.metric_type == MetricType.INFO or len(values) == 1:
+            metric = metric_catalog.get(name=name)
+            if metric.metric_type in MetricType.nonnumeric() or len(values) == 1:
                 valid_metrics[name] = values[0]
-            elif metric.metric_type == MetricType.COUNTER or \
-                    metric.metric_type == MetricType.STATISTICS:
+            elif metric.metric_type in MetricType.numeric():
                 conv_fn = int if metric.vartype == VarType.INTEGER else float
                 values = [conv_fn(v) for v in values if v is not None]
                 if len(values) == 0:
@@ -317,10 +309,11 @@ class BaseParser:
         return valid_metrics, diffs
 
     def calculate_change_in_metrics(self, metrics_start, metrics_end, fix_metric_type=True):
+        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
         adjusted_metrics = {}
         for met_name, start_val in list(metrics_start.items()):
             end_val = metrics_end[met_name]
-            met_info = self.metric_catalog_[met_name]
+            met_info = metric_catalog.get(name=met_name)
             if met_info.vartype == VarType.INTEGER or \
                     met_info.vartype == VarType.REAL:
                 conversion_fn = self.convert_integer if \
@@ -332,13 +325,13 @@ class BaseParser:
                     adj_val = end_val - start_val
                 else:  # MetricType.STATISTICS or MetricType.INFO
                     adj_val = end_val
+
                 if fix_metric_type:
                     if adj_val < 0:
                         adj_val = end_val
                         LOG.debug("Changing metric %s from COUNTER to STATISTICS", met_name)
-                        metric_fixed = self.metric_catalog_[met_name]
-                        metric_fixed.metric_type = MetricType.STATISTICS
-                        metric_fixed.save()
+                        met_info.metric_type = MetricType.STATISTICS
+                        met_info.save()
                 assert adj_val >= 0, \
                     '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
                         met_name, MetricType.name(met_info.metric_type), start_val,
@@ -397,9 +390,7 @@ class BaseParser:
     def format_dbms_knobs(self, knobs):
         formatted_knobs = {}
         for knob_name, knob_value in list(knobs.items()):
-            metadata = self.knob_catalog_.get(knob_name, None)
-            if (metadata is None):
-                raise Exception('Unknown knob {}'.format(knob_name))
+            metadata = KnobCatalog.objects.get(dbms__id=self.dbms_id, name=knob_name)
             fvalue = None
             if metadata.vartype == VarType.BOOL:
                 fvalue = self.format_bool(knob_value, metadata)

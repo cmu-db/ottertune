@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 from ..base.parser import BaseParser
 from .. import target_objectives
+from website.models import KnobCatalog, MetricCatalog
 from website.types import MetricType, VarType
 
 
@@ -71,7 +72,7 @@ class MyRocksParser(BaseParser):
     def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
         diff_log = []
-        valid_lc_variables = {k.lower(): v for k, v in list(catalog.items())}
+        valid_lc_variables = {k.name.lower(): k for k in catalog}
 
         # First check that the names of all variables are valid (i.e., listed
         # in the official catalog). Invalid variables are logged as 'extras'.
@@ -106,9 +107,10 @@ class MyRocksParser(BaseParser):
 
     def calculate_change_in_metrics(self, metrics_start, metrics_end):
         adjusted_metrics = {}
+        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
         for met_name, start_val in list(metrics_start.items()):
             end_val = metrics_end[met_name]
-            met_info = self.metric_catalog_[self.partial_name(met_name)]
+            met_info = metric_catalog.get(name=self.partial_name(met_name))
             if met_info.vartype == VarType.INTEGER or \
                     met_info.vartype == VarType.REAL:
                 conversion_fn = self.convert_integer if \
@@ -127,26 +129,28 @@ class MyRocksParser(BaseParser):
 
     def parse_dbms_knobs(self, knobs):
         valid_knobs = self.parse_dbms_variables(knobs)
+        knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id)
         # Extract all valid knobs
-        return self.extract_valid_variables(
-            valid_knobs, self.knob_catalog_)
+        return self.extract_valid_variables(valid_knobs, knob_catalog)
 
     def parse_dbms_metrics(self, metrics):
         valid_metrics = self.parse_dbms_variables(metrics)
+        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
         # Extract all valid metrics
         valid_metrics, diffs = self.extract_valid_variables(
-            valid_metrics, self.metric_catalog_, default_value='0')
+            valid_metrics, metric_catalog, default_value='0')
         return valid_metrics, diffs
 
     def convert_dbms_metrics(self, metrics, observation_time, target_objective):
         base_metric_data = {}
         metric_data = {}
+        numeric_metric_catalog = MetricCatalog.objects.filter(
+            dbms__id=self.dbms_id, metric_type__in=MetricType.numeric())
         for name, value in list(metrics.items()):
             prt_name = self.partial_name(name)
+            metadata = numeric_metric_catalog.filter(name=prt_name).first()
 
-            if prt_name in self.numeric_metric_catalog_:
-                metadata = self.numeric_metric_catalog_[prt_name]
-
+            if metadata:
                 if metadata.vartype == VarType.INTEGER:
                     converted = float(self.convert_integer(value, metadata))
                 elif metadata.vartype == VarType.REAL:
@@ -178,12 +182,11 @@ class MyRocksParser(BaseParser):
 
     def convert_dbms_knobs(self, knobs):
         knob_data = {}
+        tunable_knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
         for name, value in list(knobs.items()):
             prt_name = self.partial_name(name)
-            if prt_name in self.tunable_knob_catalog_:
-                metadata = self.tunable_knob_catalog_[prt_name]
-                assert(metadata.tunable)
-                value = knobs[name]
+            metadata = tunable_knob_catalog.filter(name=prt_name).first()
+            if metadata:
                 conv_value = None
                 if metadata.vartype == VarType.BOOL:
                     conv_value = self.convert_bool(value, metadata)

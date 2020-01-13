@@ -9,7 +9,7 @@ import mock
 from django.test import TestCase
 from website.db import parser, target_objectives
 from website.types import BooleanType, DBMSType, VarType, KnobUnitType, MetricType
-from website.models import DBMSCatalog, KnobCatalog
+from website.models import DBMSCatalog, KnobCatalog, MetricCatalog
 
 
 class BaseParserTests(object, metaclass=ABCMeta):
@@ -214,6 +214,11 @@ class PostgresParserTests(BaseParserTests, TestCase):
         dbms_obj = DBMSCatalog.objects.filter(
             type=DBMSType.POSTGRES, version="9.6").first()
         self.test_dbms = parser._get(dbms_obj.pk)  # pylint: disable=protected-access
+        self.knob_catalog = KnobCatalog.objects.filter(dbms=dbms_obj)
+        self.tunable_knob_catalog = self.knob_catalog.filter(tunable=True)
+        self.metric_catalog = MetricCatalog.objects.filter(dbms=dbms_obj)
+        self.numeric_metric_catalog = self.metric_catalog.filter(
+            metric_type__in=MetricType.numeric())
 
     def test_convert_dbms_knobs(self):
         super().test_convert_dbms_knobs()
@@ -251,16 +256,17 @@ class PostgresParserTests(BaseParserTests, TestCase):
         txns_counter = target_obj_instance.transactions_counter
 
         test_metrics = {}
+        for met in self.numeric_metric_catalog:
+            test_metrics[met.name] = 2
 
-        for key in list(self.test_dbms.numeric_metric_catalog_.keys()):
-            test_metrics[key] = 2
         test_metrics[txns_counter] = 10
         test_metrics['pg_FAKE_METRIC'] = 0
 
         self.assertEqual(test_metrics.get(target_obj), None)
 
         test_convert_metrics = self.test_dbms.convert_dbms_metrics(test_metrics, 0.1, target_obj)
-        for key, metadata in list(self.test_dbms.numeric_metric_catalog_.items()):
+        for metadata in self.numeric_metric_catalog:
+            key = metadata.name
             if key == txns_counter:
                 self.assertEqual(test_convert_metrics[key], 10 / 0.1)
                 continue
@@ -285,11 +291,11 @@ class PostgresParserTests(BaseParserTests, TestCase):
             self.test_dbms.parse_version_string("1.0")
 
     def test_extract_valid_variables(self):
-        num_tunable_knobs = len(list(self.test_dbms.tunable_knob_catalog_.keys()))
+        num_tunable_knobs = len(self.tunable_knob_catalog)
 
         test_empty, test_empty_diff = self.test_dbms.extract_valid_variables(
-            {}, self.test_dbms.tunable_knob_catalog_)
-        self.assertEqual(len(list(test_empty.keys())), num_tunable_knobs)
+            {}, self.tunable_knob_catalog)
+        self.assertEqual(len(test_empty), num_tunable_knobs)
         self.assertEqual(len(test_empty_diff), num_tunable_knobs)
 
         test_vars = {'global.wal_sync_method': 'fsync',
@@ -303,7 +309,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
                      'global.FAKE_KNOB': 'fake'}
 
         tune_extract, tune_diff = self.test_dbms.extract_valid_variables(
-            test_vars, self.test_dbms.tunable_knob_catalog_)
+            test_vars, self.tunable_knob_catalog)
 
         self.assertTrue(('miscapitalized', 'global.wal_buffers',
                          'global.Wal_buffers', 1024) in tune_diff)
@@ -317,10 +323,10 @@ class PostgresParserTests(BaseParserTests, TestCase):
         self.assertEqual(tune_extract.get('global.wal_buffers'), 1024)
         self.assertEqual(tune_extract.get('global.Wal_buffers'), None)
 
-        self.assertEqual(len(tune_extract), len(self.test_dbms.tunable_knob_catalog_))
+        self.assertEqual(len(tune_extract), num_tunable_knobs)
 
         nontune_extract, nontune_diff = self.test_dbms.extract_valid_variables(
-            test_vars, self.test_dbms.knob_catalog_)
+            test_vars, self.knob_catalog)
 
         self.assertTrue(('miscapitalized', 'global.wal_buffers',
                          'global.Wal_buffers', 1024) in nontune_diff)
@@ -519,14 +525,14 @@ class PostgresParserTests(BaseParserTests, TestCase):
                                   'cpu_tuple_cost': 0.55,
                                   'force_parallel_mode': 'regress',
                                   'FAKE_KNOB': 'fake'}}}
+        num_knobs = len(self.knob_catalog)
 
-        (test_parse_dict, test_parse_log) = self.test_dbms.parse_dbms_knobs(test_knobs)
+        test_parse_dict, test_parse_log = self.test_dbms.parse_dbms_knobs(test_knobs)
 
-        self.assertEqual(len(test_parse_log), len(list(self.test_dbms.knob_catalog_.keys())) - 7)
+        self.assertEqual(len(test_parse_log), num_knobs - 7)
         self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in test_parse_log)
 
-        self.assertEqual(len(list(test_parse_dict.keys())),
-                         len(list(self.test_dbms.knob_catalog_.keys())))
+        self.assertEqual(len(test_parse_dict), num_knobs)
         self.assertEqual(test_parse_dict['global.wal_sync_method'], 'fsync')
         self.assertEqual(test_parse_dict['global.random_page_cost'], 0.22)
 
@@ -552,8 +558,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
 
         # Doesn't support table or index scope
         with self.assertRaises(Exception):
+            num_metrics = len(self.metric_catalog)
             test_parse_dict, test_parse_log = self.test_dbms.parse_dbms_metrics(test_metrics)
-            self.assertEqual(len(list(test_parse_dict.keys())),
-                             len(list(self.test_dbms.metric_catalog_.keys())))
-            self.assertEqual(len(test_parse_log),
-                             len(list(self.test_dbms.metric_catalog_.keys())) - 14)
+            self.assertEqual(len(test_parse_dict), num_metrics)
+            self.assertEqual(len(test_parse_log), num_metrics - 14)

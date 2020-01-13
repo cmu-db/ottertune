@@ -15,6 +15,7 @@ from .models import (BackupData, DBMSCatalog, KnobCatalog,
                      PipelineData, PipelineRun, Project,
                      Result, Session, Workload, Hardware,
                      SessionKnob)
+from .types import VarType
 
 
 class DBMSCatalogAdmin(admin.ModelAdmin):
@@ -26,11 +27,29 @@ class KnobCatalogAdmin(admin.ModelAdmin):
     list_filter = (('dbms', admin.RelatedOnlyFieldListFilter), 'tunable')
     ordering = ('dbms', '-tunable', 'name')
 
+    def get_form(self, request, obj=None, **kwargs):
+        exclude = ['category', 'summary', 'description', 'context']
+        if obj:
+            if obj.vartype not in (VarType.INTEGER, VarType.REAL):
+                exclude += ['minval', 'maxval']
+            if obj.vartype != VarType.ENUM:
+                exclude.append('enumvals')
+        kwargs['exclude'] = exclude
+        form = super().get_form(request, obj, **kwargs)
+        for field_name in ('minval', 'maxval', 'enumvals'):
+            if field_name in form.base_fields:
+                form.base_fields[field_name].required = False
+        return form
+
 
 class MetricCatalogAdmin(admin.ModelAdmin):
     list_display = ('name', 'dbms', 'metric_type')
     list_filter = (('dbms', admin.RelatedOnlyFieldListFilter), 'metric_type')
     ordering = ('dbms', 'name')
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['exclude'] = ('summary',)
+        return super().get_form(request, obj, **kwargs)
 
 
 class ProjectAdmin(admin.ModelAdmin):

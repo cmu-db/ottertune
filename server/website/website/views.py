@@ -774,9 +774,8 @@ def dbms_data_view(request, context, dbms_data, session, target_obj):
                 'knob__name', flat=True))
     else:
         model_class = MetricData
-        num_types = (MetricType.COUNTER, MetricType.STATISTICS)
         featured_names = set(MetricCatalog.objects.filter(
-            dbms=session.dbms, metric_type__in=num_types).values_list(
+            dbms=session.dbms, metric_type__in=MetricCtype.numeric()).values_list(
                 'name', flat=True))
 
     obj_data = getattr(dbms_data, data_type)

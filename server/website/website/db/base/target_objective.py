@@ -94,8 +94,9 @@ class TargetObjectives:
                     self._registry[dbms_id][name] = target_objective_instance
 
                     if dbms_id not in self._metric_metadatas:
-                        numeric_metrics = models.MetricCatalog.objects.filter(dbms=dbms).exclude(
-                            metric_type=types.MetricType.INFO).values_list('name', flat=True)
+                        numeric_metrics = models.MetricCatalog.objects.filter(
+                            dbms=dbms, metric_type__in=types.MetricType.numeric()).values_list(
+                                'name', flat=True)
                         self._metric_metadatas[dbms_id] = [(mname, BaseMetric(mname)) for mname
                                                            in sorted(numeric_metrics)]
 

@@ -7,10 +7,10 @@
 import re
 from collections import OrderedDict
 
-from ..base.parser import BaseParser
-from .. import target_objectives
 from website.models import KnobCatalog, MetricCatalog
 from website.types import MetricType, VarType
+from ..base.parser import BaseParser
+from .. import target_objectives
 
 
 class MyRocksParser(BaseParser):

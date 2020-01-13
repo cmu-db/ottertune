@@ -336,7 +336,7 @@ def set_field(fields):
         fields['minval'] = None
         fields['maxval'] = None
         fields['vartype'] = 5
-        fields['enumvals'] = 'FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS'
+        fields['enumvals'] = 'FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS,CHOOSE'
     if fields['name'].lower() == 'workarea_size_policy':
         fields['default'] = 'AUTO'
         fields['minval'] = None

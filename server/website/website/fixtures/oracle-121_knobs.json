@@ -5246,7 +5246,7 @@
             "scope": "global",
             "dbms": 121,
             "category": "",
-            "enumvals": "FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS",
+            "enumvals": "FIRST_ROWS_1,FIRST_ROWS_10,FIRST_ROWS_100,FIRST_ROWS_1000,FIRST_ROWS,ALL_ROWS,CHOOSE",
             "context": "",
             "unit": 3,
             "tunable": false,

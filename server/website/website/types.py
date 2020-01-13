@@ -64,6 +64,14 @@ class MetricType(BaseType):
         STATISTICS: 'STATISTICS',
     }
 
+    @classmethod
+    def nonnumeric(cls):
+        return (cls.INFO,)
+
+    @classmethod
+    def numeric(cls):
+        return tuple(sorted(set(cls.TYPE_NAMES.keys()) - set(cls.nonnumeric())))
+
 
 class VarType(BaseType):
     STRING = 1

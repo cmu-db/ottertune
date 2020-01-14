@@ -49,7 +49,7 @@ class Command(BaseCommand):
     def reset_website(self):
         # WARNING: destroys the existing website and creates with all
         # of the required inital data loaded (e.g., the KnobCatalog)
-    
+
         # Recreate the ottertune database
         db.connections.close_all()
         dbname = DATABASES['default']['NAME']
@@ -62,10 +62,7 @@ class Command(BaseCommand):
         call_command('startcelery')
 
     def handle(self, *args, **options):
-        dumpfile = options['dumpfile']
-        self.stdout.write("Dumping database to file '{}'...".format(dumpfile))
-        call_command('dumpdata', 'admin', 'auth', 'django_db_logger', 'djcelery', 'sessions',
-                     'sites', 'website', output=dumpfile)
+        call_command('dumpwebsite', dumpfile=options['dumpfile'])
         call_command('stopcelery')
 
         self.reset_website()

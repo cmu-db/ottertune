@@ -6,8 +6,9 @@
 # pylint: disable=too-many-lines
 import logging
 import datetime
+import os
 import re
-import time
+import shutil
 from collections import OrderedDict
 
 from django.contrib.auth import authenticate, login, logout
@@ -16,7 +17,8 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
+from django.core.management import call_command
 from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, QueryDict
@@ -38,8 +40,8 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
-from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil, ConversionUtil
-from .settings import TIME_ZONE
+from .utils import JSONUtil, LabelUtil, MediaUtil, TaskUtil
+from .settings import LOG_DIR, TIME_ZONE
 
 from .set_default_knobs import set_default_knobs
 
@@ -729,6 +731,7 @@ def knob_data_view(request, project_id, session_id, data_id):  # pylint: disable
     target_obj = JSONUtil.loads(result.metric_data.data)[session.target_objective]
     return dbms_data_view(request, context, knob_data, session, target_obj)
 
+
 @login_required(login_url=reverse_lazy('login'))
 def metric_data_view(request, project_id, session_id, data_id):  # pylint: disable=unused-argument
     metric_data = get_object_or_404(MetricData, pk=data_id)
@@ -894,8 +897,7 @@ def tuner_status_view(request, project_id, session_id, result_id):  # pylint: di
         total_runtime = (completion_time - res.creation_time).total_seconds()
         total_runtime = '{0:.2f} seconds'.format(total_runtime)
 
-    task_info = [(tname, task) for tname, task in
-                 zip(list(TaskType.TYPE_NAMES.values()), tasks)]
+    task_info = list(zip(TaskType.TYPE_NAMES.values(), tasks))
 
     context = {"id": result_id,
                "result": res,
@@ -1175,6 +1177,31 @@ def alt_get_info(request, name):  # pylint: disable=unused-argument
     if name == 'constants':
         info = utils.get_constants()
         response = HttpResponse(JSONUtil.dumps(info))
+
+    elif name in ('website', 'logs'):
+        tmpdir = os.path.realpath('.info')
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        os.makedirs(tmpdir, exist_ok=True)
+
+        if name == 'website':
+            filepath = os.path.join(tmpdir, 'website_dump.json.gz')
+            call_command('dumpwebsite', dumpfile=filepath, compress=True)
+        else:  # name == 'logs'
+            base_name = os.path.join(tmpdir, 'website_logs')
+            root_dir, base_dir = os.path.split(LOG_DIR)
+            filepath = shutil.make_archive(
+                base_name, format='gztar', base_dir=base_dir, root_dir=root_dir)
+
+        f = open(filepath, 'rb')
+        try:
+            cfile = File(f)
+            response = HttpResponse(cfile, content_type='application/x-gzip')
+            response['Content-Length'] = cfile.size
+            response['Content-Disposition'] = 'attachment; filename={}'.format(
+                os.path.basename(filepath))
+        finally:
+            f.close()
+        shutil.rmtree(tmpdir, ignore_errors=True)
     else:
         LOG.warning("Invalid name for info request: %s", name)
         response = HttpResponse("Invalid name for info request: {}".format(name), status=400)

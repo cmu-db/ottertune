@@ -4,12 +4,13 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 # pylint: disable=too-many-lines
+import csv
 import logging
-import datetime
 import os
 import re
 import shutil
 from collections import OrderedDict
+from io import StringIO
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -34,8 +35,9 @@ from pytz import timezone
 from . import utils
 from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
-from .models import (BackupData, DBMSCatalog, KnobCatalog, KnobData, MetricCatalog, User, Hardware,
-                     MetricData, Project, Result, Session, Workload, SessionKnob, PipelineRun)
+from .models import (BackupData, DBMSCatalog, ExecutionTime, Hardware, KnobCatalog, KnobData,
+                     MetricCatalog, MetricData, PipelineRun, Project, Result, Session,
+                     SessionKnob, User, Workload)
 from .tasks import (aggregate_target_results, map_workload, train_ddpg,
                     configuration_recommendation, configuration_recommendation_ddpg)
 from .types import (DBMSType, KnobUnitType, MetricType,
@@ -457,12 +459,13 @@ def new_result(request):
             LOG.warning("Invalid upload code: %s", upload_code)
             return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
-        return handle_result_files(session, request.FILES)
+        execution_times = form.cleaned_data['execution_times']
+        return handle_result_files(session, request.FILES, execution_times)
     LOG.warning("Request type was not POST")
     return HttpResponse("Request type was not POST", status=400)
 
 
-def handle_result_files(session, files):
+def handle_result_files(session, files, execution_times=None):
     from celery import chain
     # Combine into contiguous files
     files = {k: b''.join(v.chunks()).decode() for k, v in list(files.items())}
@@ -653,6 +656,25 @@ def handle_result_files(session, files):
 
     result.task_ids = ','.join(taskmeta_ids)
     result.save()
+
+    if execution_times:
+        try:
+            batch = []
+            f = StringIO(execution_times)
+            reader = csv.reader(f, delimiter=',')
+
+            for module, fn, tag, start_ts, end_ts in reader:
+                start_ts = float(start_ts)
+                end_ts = float(end_ts)
+                exec_time = end_ts - start_ts
+                start_time = datetime.fromtimestamp(int(start_ts), timezone(TIME_ZONE))
+                batch.append(
+                    ExecutionTime(module=module, function=fn, tag=tag, start_time=start_time,
+                                  execution_time=exec_time, result=result))
+            ExecutionTime.objects.bulk_create(batch)
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning("Error parsing execution times:\n%s", execution_times, exc_info=True)
+
     return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "
                         .format(response.status, result_id))
 

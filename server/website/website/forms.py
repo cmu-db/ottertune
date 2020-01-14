@@ -17,6 +17,7 @@ class NewResultForm(forms.Form):
     metrics_after = forms.FileField()
     knobs = forms.FileField()
     summary = forms.FileField()
+    execution_times = forms.CharField(required=False, strip=True)
 
 
 class ProjectForm(forms.ModelForm):

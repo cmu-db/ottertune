@@ -4,12 +4,15 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 from collections import OrderedDict
+from pytz import timezone
 
 from django.contrib.auth.models import User
 from django.db import models, DEFAULT_DB_ALIAS
+from django.utils.datetime_safe import datetime
 from django.utils.timezone import now
 
 from .db import target_objectives
+from .settings import TIME_ZONE
 from .types import (DBMSType, LabelStyleType, MetricType, KnobUnitType,
                     PipelineTaskType, VarType, KnobResourceType,
                     WorkloadStatusType, AlgorithmType, StorageType)
@@ -498,3 +501,22 @@ class BackupData(BaseModel):
     raw_summary = models.TextField()
     knob_log = models.TextField()
     metric_log = models.TextField()
+
+
+class ExecutionTime(models.Model):
+    module = models.CharField(max_length=32)
+    function = models.CharField(max_length=32)
+    tag = models.CharField(max_length=64, blank=True, default='')
+    start_time = models.DateTimeField()
+    execution_time = models.FloatField()  # in seconds
+    result = models.ForeignKey(Result, null=True, blank=True, default=None)
+
+    @property
+    def event(self):
+        return '.'.join((e for e in (self.module, self.function, self.tag) if e))
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if isinstance(self.start_time, (int, float)):
+            self.start_time = datetime.fromtimestamp(int(self.start_time), timezone(TIME_ZONE))
+        super().save(force_insert=force_insert, force_update=force_update, using=using,
+                     update_fields=update_fields)

@@ -10,10 +10,10 @@ from django_db_logger.admin import StatusLogAdmin
 from django_db_logger.models import StatusLog
 from djcelery import models as djcelery_models
 
-from .models import (BackupData, DBMSCatalog, KnobCatalog,
-                     KnobData, MetricCatalog, MetricData,
-                     PipelineData, PipelineRun, Project,
-                     Result, Session, Workload, Hardware,
+from .models import (BackupData, DBMSCatalog, ExecutionTime,
+                     KnobCatalog, KnobData, MetricCatalog,
+                     MetricData, PipelineData, PipelineRun,
+                     Project, Result, Session, Workload, Hardware,
                      SessionKnob)
 from .types import VarType
 
@@ -175,6 +175,14 @@ class CustomStatusLogAdmin(StatusLogAdmin):
     list_filter = ('logger_name', 'level')
 
 
+class ExecutionTimeAdmin(admin.ModelAdmin):
+    list_display = ('event', 'result', 'exec_time')
+
+    def exec_time(self, instance):  # pylint: disable=no-self-use
+        return '{:.0f} sec'.format(instance.execution_time)
+    exec_time.short_description = 'Execution Time'
+
+
 # Admin classes for website models
 admin.site.register(DBMSCatalog, DBMSCatalogAdmin)
 admin.site.register(KnobCatalog, KnobCatalogAdmin)
@@ -190,6 +198,7 @@ admin.site.register(PipelineRun, PipelineRunAdmin)
 admin.site.register(Workload, WorkloadAdmin)
 admin.site.register(SessionKnob, SessionKnobAdmin)
 admin.site.register(Hardware, HardwareAdmin)
+admin.site.register(ExecutionTime, ExecutionTimeAdmin)
 
 # Admin classes for 3rd party models
 admin.site.unregister(StatusLog)

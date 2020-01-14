@@ -7,7 +7,7 @@ import os
 import time
 
 from django.core.management.base import BaseCommand
-from fabric.api import local
+from fabric.api import local, quiet, settings
 
 
 class Command(BaseCommand):
@@ -34,9 +34,10 @@ class Command(BaseCommand):
                 pidfile = options[name + '_pidfile']
                 with open(pidfile, 'r') as f:
                     pid = f.read()
-                local('kill {}'.format(pid))
+                with settings(warn_only=True):
+                    local('kill {}'.format(pid))
                 check_pidfiles.append((name, pidfile))
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 self.stdout.write(self.style.NOTICE(
                     "ERROR: an exception occurred while stopping '{}':\n{}\n".format(name, e)))
 
@@ -54,3 +55,6 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.SUCCESS(
                     "Successfully stopped '{}'.".format(name)))
+
+        with quiet():
+            local('rm -f {} {}'.format(options['celery_pidfile'], options['celerybeat_pidfile']))

@@ -150,7 +150,7 @@ class SessionViewsTests(TestCase):
         'storage': '32',
         'storage_type': 5,
         'dbms': 1,
-        'hyper_parameters': '{}'
+        'hyperparameters': '{}'
     }
 
     def setUp(self):

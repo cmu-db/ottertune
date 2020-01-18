@@ -322,7 +322,7 @@ def train_ddpg(result_id):
     LOG.info('Add training data to ddpg and train ddpg')
     result = Result.objects.get(pk=result_id)
     session = Result.objects.get(pk=result_id).session
-    params = JSONUtil.loads(session.hyper_parameters)
+    params = JSONUtil.loads(session.hyperparameters)
     session_results = Result.objects.filter(session=session,
                                             creation_time__lt=result.creation_time)
     result_info = {}
@@ -402,16 +402,18 @@ def train_ddpg(result_id):
     LOG.info('reward: %f', reward)
 
     # Update ddpg
-    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=params['ACTOR_LEARNING_RATE'],
-                clr=params['CRITIC_LEARNING_RATE'], gamma=params['DDPG_GAMMA'],
-                batch_size=params['DDPG_BATCH_SIZE'], a_hidden_sizes=params['ACTOR_HIDDEN_SIZES'],
-                c_hidden_sizes=params['CRITIC_HIDDEN_SIZES'], use_default=params['USE_DEFAULT'])
+    ddpg = DDPG(n_actions=knob_num, n_states=metric_num, alr=params['DDPG_ACTOR_LEARNING_RATE'],
+                clr=params['DDPG_CRITIC_LEARNING_RATE'], gamma=params['DDPG_GAMMA'],
+                batch_size=params['DDPG_BATCH_SIZE'],
+                a_hidden_sizes=params['DDPG_ACTOR_HIDDEN_SIZES'],
+                c_hidden_sizes=params['DDPG_CRITIC_HIDDEN_SIZES'],
+                use_default=params['DDPG_USE_DEFAULT'])
     if session.ddpg_actor_model and session.ddpg_critic_model:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory:
         ddpg.replay_memory.set(session.ddpg_reply_memory)
     ddpg.add_sample(normalized_metric_data, knob_data, reward, normalized_metric_data)
-    for _ in range(params['UPDATE_EPOCHS']):
+    for _ in range(params['DDPG_UPDATE_EPOCHS']):
         ddpg.update()
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
     session.ddpg_reply_memory = ddpg.replay_memory.get()
@@ -443,7 +445,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     result_list = Result.objects.filter(pk=result_id)
     result = result_list.first()
     session = result.session
-    params = JSONUtil.loads(session.hyper_parameters)
+    params = JSONUtil.loads(session.hyperparameters)
     agg_data = DataUtil.aggregate_data(result_list)
     metric_data, _ = clean_metric_data(agg_data['y_matrix'], agg_data['y_columnlabels'], session)
     metric_data = metric_data.flatten()
@@ -455,8 +457,9 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     metric_num = len(metric_data)
 
     ddpg = DDPG(n_actions=knob_num, n_states=metric_num,
-                a_hidden_sizes=params['ACTOR_HIDDEN_SIZES'],
-                c_hidden_sizes=params['CRITIC_HIDDEN_SIZES'], use_default=params['USE_DEFAULT'])
+                a_hidden_sizes=params['DDPG_ACTOR_HIDDEN_SIZES'],
+                c_hidden_sizes=params['DDPG_CRITIC_HIDDEN_SIZES'],
+                use_default=params['DDPG_USE_DEFAULT'])
     if session.ddpg_actor_model is not None and session.ddpg_critic_model is not None:
         ddpg.set_model(session.ddpg_actor_model, session.ddpg_critic_model)
     if session.ddpg_reply_memory is not None:
@@ -492,7 +495,7 @@ def combine_workload(target_data):
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     session = newest_result.session
-    params = JSONUtil.loads(session.hyper_parameters)
+    params = JSONUtil.loads(session.hyperparameters)
     cleaned_workload_knob_data = clean_knob_data(workload_knob_data["data"],
                                                  workload_knob_data["columnlabels"],
                                                  newest_result.session)
@@ -661,7 +664,7 @@ def configuration_recommendation(recommendation_input):
     LOG.info('configuration_recommendation called')
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     session = newest_result.session
-    params = JSONUtil.loads(session.hyper_parameters)
+    params = JSONUtil.loads(session.hyperparameters)
 
     if target_data['bad'] is True:
         target_data_res = create_and_save_recommendation(
@@ -726,17 +729,17 @@ def configuration_recommendation(recommendation_input):
 
     elif algorithm == AlgorithmType.GPR:
         # default gpr model
-        if params['USE_GPFLOW']:
+        if params['GPR_USE_GPFLOW']:
             model_kwargs = {}
-            model_kwargs['model_learning_rate'] = params['HP_LEARNING_RATE']
-            model_kwargs['model_maxiter'] = params['HP_MAX_ITER']
+            model_kwargs['model_learning_rate'] = params['GPR_HP_LEARNING_RATE']
+            model_kwargs['model_maxiter'] = params['GPR_HP_MAX_ITER']
             opt_kwargs = {}
-            opt_kwargs['learning_rate'] = params['DEFAULT_LEARNING_RATE']
-            opt_kwargs['maxiter'] = params['MAX_ITER']
+            opt_kwargs['learning_rate'] = params['GPR_LEARNING_RATE']
+            opt_kwargs['maxiter'] = params['GPR_MAX_ITER']
             opt_kwargs['bounds'] = [X_min, X_max]
             opt_kwargs['debug'] = params['GPR_DEBUG']
-            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(params['UCB_BETA'],
-                                                      scale=params['DEFAULT_UCB_SCALE'],
+            opt_kwargs['ucb_beta'] = ucb.get_ucb_beta(params['GPR_UCB_BETA'],
+                                                      scale=params['GPR_UCB_SCALE'],
                                                       t=i + 1., ndim=X_scaled.shape[1])
             tf.reset_default_graph()
             graph = tf.get_default_graph()
@@ -745,17 +748,17 @@ def configuration_recommendation(recommendation_input):
                                         **model_kwargs)
             res = tf_optimize(m.model, X_samples, **opt_kwargs)
         else:
-            model = GPRGD(length_scale=params['DEFAULT_LENGTH_SCALE'],
-                          magnitude=params['DEFAULT_MAGNITUDE'],
-                          max_train_size=params['MAX_TRAIN_SIZE'],
-                          batch_size=params['BATCH_SIZE'],
-                          num_threads=params['NUM_THREADS'],
-                          learning_rate=params['DEFAULT_LEARNING_RATE'],
-                          epsilon=params['DEFAULT_EPSILON'],
-                          max_iter=params['MAX_ITER'],
-                          sigma_multiplier=params['DEFAULT_SIGMA_MULTIPLIER'],
-                          mu_multiplier=params['DEFAULT_MU_MULTIPLIER'],
-                          ridge=params['DEFAULT_RIDGE'])
+            model = GPRGD(length_scale=params['GPR_LENGTH_SCALE'],
+                          magnitude=params['GPR_MAGNITUDE'],
+                          max_train_size=params['GPR_MAX_TRAIN_SIZE'],
+                          batch_size=params['GPR_BATCH_SIZE'],
+                          num_threads=params['TF_NUM_THREADS'],
+                          learning_rate=params['GPR_LEARNING_RATE'],
+                          epsilon=params['GPR_EPSILON'],
+                          max_iter=params['GPR_MAX_ITER'],
+                          sigma_multiplier=params['GPR_SIGMA_MULTIPLIER'],
+                          mu_multiplier=params['GPR_MU_MULTIPLIER'],
+                          ridge=params['GPR_RIDGE'])
             model.fit(X_scaled, y_scaled, X_min, X_max)
             res = model.predict(X_samples, constraint_helper=constraint_helper)
 
@@ -814,7 +817,7 @@ def map_workload(map_workload_input):
 
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
     session = newest_result.session
-    params = JSONUtil.loads(session.hyper_parameters)
+    params = JSONUtil.loads(session.hyperparameters)
     target_workload = newest_result.workload
     X_columnlabels = np.array(target_data['X_columnlabels'])
     y_columnlabels = np.array(target_data['y_columnlabels'])
@@ -929,11 +932,11 @@ def map_workload(map_workload_input):
             # and then predict the performance of each metric for each of
             # the knob configurations attempted so far by the target.
             y_col = y_col.reshape(-1, 1)
-            model = GPRNP(length_scale=params['DEFAULT_LENGTH_SCALE'],
-                          magnitude=params['DEFAULT_MAGNITUDE'],
-                          max_train_size=params['MAX_TRAIN_SIZE'],
-                          batch_size=params['BATCH_SIZE'])
-            model.fit(X_scaled, y_col, ridge=params['DEFAULT_RIDGE'])
+            model = GPRNP(length_scale=params['GPR_LENGTH_SCALE'],
+                          magnitude=params['GPR_MAGNITUDE'],
+                          max_train_size=params['GPR_MAX_TRAIN_SIZE'],
+                          batch_size=params['GPR_BATCH_SIZE'])
+            model.fit(X_scaled, y_col, ridge=params['GPR_RIDGE'])
             predictions[:, j] = model.predict(X_target).ypreds.ravel()
         # Bin each of the predicted metric columns by deciles and then
         # compute the score (i.e., distance) between the target workload

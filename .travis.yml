@@ -35,7 +35,7 @@ matrix:
     - sudo service mysql stop || true
     - sudo service postgresql stop || true
     - cd $ROOT/docker
-    - docker-compose -f docker-compose.build.yml build
+    - docker-compose -f docker-compose.build.yml build --build-arg GIT_COMMIT=$TRAVIS_COMMIT
     - dcfile_mysql=docker-compose.mysql.yml
     - dcfile_postgres=docker-compose.postgresql.yml
     - BACKEND=mysql WEB_ENTRYPOINT="''" sh create-docker-compose.sh $dcfile_mysql

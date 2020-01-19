@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Tells bash to exit if any command returns a non-zero return value
+set -e
+
 service="$1"
 
 echo ""

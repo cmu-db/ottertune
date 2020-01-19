@@ -292,9 +292,11 @@ class ConversionUtil(object):
         for i, (factor, suffix) in enumerate(system):
             if suffix == min_suffix:
                 if value < factor:
-                    assert i + 1 < len(system), \
-                        ('i + 1 >= len(system) (i + 1: {}, len(system): {}, value: {}, '
-                         'min_suffix: {})').format(i + 1, len(system), value, min_suffix)
+                    if i + 1 >= len(system):
+                        LOG.warning("Error converting value '%s': min_suffix='%s' at index='%s' "
+                                    "is already the smallest suffix.", value, min_suffix, i)
+                        return value
+
                     min_suffix = system[i + 1][1]
                     LOG.warning('The value is smaller than the min factor: %s < %s%s. '
                                 'Setting min_suffix=%s...', value, factor, suffix, min_suffix)

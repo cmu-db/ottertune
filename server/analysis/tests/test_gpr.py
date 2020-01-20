@@ -14,6 +14,7 @@ from analysis.gp_tf import GPR
 from analysis.gp_tf import GPRGD
 from analysis.gpr import gpr_models
 from analysis.gpr.optimize import tf_optimize
+from analysis.gpr.optimize import gpflow_predict
 
 # test numpy version GPR
 class TestGPRNP(unittest.TestCase):
@@ -67,6 +68,37 @@ class TestGPRTF(unittest.TestCase):
         self.assertEqual(sigmas_round, expected_sigmas)
 
 
+# test GPFlow version GPR
+class TestGPRGPF(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestGPRGPF, cls).setUpClass()
+        boston = datasets.load_boston()
+        data = boston['data']
+        X_train = data[0:500]
+        X_test = data[500:]
+        y_train = boston['target'][0:500].reshape(500, 1)
+
+        model_kwargs = {'lengthscales': 1, 'variance': 1, 'noise_variance': 1}
+        tf.reset_default_graph()
+        graph = tf.get_default_graph()
+        gpflow.reset_default_session(graph=graph)
+        cls.m = gpr_models.create_model('BasicGP', X=X_train, y=y_train,
+                                        **model_kwargs)
+        cls.gpr_result = gpflow_predict(cls.m.model, X_test)
+
+    def test_gprnp_ypreds(self):
+        ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
+        expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
+        self.assertEqual(ypreds_round, expected_ypreds)
+
+    def test_gprnp_sigmas(self):
+        sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
+        expected_sigmas = [1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142]
+        self.assertEqual(sigmas_round, expected_sigmas)
+
+
 # test Tensorflow GPRGD model
 class TestGPRGD(unittest.TestCase):
 
@@ -96,11 +128,11 @@ class TestGPRGD(unittest.TestCase):
 
 
 # test Gradient Descent in GPFlow model
-class TestGPRGP(unittest.TestCase):
+class TestGPFGD(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestGPRGP, cls).setUpClass()
+        super(TestGPFGD, cls).setUpClass()
         boston = datasets.load_boston()
         data = boston['data']
         X_train = data[0:500]

@@ -111,7 +111,13 @@ class BasicGP(BaseModel):
         ]
 
     def _build_kernel(self, kernel_kwargs, **kwargs):
-        k = gpflow.kernels.Matern12(lengthscales=2, **kernel_kwargs[0])
+        ls = 2
+        var = 1
+        if kwargs.get('lengthscales') is not None:
+            ls = kwargs['lengthscales']
+        if kwargs.get('variance') is not None:
+            var = kwargs['variance']
+        k = gpflow.kernels.Matern12(variance=var, lengthscales=ls, **kernel_kwargs[0])
         if kwargs.pop('optimize_hyperparameters'):
             k.lengthscales.transform = gpflow.transforms.Logistic(
                 *self._LENGTHSCALE_BOUNDS)

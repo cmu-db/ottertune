@@ -16,6 +16,13 @@ from analysis.util import get_analysis_logger
 LOG = get_analysis_logger(__name__)
 
 
+class GPRResult():
+
+    def __init__(self, ypreds=None, sigmas=None):
+        self.ypreds = ypreds
+        self.sigmas = sigmas
+
+
 class GPRGDResult():
 
     def __init__(self, ypreds=None, sigmas=None, minl=None, minl_conf=None):
@@ -23,6 +30,20 @@ class GPRGDResult():
         self.sigmas = sigmas
         self.minl = minl
         self.minl_conf = minl_conf
+
+
+def gpflow_predict(model, Xin):
+    fmean, fvar, _, _, _ = model._build_predict(Xin)  # pylint: disable=protected-access
+    y_mean_var = model.likelihood.predict_mean_and_var(fmean, fvar)
+    y_mean = y_mean_var[0]
+    y_var = y_mean_var[1]
+    y_std = tf.sqrt(y_var)
+
+    session = model.enquire_session(session=None)
+    with session.as_default():
+        y_mean_value = session.run(y_mean)
+        y_std_value = session.run(y_std)
+        return GPRResult(y_mean_value, y_std_value)
 
 
 def tf_optimize(model, Xnew_arr, learning_rate=0.01, maxiter=100, ucb_beta=3.,

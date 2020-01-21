@@ -928,7 +928,7 @@ def get_workload_data(request):
 
     results = Result.objects.filter(workload=workload)
     result_data = {r.pk: JSONUtil.loads(r.metric_data.data) for r in results}
-    results = sorted(results, key=lambda x: int(result_data[x.pk][target_objectives.THROUGHPUT]))
+    results = sorted(results, key=lambda x: int(result_data[x.pk][session.target_objective]))
 
     default_metrics = [session.target_objective]
     metrics = request.GET.get('met', ','.join(default_metrics)).split(',')

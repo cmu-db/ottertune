@@ -14,7 +14,7 @@ from analysis.gp_tf import GPR
 from analysis.gp_tf import GPRGD
 from analysis.gpr import gpr_models
 from analysis.gpr.optimize import tf_optimize
-from analysis.gpr.optimize import gpflow_predict
+from analysis.gpr.predict import gpflow_predict
 
 # test numpy version GPR
 class TestGPRNP(unittest.TestCase):
@@ -31,12 +31,12 @@ class TestGPRNP(unittest.TestCase):
         cls.model.fit(X_train, y_train, ridge=1.0)
         cls.gpr_result = cls.model.predict(X_test)
 
-    def test_gprnp_ypreds(self):
+    def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
         expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
         self.assertEqual(ypreds_round, expected_ypreds)
 
-    def test_gprnp_sigmas(self):
+    def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
         expected_sigmas = [1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142]
         self.assertEqual(sigmas_round, expected_sigmas)
@@ -57,23 +57,23 @@ class TestGPRTF(unittest.TestCase):
         cls.model.fit(X_train, y_train)
         cls.gpr_result = cls.model.predict(X_test)
 
-    def test_gprnp_ypreds(self):
+    def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
         expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
         self.assertEqual(ypreds_round, expected_ypreds)
 
-    def test_gprnp_sigmas(self):
+    def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
         expected_sigmas = [1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142]
         self.assertEqual(sigmas_round, expected_sigmas)
 
 
 # test GPFlow version GPR
-class TestGPRGPF(unittest.TestCase):
+class TestGPRGPFlow(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestGPRGPF, cls).setUpClass()
+        super(TestGPRGPFlow, cls).setUpClass()
         boston = datasets.load_boston()
         data = boston['data']
         X_train = data[0:500]
@@ -88,51 +88,23 @@ class TestGPRGPF(unittest.TestCase):
                                         **model_kwargs)
         cls.gpr_result = gpflow_predict(cls.m.model, X_test)
 
-    def test_gprnp_ypreds(self):
+    def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
         expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
         self.assertEqual(ypreds_round, expected_ypreds)
 
-    def test_gprnp_sigmas(self):
+    def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
         expected_sigmas = [1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142]
         self.assertEqual(sigmas_round, expected_sigmas)
 
 
-# test Tensorflow GPRGD model
-class TestGPRGD(unittest.TestCase):
+# test GPFlow version Gradient Descent
+class TestGDGPFlow(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestGPRGD, cls).setUpClass()
-        boston = datasets.load_boston()
-        data = boston['data']
-        X_train = data[0:500]
-        X_test = data[500:]
-        y_train = boston['target'][0:500].reshape(500, 1)
-        Xmin = np.min(X_train, 0)
-        Xmax = np.max(X_train, 0)
-        cls.model = GPRGD(length_scale=1.0, magnitude=1.0, max_iter=1, learning_rate=0, ridge=1.0)
-        cls.model.fit(X_train, y_train, Xmin, Xmax)
-        cls.gpr_result = cls.model.predict(X_test)
-
-    def test_gprnp_ypreds(self):
-        ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
-        expected_ypreds = [0.0181, 0.0014, 0.0006, 0.0015, 0.0039, 0.0014]
-        self.assertEqual(ypreds_round, expected_ypreds)
-
-    def test_gprnp_sigmas(self):
-        sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
-        expected_sigmas = [1.4142, 1.4142, 1.4142, 1.4142, 1.4142, 1.4142]
-        self.assertEqual(sigmas_round, expected_sigmas)
-
-
-# test Gradient Descent in GPFlow model
-class TestGPFGD(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestGPFGD, cls).setUpClass()
+        super(TestGDGPFlow, cls).setUpClass()
         boston = datasets.load_boston()
         data = boston['data']
         X_train = data[0:500]
@@ -158,23 +130,23 @@ class TestGPFGD(unittest.TestCase):
         cls.m = gpr_models.create_model('BasicGP', X=X_train, y=y_train, **model_kwargs)
         cls.gpr_result = tf_optimize(cls.m.model, X_test, **opt_kwargs)
 
-    def test_gprnp_ypreds(self):
+    def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
         expected_ypreds = [0.5272]
         self.assertEqual(ypreds_round, expected_ypreds)
 
-    def test_gprnp_sigmas(self):
+    def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
         expected_sigmas = [1.4153]
         self.assertEqual(sigmas_round, expected_sigmas)
 
 
-# test Gradient Descent in Tensorflow GPRGD model
-class TestGPRGDGD(unittest.TestCase):
+# test Tensorflow version Gradient Descent
+class TestGDTF(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestGPRGDGD, cls).setUpClass()
+        super(TestGDTF, cls).setUpClass()
         boston = datasets.load_boston()
         data = boston['data']
         X_train = data[0:500]
@@ -191,12 +163,12 @@ class TestGPRGDGD(unittest.TestCase):
         cls.model.fit(X_train, y_train, Xmin, Xmax)
         cls.gpr_result = cls.model.predict(X_test)
 
-    def test_gprnp_ypreds(self):
+    def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
         expected_ypreds = [0.5272]
         self.assertEqual(ypreds_round, expected_ypreds)
 
-    def test_gprnp_sigmas(self):
+    def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
         expected_sigmas = [1.4153]
         self.assertEqual(sigmas_round, expected_sigmas)

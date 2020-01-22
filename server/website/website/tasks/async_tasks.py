@@ -22,7 +22,8 @@ from analysis.gp_tf import GPRGD
 from analysis.nn_tf import NeuralNet
 from analysis.gpr import gpr_models
 from analysis.gpr import ucb
-from analysis.gpr.optimize import tf_optimize, gpflow_predict
+from analysis.gpr.optimize import tf_optimize
+from analysis.gpr.predict import gpflow_predict
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import PipelineData, PipelineRun, Result, Workload, SessionKnob, MetricCatalog
@@ -932,15 +933,23 @@ def map_workload(map_workload_input):
             # and then predict the performance of each metric for each of
             # the knob configurations attempted so far by the target.
             y_col = y_col.reshape(-1, 1)
-            model_kwargs = {'lengthscales': params['GPR_LENGTH_SCALE'],
-                            'variance': params['GPR_MAGNITUDE'],
-                            'noise_variance': params['GPR_RIDGE']}
-            tf.reset_default_graph()
-            graph = tf.get_default_graph()
-            gpflow.reset_default_session(graph=graph)
-            m = gpr_models.create_model(params['GPR_MODEL_NAME'], X=X_scaled, y=y_col,
-                                        **model_kwargs)
-            gpr_result = gpflow_predict(m.model, X_target)
+            if params['GPR_USE_GPFLOW']:
+                model_kwargs = {'lengthscales': params['GPR_LENGTH_SCALE'],
+                                'variance': params['GPR_MAGNITUDE'],
+                                'noise_variance': params['GPR_RIDGE']}
+                tf.reset_default_graph()
+                graph = tf.get_default_graph()
+                gpflow.reset_default_session(graph=graph)
+                m = gpr_models.create_model(params['GPR_MODEL_NAME'], X=X_scaled, y=y_col,
+                                            **model_kwargs)
+                gpr_result = gpflow_predict(m.model, X_target)
+            else:
+                model = GPRNP(length_scale=params['GPR_LENGTH_SCALE'],
+                              magnitude=params['GPR_MAGNITUDE'],
+                              max_train_size=params['GPR_MAX_TRAIN_SIZE'],
+                              batch_size=params['GPR_BATCH_SIZE'])
+                model.fit(X_scaled, y_col, ridge=params['GPR_RIDGE'])
+                gpr_result = model.predict(X_target)
             predictions[:, j] = gpr_result.ypreds.ravel()
         # Bin each of the predicted metric columns by deciles and then
         # compute the score (i.e., distance) between the target workload

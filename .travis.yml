@@ -17,20 +17,20 @@ matrix:
   include:
   - name: Docker
     env:
+    - secure: "JdRlS4MAXv1wMBdQf98r4ugit1v0Emq7S/K3CpyP2jpj0QL0VFhPr/r3GFwq2BRM2y0vXQjD29AoZdiQLv4LULgp4AavcmL3kbD7SNNWileqCLbl3rHdGY1gNW4fYOYCPGMPxntYdm18vpXzoF/A81JUX0MMsw3Wh0dBtiQZQP7O4V+bX5hyuCqlxasfTI0Tl323MWao86I2nSmExvGTcYlissPKGb0+TS+qQjOshvJHtmv0PRxJ2a45fB1h1wkAqGKu0X7fXWAhoo9uPt4T9+oCW6bCklAZPbzm4wc3jurnQ//jS44ThtP4n+xH2mwwU9n0unMKl3I+so+R7nH7pE0YGTD+p/4p8lPXYCLlqllvuhNTf+JXLJoC+lIgQXl4qhtURPokohPxJXNRQRd1SWOyep85h9svX3Z+c3dj5160bM/ArB8jKuFtL1Cq/S7Je+liF3xE25BaFQ5P2DlVM1KxLbtvtaTAcvkxq/jr4zu7ZMAjJtDmF6hsuzflGYqNcElZlhMNtKoGeAfVNmpXvFoLt0Iezbafvc6izAqn/h6A+FKnCgmlOit+TyihqnAtIhj+TBgyOw0TFqJ4QKAb3pqL+FxFrH78yR/HGafNHBfvi6ND3b9BefQ0in2RimSSZbE90pdnxhtSxKUDch3hBd4Q0RxZbA/rRyiKQexxE9M="
+    - secure: "MdkCbzD+Toqrnz++93EUDf7hOgkP4h8rU42lnHQ5iShnlnwYzMmI90jCFwF5DYThmaDleBn54EB8lsaFcdmjhrhPWPkDhcRZgRAdfCwq+OIV1lH3KbVwBeLnnfKeci+TNldWinoOgS3cFkz+uXm8tFcRZgGJ/IW8Tu/oD9QWZixP7Zyfp28GMzm+6Hmb1lVbpsnMwiKQQSyPQTv9NB4jG1pzvP45cID1WrmgZFYhpDWOrclcSmLSF4N0o7Fu2x6Ninz5FkHImOlbY47DVJAGxYQDDPOr63lM5T5aE++dnvNfk9wnJwTQ0wKErnLoRpMnc1O2YwajyamPTLmLafnoh4EbFl0WY0tG1Xi3B01fRbzbdi2htv+Ltk9UD2XjHmJEKgDOBXD9WzIDq20eRT1ArYZdfIrD71s9JPQ5KlOJiTYuKfRMiMs1cEDFxjiQOMFeGCROZ1w0v2syf6dBLBQqVeYnsNAGg8Nvrtcw9jfsORoA+AQffgy8s2gJGLCp0JYOTrgJ06hA63wMq11vq61WVOT6F/PSrUamaGtN+L+vZNW8mPPqHMejedB29o0CfP6q7pI8KGcaHmWxPQ4fS3E+dwuAA9EnuC9Z8miTQm/NyDJdkHOf6qvTs5L/UPesnQaCDe2eCPnEivv1NYgQN36boyHo2gBiypH8TlGljCdoJR0="
+    - secure: "ANIFx1GJ3+O+zND5bIEkHDM86oGP5pkFPiWzCC+pEjTSxnF11cm0dTD4l4+QhV1i2RUYGZ0naD1dlantj9PuiHN1NkG9Gpd09edlhJSdSeYSuphMYqU0DEijxZTVl1IDBEgST16JPSc5x2Nz6urUJq5zmxnEeFG7UCfuHUWHdsMOhH6wKZ+am4/k7nfeZ1rtb5PXm9Xzy/6Hb9CBaMiAa+fQrPrVsLG+gFPOCdPveJXFi7O1qpWKo0GvWG6h3/XM1WuJTSC9lPRJ+d8akpbTYNW0anbDsAwD7Z0y+XCr96YB6VgDFvlPsnnePoA052pSt4cXkZSJKKyd6Vw2sXnjIX918ahgDh4gsaZzltAYOKnl49dT3ms2gljjTPs+YxJvC1//hPmAqlDpem7S4WeNhdVoyj1+eaFUpXbLWUFz9lC04EIBKb/hVJNADrW2w2g5wsVGcTinyweVk1uLqRMhHuyn2cec6d0kcJgDrWyA4f4IkXksPco+9dVU3f+nUH3dj9R7dUEHFvEngNdR7Oq9TiNkqp9RTbnuyjubQmPcCH42NW41DHCddRkWwT8FWxXOqYG7KfbGdy4gIP7XTCLRrovPqZM3rKy8Cr6ZzrFV9QvZV/I57rciDIzIU0jCiPEPHJxywK5QDrOv4GvMOWEdm05cFtytAK2t1laRB9dCQsI="
+    - secure: "T5VGk+B5Go78zBygxM2jIrduh2lbHQaoxOTG0sdABOVmsYZBieIzNLe40dVW8jegGoVdTwlw0Rfp5nUs7uzut5MtUc1hbMYL5Gem0/RxZAF20zTffgDZhOYD1K7B3DsE4j68+I5GRq0JKUaOqvD+54ZIEHIKmiS9Sc2rUpp3n6hrLkKyPoW87wOVlGn10eAZ1QjnKAB7W3E4a5d22Wx2C1w1UxG+x5/LYkSGQB8WpXhBJZdWnUOyAetPutLFEvrfA5AW6rl1ebkYi6OOc/og29ZT9/y5gji0+hIBGcjI+Fs81FGiq2TT3dTqvAiK1r8x1RhMdRWLuMTb0t+LVcUhGs1J9KFGSixcDqyCbZtX4QyHGpGpJYO975iFHFfsZ/WnnD4YKFKT7UG6MRxSm5LZMhf8mIiVTYbs142X+LKpXhsiY10BrqHnWfMO97kqHu9ezCVwyFRycSQzQUju7vc5IYz7GOFnnjYfmN9h5E00BBzpLrXjlwykazZuDreZS5RP9A5xGgHioZHAEBXWDySEmGRoAzhXmteHQV0v04enqxXWuVSq0bNAf/bgFGFjtm9RwgWiQ5Iw7ZaCtF85kTrIc/34OUTqaR3xZhp0laX0J8oyHgg1ci0nzmwxd5v+xFY4qah/71cwN4vb5wqPvhFleVBuZxvyf+cShcxseBzEKmg="
+    - secure: "h7ImM1Zi3QQZ1rQudwLVAEaBb6yc2RFw8jzyboq48Cgix3bGbeJxPHA32HGEF6cLQcI2nstyPpMelxptnbFf71kX0h4/KGLdoD4ZUXyHaNWkrDi92UOyYyxu0/b+SmlPUJHNsHndAXNijaMWA8hW0FqoYmmvbqI2mHWwpMo1QWypxALBgp/EDJ9TCySCAh6K0RSBzFt5Z3yBi4fNYiPRETOISF1nrOJqV4xvO5Mh6cb0P+7FALw3JAyOQjqmzbJHjiqk43/pDK6nX+n8/K6Lz+j/yISdLLxe8X9QmYUYWDSGvHdMFwrHcMFIgueCno2tgepQSVjZsLARJnhZXct2fd3XtWfVn2i9QwrxBQhC0KPnouYzoE0cH5jcE/Hnnvv6JgD5LyAqh+U5Njhpw3+g+yJoPQcDWty9amyF2sby/gBDdbh59u+TwaZupLTR8HoKeSNkOLDjWaHVr5hot8OajfXd8GZ5ViUFOUhVFX5TfjWIP7Y2ttXptDhTcTD+VnKHMEWbwu18FmLGuH15AiEuYLRfOMpBZaszbBLCQbnj9VwM9SOAHbW0Lab2jcv7PlhvIZjgyIeT310bgSuhWbWHLuDXJ6aHxTBvaKf5lw9casUhKIJbwpeWVIVk9U6mcR6IGCWCkRhJ8W6oU8bsOuHD4xkpHXKOmuSFun7KfoxPgeQ="
+    - secure: "g3ZjRwFYcn03Lo52oXbSQfZ5N3e3sQbzLGfhJ8YYeTFFM22jMiZhsKyM8PtV7D3FmRIzRouX4G7SBNY7gOYXVEjiCfaTie60vuXhJvaEmOHYm5k4b9smcA43KGtqMwWNkBvXC7vrGRDwH1V29BwdvIxCdKwemOU2Ka2Ws0SfLMrlUTRPwUqqDzNs9wZMVAaZbolzSvl9LTKFuQssshLm4oCFZjHRKsBiD8G3JpB3tlOjzW5c4KzGiKvFwnhirVV0mSwDd3dHsp6nebXdQV6Z+zlxrouLTbOzm72cJ4SzLrzsJVCFGK//0GD6xm48kPNvjHylb99bDav6kk5swNpUSwT38SYZKX47fwDJH+TnHAB12izHN7ujSTdbBqqsh/bm8dUU13nylNydRuucPOWrdcyw5gjDcUdeP/uRrWE4syF/5TY26oyJ1CVpl8PruiY8RAKSFoBqwIv7S/T17lbvQgCzl8RiIwToYvRYqlkcROi0yPWC3MU3n4Q+9kYUFwee38SshZGHqEtemT3n4UALuan+a3Fc1yem4XJGKyJX1BJTAjcN62dBHgzI/0h9d7K8w7pEhLEeZjpTS+tQJOxXv1sgbyC7KBjRhVnFzuKr2zWJMnGnSp7UcTWrXVdT74IXrts99r/MdWjIQwWKbEEJucs5BitlTlvUXnanmCtrCts="
     - BACKEND=postgresql
-    - secure: PZAe5iDaipqsfzQ0/mjFdcQhEMQ0alI3Ap+hWR0X9uWfK8dH6XU/RJLzJXj2o+kpGiCGlj7DJ9uuJy6+/75hq2f7vcs+6JJInPQHUlkj2TPDYWNWaFw0XvIAvV9EA73l4kDy26m/+JiSaF1GsyVD5wdJpVRmw6o7liGfYlQX3fY8kQ4p51+5ufb9QCAselrE70302fTyX4GqxaT1xC2L5fzzIcuKllFVlRILc+04gldiq8u0EAcUO2ovYiW/3+qGPkDcdwd2j3UC1tEGQ+x+Q/7g5JqBHGz6iMy8omH77p3rk4aKV/HCRTZLQLe/Kcd5UiSrQvSIHl5jfIYbzBx7//Ub64c7TlgX+UckK+GPYiwr2N6VmiducFnSjmm3RSW959m1M+M+bqIPbS510zqnIs28xjqIgnWvtpA8mgKdRAtQyDFMYcLc7GQyw0alUo1CQuTf4+Ter+78vt3vYVlCD8lNoMG78xBaLg//pgNQ8sdGWGbUsAYuxxrqI056Ayw16LgrcakL0JWLR/7p+HmCtH2ZT1nQEZJJHSUP3ekibGrE6wgNVpt3DAOwQUG/JiceLn4uVoeljpT+neCoM29wvf4M7JGWg+8SPtg4DHJIAocOVt5EDi8/CtoIa3WJLD2AMI4ladd4PKNzHT4tsYdE2V9d+xkuhXv1/OakAJedtEc=
-    - secure: RN4SGagKXgn8gEk9pG2CdM5a/rrBPqkD1nONLcvcqjYzlbniKmhmKT+OxhjVw7Qtoy/RACr4zpIupIjA6COpndSd8/m6WBsWnYD0dt6cDBDLFgHyIh9XNi6/bhNgqPksY9XrENfmeijTENiqpuXeXCuHdaVF0quwvGBxDAIWFNOpPwceAJrwRv9Yb/7w5rmlotSVesScPhwV92Rmu3NK+r/FYANSOFXoBFAYctJSi7dj4A/y3lOFmzE5Y12+Kf6kHuoP+FZO/S/zL1OAPSzedqctRcDpVctEt4AqA7cpGe+Qvate2Hnj63YNlykQD+zlCFHLrqCCKZecdNe+SQVcYqgNk78SX7Nvhfr/xH5lq8HjovqjrfQFc4pVDryomtMeTb7wilN9wsYu6zCneMDHF57hfSKTmiqhz0utEqUiPYwxhkU5uXsXO8VA3aOUlIhM3QPnB6tvkB1h0+qnNzU/lJk6LXy9KkNy9HI8ab+58FSEhj4Uyo9AaBGOB2bEu/d8BsdW1qjGYTI6t4tWZQ8lduOw3xqT5hHhwGB9bz5DomfbECanOGShR3NeMJJGYWETEWek2WK9viP3pllbTFnU3yXfv4ssb00eD2tK+7pyWuP+hL7S1yvrMs5qYRFAEfJhuzTEjtN2uAKumCvU/eh0JjiAPK6XhdT49K1Cd+HC1h4=
-    - secure: "il9BGo4uQhjWOb/+TDdAkXhl4n22DQgmp9F1zP/dFVm/ZgdqNZnIzA9Libe4CiQEUQ+JSEXJqeJCyj657rNUntFZUM6bEzjCSpkDDzkArY4R7ZQQsMOmI5Pv1aKsU+qO899URe9hxmbqnuM23Ke42aY7vT+2qnRTSaC9N6c+4gRXzrcUeAdWU92nt+XPED05LNCr6nTgqrEVAh1434yQsRZZlB54iZKd7n6Plpldr6md7UMe3EmToaOpOHCcEWZmHkHVjWtDxUqb77upTknL2sf83hlhtX0Z3u8o0VQ6wzb6P5dH0jgm08JC+APT03q+iyF87xS7R8BvnkjLhf9iLUpdAfbGzRM98y3hgATkR++E2oSXoqyK4ArMjMLkhntemfMtjMYHYAvXo7IZ9Gh+5JL0fRQvb6XRUX2jGOvtCujPZjMbwCPcWkP9qBL6JRMkrSECzW8yNReW4VR+67blhb9CPT/OVIJYZT69QA+QcWcyU/+tGbBuw/F0vXP6GvntHU/ybwCIu17JoyaBuQJ/YwYR2se1pojYhFX8kUVpRMn1w+a0D/8UdmEJpwwTZuEsNu6y86IUO6B+Tc+jQbNS/nAWfHrsSiFqPjntLThjRr+Uf+1g0qoyKfK54GHuAAEX9xxOZhA3kfeDlyBaTKaU1efT9/rHGQ1PVcOLPaGzrrQ="
-    - secure: "Qi5rZ/CSWspEa1JNAPbq9YU7d8ql4JEJs5pQ+Mo+O8SyoMAJzkWGKKk98zTIWfCASZEnckgXMe8jqrhtPq9kmWWulHOR4P9FrO0+JX7Z47hkeXcqJN4LxP3R4BQgZZQCtYpXYfMAEvPs+nJp7IOQ6cTe80Xiz9eAD3385Hpcmz7tiZcgnnc/Eys90RqjK1GZyWRfeekXVvz39e08goW2y4W5DXZWGQ6QDqLr3Wrg7aK6A9e01otNxJGs8eqd12wzkeSiYi8l96taUnLKW9uUIMhhdoDPrHt4o6BjeWmW7OWzWbppcd3oV1IrUo2WngBsamUohL8PYilt/aEDItsdgLb7RBkFoP0prAlOUIPW6Plk34rk4Sk03KFxeBWSXULE+DgGlJZCFobj8MgxW9IQnJBg3Gk6nmadWAA831Aa3LzmC3dhShwQzFrGAxw/xeVHxodUDD0lwVb1UA4EZJuuNCr4/oyDqgjUcSiTHvR+wLdMFzG0+ySnxtoYt+hmTZJaV6ZffFMn8MIdR1tz+W56H+BwJeDxCpGhBuzyYDFDWH3u5Q08lBK3icgpG6wqfCCaZpjCOuGL8GIMkOEtznmGrrYzqsgJ0AbGizahXIQ57Qh/Wob0qVKGXnDqz6jxPH99aRugNa+snp+SaChz6Q5ojY1bbe4jIW03iOY1m51394A="
-    - DOCKER_REPO="${DOCKER_USER}/ottertune"
-    - GIT_REPO="ottertune-driver-internal"
     services:
     - docker
     before_install:
     - docker --version
     - docker-compose --version
     - env | sort
-    install: []
+    install: true
     before_script:
     - sudo service mysql stop || true
     - sudo service postgresql stop || true
@@ -48,7 +48,7 @@ matrix:
     - docker-compose -f $dcfile_postgres rm -f -s -v
     - docker-compose -f $dcfile_mysql run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
     - docker-compose -f $dcfile_mysql rm -f -s -v
-    after_success: []
+    after_success: true
     before_deploy:
     - /$ROOT/.travis/before_deploy.sh
     deploy:
@@ -57,6 +57,10 @@ matrix:
       on:
         repo: cmu-db/ottertune
         branch: master
+    after_deploy:
+    - curl -LO --retry 3 https://raw.github.com/mernst/plume-lib/master/bin/trigger-travis.sh
+    - sh trigger-travis.sh --pro --branch master "$TRIGGER_USER" "$TRIGGER_REPO" "$TRIGGER_TOKEN"
+    - docker logout
 
   - name: Unit Tests (MySQL v5.7)
     env:
@@ -114,7 +118,7 @@ matrix:
     script:
     - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
     - sleep 10 && cd $DRIVER && fab integration_tests
-    after_success: []
+    after_success: true
 
   - name: Integration Tests (PostgreSQL v9.6)
     env:
@@ -132,7 +136,7 @@ matrix:
     script:
     - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
     - sleep 10 && cd $DRIVER && fab integration_tests
-    after_success: []
+    after_success: true
 
 install:
 - pip install -r $WEB/requirements.txt

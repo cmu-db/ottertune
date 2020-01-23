@@ -1,9 +1,7 @@
 #!/bin/bash
 
-images="base web driver driver-internal"
+set -ex
 
-for img in $images
-do
-    docker push "${DOCKER_REPO}:${img}"
+for tag in base web driver; do
+    docker push "${DOCKER_REPO}:${tag}"
 done
-

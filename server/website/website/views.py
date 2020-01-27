@@ -45,7 +45,7 @@ from .tasks import (aggregate_target_results, map_workload, train_ddpg,
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
 from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
-from .settings import LOG_DIR, TIME_ZONE
+from .settings import LOG_DIR, TIME_ZONE, CHECK_CELERY
 
 from .set_default_knobs import set_default_knobs
 
@@ -635,6 +635,9 @@ def handle_result_files(session, files, execution_times=None):
     if session.tuning_session == 'no_tuning_session':
         return HttpResponse("Result stored successfully!")
 
+    celery_status = 'celery status is unknown'
+    if CHECK_CELERY:
+        celery_status = utils.check_and_run_celery()
     result_id = result.pk
     response = None
     if session.algorithm == AlgorithmType.GPR:
@@ -683,8 +686,8 @@ def handle_result_files(session, files, execution_times=None):
         except Exception:  # pylint: disable=broad-except
             LOG.warning("Error parsing execution times:\n%s", execution_times, exc_info=True)
 
-    return HttpResponse("Result stored successfully! Running tuner...(status={})  Result ID:{} "
-                        .format(response.status, result_id))
+    return HttpResponse("Result stored successfully! Running tuner...({}, status={}) Result ID:{}"
+                        .format(celery_status, response.status, result_id))
 
 
 @login_required(login_url=reverse_lazy('login'))

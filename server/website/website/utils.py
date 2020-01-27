@@ -17,6 +17,7 @@ from random import choice
 
 import numpy as np
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.db.models import Case, When
 from django.utils.text import capfirst
 from django_db_logger.models import StatusLog
@@ -494,3 +495,23 @@ def model_to_dict2(m, exclude=None):
         if fname not in exclude:
             d[fname] = getattr(m, fname, None)
     return d
+
+
+def check_and_run_celery():
+    celery_status = os.popen('python manage.py celery inspect ping').read()
+    if 'OK' in celery_status:
+        return 'celery is running'
+
+    retries = 0
+    while retries < 5:
+        LOG.warning('Celery is not running.')
+        retries += 1
+        call_command('stopcelery')
+        os.popen('python manage.py startcelery &')
+        time.sleep(5 * retries)
+        celery_status = os.popen('python manage.py celery inspect ping').read()
+        if 'OK' in celery_status:
+            LOG.info('Successfully start celery.')
+            return 'celery stopped but is restarted successfully'
+    LOG.warning('Cannot restart celery.')
+    return 'celery stopped and cannot be restarted'

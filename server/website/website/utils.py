@@ -499,7 +499,7 @@ def model_to_dict2(m, exclude=None):
 
 def check_and_run_celery():
     celery_status = os.popen('python3 manage.py celery inspect ping').read()
-    if 'OK' in celery_status:
+    if 'pong' in celery_status:
         return 'celery is running'
 
     retries = 0
@@ -510,7 +510,7 @@ def check_and_run_celery():
         os.popen('python3 manage.py startcelery &')
         time.sleep(30 * retries)
         celery_status = os.popen('python3 manage.py celery inspect ping').read()
-        if 'OK' in celery_status:
+        if 'pong' in celery_status:
             LOG.info('Successfully start celery.')
             return 'celery stopped but is restarted successfully'
     LOG.warning('Cannot restart celery.')

@@ -663,6 +663,10 @@ def _http_content_to_json(content):
     return json_content, decoded
 
 
+def _parse_bool(val):
+    return str(val).lower() == 'true'
+
+
 def _modify_website_object(obj_name, action, verbose=False, **kwargs):
     verbose = _parse_bool(verbose)
     if obj_name == 'project':
@@ -685,11 +689,11 @@ def _modify_website_object(obj_name, action, verbose=False, **kwargs):
         data[k] = v
 
     url_path = '/{}/{}/'.format(action, obj_name)
-    response = requests.post(CONF['upload_url'] + url_path, data=data)
+    response = requests.post(dconf.WEBSITE_URL + url_path, data=data)
 
     content = response.content.decode('utf-8')
     if response.status_code != 200:
-        raise Exception("Failed to {} new {}.\nStatus: {}\nMessage: {}\n".format(
+        raise Exception("Failed to {} {}.\nStatus: {}\nMessage: {}\n".format(
             action, obj_name, response.status_code, content))
 
     json_content, decoded = _http_content_to_json(content)

@@ -114,7 +114,6 @@ matrix:
     before_install:
     - mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
     - sed -i '/psycopg2/d' $WEB/requirements.txt
-    - sed -i 's/^RUN_EVERY =.*$/RUN_EVERY = 180/' $WEB/website/settings/constants.py
     script:
     - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
     - sleep 10 && cd $DRIVER && fab integration_tests
@@ -132,7 +131,6 @@ matrix:
     before_install:
     - psql -U postgres -c "CREATE DATABASE ${DB_NAME}"
     - sed -i '/mysqlclient/d' $WEB/requirements.txt
-    - sed -i 's/^RUN_EVERY =.*$/RUN_EVERY = 180/' $WEB/website/settings/constants.py
     script:
     - cd $WEB && python manage.py runserver 0.0.0.0:8000 &
     - sleep 10 && cd $DRIVER && fab integration_tests

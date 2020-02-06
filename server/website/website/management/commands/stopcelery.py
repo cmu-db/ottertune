@@ -57,4 +57,6 @@ class Command(BaseCommand):
                     "Successfully stopped '{}'.".format(name)))
 
         with quiet():
+            local("ps auxww | grep '[c]elery worker' | awk '{print $2}' | xargs kill -9")
+            local("ps auxww | grep '[c]elerybeat' | awk '{print $2}' | xargs kill -9")
             local('rm -f {} {}'.format(options['celery_pidfile'], options['celerybeat_pidfile']))

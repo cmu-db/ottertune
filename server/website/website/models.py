@@ -453,7 +453,7 @@ class Result(BaseModel):
     observation_start_time = models.DateTimeField()
     observation_end_time = models.DateTimeField()
     observation_time = models.FloatField()
-    task_ids = models.CharField(max_length=180, null=True)
+    task_ids = models.TextField(null=True)
     next_configuration = models.TextField(null=True)
 
     def __unicode__(self):

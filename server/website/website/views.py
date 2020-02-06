@@ -643,25 +643,17 @@ def handle_result_files(session, files, execution_times=None):
             ('map_workload', ()),
             ('configuration_recommendation', ()),
         ]
-        #response = chain(aggregate_target_results.s(result.pk, session.algorithm),
-        #                 map_workload.s(),
-        #                 configuration_recommendation.s()).apply_async()
     elif session.algorithm == AlgorithmType.DDPG:
         subtask_list = [
             ('train_ddpg', (result_id,)),
             ('configuration_recommendation_ddpg', ()),
         ]
-        #response = chain(train_ddpg.s(result.pk),
-        #                 configuration_recommendation_ddpg.s()).apply_async()
     elif session.algorithm == AlgorithmType.DNN:
         subtask_list = [
             ('aggregate_target_results', (result_id, session.algorithm)),
             ('map_workload', ()),
             ('configuration_recommendation', ()),
         ]
-        #response = chain(aggregate_target_results.s(result.pk, session.algorithm),
-        #                 map_workload.s(),
-        #                 configuration_recommendation.s()).apply_async()
 
     subtasks = []
     for name, args in subtask_list:
@@ -672,15 +664,6 @@ def handle_result_files(session, files, execution_times=None):
     response = chain(*subtasks).apply_async()
     result.task_ids = JSONUtil.dumps(response.as_tuple())
     result.save()
-
-    #taskmeta_ids = []
-    #current_task = response
-    #while current_task:
-    #    taskmeta_ids.insert(0, current_task.id)
-    #    current_task = current_task.parent
-
-    #result.task_ids = ','.join(taskmeta_ids)
-    #result.save()
 
     if execution_times:
         try:

@@ -6,7 +6,7 @@
 import copy
 import numpy as np
 
-from celery.task import periodic_task
+from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.utils.timezone import now
 from sklearn.preprocessing import StandardScaler
@@ -18,7 +18,7 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
 from website.models import PipelineData, PipelineRun, Result, Workload
-from website.settings import RUN_EVERY, ENABLE_DUMMY_ENCODER
+from website.settings import ENABLE_DUMMY_ENCODER
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
@@ -28,8 +28,7 @@ LOG = get_task_logger(__name__)
 MIN_WORKLOAD_RESULTS_COUNT = 5
 
 
-# Run the background tasks every 'RUN_EVERY' seconds
-@periodic_task(run_every=RUN_EVERY, name="run_background_tasks")
+@shared_task(name="run_background_tasks")
 def run_background_tasks():
     LOG.debug("Starting background tasks")
     # Find modified and not modified workloads, we only have to calculate for the

@@ -204,19 +204,3 @@ admin.site.register(ExecutionTime, ExecutionTimeAdmin)
 admin.site.unregister(StatusLog)
 admin.site.register(StatusLog, CustomStatusLogAdmin)
 admin.site.register(djcelery_models.TaskMeta, TaskMetaAdmin)
-
-# Unregister empty djcelery models
-UNUSED_DJCELERY_MODELS = (
-    djcelery_models.CrontabSchedule,
-    djcelery_models.IntervalSchedule,
-    djcelery_models.PeriodicTask,
-    djcelery_models.TaskState,
-    djcelery_models.WorkerState,
-)
-
-try:
-    for model in UNUSED_DJCELERY_MODELS:
-        if model.objects.count() == 0:
-            admin.site.unregister(model)
-except ProgrammingError:
-    pass

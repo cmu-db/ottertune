@@ -9,8 +9,9 @@ Common Django settings for the OtterTune project.
 """
 
 import os
-from os.path import abspath, dirname, exists, join
 import sys
+from datetime import timedelta
+from os.path import abspath, dirname, exists, join
 
 import djcelery
 
@@ -211,14 +212,33 @@ BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 # task is executed by a worker.
 CELERY_TRACK_STARTED = True
 
+# Do not let celery take over the root logger
+CELERYD_HIJACK_ROOT_LOGGER = False
+
+# Store celery results in the database
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+# The celerybeat scheduler class
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+# Defines the periodic task schedule for celerybeat
+CELERYBEAT_SCHEDULE = {
+    'run-every-5m': {
+        'task': 'run_background_tasks',
+        'schedule': timedelta(minutes=5),
+    }
+}
+
+# The Celery documentation recommends disabling the rate limits
+# if no tasks are using them
+CELERY_DISABLE_RATE_LIMITS = True
+
 # Worker will execute at most this many tasks before it's killed
 # and replaced with a new worker. This helps with memory leaks.
-CELERYD_MAX_TASKS_PER_CHILD = 50
+CELERYD_MAX_TASKS_PER_CHILD = 20
 
-# Number of concurrent workers.
-CELERYD_CONCURRENCY = 8
-
-CELERYD_HIJACK_ROOT_LOGGER = False
+# Number of concurrent workers. Defaults to the number of CPUs.
+# CELERYD_CONCURRENCY = 8
 
 djcelery.setup_loader()
 
@@ -302,6 +322,11 @@ LOGGING = {
             'propagate': False,
         },
         'celery': {
+            'handlers': ['celery', 'dblog'],
+            'level': 'DEBUG',
+            'propogate': True,
+        },
+        'celery.task': {
             'handlers': ['celery', 'dblog'],
             'level': 'DEBUG',
             'propogate': True,

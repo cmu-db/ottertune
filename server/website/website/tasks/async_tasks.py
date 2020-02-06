@@ -11,7 +11,7 @@ import gpflow
 from pyDOE import lhs
 from scipy.stats import uniform
 
-from celery.task import task, Task
+from celery import shared_task, Task
 from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -36,41 +36,33 @@ from website.settings import ENABLE_DUMMY_ENCODER
 LOG = get_task_logger(__name__)
 
 
-class UpdateTask(Task):  # pylint: disable=abstract-method
+class BaseTask(Task):  # pylint: disable=abstract-method
+    abstract = True
 
     def __init__(self):
-        self.rate_limit = '50/m'
-        self.max_retries = 3
-        self.default_retry_delay = 60
+        self.max_retries = 0
 
 
-class TrainDDPG(UpdateTask):  # pylint: disable=abstract-method
+class IgnoreResultTask(BaseTask):  # pylint: disable=abstract-method
+    abstract = True
+
     def on_success(self, retval, task_id, args, kwargs):
-        super(TrainDDPG, self).on_success(retval, task_id, args, kwargs)
+        super().on_success(retval, task_id, args, kwargs)
 
-        # Completely delete this result because it's huge and not
-        # interesting
+        # Completely delete this result because it's huge and not interesting
         task_meta = TaskMeta.objects.get(task_id=task_id)
         task_meta.result = None
         task_meta.save()
 
 
-class AggregateTargetResults(UpdateTask):  # pylint: disable=abstract-method
+class MapWorkloadTask(BaseTask):  # pylint: disable=abstract-method
+    abstract = True
 
     def on_success(self, retval, task_id, args, kwargs):
-        super(AggregateTargetResults, self).on_success(retval, task_id, args, kwargs)
+        super().on_success(retval, task_id, args, kwargs)
 
-        # Completely delete this result because it's huge and not
-        # interesting
         task_meta = TaskMeta.objects.get(task_id=task_id)
-        task_meta.result = None
-        task_meta.save()
-
-
-class MapWorkload(UpdateTask):  # pylint: disable=abstract-method
-
-    def on_success(self, retval, task_id, args, kwargs):
-        super(MapWorkload, self).on_success(retval, task_id, args, kwargs)
+        new_res = None
 
         # Replace result with formatted result
         if not args[0][0]['bad']:
@@ -78,22 +70,8 @@ class MapWorkload(UpdateTask):  # pylint: disable=abstract-method
                 'scores': sorted(args[0][0]['scores'].items()),
                 'mapped_workload_id': args[0][0]['mapped_workload'],
             }
-            task_meta = TaskMeta.objects.get(task_id=task_id)
-            task_meta.result = new_res  # Only store scores
-            task_meta.save()
-        else:
-            task_meta = TaskMeta.objects.get(task_id=task_id)
-            task_meta.result = None
-            task_meta.save()
 
-
-class ConfigurationRecommendation(UpdateTask):  # pylint: disable=abstract-method
-
-    def on_success(self, retval, task_id, args, kwargs):
-        super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
-
-        task_meta = TaskMeta.objects.get(task_id=task_id)
-        task_meta.result = retval
+        task_meta.result = new_res
         task_meta.save()
 
 
@@ -183,7 +161,7 @@ def clean_metric_data(metric_matrix, metric_labels, session):
     return matrix, metric_labels
 
 
-@task(base=AggregateTargetResults, name='aggregate_target_results')
+@shared_task(base=IgnoreResultTask, name='aggregate_target_results')
 def aggregate_target_results(result_id, algorithm):
     # Check that we've completed the background tasks at least once. We need
     # this data in order to make a configuration recommendation (until we
@@ -318,7 +296,7 @@ def gen_lhs_samples(knobs, nsamples):
     return lhs_samples
 
 
-@task(base=TrainDDPG, name='train_ddpg')
+@shared_task(base=IgnoreResultTask, name='train_ddpg')
 def train_ddpg(result_id):
     LOG.info('Add training data to ddpg and train ddpg')
     result = Result.objects.get(pk=result_id)
@@ -439,7 +417,7 @@ def create_and_save_recommendation(recommended_knobs, result, status, **kwargs):
     return retval
 
 
-@task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
+@shared_task(base=BaseTask, name='configuration_recommendation_ddpg')
 def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
     LOG.info('Use ddpg to recommend configuration')
     result_id = result_info['newest_result_id']
@@ -659,7 +637,7 @@ def combine_workload(target_data):
         dummy_encoder, constraint_helper
 
 
-@task(base=ConfigurationRecommendation, name='configuration_recommendation')
+@shared_task(base=BaseTask, name='configuration_recommendation')
 def configuration_recommendation(recommendation_input):
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
@@ -672,15 +650,14 @@ def configuration_recommendation(recommendation_input):
             recommended_knobs=target_data['config_recommend'], result=newest_result,
             status='bad', info='WARNING: no training data, the config is generated randomly',
             pipeline_run=target_data['pipeline_run'])
-        LOG.debug('%s: Skipping configuration recommendation.\n\ndata=%s\n',
-                  AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
+        LOG.debug('%s: Skipping configuration recommendation.\nData:\n%s\n\n',
+                  AlgorithmType.name(algorithm), target_data)
         return target_data_res
 
     X_columnlabels, X_scaler, X_scaled, y_scaled, X_max, X_min,\
         dummy_encoder, constraint_helper = combine_workload(target_data)
 
-    # FIXME: we should generate more samples and use a smarter sampling
-    # technique
+    # FIXME: we should generate more samples and use a smarter sampling technique
     num_samples = params['NUM_SAMPLES']
     X_samples = np.empty((num_samples, X_scaled.shape[1]))
     for i in range(X_scaled.shape[1]):
@@ -799,7 +776,7 @@ def load_data_helper(filtered_pipeline_data, workload, task_type):
     return JSONUtil.loads(pipeline_data.data)
 
 
-@task(base=MapWorkload, name='map_workload')
+@shared_task(base=MapWorkloadTask, name='map_workload')
 def map_workload(map_workload_input):
     target_data, algorithm = map_workload_input
 

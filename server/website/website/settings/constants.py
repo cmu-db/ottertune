@@ -8,7 +8,3 @@
 
 # address categorical knobs (enum, boolean)
 ENABLE_DUMMY_ENCODER = False
-
-# ---PIPELINE CONSTANTS---
-#  how often to run the background tests, in seconds
-RUN_EVERY = 300

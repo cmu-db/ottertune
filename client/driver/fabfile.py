@@ -663,12 +663,8 @@ def _http_content_to_json(content):
     return json_content, decoded
 
 
-def _parse_bool(val):
-    return str(val).lower() == 'true'
-
-
 def _modify_website_object(obj_name, action, verbose=False, **kwargs):
-    verbose = _parse_bool(verbose)
+    verbose = parse_bool(verbose)
     if obj_name == 'project':
         valid_actions = ('create', 'edit')
     elif obj_name == 'session':

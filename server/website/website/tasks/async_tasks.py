@@ -170,12 +170,15 @@ def aggregate_target_results(result_id, algorithm):
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
     if not has_pipeline_data or newest_result.session.tuning_session == 'lhs':
         if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
-            LOG.debug("Background tasks haven't ran for this workload yet, picking random data.")
+            LOG.debug("Background tasks haven't ran for this workload yet, picking data with lhs.")
 
         all_samples = JSONUtil.loads(newest_result.session.lhs_samples)
         if len(all_samples) == 0:
             knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
-            all_samples = gen_lhs_samples(knobs, 10)
+            if newest_result.session.tuning_session == 'lhs':
+                all_samples = gen_lhs_samples(knobs, 100)
+            else:
+                all_samples = gen_lhs_samples(knobs, 10)
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
                       AlgorithmType.name(algorithm), JSONUtil.dumps(all_samples[:5], pprint=True))
         samples = all_samples.pop()

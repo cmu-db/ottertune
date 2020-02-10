@@ -75,6 +75,16 @@ class MapWorkloadTask(BaseTask):  # pylint: disable=abstract-method
         task_meta.save()
 
 
+class ConfigurationRecommendation(BaseTask):  # pylint: disable=abstract-method
+
+    def on_success(self, retval, task_id, args, kwargs):
+        super(ConfigurationRecommendation, self).on_success(retval, task_id, args, kwargs)
+
+        task_meta = TaskMeta.objects.get(task_id=task_id)
+        task_meta.result = retval
+        task_meta.save()
+
+
 def clean_knob_data(knob_matrix, knob_labels, session):
     # Makes sure that all knobs in the dbms are included in the knob_matrix and knob_labels
     knob_matrix = np.array(knob_matrix)
@@ -420,7 +430,7 @@ def create_and_save_recommendation(recommended_knobs, result, status, **kwargs):
     return retval
 
 
-@shared_task(base=BaseTask, name='configuration_recommendation_ddpg')
+@shared_task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
 def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
     LOG.info('Use ddpg to recommend configuration')
     result_id = result_info['newest_result_id']
@@ -640,7 +650,7 @@ def combine_workload(target_data):
         dummy_encoder, constraint_helper
 
 
-@shared_task(base=BaseTask, name='configuration_recommendation')
+@shared_task(base=ConfigurationRecommendation, name='configuration_recommendation')
 def configuration_recommendation(recommendation_input):
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')

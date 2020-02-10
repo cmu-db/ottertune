@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
+import celery
 import datetime
 import json
 import logging
@@ -72,6 +73,16 @@ class MediaUtil(object):
 
 
 class TaskUtil(object):
+
+    @staticmethod
+    def get_task_ids_from_tuple(task_tuple):
+        task_res = celery.result.result_from_tuple(task_tuple)
+        task_ids = []
+        task = task_res
+        while task is not None:
+            task_ids.insert(0, task)
+            task = task.parent
+        return task_ids
 
     @staticmethod
     def get_tasks(task_ids):

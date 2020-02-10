@@ -403,16 +403,24 @@ def result_view(request, project_id, session_id, result_id):
 
     # default_metrics = {mname: metric_data[mname] * metric_meta[mname].scale
     #                    for mname in default_metrics}
+    if session.tuning_session == 'no_tuning_session':
+        status = None
+        next_conf = ''
+        next_conf_available = False
+    else:
+        task_tuple = JSONUtil.loads(target.task_ids)
+        task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)
+        tasks = TaskUtil.get_tasks(task_ids)
+        status, _ = TaskUtil.get_task_status(tasks, len(task_ids))
 
-    task_ids = [t for t in (target.task_ids or '').split(',') if t.strip() != '']
-    tasks = TaskUtil.get_tasks(task_ids)
-    status, _ = TaskUtil.get_task_status(tasks, len(task_ids))
-
-    next_conf_available = True if status == 'SUCCESS' else False
-    next_conf = ''
-    cfg = target.next_configuration
-    LOG.debug("status: %s, next_conf_available: %s, next_conf: %s, type: %s",
-              status, next_conf_available, cfg, type(cfg))
+        if status == 'SUCCESS':  # pylint: disable=simplifiable-if-statement
+            next_conf_available = True
+        else:
+            next_conf_available = False
+        next_conf = ''
+        cfg = target.next_configuration
+        LOG.debug("status: %s, next_conf_available: %s, next_conf: %s, type: %s",
+                  status, next_conf_available, cfg, type(cfg))
 
     if next_conf_available:
         try:
@@ -917,8 +925,8 @@ def download_debug_info(request, project_id, session_id):  # pylint: disable=unu
 @login_required(login_url=reverse_lazy('login'))
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
-
-    task_ids = [t for t in (res.task_ids or '').split(',') if t.strip() != '']
+    task_tuple = JSONUtil.loads(res.task_ids)
+    task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)
     tasks = TaskUtil.get_tasks(task_ids)
 
     overall_status, num_completed = TaskUtil.get_task_status(tasks, len(task_ids))

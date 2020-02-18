@@ -14,7 +14,7 @@ from fabric.api import hide, lcd, local
 class Command(BaseCommand):
     help = 'Start celery and celerybeat in the background.'
     celery_cmd = 'python3 manage.py {cmd} {opts} {pipe} &'.format
-    max_wait_sec = 15
+    max_wait_sec = 60
 
     def add_arguments(self, parser):
         group = parser.add_mutually_exclusive_group()
@@ -124,7 +124,7 @@ class Command(BaseCommand):
         for name in ('celery', 'celerybeat'):
             if os.path.exists(options[name + '_pidfile']):
                 self.stdout.write(self.style.SUCCESS(
-                    "Successfully started '{}'.".format(name)))
+                    "Successfully started '{}' in {} seconds.".format(name, wait_sec)))
             else:
                 self.stdout.write(self.style.NOTICE(
                     "Failed to start '{}'.".format(name)))

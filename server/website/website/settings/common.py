@@ -240,6 +240,10 @@ CELERYD_MAX_TASKS_PER_CHILD = 20
 # Number of concurrent workers. Defaults to the number of CPUs.
 # CELERYD_CONCURRENCY = 8
 
+# Late ack means the task messages will be acknowledged after
+# the task has been executed, not just before
+CELERY_ACKS_LATE = True
+
 djcelery.setup_loader()
 
 # ==============================================

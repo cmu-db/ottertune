@@ -1198,7 +1198,7 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         if CHECK_CELERY:
             celery_status = utils.check_and_run_celery()
         response.update(celery_status=celery_status, message='Result not ready')
-        status_code = 202 
+        status_code = 202
 
     return HttpResponse(JSONUtil.dumps(response, pprint=True), status=status_code,
                         content_type='application/json')

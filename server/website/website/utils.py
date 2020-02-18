@@ -513,6 +513,13 @@ def check_and_run_celery():
     if 'pong' in celery_status:
         return 'celery is running'
 
+    rabbitmq_status = os.popen('telnet localhost 5672').read()
+    if 'Connected' in rabbitmq_status:
+        LOG.info('Rabbitmq is running.')
+    else:
+        LOG.warning('Rabbitmq is not running.')
+        return 'Rabbitmq is not running.'
+
     retries = 0
     while retries < 5:
         LOG.warning('Celery is not running.')

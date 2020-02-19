@@ -4,8 +4,8 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 import copy
-import numpy as np
 import time
+import numpy as np
 from pytz import timezone
 
 from celery import shared_task
@@ -29,6 +29,7 @@ from website.utils import DataUtil, JSONUtil
 LOG = get_task_logger(__name__)
 # Only process workload containing this minimum amount of results
 MIN_WORKLOAD_RESULTS_COUNT = 5
+
 
 def save_execution_time(start_ts, fn):
     end_ts = time.time()

@@ -174,6 +174,7 @@ def clean_metric_data(metric_matrix, metric_labels, session):
             del metric_labels[i]
     return matrix, metric_labels
 
+
 def save_execution_time(start_ts, fn, result):
     end_ts = time.time()
     exec_time = end_ts - start_ts

@@ -11,6 +11,7 @@ import gpflow
 import time
 from pyDOE import lhs
 from scipy.stats import uniform
+from pytz import timezone
 
 from celery import shared_task, Task
 from celery.utils.log import get_task_logger
@@ -28,7 +29,8 @@ from analysis.gpr.predict import gpflow_predict
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from django.utils.datetime_safe import datetime
-from website.models import PipelineData, PipelineRun, Result, Workload, SessionKnob, MetricCatalog
+from website.models import (PipelineData, PipelineRun, Result, Workload, SessionKnob,
+                            MetricCatalog, ExecutionTime)
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
@@ -801,7 +803,7 @@ def configuration_recommendation(recommendation_input):
     LOG.debug('%s: Finished selecting the next config.\n\ndata=%s\n',
               AlgorithmType.name(algorithm), JSONUtil.dumps(conf_map_res, pprint=True))
 
-    save_execution_time(start_ts, "configuration_recommendation", Result.objects.get(pk=result_id))
+    save_execution_time(start_ts, "configuration_recommendation", newest_result)
     return conf_map_res
 
 
@@ -996,5 +998,5 @@ def map_workload(map_workload_input):
     LOG.debug('%s: Finished mapping the workload.\n\ndata=%s\n',
               AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
 
-    save_execution_time(start_ts, "map_workload", Result.objects.get(pk=result_id))
+    save_execution_time(start_ts, "map_workload", newest_result)
     return target_data, algorithm

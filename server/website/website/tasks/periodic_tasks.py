@@ -11,6 +11,7 @@ from pytz import timezone
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.utils.timezone import now
+from django.utils.datetime_safe import datetime
 from sklearn.preprocessing import StandardScaler
 
 from analysis.cluster import KMeansClusters, create_kselection_model
@@ -19,7 +20,6 @@ from analysis.lasso import LassoPath
 from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
-from django.utils.datetime_safe import datetime
 from website.models import PipelineData, PipelineRun, Result, Workload, ExecutionTime
 from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
 from website.types import PipelineTaskType, WorkloadStatusType

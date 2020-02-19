@@ -5,10 +5,10 @@
 #
 import random
 import queue
+import time
 import numpy as np
 import tensorflow as tf
 import gpflow
-import time
 from pyDOE import lhs
 from scipy.stats import uniform
 from pytz import timezone
@@ -18,6 +18,7 @@ from celery.utils.log import get_task_logger
 from djcelery.models import TaskMeta
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
+from django.utils.datetime_safe import datetime
 from analysis.ddpg.ddpg import DDPG
 from analysis.gp import GPRNP
 from analysis.gp_tf import GPRGD
@@ -28,7 +29,6 @@ from analysis.gpr.optimize import tf_optimize
 from analysis.gpr.predict import gpflow_predict
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
-from django.utils.datetime_safe import datetime
 from website.models import (PipelineData, PipelineRun, Result, Workload, SessionKnob,
                             MetricCatalog, ExecutionTime)
 from website import db
@@ -480,7 +480,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     conf_map_res = create_and_save_recommendation(recommended_knobs=conf_map, result=result,
                                                   status='good', info='INFO: ddpg')
 
-    save_execution_time(start_ts, "configuration_recommendation_ddpg", Result.objects.get(pk=result_id))
+    save_execution_time(start_ts, "configuration_recommendation_ddpg", result)
     return conf_map_res
 
 

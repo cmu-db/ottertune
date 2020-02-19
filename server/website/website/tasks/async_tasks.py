@@ -8,6 +8,7 @@ import queue
 import numpy as np
 import tensorflow as tf
 import gpflow
+import time
 from pyDOE import lhs
 from scipy.stats import uniform
 
@@ -26,11 +27,12 @@ from analysis.gpr.optimize import tf_optimize
 from analysis.gpr.predict import gpflow_predict
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
+from django.utils.datetime_safe import datetime
 from website.models import PipelineData, PipelineRun, Result, Workload, SessionKnob, MetricCatalog
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
-from website.settings import ENABLE_DUMMY_ENCODER
+from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
 
 
 LOG = get_task_logger(__name__)
@@ -170,9 +172,17 @@ def clean_metric_data(metric_matrix, metric_labels, session):
             del metric_labels[i]
     return matrix, metric_labels
 
+def save_execution_time(start_ts, fn, result):
+    end_ts = time.time()
+    exec_time = end_ts - start_ts
+    start_time = datetime.fromtimestamp(int(start_ts), timezone(TIME_ZONE))
+    ExecutionTime.objects.create(module="celery.async_tasks", function=fn, tag="",
+                                 start_time=start_time, execution_time=exec_time, result=result)
+
 
 @shared_task(base=IgnoreResultTask, name='aggregate_target_results')
 def aggregate_target_results(result_id, algorithm):
+    start_ts = time.time()
     # Check that we've completed the background tasks at least once. We need
     # this data in order to make a configuration recommendation (until we
     # implement a sampling technique to generate new training data).
@@ -236,7 +246,7 @@ def aggregate_target_results(result_id, algorithm):
 
         LOG.debug('%s: Finished aggregating target results.\n\n',
                   AlgorithmType.name(algorithm))
-
+    save_execution_time(start_ts, "aggregate_target_results", Result.objects.get(pk=result_id))
     return agg_data, algorithm
 
 
@@ -311,6 +321,7 @@ def gen_lhs_samples(knobs, nsamples):
 
 @shared_task(base=IgnoreResultTask, name='train_ddpg')
 def train_ddpg(result_id):
+    start_ts = time.time()
     LOG.info('Add training data to ddpg and train ddpg')
     result = Result.objects.get(pk=result_id)
     session = Result.objects.get(pk=result_id).session
@@ -409,6 +420,7 @@ def train_ddpg(result_id):
         ddpg.update()
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
     session.ddpg_reply_memory = ddpg.replay_memory.get()
+    save_execution_time(start_ts, "train_ddpg", Result.objects.get(pk=result_id))
     session.save()
     return result_info
 
@@ -432,6 +444,7 @@ def create_and_save_recommendation(recommended_knobs, result, status, **kwargs):
 
 @shared_task(base=ConfigurationRecommendation, name='configuration_recommendation_ddpg')
 def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-name
+    start_ts = time.time()
     LOG.info('Use ddpg to recommend configuration')
     result_id = result_info['newest_result_id']
     result_list = Result.objects.filter(pk=result_id)
@@ -465,6 +478,7 @@ def configuration_recommendation_ddpg(result_info):  # pylint: disable=invalid-n
     conf_map_res = create_and_save_recommendation(recommended_knobs=conf_map, result=result,
                                                   status='good', info='INFO: ddpg')
 
+    save_execution_time(start_ts, "configuration_recommendation_ddpg", Result.objects.get(pk=result_id))
     return conf_map_res
 
 
@@ -659,6 +673,7 @@ def combine_workload(target_data):
 
 @shared_task(base=ConfigurationRecommendation, name='configuration_recommendation')
 def configuration_recommendation(recommendation_input):
+    start_ts = time.time()
     target_data, algorithm = recommendation_input
     LOG.info('configuration_recommendation called')
     newest_result = Result.objects.get(pk=target_data['newest_result_id'])
@@ -786,6 +801,7 @@ def configuration_recommendation(recommendation_input):
     LOG.debug('%s: Finished selecting the next config.\n\ndata=%s\n',
               AlgorithmType.name(algorithm), JSONUtil.dumps(conf_map_res, pprint=True))
 
+    save_execution_time(start_ts, "configuration_recommendation", Result.objects.get(pk=result_id))
     return conf_map_res
 
 
@@ -798,6 +814,7 @@ def load_data_helper(filtered_pipeline_data, workload, task_type):
 
 @shared_task(base=MapWorkloadTask, name='map_workload')
 def map_workload(map_workload_input):
+    start_ts = time.time()
     target_data, algorithm = map_workload_input
 
     if target_data['bad']:
@@ -979,4 +996,5 @@ def map_workload(map_workload_input):
     LOG.debug('%s: Finished mapping the workload.\n\ndata=%s\n',
               AlgorithmType.name(algorithm), JSONUtil.dumps(target_data, pprint=True))
 
+    save_execution_time(start_ts, "map_workload", Result.objects.get(pk=result_id))
     return target_data, algorithm

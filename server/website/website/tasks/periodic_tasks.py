@@ -5,6 +5,7 @@
 #
 import copy
 import numpy as np
+import time
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -17,8 +18,9 @@ from analysis.lasso import LassoPath
 from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
+from django.utils.datetime_safe import datetime
 from website.models import PipelineData, PipelineRun, Result, Workload
-from website.settings import ENABLE_DUMMY_ENCODER
+from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
@@ -27,9 +29,16 @@ LOG = get_task_logger(__name__)
 # Only process workload containing this minimum amount of results
 MIN_WORKLOAD_RESULTS_COUNT = 5
 
+def save_execution_time(start_ts, fn):
+    end_ts = time.time()
+    exec_time = end_ts - start_ts
+    start_time = datetime.fromtimestamp(int(start_ts), timezone(TIME_ZONE))
+    ExecutionTime.objects.create(module="celery.periodic_tasks", function=fn, tag="",
+                                 start_time=start_time, execution_time=exec_time, result=None)
 
 @shared_task(name="run_background_tasks")
 def run_background_tasks():
+    start_ts = time.time()
     LOG.debug("Starting background tasks")
     # Find modified and not modified workloads, we only have to calculate for the
     # modified workloads.
@@ -147,6 +156,7 @@ def run_background_tasks():
     pipeline_run_obj.end_time = now()
     pipeline_run_obj.save()
     LOG.debug("Finished background tasks")
+    save_execution_time(start_ts, "run_background_tasks")
 
 
 def aggregate_data(wkld_results):
@@ -171,6 +181,7 @@ def aggregate_data(wkld_results):
     #         columns in the knob_data matrix
     #   - 'y_columnlabels': a list of the metric names corresponding to the
     #         columns in the metric_data matrix
+    start_ts = time.time()
     aggregated_data = DataUtil.aggregate_data(wkld_results)
 
     # Separate knob & workload data into two "standard" dictionaries of the
@@ -188,6 +199,7 @@ def aggregate_data(wkld_results):
     }
 
     # Return the knob & metric data
+    save_execution_time(start_ts, "aggregate_data")
     return knob_data, metric_data
 
 
@@ -201,6 +213,7 @@ def run_workload_characterization(metric_data):
     #     - 'rowlabels': a list of identifiers for the rows in the matrix
     #     - 'columnlabels': a list of the metric names corresponding to
     #                       the columns in the data matrix
+    start_ts = time.time()
 
     matrix = metric_data['data']
     columnlabels = metric_data['columnlabels']
@@ -250,6 +263,7 @@ def run_workload_characterization(metric_data):
     pruned_metrics = kmeans_models.cluster_map_[gapk.optimal_num_clusters_].get_closest_samples()
 
     # Return pruned metrics
+    save_execution_time(start_ts, "run_workload_characterization")
     return pruned_metrics
 
 
@@ -268,6 +282,7 @@ def run_knob_identification(knob_data, metric_data, dbms):
     # When running the lasso algorithm, the knob_data matrix is set of
     # independent variables (X) and the metric_data is the set of
     # dependent variables (y).
+    start_ts = time.time()
 
     knob_matrix = knob_data['data']
     knob_columnlabels = knob_data['columnlabels']
@@ -330,4 +345,5 @@ def run_knob_identification(knob_data, metric_data, dbms):
     encoded_knobs = lasso_model.get_ranked_features()
     consolidated_knobs = consolidate_columnlabels(encoded_knobs)
 
+    save_execution_time(start_ts, "run_knob_identification")
     return consolidated_knobs

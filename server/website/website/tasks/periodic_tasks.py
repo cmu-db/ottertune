@@ -6,6 +6,7 @@
 import copy
 import numpy as np
 import time
+from pytz import timezone
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -19,7 +20,7 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
 from django.utils.datetime_safe import datetime
-from website.models import PipelineData, PipelineRun, Result, Workload
+from website.models import PipelineData, PipelineRun, Result, Workload, ExecutionTime
 from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil

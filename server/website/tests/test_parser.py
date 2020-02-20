@@ -214,11 +214,16 @@ class PostgresParserTests(BaseParserTests, TestCase):
         dbms_obj = DBMSCatalog.objects.filter(
             type=DBMSType.POSTGRES, version="9.6").first()
         self.test_dbms = parser._get(dbms_obj.pk)  # pylint: disable=protected-access
-        self.knob_catalog = KnobCatalog.objects.filter(dbms=dbms_obj)
-        self.tunable_knob_catalog = self.knob_catalog.filter(tunable=True)
-        self.metric_catalog = MetricCatalog.objects.filter(dbms=dbms_obj)
-        self.numeric_metric_catalog = self.metric_catalog.filter(
-            metric_type__in=MetricType.numeric())
+
+        knob_catalog = KnobCatalog.objects.filter(dbms=dbms_obj)
+        tunable_knob_catalog = knob_catalog.filter(tunable=True)
+        metric_catalog = MetricCatalog.objects.filter(dbms=dbms_obj)
+        numeric_metric_catalog = metric_catalog.filter(metric_type__in=MetricType.numeric())
+
+        self.knob_catalog = {k.name: k for k in knob_catalog} 
+        self.tunable_knob_catalog = {k.name: k for k in tunable_knob_catalog} 
+        self.metric_catalog = {m.name: m for m in metric_catalog}
+        self.numeric_metric_catalog = {m.name: m for m in numeric_metric_catalog}
 
     def test_convert_dbms_knobs(self):
         super().test_convert_dbms_knobs()
@@ -256,8 +261,8 @@ class PostgresParserTests(BaseParserTests, TestCase):
         txns_counter = target_obj_instance.transactions_counter
 
         test_metrics = {}
-        for met in self.numeric_metric_catalog:
-            test_metrics[met.name] = 2
+        for met_name in self.numeric_metric_catalog.keys():
+            test_metrics[met_name] = 2
 
         test_metrics[txns_counter] = 10
         test_metrics['pg_FAKE_METRIC'] = 0
@@ -265,8 +270,7 @@ class PostgresParserTests(BaseParserTests, TestCase):
         self.assertEqual(test_metrics.get(target_obj), None)
 
         test_convert_metrics = self.test_dbms.convert_dbms_metrics(test_metrics, 0.1, target_obj)
-        for metadata in self.numeric_metric_catalog:
-            key = metadata.name
+        for key, metadata in self.numeric_metric_catalog.items():
             if key == txns_counter:
                 self.assertEqual(test_convert_metrics[key], 10 / 0.1)
                 continue
@@ -296,7 +300,8 @@ class PostgresParserTests(BaseParserTests, TestCase):
         test_empty, test_empty_diff = self.test_dbms.extract_valid_variables(
             {}, self.tunable_knob_catalog)
         self.assertEqual(len(test_empty), num_tunable_knobs)
-        self.assertEqual(len(test_empty_diff), num_tunable_knobs)
+        num_diffs = sum([len(v) for v in test_empty_diff.values()])
+        self.assertEqual(num_diffs, num_tunable_knobs)
 
         test_vars = {'global.wal_sync_method': 'fsync',
                      'global.random_page_cost': 0.22,
@@ -311,12 +316,12 @@ class PostgresParserTests(BaseParserTests, TestCase):
         tune_extract, tune_diff = self.test_dbms.extract_valid_variables(
             test_vars, self.tunable_knob_catalog)
 
-        self.assertTrue(('miscapitalized', 'global.wal_buffers',
-                         'global.Wal_buffers', 1024) in tune_diff)
-        self.assertTrue(('extra', None, 'global.GEQO_EFFORT', 5) in tune_diff)
-        self.assertTrue(('extra', None, 'global.enable_hashjoin', 'on') in tune_diff)
-        self.assertTrue(('missing', 'global.deadlock_timeout', None, None) in tune_diff)
-        self.assertTrue(('missing', 'global.temp_buffers', None, None) in tune_diff)
+        self.assertTrue(
+            ('global.wal_buffers', 'global.Wal_buffers') in tune_diff['miscapitalized'])
+        self.assertTrue('global.GEQO_EFFORT' in tune_diff['extra'])
+        self.assertTrue('global.enable_hashjoin' in tune_diff['extra'])
+        self.assertTrue('global.deadlock_timeout' in tune_diff['missing'])
+        self.assertTrue('global.temp_buffers' in tune_diff['missing'])
         self.assertTrue(tune_extract.get('global.temp_buffers') is not None)
         self.assertTrue(tune_extract.get('global.deadlock_timeout') is not None)
 
@@ -328,13 +333,13 @@ class PostgresParserTests(BaseParserTests, TestCase):
         nontune_extract, nontune_diff = self.test_dbms.extract_valid_variables(
             test_vars, self.knob_catalog)
 
-        self.assertTrue(('miscapitalized', 'global.wal_buffers',
-                         'global.Wal_buffers', 1024) in nontune_diff)
-        self.assertTrue(('miscapitalized', 'global.geqo_effort',
-                         'global.GEQO_EFFORT', 5) in nontune_diff)
-        self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in nontune_diff)
-        self.assertTrue(('missing', 'global.lc_ctype', None, None) in nontune_diff)
-        self.assertTrue(('missing', 'global.full_page_writes', None, None) in nontune_diff)
+        self.assertTrue(
+            ('global.wal_buffers', 'global.Wal_buffers') in nontune_diff['miscapitalized'])
+        self.assertTrue(
+            ('global.geqo_effort', 'global.GEQO_EFFORT') in nontune_diff['miscapitalized'])
+        self.assertTrue('global.FAKE_KNOB' in nontune_diff['extra'])
+        self.assertTrue('global.lc_ctype' in nontune_diff['missing'])
+        self.assertTrue('global.full_page_writes' in nontune_diff['missing'])
 
         self.assertEqual(nontune_extract.get('global.wal_buffers'), 1024)
         self.assertEqual(nontune_extract.get('global.geqo_effort'), 5)
@@ -529,8 +534,9 @@ class PostgresParserTests(BaseParserTests, TestCase):
 
         test_parse_dict, test_parse_log = self.test_dbms.parse_dbms_knobs(test_knobs)
 
-        self.assertEqual(len(test_parse_log), num_knobs - 7)
-        self.assertTrue(('extra', None, 'global.FAKE_KNOB', 'fake') in test_parse_log)
+        num_log_entries = sum([len(v) for v in test_parse_log.values()])
+        self.assertEqual(num_log_entries, num_knobs - 7)
+        self.assertTrue('global.FAKE_KNOB' in test_parse_log['extra'])
 
         self.assertEqual(len(test_parse_dict), num_knobs)
         self.assertEqual(test_parse_dict['global.wal_sync_method'], 'fsync')

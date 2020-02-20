@@ -220,8 +220,8 @@ class PostgresParserTests(BaseParserTests, TestCase):
         metric_catalog = MetricCatalog.objects.filter(dbms=dbms_obj)
         numeric_metric_catalog = metric_catalog.filter(metric_type__in=MetricType.numeric())
 
-        self.knob_catalog = {k.name: k for k in knob_catalog} 
-        self.tunable_knob_catalog = {k.name: k for k in tunable_knob_catalog} 
+        self.knob_catalog = {k.name: k for k in knob_catalog}
+        self.tunable_knob_catalog = {k.name: k for k in tunable_knob_catalog}
         self.metric_catalog = {m.name: m for m in metric_catalog}
         self.numeric_metric_catalog = {m.name: m for m in numeric_metric_catalog}
 

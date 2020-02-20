@@ -556,7 +556,7 @@ def handle_result_files(session, files, execution_times=None):
 
     else:
         dbms_type = DBMSType.type(summary['database_type'])
-        dbms_version = summary['database_version']  # TODO: fix parse_version_string
+        dbms_version = summary['database_version']
         workload_name = summary['workload_name']
         observation_time = summary['observation_time']
         start_time = datetime.fromtimestamp(
@@ -604,7 +604,10 @@ def handle_result_files(session, files, execution_times=None):
             dbms.pk, JSONUtil.loads(files['metrics_after']))
         metric_dict = parser.calculate_change_in_metrics(
             dbms.pk, initial_metric_dict, final_metric_dict)
-        initial_metric_diffs.extend(final_metric_diffs)
+        metric_diffs = OrderedDict([
+            ('metrics_before', initial_metric_diffs),
+            ('metrics_after', final_metric_diffs),
+        ])
         numeric_metric_dict = parser.convert_dbms_metrics(
             dbms.pk, metric_dict, observation_time, session.target_objective)
         metric_data = MetricData.objects.create_metric_data(
@@ -631,8 +634,8 @@ def handle_result_files(session, files, execution_times=None):
             raw_initial_metrics=files['metrics_before'],
             raw_final_metrics=files['metrics_after'],
             raw_summary=files['summary'],
-            knob_log=knob_diffs,
-            metric_log=initial_metric_diffs)
+            knob_log=JSONUtil.dumps(knob_diffs, pprint=True),
+            metric_log=JSONUtil.dumps(metric_diffs, pprint=True))
         backup_data.save()
 
     session.project.last_update = now()

@@ -505,7 +505,7 @@ class BackupData(BaseModel):
 
 class ExecutionTime(models.Model):
     module = models.CharField(max_length=32)
-    function = models.CharField(max_length=32)
+    function = models.CharField(max_length=64)
     tag = models.CharField(max_length=64, blank=True, default='')
     start_time = models.DateTimeField()
     execution_time = models.FloatField()  # in seconds

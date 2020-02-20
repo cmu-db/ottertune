@@ -213,32 +213,34 @@ class BaseParser:
 
     def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}
-        diff_log = []
-        valid_lc_variables = {k.name.lower(): k for k in catalog}
+        diff_log = OrderedDict([(k, []) for k in ('miscapitalized', 'extra', 'missing')])
+        lc_catalog = {k.lower(): v for k, v in catalog.items()}
 
         # First check that the names of all variables are valid (i.e., listed
         # in the official catalog). Invalid variables are logged as 'extras'.
         # Variable names that are valid but differ in capitalization are still
         # added to valid_variables but with the proper capitalization. They
         # are also logged as 'miscapitalized'.
-        for var_name, var_value in list(variables.items()):
-            lc_var_name = var_name.lower()
-            if lc_var_name in valid_lc_variables:
-                valid_name = valid_lc_variables[lc_var_name].name
-                if var_name != valid_name:
-                    diff_log.append(('miscapitalized', valid_name, var_name, var_value))
-                valid_variables[valid_name] = var_value
+        for var_name, var_value in variables.items():
+            if var_name in catalog:
+                valid_variables[var_name] = var_value
             else:
-                diff_log.append(('extra', None, var_name, var_value))
+                lc_var_name = var_name.lower()
+                if lc_var_name in lc_catalog:
+                    valid_name = lc_catalog[lc_var_name].name
+                    diff_log['miscapitalized'].append((valid_name, var_name))
+                    valid_variables[valid_name] = var_value
+                else:
+                    diff_log['extra'].append(var_name)
 
         # Next find all item names that are listed in the catalog but missing from
         # variables. Missing variables are added to valid_variables with the given
         # default_value if provided (or the item's actual default value if not) and
         # logged as 'missing'.
-        lc_variables = {k.lower(): v for k, v in list(variables.items())}
-        for valid_lc_name, metadata in list(valid_lc_variables.items()):
+        lc_variables = {k.lower() for k in variables.keys()}
+        for valid_lc_name, metadata in lc_catalog.items():
             if valid_lc_name not in lc_variables:
-                diff_log.append(('missing', metadata.name, None, None))
+                diff_log['missing'].append(metadata.name)
                 valid_variables[metadata.name] = default_value if \
                     default_value is not None else metadata.default
         assert len(valid_variables) == len(catalog)
@@ -277,7 +279,7 @@ class BaseParser:
             assert len(valid_knobs[k]) == 1
             valid_knobs[k] = valid_knobs[k][0]
         # Extract all valid knobs
-        knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id)
+        knob_catalog = {k.name: k for k in KnobCatalog.objects.filter(dbms__id=self.dbms_id)}
         return self.extract_valid_variables(valid_knobs, knob_catalog)
 
     def parse_dbms_metrics(self, metrics):
@@ -287,14 +289,15 @@ class BaseParser:
         valid_metrics = self.parse_dbms_variables(metrics)
 
         # Extract all valid metrics
-        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
+        metric_catalog = {m.name: m for m in MetricCatalog.objects.filter(dbms__id=self.dbms_id)}
+
         valid_metrics, diffs = self.extract_valid_variables(
             valid_metrics, metric_catalog, default_value='0')
 
         # Combine values
         for name, values in list(valid_metrics.items()):
-            metric = metric_catalog.get(name=name)
-            if metric.metric_type in MetricType.nonnumeric() or len(values) == 1:
+            metric = metric_catalog[name]
+            if len(values) == 1 or metric.metric_type in MetricType.nonnumeric():
                 valid_metrics[name] = values[0]
             elif metric.metric_type in MetricType.numeric():
                 conv_fn = int if metric.vartype == VarType.INTEGER else float
@@ -309,11 +312,12 @@ class BaseParser:
         return valid_metrics, diffs
 
     def calculate_change_in_metrics(self, metrics_start, metrics_end, fix_metric_type=True):
-        metric_catalog = MetricCatalog.objects.filter(dbms__id=self.dbms_id)
+        metric_catalog = {m.name: m for m in MetricCatalog.objects.filter(dbms__id=self.dbms_id)}
         adjusted_metrics = {}
-        for met_name, start_val in list(metrics_start.items()):
+
+        for met_name, start_val in metrics_start.items():
             end_val = metrics_end[met_name]
-            met_info = metric_catalog.get(name=met_name)
+            met_info = metric_catalog[met_name]
             if met_info.vartype == VarType.INTEGER or \
                     met_info.vartype == VarType.REAL:
                 conversion_fn = self.convert_integer if \

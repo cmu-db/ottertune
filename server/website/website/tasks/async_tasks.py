@@ -857,12 +857,6 @@ def map_workload(map_workload_input):
     pruned_metric_idxs = None
 
     unique_workloads = pipeline_data.values_list('workload', flat=True).distinct()
-    if unique_workloads == 0:
-        # The background task that aggregates the data has not finished running yet
-        target_data.update(mapped_workload=None, scores=None)
-        LOG.debug('%s: Skipping workload mapping because there is no workload.\n',
-                  AlgorithmType.name(algorithm))
-        return target_data, algorithm
 
     workload_data = {}
     # Compute workload mapping data for each unique workload
@@ -918,7 +912,12 @@ def map_workload(map_workload_input):
             'rowlabels': rowlabels,
         }
 
-    assert len(workload_data) > 0
+    if len(workload_data) == 0:
+        # The background task that aggregates the data has not finished running yet
+        target_data.update(mapped_workload=None, scores=None)
+        LOG.debug('%s: Skipping workload mapping because there is no parsed workload.\n',
+                  AlgorithmType.name(algorithm))
+        return target_data, algorithm
 
     # Stack all X & y matrices for preprocessing
     Xs = np.vstack([entry['X_matrix'] for entry in list(workload_data.values())])

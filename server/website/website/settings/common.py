@@ -242,7 +242,7 @@ CELERYD_MAX_TASKS_PER_CHILD = 20
 
 # Late ack means the task messages will be acknowledged after
 # the task has been executed, not just before
-CELERY_ACKS_LATE = True
+CELERY_ACKS_LATE = False
 
 djcelery.setup_loader()
 

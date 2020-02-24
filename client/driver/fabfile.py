@@ -781,6 +781,13 @@ def integration_tests():
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'good'
 
+    # Test DDPG
+    LOG.info('Test DDPG (deep deterministic policy gradient)')
+    upload_result(result_dir='./integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningDDPG')
+    response = get_result(upload_code='ottertuneTestTuningDDPG')
+    assert response['status'] == 'good'
+
     # Test DNN: 2rd iteration
     upload_result(result_dir='./integrationTests/data/', prefix='1__',
                   upload_code='ottertuneTestTuningDNN')
@@ -791,6 +798,12 @@ def integration_tests():
     upload_result(result_dir='./integrationTests/data/', prefix='1__',
                   upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
+    assert response['status'] == 'good'
+
+    # Test DDPG: 2rd iteration
+    upload_result(result_dir='./integrationTests/data/', prefix='1__',
+                  upload_code='ottertuneTestTuningDDPG')
+    response = get_result(upload_code='ottertuneTestTuningDDPG')
     assert response['status'] == 'good'
 
     LOG.info("\n\nIntegration Tests: PASSED!!\n")

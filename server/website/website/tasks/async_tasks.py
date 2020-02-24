@@ -160,10 +160,11 @@ def clean_metric_data(metric_matrix, metric_labels, session):
     # If columns are missing from the matrix
     if missing_columns:
         for metric in missing_columns:
-            index = metric_cat.index(metric)
+            # append a missing column after the last column
+            index = matrix.shape[1]  # pylint: disable=unsubscriptable-object
             default_val = 0
             matrix = np.insert(matrix, index, default_val, axis=1)
-            metric_labels.insert(index, metric)
+            metric_labels.append(metric)
     LOG.debug(matrix.shape)
     # If they are useless columns in the matrix
     if unused_columns:

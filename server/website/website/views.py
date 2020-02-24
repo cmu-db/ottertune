@@ -1178,23 +1178,22 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
 
     response = dict(celery_status='', result_id=latest_result.pk, message='', errors=[])
 
-    if group_res.ready():
-        if group_res.failed():
-            errors = [t.traceback for t in task_list if t.traceback]
-            if errors:
-                LOG.warning('\n\n'.join(errors))
-            response.update(
-                celery_status='FAILURE', errors=errors,
-                message='Celery failed to get the next configuration')
-            status_code = 400
+    if group_res.failed():
+        errors = [t.traceback for t in task_list if t.traceback]
+        if errors:
+            LOG.warning('\n\n'.join(errors))
+        response.update(
+            celery_status='FAILURE', errors=errors,
+            message='Celery failed to get the next configuration')
+        status_code = 400
 
-        else:
-            assert group_res.successful()
-            next_config = JSONUtil.loads(next_config)
-            response.update(
-                next_config, celery_status='SUCCESS',
-                message='Celery successfully recommended the next configuration')
-            status_code = 200
+    elif group_res.ready():
+        assert group_res.successful()
+        next_config = JSONUtil.loads(next_config)
+        response.update(
+            next_config, celery_status='SUCCESS',
+            message='Celery successfully recommended the next configuration')
+        status_code = 200
 
     else:  # One or more tasks are still waiting to execute
         celery_status = 'PENDING'

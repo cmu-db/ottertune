@@ -488,11 +488,12 @@ def handle_result_files(session, files, execution_times=None):
         LOG.debug("Error in restarting database")
         # Find worst throughput
         past_metrics = MetricData.objects.filter(session=session)
+        metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
         worst_target_value = None
         for past_metric in past_metrics:
+            if '*' in past_metric.name:
+                continue
             target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
-            metric_meta = target_objectives.get_instance(
-                session.dbms.pk, session.target_objective)
             if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
                 if worst_target_value is None or target_value < worst_target_value:
                     worst_target_value = target_value
@@ -531,7 +532,11 @@ def handle_result_files(session, files, execution_times=None):
 
         metric_data = result.metric_data
         metric_cpy = JSONUtil.loads(metric_data.data)
-        metric_cpy[session.target_objective] = worst_target_value
+        panelty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
+        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+            metric_cpy[session.target_objective] = worst_target_value / panelty_factor
+        else:
+            metric_cpy[session.target_objective] = worst_target_value * panelty_factor
         metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
         metric_data.name = metric_data.name + '*'

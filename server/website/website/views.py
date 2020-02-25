@@ -506,6 +506,7 @@ def handle_result_files(session, files, execution_times=None):
         backup_data = BackupData.objects.filter(result=result).first()
         last_conf = JSONUtil.loads(result.next_configuration)
         last_conf = last_conf["recommendation"]
+        last_conf = parser.convert_dbms_knobs(result.dbms.pk, last_conf)
 
         # Copy latest data and modify
         knob_data = result.knob_data
@@ -518,7 +519,6 @@ def handle_result_files(session, files, execution_times=None):
         knob_data.knobs = JSONUtil.dumps(all_knobs)
 
         data_knobs = JSONUtil.loads(knob_data.data)
-        last_conf = parser.convert_dbms_knobs(result.dbms.pk, last_conf)
         for knob in data_knobs.keys():
             for tunable_knob in last_conf.keys():
                 if tunable_knob in knob:
@@ -532,11 +532,11 @@ def handle_result_files(session, files, execution_times=None):
 
         metric_data = result.metric_data
         metric_cpy = JSONUtil.loads(metric_data.data)
-        panelty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
+        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
         if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-            metric_cpy[session.target_objective] = worst_target_value / panelty_factor
+            metric_cpy[session.target_objective] = worst_target_value / penalty_factor
         else:
-            metric_cpy[session.target_objective] = worst_target_value * panelty_factor
+            metric_cpy[session.target_objective] = worst_target_value * penalty_factor
         metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
         metric_data.name = metric_data.name + '*'

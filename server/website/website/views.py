@@ -852,7 +852,7 @@ def dbms_data_view(request, context, dbms_data, session, target_obj):
         featured_data = [(k, v, comp_dict[k]) for k, v in list(featured_dict.items())]
 
         if data_type == 'knobs':
-            met_data = Result.objects.get(knob_data=compare_obj).metric_data.data
+            met_data = Result.objects.filter(knob_data=compare_obj)[0].metric_data.data
         else:
             met_data = dbms_data.data
 

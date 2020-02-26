@@ -483,13 +483,14 @@ def handle_result_files(session, files, execution_times=None):
     summary = JSONUtil.loads(files['summary'])
 
     # If database crashed on restart, pull latest result and worst throughput so far
-    if 'error' in summary and summary['error'] == "DB_RESTART_ERROR":
+    if 'error' in summary and summary['error'] == "DB_RESTART_ERROR" or True:
 
         LOG.debug("Error in restarting database")
         # Find worst throughput
         past_metrics = MetricData.objects.filter(session=session)
         metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
         worst_target_value = None
+        worst_metric = None
         for past_metric in past_metrics:
             if '*' in past_metric.name:
                 continue
@@ -497,18 +498,34 @@ def handle_result_files(session, files, execution_times=None):
             if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
                 if worst_target_value is None or target_value < worst_target_value:
                     worst_target_value = target_value
+                    worst_metric = past_metric
             else:
                 if worst_target_value is None or target_value > worst_target_value:
                     worst_target_value = target_value
+                    worst_metric = past_metric
         LOG.debug("Worst target value so far is: %d", worst_target_value)
+        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
+        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+            penalty_target_value = worst_target_value / penalty_factor
+        else:
+            penalty_target_value = worst_target_value * penalty_factor
 
-        result = Result.objects.filter(session=session).order_by("-id").first()
+        # Update the past invalid results
+        for past_metric in past_metrics:
+            if '*' in past_metric.name:
+                past_metric_data = JSONUtil.loads(past_metric.data)
+                past_metric_data[session.target_objective] = penalty_target_value
+                past_metric.data = JSONUtil.dumps(past_metric_data)
+                past_metric.save()
+
+        result = Result.objects.filter(metric_data=worst_metric).first()
+        latest_result = Result.objects.filter(session=session).order_by("-id").first()
         backup_data = BackupData.objects.filter(result=result).first()
         last_conf = JSONUtil.loads(result.next_configuration)
         last_conf = last_conf["recommendation"]
         last_conf = parser.convert_dbms_knobs(result.dbms.pk, last_conf)
 
-        # Copy latest data and modify
+        # Copy worst data and modify
         knob_data = result.knob_data
         knob_data.pk = None
         all_knobs = JSONUtil.loads(knob_data.knobs)
@@ -525,22 +542,21 @@ def handle_result_files(session, files, execution_times=None):
                     data_knobs[knob] = last_conf[tunable_knob]
 
         knob_data.data = JSONUtil.dumps(data_knobs)
-        knob_data.name = knob_data.name + '*'
+        knob_name_parts = latest_result.knob_data.name.split('#')
+        knob_name_parts[-1] = str(int(knob_name_parts[-1]) + 1) + '*'
+        knob_data.name = '#'.join(knob_name_parts)
         knob_data.creation_time = now()
         knob_data.save()
         knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
 
         metric_data = result.metric_data
-        metric_cpy = JSONUtil.loads(metric_data.data)
-        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
-        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-            metric_cpy[session.target_objective] = worst_target_value / penalty_factor
-        else:
-            metric_cpy[session.target_objective] = worst_target_value * penalty_factor
-        metric_cpy = JSONUtil.dumps(metric_cpy)
         metric_data.pk = None
-        metric_data.name = metric_data.name + '*'
-        metric_data.data = metric_cpy
+        metric_name_parts = latest_result.metric_data.name.split('#')
+        metric_name_parts[-1] = str(int(metric_name_parts[-1]) + 1) + '*'
+        metric_data.name = '#'.join(metric_name_parts)
+        metric_cpy = JSONUtil.loads(metric_data.data)
+        metric_cpy[session.target_objective] = penalty_target_value
+        metric_data.data = JSONUtil.dumps(metric_cpy)
         metric_data.creation_time = now()
         metric_data.save()
         metric_data = MetricData.objects.filter(session=session).order_by("-id").first()

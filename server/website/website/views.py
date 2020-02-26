@@ -483,7 +483,7 @@ def handle_result_files(session, files, execution_times=None):
     summary = JSONUtil.loads(files['summary'])
 
     # If database crashed on restart, pull latest result and worst throughput so far
-    if 'error' in summary and summary['error'] == "DB_RESTART_ERROR" or True:
+    if 'error' in summary and summary['error'] == "DB_RESTART_ERROR":
 
         LOG.debug("Error in restarting database")
         # Find worst throughput

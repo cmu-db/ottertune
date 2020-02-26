@@ -542,7 +542,7 @@ def handle_result_files(session, files, execution_times=None):
                     data_knobs[knob] = last_conf[tunable_knob]
 
         knob_data.data = JSONUtil.dumps(data_knobs)
-        knob_name_parts = latest_result.knob_data.name.split('#')
+        knob_name_parts = latest_result.knob_data.name.split('*')[0].split('#')
         knob_name_parts[-1] = str(int(knob_name_parts[-1]) + 1) + '*'
         knob_data.name = '#'.join(knob_name_parts)
         knob_data.creation_time = now()
@@ -551,7 +551,7 @@ def handle_result_files(session, files, execution_times=None):
 
         metric_data = result.metric_data
         metric_data.pk = None
-        metric_name_parts = latest_result.metric_data.name.split('#')
+        metric_name_parts = latest_result.metric_data.name.split('*')[0].split('#')
         metric_name_parts[-1] = str(int(metric_name_parts[-1]) + 1) + '*'
         metric_data.name = '#'.join(metric_name_parts)
         metric_cpy = JSONUtil.loads(metric_data.data)

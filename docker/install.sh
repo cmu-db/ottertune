@@ -61,15 +61,11 @@ then
     rm_pkgs="unzip wget"
     install_gradle=true
 
-elif [ "$service" = "driver-internal" ]
-then
-    apt_pkgs="openssh-server vim"
-
 else
     echo ""
     echo "ERROR: Invalid value for service: '$service'"
     echo ""
-    echo "Usage: $0 [base|web|driver|driver-internal]"
+    echo "Usage: $0 [base|web|driver]"
     exit 1
 fi
 

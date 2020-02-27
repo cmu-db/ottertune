@@ -22,7 +22,6 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile, File
 from django.core.management import call_command
-from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import redirect, render, get_object_or_404
@@ -40,8 +39,7 @@ from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
 from .models import (BackupData, DBMSCatalog, ExecutionTime, Hardware, KnobCatalog, KnobData,
                      MetricCatalog, MetricData, PipelineRun, Project, Result, Session,
                      SessionKnob, User, Workload)
-from .tasks import (aggregate_target_results, map_workload, train_ddpg,
-                    configuration_recommendation, configuration_recommendation_ddpg)
+from .tasks import train_ddpg
 from .types import (DBMSType, KnobUnitType, MetricType,
                     TaskType, VarType, WorkloadStatusType, AlgorithmType)
 from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
@@ -1256,11 +1254,7 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
 @csrf_exempt
 def alt_get_info(request, name):  # pylint: disable=unused-argument
     # Backdoor method for getting basic info
-    if name == 'constants':
-        info = utils.get_constants()
-        response = HttpResponse(JSONUtil.dumps(info))
-
-    elif name in ('website', 'logs'):
+    if name in ('website', 'logs'):
         tmpdir = os.path.realpath('.info')
         shutil.rmtree(tmpdir, ignore_errors=True)
         os.makedirs(tmpdir, exist_ok=True)
@@ -1285,200 +1279,194 @@ def alt_get_info(request, name):  # pylint: disable=unused-argument
             f.close()
         shutil.rmtree(tmpdir, ignore_errors=True)
     else:
-        LOG.warning("Invalid name for info request: %s", name)
-        response = HttpResponse("Invalid name for info request: {}".format(name), status=400)
+        message = "Invalid name for info request: '{}'".format(name)
+        LOG.warning(message)
+        content = dict(message='ERROR: ' + message, info=None, name=name)
+        response = HttpResponse(JSONUtil.dumps(content), content_type='application/json',
+                                status=400)
     return response
 
 
-@csrf_exempt
-def alt_set_constants(request):
-    constants = JSONUtil.loads(request.POST.get('constants', '{}'))
-    for name, value in constants.items():
-        try:
-            utils.set_constant(name, value)
-        except AttributeError as e:
-            LOG.warning(e)
-            return HttpResponse(e, status=400)
-    return HttpResponse("Successfully updated constants: {}".format(
-        ', '.join('{}={}'.format(k, v) for k, v in constants.items())))
+def _alt_checker(request, response, required_data=None, authenticate_user=False):
+    required_data = required_data or ()
+    data = {k: v[0] for k, v in request.POST.lists()}
+
+    missing = [k for k in required_data if k not in data]
+    if missing:
+        err_msg = "Request is missing required data: {}".format(', '.join(missing))
+        response['message'] = 'ERROR: ' + err_msg
+        LOG.warning(err_msg)
+        return HttpResponse(JSONUtil.dumps(response), content_type='application/json', status=400)
+
+    if authenticate_user:
+        user = authenticate(User, username=data['username'], password=data['password'])
+        if not user:
+            err_msg = "Unable to authenticate user '{}'.".format(data['username'])
+            LOG.warning(err_msg)
+            response.update(message='ERROR: ' + err_msg)
+            return HttpResponse(JSONUtil.dumps(response), content_type='application/json',
+                                status=400)
+        data['user'] = user
+
+    return data
 
 
 @csrf_exempt
 def alt_create_user(request):
-    response = dict(created=False, error=None, user=None)
-    if request.method != 'POST':
-        err_msg = "Request was not a post!"
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
+    response = dict(created=False, message=None, user=None)
+    res = _alt_checker(request, response, required_data=('username', 'password'))
+    if isinstance(res, HttpResponse):
+        return res
 
-    data = {k: v[0] for k, v in request.POST.lists()}
-    missing = [k for k in ('username', 'password') if k not in data]
-    if missing:
-        err_msg = "Request is missing required data: {}".format(', '.join(missing))
-        LOG.warning(err_msg)
-        response.update(error=err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
+    data = res
     user, created = utils.create_user(**data)
-    response.update(user=user, created=created)
     if created:
-        LOG.info("Successfully created user '%s': %s", data['username'], user)
-        status = 200
+        msg = "Successfully created user '{}'.".format(data['username'])
+        LOG.info(msg)
     else:
-        err_msg = "ERROR: User '{}' already exists: {}".format(data['username'], user)
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        status = 400
+        msg = "User '{}' already exists.".format(data['username'])
+        LOG.warning(msg)
+        msg = 'WARNING: ' + msg
 
-    response['user'] = model_to_dict(response['user'])
-    return HttpResponse(JSONUtil.dumps(response), status=status)
+    response.update(user=model_to_dict(user), created=created, message=msg)
+    return HttpResponse(JSONUtil.dumps(response), content_type='application/json', status=200)
 
 
 @csrf_exempt
 def alt_delete_user(request):
-    response = dict(deleted=False, error=None, delete_info=None)
-    if request.method != 'POST':
-        err_msg = "Request was not a post!"
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
+    response = dict(deleted=False, message=None, delete_info=None)
+    res = _alt_checker(request, response, required_data=('username',))
+    if isinstance(res, HttpResponse):
+        return res
 
-    data = {k: v[0] for k, v in request.POST.lists()}
-    missing = [k for k in ('username',) if k not in data]
-    if missing:
-        err_msg = "Request is missing required data: {}".format(', '.join(missing))
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
+    data = res
     delete_info, deleted = utils.delete_user(**data)
-    response.update(deleted=deleted, delete_info=delete_info)
     if deleted:
-        LOG.info("Successfully deleted user '%s': %s", data['username'], delete_info)
-        status = 200
+        msg = "Successfully deleted user '{}'.".format(data['username'])
+        LOG.info(msg)
     else:
-        err_msg = "User '{}' does not exist".format(data['username'])
-        LOG.warning(err_msg)
-        response.update(error=err_msg)
-        status = 400
+        msg = "User '{}' does not exist.".format(data['username'])
+        LOG.warning(msg)
+        msg = 'WARNING: ' + msg
 
-    return HttpResponse(JSONUtil.dumps(response), status=status)
+    response.update(message=msg, deleted=deleted, delete_info=delete_info)
+    return HttpResponse(JSONUtil.dumps(response), content_type='application/json', status=200)
 
 
 @csrf_exempt
 def alt_create_or_edit_project(request):
-    response = dict(created=False, error=None, project=None)
-    if request.method != 'POST':
-        err_msg = "Request was not a post!"
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
+    response = dict(created=False, updated=False, message=None, project=None)
+    res = _alt_checker(request, response, required_data=('username', 'password', 'name'),
+                       authenticate_user=True)
+    if isinstance(res, HttpResponse):
+        return res
 
-    data = {k: v[0] for k, v in request.POST.lists()}
-    missing = [k for k in ('username', 'password', 'name') if k not in data]
-    if missing:
-        err_msg = "Request is missing required data: {}".format(', '.join(missing))
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
-    username = data.pop('username')
-    password = data.pop('password')
-    user = authenticate(User, username=username, password=password)
-    if not user:
-        err_msg = "ERROR: Unable to authenticate user '{}'.".format(username)
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
+    data = res
+    user = data.pop('user')
+    data.pop('username')
+    data.pop('password')
     project_name = data.pop('name')
+
     ts = now()
+    created = False
+    updated = False
 
     if request.path == reverse('backdoor_create_project'):
-        try:
-            project = Project.objects.create(user=user, name=project_name, last_update=ts,
-                                             creation_time=ts, **data)
-        except IntegrityError:
-            err_msg = "ERROR: Project '{}' already exists.".format(project_name)
-            project = Project.objects.get(user=user, name=project_name)
-            response.update(error=err_msg, project=model_to_dict(project))
-            LOG.warning(err_msg)
-            return HttpResponse(JSONUtil.dumps(response), status=400)
+        defaults = dict(creation_time=ts, last_update=ts, **data)
+        project, created = Project.objects.get_or_create(
+            user=user, name=project_name, defaults=defaults)
+
+        if created:
+            msg = "Successfully created project '{}'.".format(project_name)
+        else:
+            msg = "Project '{}' already exists.".format(project_name)
+            LOG.warning(msg)
+            msg = 'WARNING: ' + msg
     else:
         project = get_object_or_404(Project, name=project_name, user=user)
         for k, v in data.items():
             setattr(project, k, v)
         project.last_update = ts
         project.save()
+        msg = "Successfully updated project '{}'".format(project_name)
+        updated = True
 
-    response.update(created=True, project=model_to_dict(project))
-    return HttpResponse(JSONUtil.dumps(response))
+    response.update(message=msg, project=model_to_dict(project), created=created, updated=updated)
+    return HttpResponse(JSONUtil.dumps(response), content_type='application/json', status=200)
 
 
 @csrf_exempt
 def alt_create_or_edit_session(request):
-    response = dict(created=False, error=None, session=None)
-    if request.method != 'POST':
-        err_msg = "Request was not a post!"
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
+    response = dict(created=False, updated=False, message=None, session=None)
+    authenticate_user = True
 
-    data = {k: v[0] for k, v in request.POST.lists()}
+    if request.path == reverse('backdoor_create_session'):
+        required_data = (
+            'username', 'password', 'project_name', 'name', 'dbms_type', 'dbms_version')
+    else:
+        if 'upload_code' in request.POST:
+            required_data = ()
+            authenticate_user = False
+        else:
+            required_data = ('username', 'password', 'project_name', 'name')
+
+    res = _alt_checker(request, response, required_data=required_data,
+                       authenticate_user=authenticate_user)
+    if isinstance(res, HttpResponse):
+        return res
+
+    data = res
+    warnings = []
+
     if 'hardware' in data:
-        err_msg = "Custom hardware objects are not supported."
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
+        data.pop('hardware')
+        warn_msg = "Custom hardware objects are not supported."
+        LOG.warning(warn_msg)
+        warnings.append('WARNING: ' + warn_msg)
 
-    required_fields = ('username', 'password', 'project_name', 'name', 'dbms_type',
-                       'dbms_version')
-    missing = [k for k in required_fields if k not in data]
-    if missing:
-        err_msg = "Request is missing required data: {}".format(', '.join(missing))
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
-    username = data.pop('username')
-    password = data.pop('password')
-    user = authenticate(User, username=username, password=password)
-    if not user:
-        err_msg = "ERROR: Unable to authenticate user '{}'.".format(username)
-        response.update(error=err_msg)
-        LOG.warning(err_msg)
-        return HttpResponse(JSONUtil.dumps(response), status=400)
-
-    project = get_object_or_404(Project, name=data.pop('project_name'), user=user)
-    dbms_type = DBMSType.type(data.pop('dbms_type'))
-    dbms = get_object_or_404(DBMSCatalog, type=dbms_type, version=data.pop('dbms_version'))
-
-    session_name = data.pop('name')
+    created = False
+    updated = False
+    data.pop('username', None)
+    data.pop('password', None)
+    user = data.pop('user', None)
+    project_name = data.pop('project_name', None)
+    session_name = data.pop('name', None)
     if 'algorithm' in data:
         data['algorithm'] = AlgorithmType.type(data['algorithm'])
     session_knobs = data.pop('session_knobs', None)
     disable_others = data.pop('disable_others', False)
+    hyperparams = data.pop('hyperparameters', None)
     ts = now()
 
     if request.path == reverse('backdoor_create_session'):
+        defaults = {}
+        project = get_object_or_404(Project, name=project_name, user=user)
+        dbms_type = DBMSType.type(data.pop('dbms_type'))
+        dbms_version = data.pop('dbms_version')
+        defaults['dbms'] = get_object_or_404(DBMSCatalog, type=dbms_type, version=dbms_version)
         hardware, _ = Hardware.objects.get_or_create(pk=1)
-        upload_code = data.pop('upload_code', None) or MediaUtil.upload_code_generator()
-        try:
-            session = Session.objects.create(user=user, project=project, dbms=dbms,
-                                             name=session_name, hardware=hardware,
-                                             upload_code=upload_code, creation_time=ts,
-                                             last_update=ts, **data)
-        except IntegrityError:
-            err_msg = "ERROR: Session '{}' already exists.".format(session_name)
-            session = Session.objects.get(user=user, project=project, name=session_name)
-            response.update(error=err_msg, project=model_to_dict(session))
-            LOG.warning(err_msg)
-            return HttpResponse(JSONUtil.dumps(response), status=400)
+        defaults['hardware'] = hardware
+        defaults['upload_code'] = data.pop('upload_code', None) or MediaUtil.upload_code_generator()
+        defaults.update(creation_time=ts, last_update=ts, **data)
 
-        set_default_knobs(session)
+        session, created = Session.objects.get_or_create(user=user, project=project,
+                                                         name=session_name, defaults=defaults)
+
+        if created:
+            msg = "Successfully created session '{}'.".format(session_name)
+            set_default_knobs(session)
+        else:
+            msg = "Session '{}' already exists.".format(session_name)
+            LOG.warning(msg)
+            msg = 'WARNING: ' + msg
     else:
-        session = get_object_or_404(Session, name=session_name, project=project, user=user)
+        if 'upload_code' in data:
+            session = get_object_or_404(Session, upload_code=data['upload_code'])
+        else:
+            project = get_object_or_404(Project, name=project_name, user=user)
+            session = get_object_or_404(Session, name=session_name, project=project,
+                                        user=user)
+
         for k, v in data.items():
             setattr(session, k, v)
 
@@ -1489,11 +1477,32 @@ def alt_create_or_edit_session(request):
 
         session.last_update = ts
         session.save()
+        msg = "Successfully updated session '{}'.".format(session_name)
+        updated = True
 
-    if session_knobs:
-        session_knobs = JSONUtil.loads(session_knobs)
-        SessionKnob.objects.set_knob_min_max_tunability(session, session_knobs,
-                                                        disable_others=disable_others)
+    if created or updated:
+        if session_knobs:
+            session_knobs = JSONUtil.loads(session_knobs)
+            SessionKnob.objects.set_knob_min_max_tunability(
+                session, session_knobs, disable_others=disable_others)
+
+        if hyperparams:
+            hyperparams = JSONUtil.loads(hyperparams)
+            sess_hyperparams = JSONUtil.loads(session.hyperparameters)
+            invalid = []
+
+            for k, v in hyperparams.items():
+                if k in sess_hyperparams:
+                    sess_hyperparams[k] = v
+                else:
+                    invalid.append('{}={}'.format(k, v))
+            session.save()
+            if invalid:
+                warn_msg = "Ignored invalid hyperparameters: {}".format(', '.join(invalid))
+                LOG.warning(warn_msg)
+                warnings.append("WARNING: " + warn_msg)
+
+    session.refresh_from_db()
     res = model_to_dict(session)
     res['dbms_id'] = res['dbms']
     res['dbms'] = session.dbms.full_name
@@ -1503,13 +1512,14 @@ def alt_create_or_edit_session(request):
     sk = SessionKnob.objects.get_knobs_for_session(session)
     sess_knobs = []
     for knob in sk:
-        sess_knobs.append(dict(
-            minval=knob['minval'],
-            maxval=knob['maxval'],
-            tunable=knob['tunable']))
+        sess_knobs.append({x: knob[x] for x in ('minval', 'maxval', 'tunable')})
     res['session_knobs'] = sess_knobs
-    response.update(created=True, session=res)
-    return HttpResponse(JSONUtil.dumps(response))
+
+    if warnings:
+        msg = '\n\n'.join(warnings + [msg])
+
+    response.update(message=msg, session=res, created=created, updated=updated)
+    return HttpResponse(JSONUtil.dumps(response), content_type='application/json', status=200)
 
 
 # integration test

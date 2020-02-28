@@ -105,8 +105,13 @@ class BaseParser:
         for metadata in tunable_knob_catalog:
             name = metadata.name
             if name not in knobs:
-                continue
+                if name.startswith('global.'):
+                    name = name[name.find('.') + 1:]
+                if name not in knobs:
+                    continue
             value = knobs[name]
+            if isinstance(value, str):
+                value = value.replace('\'', '')
             conv_value = None
 
             if metadata.vartype == VarType.BOOL:

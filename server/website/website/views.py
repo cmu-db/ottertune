@@ -518,15 +518,15 @@ def handle_result_files(session, files, execution_times=None):
                 past_metric.data = JSONUtil.dumps(past_metric_data)
                 past_metric.save()
 
-        result = Result.objects.filter(metric_data=worst_metric).first()
-        latest_result = Result.objects.filter(session=session).order_by("-id").first()
-        backup_data = BackupData.objects.filter(result=result).first()
-        last_conf = JSONUtil.loads(result.next_configuration)
+        worst_result = Result.objects.filter(metric_data=worst_metric).first()
+        last_result = Result.objects.filter(session=session).order_by("-id").first()
+        backup_data = BackupData.objects.filter(result=worst_result).first()
+        last_conf = JSONUtil.loads(last_result.next_configuration)
         last_conf = last_conf["recommendation"]
-        last_conf = parser.convert_dbms_knobs(result.dbms.pk, last_conf)
+        last_conf = parser.convert_dbms_knobs(last_result.dbms.pk, last_conf)
 
         # Copy worst data and modify
-        knob_data = result.knob_data
+        knob_data = worst_result.knob_data
         knob_data.pk = None
         all_knobs = JSONUtil.loads(knob_data.knobs)
         for knob in all_knobs.keys():
@@ -542,16 +542,16 @@ def handle_result_files(session, files, execution_times=None):
                     data_knobs[knob] = last_conf[tunable_knob]
 
         knob_data.data = JSONUtil.dumps(data_knobs)
-        knob_name_parts = latest_result.knob_data.name.split('*')[0].split('#')
+        knob_name_parts = last_result.knob_data.name.split('*')[0].split('#')
         knob_name_parts[-1] = str(int(knob_name_parts[-1]) + 1) + '*'
         knob_data.name = '#'.join(knob_name_parts)
         knob_data.creation_time = now()
         knob_data.save()
         knob_data = KnobData.objects.filter(session=session).order_by("-id").first()
 
-        metric_data = result.metric_data
+        metric_data = worst_result.metric_data
         metric_data.pk = None
-        metric_name_parts = latest_result.metric_data.name.split('*')[0].split('#')
+        metric_name_parts = last_result.metric_data.name.split('*')[0].split('#')
         metric_name_parts[-1] = str(int(metric_name_parts[-1]) + 1) + '*'
         metric_data.name = '#'.join(metric_name_parts)
         metric_cpy = JSONUtil.loads(metric_data.data)
@@ -561,6 +561,7 @@ def handle_result_files(session, files, execution_times=None):
         metric_data.save()
         metric_data = MetricData.objects.filter(session=session).order_by("-id").first()
 
+        result = worst_result
         result.pk = None
         result.knob_data = knob_data
         result.metric_data = metric_data

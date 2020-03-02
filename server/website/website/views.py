@@ -42,10 +42,10 @@ from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
 from .models import (BackupData, DBMSCatalog, ExecutionTime, Hardware, KnobCatalog, KnobData,
                      MetricCatalog, MetricData, PipelineRun, Project, Result, Session,
-                     SessionKnob, User, Workload)
+                     SessionKnob, User, Workload, PipelineData)
 from .tasks import train_ddpg
 from .types import (DBMSType, KnobUnitType, MetricType,
-                    TaskType, VarType, WorkloadStatusType, AlgorithmType)
+                    TaskType, VarType, WorkloadStatusType, AlgorithmType, PipelineTaskType)
 from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
 from .settings import LOG_DIR, TIME_ZONE, CHECK_CELERY
 
@@ -947,6 +947,19 @@ def download_debug_info(request, project_id, session_id):  # pylint: disable=unu
     response['Content-Length'] = file.size
     response['Content-Disposition'] = 'attachment; filename={}.tar.gz'.format(filename)
     return response
+
+
+@login_required(login_url=reverse_lazy('login'))
+def pipeline_data_view(request, pipeline_id):
+    pipeline_data = PipelineData.objects.get(pk=pipeline_id)
+    task_name = PipelineTaskType.TYPE_NAMES[pipeline_data.task_type]
+    data = JSONUtil.loads(pipeline_data.data)
+    context = {"id": pipeline_id,
+               "workload": pipeline_data.workload,
+               "creation_time": pipeline_data.creation_time,
+               "task_name": task_name,
+               "data": data}
+    return render(request, "pipeline_data.html", context)
 
 
 @login_required(login_url=reverse_lazy('login'))

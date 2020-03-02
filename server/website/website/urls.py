@@ -80,7 +80,10 @@ urlpatterns = [
 
     # Test
     url(r'^test/create/', website_views.create_test_website, name='create_test_website'),
-    url(r'^test/pipeline/', website_views.pipeline_data_ready, name='pipeline_data_ready')
+    url(r'^test/pipeline/', website_views.pipeline_data_ready, name='pipeline_data_ready'),
+
+    # Pipeline data
+    url(r'^pipeline/data/(?P<pipeline_id>[0-9]+)', website_views.pipeline_data_view, name='pipeline_data_view')
 ]
 
 if settings.DEBUG:

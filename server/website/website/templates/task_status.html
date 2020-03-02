@@ -38,6 +38,18 @@
         <td><div class="text-right">Total runtime:</div></td>
         <td>{{ total_runtime }}</td>
     </tr>
+    {% if result.pipeline_knobs %}
+    <tr>
+        <td><div class="text-right">Ranked Knobs:</div></td>
+        <td><a href="{% url 'pipeline_data_view' result.pipeline_knobs.pk %}">Ranked Knobs</td>
+    </tr>
+    {% endif %}
+    {% if result.pipeline_metrics %}
+    <tr>
+        <td><div class="text-right">Pruned Metrics:</div></td>
+        <td><a href="{% url 'pipeline_data_view' result.pipeline_metrics.pk %}">Pruned Metrics</td>
+    </tr>
+    {% endif %}
     </tbody>
 </table>
 

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4 style="text-align: center;">Pipeline Data Info</h4></caption>
+    <tbody>
+    <tr>
+        <td style="width: 50%"><div class="text-right">ID:</div></td>
+        <td style="width: 50%">{{ id }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Creation Time:</div></td>
+        <td>{{ creation_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Task Name:</div></td>
+        <td>{{ task_name }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">Workload:</div></td>
+        <td>{{ workload }}</td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+<div class="container">
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <caption><h4 style="text-align: center;">{{ task_name }}</h4></caption>
+    <tbody>
+    {% for element in data %}
+        <tr>
+            <td style="width: 50%"><div class="text-right">{{forloop.counter}}</div></td>
+            <td style="width: 50%">{{ element }} </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock body %}

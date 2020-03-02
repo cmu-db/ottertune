@@ -423,6 +423,39 @@ class Workload(BaseModel):
     #                                   hw=hw_id)
 
 
+class PipelineRunManager(models.Manager):
+
+    def get_latest(self):
+        return self.all().exclude(end_time=None).first()
+
+
+class PipelineRun(models.Model):
+    objects = PipelineRunManager()
+
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True)
+
+    def __unicode__(self):
+        return str(self.pk)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:  # pylint: disable=no-init
+        ordering = ["-id"]
+
+
+class PipelineData(models.Model):
+    pipeline_run = models.ForeignKey(PipelineRun, verbose_name='group')
+    task_type = models.IntegerField(choices=PipelineTaskType.choices())
+    workload = models.ForeignKey(Workload)
+    data = models.TextField()
+    creation_time = models.DateTimeField()
+
+    class Meta:  # pylint: disable=no-init
+        unique_together = ("pipeline_run", "task_type", "workload")
+
+
 class ResultManager(models.Manager):
 
     def create_result(self, session, dbms, workload,
@@ -461,42 +494,11 @@ class Result(BaseModel):
     observation_time = models.FloatField()
     task_ids = models.TextField(null=True)
     next_configuration = models.TextField(null=True)
+    pipeline_knobs = models.ForeignKey(PipelineData, null=True, related_name='pipeline_knobs')
+    pipeline_metrics = models.ForeignKey(PipelineData, null=True, related_name='pipeline_metrics')
 
     def __unicode__(self):
         return str(self.pk)
-
-
-class PipelineRunManager(models.Manager):
-
-    def get_latest(self):
-        return self.all().exclude(end_time=None).first()
-
-
-class PipelineRun(models.Model):
-    objects = PipelineRunManager()
-
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField(null=True)
-
-    def __unicode__(self):
-        return str(self.pk)
-
-    def __str__(self):
-        return self.__unicode__()
-
-    class Meta:  # pylint: disable=no-init
-        ordering = ["-id"]
-
-
-class PipelineData(models.Model):
-    pipeline_run = models.ForeignKey(PipelineRun, verbose_name='group')
-    task_type = models.IntegerField(choices=PipelineTaskType.choices())
-    workload = models.ForeignKey(Workload)
-    data = models.TextField()
-    creation_time = models.DateTimeField()
-
-    class Meta:  # pylint: disable=no-init
-        unique_together = ("pipeline_run", "task_type", "workload")
 
 
 class BackupData(BaseModel):

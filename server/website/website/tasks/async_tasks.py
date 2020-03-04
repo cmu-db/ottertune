@@ -30,7 +30,7 @@ from analysis.gpr.predict import gpflow_predict
 from analysis.preprocessing import Bin, DummyEncoder
 from analysis.constraints import ParamConstraintHelper
 from website.models import (PipelineData, PipelineRun, Result, Workload, SessionKnob,
-                            MetricCatalog, ExecutionTime)
+                            MetricCatalog, ExecutionTime, KnobCatalog)
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
@@ -69,7 +69,7 @@ class MapWorkloadTask(BaseTask):  # pylint: disable=abstract-method
         new_res = None
 
         # Replace result with formatted result
-        if not args[0][0]['bad'] and args[0][0]['mapped_workload'] is not None:
+        if args[0][0]['status'] == 'good' and args[0][0]['mapped_workload'] is not None:
             new_res = {
                 'scores': sorted(args[0][0]['scores'].items()),
                 'mapped_workload_id': args[0][0]['mapped_workload'],
@@ -178,47 +178,137 @@ def save_execution_time(start_ts, fn, result):
                                  start_time=start_time, execution_time=exec_time, result=result)
 
 
+def choose_value_in_range(num1, num2):
+    if num1 < 1:
+        num1 = num1 + 1
+    if num2 < 1:
+        num2 = num2 + 1
+    log_num1 = np.log(num1)
+    log_num2 = np.log(num2)
+    return np.exp((log_num1 + log_num2) / 2)
+
+
+def test_knob_range(knob_info, newest_result, good_val, bad_val, mode):
+    session = newest_result.session
+    knob = KnobCatalog.objects.get(name=knob_info['name'], dbms=session.dbms)
+    knob_file = newest_result.knob_data
+    knob_values = JSONUtil.loads(knob_file.data)
+    last_value = float(knob_values[knob.name])
+    session_knob = SessionKnob.objects.get(session=session, knob=knob)
+    # The collected knob value may be different from the expected value
+    # We use the expected value to set the knob range
+    expected_value = choose_value_in_range(good_val, bad_val)
+
+    session_results = Result.objects.filter(session=session).order_by("-id")
+    last_conf_value = ''
+    if len(session_results) > 1:
+        last_conf = session_results[1].next_configuration
+        if last_conf is not None:
+            last_conf = JSONUtil.loads(last_conf)["recommendation"]
+            # The names cannot be matched directly because of the 'global.' prefix
+            for name in last_conf.keys():
+                if name in knob.name:
+                    last_conf_value = last_conf[name]
+    fomatted_expect_value = db.parser.format_dbms_knobs(
+        session.dbms.pk, {knob.name: expected_value})[knob.name]
+
+    # The last result was testing the max_range of this knob
+    if last_conf_value == fomatted_expect_value:
+        # Fixme: '*' is a special symbol indicating that the knob setting is invalid
+        # In the future we can add a field to indicate if the knob setting is invalid
+        if '*' in knob_file.name:
+            if mode == 'lowerbound':
+                session_knob.lowerbound = str(int(expected_value))
+            else:
+                session_knob.upperbound = str(int(expected_value))
+            next_value = choose_value_in_range(expected_value, good_val)
+        else:
+            if mode == 'lowerbound':
+                session_knob.minval = str(int(expected_value))
+                if expected_value < last_value / 10:
+                    session_knob.minval = str(int(last_value))
+                    session_knob.lowerbound = str(int(last_value))
+            else:
+                session_knob.maxval = str(int(expected_value))
+            next_value = choose_value_in_range(expected_value, bad_val)
+        session_knob.save()
+    else:
+        next_value = expected_value
+
+    if mode == 'lowerbound':
+        next_config = {knob.name: next_value}
+    else:
+        knobs = SessionKnob.objects.get_knobs_for_session(session)
+        next_config = gen_test_maxval_data(knobs, knob.name, next_value)
+
+    agg_data = DataUtil.aggregate_data(Result.objects.filter(pk=newest_result.pk))
+    agg_data['newest_result_id'] = newest_result.pk
+    agg_data['status'] = 'range_test'
+    agg_data['config_recommend'] = next_config
+    LOG.debug('Testing %s of %s.\n\ndata=%s\n', mode, knob.name,
+              JSONUtil.dumps(agg_data, pprint=True))
+    save_execution_time(time.time(), "aggregate_target_results", newest_result)
+    return agg_data
+
+
 @shared_task(base=IgnoreResultTask, name='aggregate_target_results')
 def aggregate_target_results(result_id, algorithm):
     start_ts = time.time()
+    agg_data = DataUtil.aggregate_data(Result.objects.filter(pk=result_id))
+    newest_result = Result.objects.get(pk=result_id)
+    session = newest_result.session
+    knobs = SessionKnob.objects.get_knobs_for_session(session)
+
+    # Check that the minvals of tunable knobs are all decided
+    for knob_info in knobs:
+        if 'lowerbound' in knob_info and knob_info['lowerbound'] is not None:
+            lowerbound = float(knob_info['lowerbound'])
+            minval = float(knob_info['minval'])
+            if lowerbound < minval * 0.7:
+                # We need to do binary search to determine the minval of this knob
+                return test_knob_range(knob_info,
+                                       newest_result, minval, lowerbound, 'lowerbound'), algorithm
+
+    # Check that the maxvals of tunable knobs are all decided
+    for knob_info in knobs:
+        if 'upperbound' in knob_info and knob_info['upperbound'] is not None:
+            upperbound = float(knob_info['upperbound'])
+            maxval = float(knob_info['maxval'])
+            if upperbound > maxval * 1.5:
+                # We need to do binary search to determine the maxval of this knob
+                return test_knob_range(knob_info,
+                                       newest_result, maxval, upperbound, 'upperbound'), algorithm
+
     # Check that we've completed the background tasks at least once. We need
     # this data in order to make a configuration recommendation (until we
     # implement a sampling technique to generate new training data).
-    newest_result = Result.objects.get(pk=result_id)
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
-    if not has_pipeline_data or newest_result.session.tuning_session == 'lhs':
-        if not has_pipeline_data and newest_result.session.tuning_session == 'tuning_session':
+    if not has_pipeline_data or session.tuning_session == 'lhs':
+        if not has_pipeline_data and session.tuning_session == 'tuning_session':
             LOG.debug("Background tasks haven't ran for this workload yet, picking data with lhs.")
 
-        all_samples = JSONUtil.loads(newest_result.session.lhs_samples)
+        all_samples = JSONUtil.loads(session.lhs_samples)
         if len(all_samples) == 0:
-            knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
-            if newest_result.session.tuning_session == 'lhs':
+            if session.tuning_session == 'lhs':
                 all_samples = gen_lhs_samples(knobs, 100)
             else:
                 all_samples = gen_lhs_samples(knobs, 10)
             LOG.debug('%s: Generated LHS.\n\ndata=%s\n',
                       AlgorithmType.name(algorithm), JSONUtil.dumps(all_samples[:5], pprint=True))
         samples = all_samples.pop()
-        result = Result.objects.filter(pk=result_id)
-        agg_data = DataUtil.aggregate_data(result)
         agg_data['newest_result_id'] = result_id
-        agg_data['bad'] = True
+        agg_data['status'] = 'lhs'
         agg_data['config_recommend'] = samples
-        newest_result.session.lhs_samples = JSONUtil.dumps(all_samples)
-        newest_result.session.save()
+        session.lhs_samples = JSONUtil.dumps(all_samples)
+        session.save()
         LOG.debug('%s: Got LHS config.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
 
-    elif newest_result.session.tuning_session == 'randomly_generate':
-        result = Result.objects.filter(pk=result_id)
-        knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
-
+    elif session.tuning_session == 'randomly_generate':
         # generate a config randomly
         random_knob_result = gen_random_data(knobs)
-        agg_data = DataUtil.aggregate_data(result)
         agg_data['newest_result_id'] = result_id
-        agg_data['bad'] = True
+        agg_data['status'] = 'random'
         agg_data['config_recommend'] = random_knob_result
         LOG.debug('%s: Finished generating a random config.\n\ndata=%s\n',
                   AlgorithmType.name(algorithm), JSONUtil.dumps(agg_data, pprint=True))
@@ -226,19 +316,19 @@ def aggregate_target_results(result_id, algorithm):
     else:
         # Aggregate all knob config results tried by the target so far in this
         # tuning session and this tuning workload.
-        target_results = Result.objects.filter(session=newest_result.session,
+        target_results = Result.objects.filter(session=session,
                                                dbms=newest_result.dbms,
                                                workload=newest_result.workload)
         if len(target_results) == 0:
             raise Exception('Cannot find any results for session_id={}, dbms_id={}'
-                            .format(newest_result.session, newest_result.dbms))
+                            .format(session, newest_result.dbms))
         agg_data = DataUtil.aggregate_data(target_results)
         agg_data['newest_result_id'] = result_id
-        agg_data['bad'] = False
+        agg_data['status'] = 'good'
 
         # Clean knob data
         cleaned_agg_data = clean_knob_data(agg_data['X_matrix'], agg_data['X_columnlabels'],
-                                           newest_result.session)
+                                           session)
         agg_data['X_matrix'] = np.array(cleaned_agg_data[0])
         agg_data['X_columnlabels'] = np.array(cleaned_agg_data[1])
 
@@ -246,6 +336,31 @@ def aggregate_target_results(result_id, algorithm):
                   AlgorithmType.name(algorithm))
     save_execution_time(start_ts, "aggregate_target_results", Result.objects.get(pk=result_id))
     return agg_data, algorithm
+
+
+def gen_test_maxval_data(knobs, test_knob, next_value):
+    next_config = {}
+    for knob in knobs:
+        name = knob["name"]
+        if name == test_knob:
+            next_config[name] = next_value
+        elif knob["vartype"] == VarType.BOOL:
+            next_config[name] = False
+        elif knob["vartype"] == VarType.ENUM:
+            next_config[name] = 0
+        elif knob["vartype"] == VarType.INTEGER:
+            next_config[name] = int(knob["minval"])
+        elif knob["vartype"] == VarType.REAL:
+            next_config[name] = float(knob["minval"])
+        elif knob["vartype"] == VarType.STRING:
+            next_config[name] = "None"
+        elif knob["vartype"] == VarType.TIMESTAMP:
+            next_config[name] = "None"
+        else:
+            raise Exception(
+                'Unknown variable type: {}'.format(knob["vartype"]))
+
+    return next_config
 
 
 def gen_random_data(knobs):
@@ -685,14 +800,19 @@ def configuration_recommendation(recommendation_input):
     session = newest_result.session
     params = JSONUtil.loads(session.hyperparameters)
 
-    if target_data['bad'] is True:
-        if session.tuning_session == 'randomly_generate':
-            info = 'Randomly generated'
+    if target_data['status'] != 'good':
+        LOG.info(target_data['status'])
+        if target_data['status'] == 'random':
+            info = 'The config is generated by Random'
+        elif target_data['status'] == 'lhs':
+            info = 'The config is generated by LHS'
+        elif target_data['status'] == 'range_test':
+            info = 'Searching for the valid ranges of knobs'
         else:
-            info = 'WARNING: no training data, the config is generated by LHS'
+            info = 'Unknown'
         target_data_res = create_and_save_recommendation(
             recommended_knobs=target_data['config_recommend'], result=newest_result,
-            status='bad', info=info,
+            status=target_data['status'], info=info,
             pipeline_run=target_data['pipeline_run'])
         LOG.debug('%s: Skipping configuration recommendation.\nData:\n%s\n\n',
                   AlgorithmType.name(algorithm), target_data)
@@ -830,7 +950,7 @@ def map_workload(map_workload_input):
     start_ts = time.time()
     target_data, algorithm = map_workload_input
 
-    if target_data['bad']:
+    if target_data['status'] != 'good':
         assert target_data is not None
         target_data['pipeline_run'] = None
         LOG.debug('%s: Skipping workload mapping.\n\ndata=%s\n',

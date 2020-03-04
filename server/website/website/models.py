@@ -233,18 +233,20 @@ class SessionKnobManager(models.Manager):
             session=session, tunable=True).prefetch_related('knob')
         session_knobs = {s.knob.pk: s for s in session_knobs}
         knob_dicts = list(KnobCatalog.objects.filter(id__in=session_knobs.keys()).values())
-        for knob_dict in knob_dicts:
-            sess_knob = session_knobs[knob_dict['id']]
-            knob_dict['minval'] = sess_knob.minval
-            knob_dict['maxval'] = sess_knob.maxval
-            knob_dict['tunable'] = sess_knob.tunable
-            if knob_dict['vartype'] is VarType.ENUM:
-                enumvals = knob_dict['enumvals'].split(',')
-                knob_dict["minval"] = 0
-                knob_dict["maxval"] = len(enumvals) - 1
-            if knob_dict['vartype'] is VarType.BOOL:
-                knob_dict["minval"] = 0
-                knob_dict["maxval"] = 1
+        for knob_info in knob_dicts:
+            sess_knob = session_knobs[knob_info['id']]
+            knob_info['minval'] = sess_knob.minval
+            knob_info['maxval'] = sess_knob.maxval
+            knob_info['upperbound'] = sess_knob.upperbound
+            knob_info['lowerbound'] = sess_knob.lowerbound
+            knob_info['tunable'] = sess_knob.tunable
+            if knob_info['vartype'] is VarType.ENUM:
+                enumvals = knob_info['enumvals'].split(',')
+                knob_info["minval"] = 0
+                knob_info["maxval"] = len(enumvals) - 1
+            if knob_info['vartype'] is VarType.BOOL:
+                knob_info["minval"] = 0
+                knob_info["maxval"] = 1
 
         return knob_dicts
 
@@ -275,6 +277,10 @@ class SessionKnobManager(models.Manager):
                 session_knob.minval = settings["minval"]
                 session_knob.maxval = settings["maxval"]
                 session_knob.tunable = settings["tunable"]
+                if "upperbound" in settings:
+                    session_knob.upperbound = settings["upperbound"]
+                if "lowerbound" in settings:
+                    session_knob.lowerbound = settings["lowerbound"]
                 session_knob.save()
                 if cascade:
                     knob = KnobCatalog.objects.get(name=session_knob.name, dbms=session.dbms)
@@ -302,6 +308,8 @@ class SessionKnob(BaseModel):
     knob = models.ForeignKey(KnobCatalog)
     minval = models.CharField(max_length=32, null=True, verbose_name="minimum value")
     maxval = models.CharField(max_length=32, null=True, verbose_name="maximum value")
+    upperbound = models.CharField(max_length=32, null=True, verbose_name="upperbound")
+    lowerbound = models.CharField(max_length=32, null=True, verbose_name="lowerbound")
     tunable = models.BooleanField(verbose_name="tunable")
 
 

@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import shutil
+import socket
 from collections import OrderedDict
 from io import StringIO
 
@@ -19,9 +20,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.forms import PasswordChangeForm
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.core.files.base import ContentFile, File
 from django.core.management import call_command
+from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, QueryDict
 from django.shortcuts import redirect, render, get_object_or_404
@@ -33,6 +35,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from pytz import timezone
 
+from . import models as app_models
 from . import utils
 from .db import parser, target_objectives
 from .forms import NewResultForm, ProjectForm, SessionForm, SessionKnobForm
@@ -1279,11 +1282,48 @@ def alt_get_info(request, name):  # pylint: disable=unused-argument
             f.close()
         shutil.rmtree(tmpdir, ignore_errors=True)
     else:
-        message = "Invalid name for info request: '{}'".format(name)
-        LOG.warning(message)
-        content = dict(message='ERROR: ' + message, info=None, name=name)
+        info = {}
+        msg = ''
+        status_code = 200
+
+        if name == 'server':
+            for k in ('engine', 'name', 'port', 'host'):
+                v = connection.settings_dict.get(k.upper(), '')
+                if k == 'host' and not v:
+                    v = 'localhost'
+                info['db_' + k] = v
+            info['hostname'] = socket.gethostname()
+            msg = "Successfully retrieved info for '{}'.".format(name)
+        elif name in app_models.__dict__ and hasattr(app_models.__dict__[name], 'objects'):
+            data = {k: v[0] for k, v in request.POST.lists()}
+            require_exists = data.pop('require_exists', False)
+            obj_str = '{}({})'.format(
+                name, ','.join('{}={}'.format(*o) for o in sorted(data.items())))
+            try:
+                obj = app_models.__dict__[name].objects.filter(**data).first()
+                if obj is None:
+                    msg = "No objects found matching {}.".format(obj_str)
+                    LOG.warning(msg)
+                    msg = ('ERROR: ' if require_exists else 'WARNING: ') + msg
+                    status_code = 400 if require_exists else 200
+                else:
+                    info = model_to_dict(obj)
+                    msg = "Successfully retrieved info for object {}.".format(obj_str)
+            except FieldError as e:
+                msg = "Failed to get object {}: invalid field.\n\n{}\n\n".format(obj_str, e)
+                LOG.warning(msg)
+                msg = 'ERROR: ' + msg
+                status_code = 400
+        else:
+            msg = "Invalid name for info request: '{}'.".format(name)
+            LOG.warning(msg)
+            msg = 'ERROR: ' + msg
+            status_code = 400
+
+        content = dict(message=msg, info=info, name=name)
         response = HttpResponse(JSONUtil.dumps(content), content_type='application/json',
-                                status=400)
+                                status=status_code)
+
     return response
 
 

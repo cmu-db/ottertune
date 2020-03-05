@@ -267,17 +267,23 @@ class SessionKnobManager(models.Manager):
     @staticmethod
     def set_knob_min_max_tunability(session, knob_dicts, cascade=True, disable_others=False):
         # Returns a dict of the knob
-        session_knobs = SessionKnob.objects.filter(session=session)
-        for session_knob in session_knobs:
-            if session_knob.name in knob_dicts:
-                session_knob.minval = knob_dicts[session_knob.name]["minval"]
-                session_knob.maxval = knob_dicts[session_knob.name]["maxval"]
-                session_knob.tunable = knob_dicts[session_knob.name]["tunable"]
+        knob_dicts = {k.lower(): v for k, v in knob_dicts.items()}
+        session_knobs = {k.name.lower(): k for k in SessionKnob.objects.filter(session=session)}
+        for lower_name, session_knob in session_knobs.items():
+            if lower_name in knob_dicts:
+                settings = knob_dicts[lower_name]
+                session_knob.minval = settings["minval"]
+                session_knob.maxval = settings["maxval"]
+                session_knob.tunable = settings["tunable"]
                 session_knob.save()
                 if cascade:
-                    knob = KnobCatalog.objects.get(name=session_knob.name,
-                                                   dbms=session_knob.session.dbms)
+                    knob = KnobCatalog.objects.get(name=session_knob.name, dbms=session.dbms)
                     knob.tunable = session_knob.tunable
+                    if knob.vartype in (VarType.INTEGER, VarType.REAL):
+                        if knob.minval is None or session_knob.minval < float(knob.minval):
+                            knob.minval = session_knob.minval
+                        if knob.maxval is None or session_knob.maxval > float(knob.maxval):
+                            knob.maxval = session_knob.maxval
                     knob.save()
             elif disable_others:
                 # Set all knobs not in knob_dicts to not tunable

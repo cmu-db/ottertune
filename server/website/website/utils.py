@@ -3,7 +3,6 @@
 #
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
-import celery
 import datetime
 import json
 import logging
@@ -15,7 +14,9 @@ import time
 from collections import OrderedDict
 from io import BytesIO
 from random import choice
+from subprocess import Popen, PIPE
 
+import celery
 import numpy as np
 from django.contrib.auth.models import User
 from django.core.management import call_command
@@ -517,3 +518,22 @@ def check_and_run_celery():
             return 'celery stopped but is restarted successfully'
     LOG.warning('Cannot restart celery.')
     return 'celery stopped and cannot be restarted'
+
+
+def git_hash():
+    sha = ''
+    if os.path.exists('/app/.git_commit'):
+        with open('/app/.git_commit', 'r') as f:
+            lines = f.read().strip().split('\n')
+        for line in lines:
+            if line.startswith('base='):
+                sha = line.strip().split('=', 1)[1]
+                break
+    else:
+        try:
+            p = Popen("git log -1 --format=format:%H", shell=True, stdout=PIPE, stderr=PIPE)
+            sha = p.communicate()[0].decode('utf-8')
+        except OSError as e:
+            LOG.warning("Failed to get git commit hash.\n\n%s\n\n", e, exc_info=True)
+
+    return sha

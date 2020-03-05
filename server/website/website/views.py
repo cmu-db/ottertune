@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 import socket
+import time
 from collections import OrderedDict
 from io import StringIO
 
@@ -1258,29 +1259,31 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
 def alt_get_info(request, name):  # pylint: disable=unused-argument
     # Backdoor method for getting basic info
     if name in ('website', 'logs'):
-        tmpdir = os.path.realpath('.info')
-        shutil.rmtree(tmpdir, ignore_errors=True)
-        os.makedirs(tmpdir, exist_ok=True)
+        tmpdir = os.path.realpath('.info_{}'.format(int(time.time())))
+        os.makedirs(tmpdir, exist_ok=False)
 
-        if name == 'website':
-            filepath = os.path.join(tmpdir, 'website_dump.json.gz')
-            call_command('dumpwebsite', dumpfile=filepath, compress=True)
-        else:  # name == 'logs'
-            base_name = os.path.join(tmpdir, 'website_logs')
-            root_dir, base_dir = os.path.split(LOG_DIR)
-            filepath = shutil.make_archive(
-                base_name, format='gztar', base_dir=base_dir, root_dir=root_dir)
-
-        f = open(filepath, 'rb')
         try:
-            cfile = File(f)
-            response = HttpResponse(cfile, content_type='application/x-gzip')
-            response['Content-Length'] = cfile.size
-            response['Content-Disposition'] = 'attachment; filename={}'.format(
-                os.path.basename(filepath))
+            if name == 'website':
+                filepath = os.path.join(tmpdir, 'website_dump.json.gz')
+                call_command('dumpwebsite', dumpfile=filepath, compress=True)
+            else:  # name == 'logs'
+                base_dir = 'website_log'
+                base_name = os.path.join(tmpdir, base_dir)
+                shutil.copytree(LOG_DIR, base_name)
+                filepath = shutil.make_archive(
+                    base_name, 'gztar', tmpdir, base_dir)
+
+            f = open(filepath, 'rb')
+            try:
+                cfile = File(f)
+                response = HttpResponse(cfile, content_type='application/x-gzip')
+                response['Content-Length'] = cfile.size
+                response['Content-Disposition'] = 'attachment; filename={}'.format(
+                    os.path.basename(filepath))
+            finally:
+                f.close()
         finally:
-            f.close()
-        shutil.rmtree(tmpdir, ignore_errors=True)
+            shutil.rmtree(tmpdir, ignore_errors=True)
     else:
         info = {}
         msg = ''
@@ -1293,6 +1296,7 @@ def alt_get_info(request, name):  # pylint: disable=unused-argument
                     v = 'localhost'
                 info['db_' + k] = v
             info['hostname'] = socket.gethostname()
+            info['git_commit_hash'] = utils.git_hash()
             msg = "Successfully retrieved info for '{}'.".format(name)
         elif name in app_models.__dict__ and hasattr(app_models.__dict__[name], 'objects'):
             data = {k: v[0] for k, v in request.POST.lists()}
@@ -1504,8 +1508,7 @@ def alt_create_or_edit_session(request):
             session = get_object_or_404(Session, upload_code=data['upload_code'])
         else:
             project = get_object_or_404(Project, name=project_name, user=user)
-            session = get_object_or_404(Session, name=session_name, project=project,
-                                        user=user)
+            session = get_object_or_404(Session, name=session_name, project=project, user=user)
 
         for k, v in data.items():
             setattr(session, k, v)
@@ -1550,9 +1553,9 @@ def alt_create_or_edit_session(request):
     res['hardware'] = model_to_dict(session.hardware)
     res['algorithm'] = AlgorithmType.name(res['algorithm'])
     sk = SessionKnob.objects.get_knobs_for_session(session)
-    sess_knobs = []
+    sess_knobs = {}
     for knob in sk:
-        sess_knobs.append({x: knob[x] for x in ('minval', 'maxval', 'tunable')})
+        sess_knobs[knob['name']] = {x: knob[x] for x in ('minval', 'maxval', 'tunable')}
     res['session_knobs'] = sess_knobs
 
     if warnings:

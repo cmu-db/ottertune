@@ -9,8 +9,10 @@
            style="display:block; overflow-y:scroll; height:500px">
         <tr>
             <td>Name</td>
-	    <td>Min</td>
+	          <td>Min</td>
             <td>Max</td>
+            <td>Lowerbound</td>
+            <td>Upperbound</td>
             <td>Tunable</td>
             <td></td>
         </tr>
@@ -21,6 +23,8 @@
                     <td>{{ form.name }}</td>
                     <td>{{ form.minval }}</td>
                     <td>{{ form.maxval }}</td>
+                    <td>{{ form.lowerbound }}</td>
+                    <td>{{ form.upperbound }}</td>
                     <td>{{ form.tunable }}</td>
                     <td><button type="submit">Save</button></td>
                 </tr>

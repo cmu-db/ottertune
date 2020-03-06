@@ -487,8 +487,8 @@ def handle_result_files(session, files, execution_times=None):
     # Find worst throughput
     past_metrics = MetricData.objects.filter(session=session)
     metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
-    worst_target_value = None
-    worst_metric = None
+    worst_metric = past_metrics.first()
+    worst_target_value = JSONUtil.loads(worst_metric.data)[session.target_objective]
     for past_metric in past_metrics:
         if '*' in past_metric.name:
             continue

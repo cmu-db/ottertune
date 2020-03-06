@@ -158,4 +158,4 @@ class SessionKnobForm(forms.ModelForm):
 
     class Meta:  # pylint: disable=no-init
         model = SessionKnob
-        fields = ['session', 'knob', 'minval', 'maxval', 'tunable']
+        fields = ['session', 'knob', 'minval', 'maxval', 'lowerbound', 'upperbound', 'tunable']

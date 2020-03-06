@@ -484,41 +484,42 @@ def handle_result_files(session, files, execution_times=None):
     # Load the contents of the controller's summary file
     summary = JSONUtil.loads(files['summary'])
 
+    # Find worst throughput
+    past_metrics = MetricData.objects.filter(session=session)
+    metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
+    worst_target_value = None
+    worst_metric = None
+    for past_metric in past_metrics:
+        if '*' in past_metric.name:
+            continue
+        target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
+        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+            if worst_target_value is None or target_value < worst_target_value:
+                worst_target_value = target_value
+                worst_metric = past_metric
+        else:
+            if worst_target_value is None or target_value > worst_target_value:
+                worst_target_value = target_value
+                worst_metric = past_metric
+    LOG.debug("Worst target value so far is: %d", worst_target_value)
+    penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
+    if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+        penalty_target_value = worst_target_value / penalty_factor
+    else:
+        penalty_target_value = worst_target_value * penalty_factor
+
+    # Update the past invalid results
+    for past_metric in past_metrics:
+        if '*' in past_metric.name:
+            past_metric_data = JSONUtil.loads(past_metric.data)
+            past_metric_data[session.target_objective] = penalty_target_value
+            past_metric.data = JSONUtil.dumps(past_metric_data)
+            past_metric.save()
+
     # If database crashed on restart, pull latest result and worst throughput so far
     if 'error' in summary and summary['error'] == "DB_RESTART_ERROR":
 
         LOG.debug("Error in restarting database")
-        # Find worst throughput
-        past_metrics = MetricData.objects.filter(session=session)
-        metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
-        worst_target_value = None
-        worst_metric = None
-        for past_metric in past_metrics:
-            if '*' in past_metric.name:
-                continue
-            target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
-            if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-                if worst_target_value is None or target_value < worst_target_value:
-                    worst_target_value = target_value
-                    worst_metric = past_metric
-            else:
-                if worst_target_value is None or target_value > worst_target_value:
-                    worst_target_value = target_value
-                    worst_metric = past_metric
-        LOG.debug("Worst target value so far is: %d", worst_target_value)
-        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
-        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-            penalty_target_value = worst_target_value / penalty_factor
-        else:
-            penalty_target_value = worst_target_value * penalty_factor
-
-        # Update the past invalid results
-        for past_metric in past_metrics:
-            if '*' in past_metric.name:
-                past_metric_data = JSONUtil.loads(past_metric.data)
-                past_metric_data[session.target_objective] = penalty_target_value
-                past_metric.data = JSONUtil.dumps(past_metric_data)
-                past_metric.save()
 
         worst_result = Result.objects.filter(metric_data=worst_metric).first()
         last_result = Result.objects.filter(session=session).order_by("-id").first()
@@ -677,18 +678,21 @@ def handle_result_files(session, files, execution_times=None):
     response = None
     if session.algorithm == AlgorithmType.GPR:
         subtask_list = [
-            ('aggregate_target_results', (result_id, session.algorithm)),
+            ('preprocessing', (result_id, session.algorithm)),
+            ('aggregate_target_results', ()),
             ('map_workload', ()),
             ('configuration_recommendation', ()),
         ]
     elif session.algorithm == AlgorithmType.DDPG:
         subtask_list = [
-            ('train_ddpg', (result_id,)),
+            ('preprocessing', (result_id, session.algorithm)),
+            ('train_ddpg', ()),
             ('configuration_recommendation_ddpg', ()),
         ]
     elif session.algorithm == AlgorithmType.DNN:
         subtask_list = [
-            ('aggregate_target_results', (result_id, session.algorithm)),
+            ('preprocessing', (result_id, session.algorithm)),
+            ('aggregate_target_results', ()),
             ('map_workload', ()),
             ('configuration_recommendation', ()),
         ]

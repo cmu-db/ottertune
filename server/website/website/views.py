@@ -487,26 +487,27 @@ def handle_result_files(session, files, execution_times=None):
     # Find worst throughput
     past_metrics = MetricData.objects.filter(session=session)
     metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
-    worst_metric = past_metrics.first()
-    worst_target_value = JSONUtil.loads(worst_metric.data)[session.target_objective]
-    for past_metric in past_metrics:
-        if '*' in past_metric.name:
-            continue
-        target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
+    if len(past_metrics) > 0:
+        worst_metric = past_metrics.first()
+        worst_target_value = JSONUtil.loads(worst_metric.data)[session.target_objective]
+        for past_metric in past_metrics:
+            if '*' in past_metric.name:
+                continue
+            target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
+            if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+                if worst_target_value is None or target_value < worst_target_value:
+                    worst_target_value = target_value
+                    worst_metric = past_metric
+            else:
+                if worst_target_value is None or target_value > worst_target_value:
+                    worst_target_value = target_value
+                    worst_metric = past_metric
+        LOG.debug("Worst target value so far is: %d", worst_target_value)
+        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
         if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-            if worst_target_value is None or target_value < worst_target_value:
-                worst_target_value = target_value
-                worst_metric = past_metric
+            penalty_target_value = worst_target_value / penalty_factor
         else:
-            if worst_target_value is None or target_value > worst_target_value:
-                worst_target_value = target_value
-                worst_metric = past_metric
-    LOG.debug("Worst target value so far is: %d", worst_target_value)
-    penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
-    if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-        penalty_target_value = worst_target_value / penalty_factor
-    else:
-        penalty_target_value = worst_target_value * penalty_factor
+            penalty_target_value = worst_target_value * penalty_factor
 
     # Update the past invalid results
     for past_metric in past_metrics:

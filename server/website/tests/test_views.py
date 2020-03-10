@@ -218,6 +218,8 @@ class SessionViewsTests(TestCase):
             'name': 'global.wal_writer_delay',
             'minval': '1',
             'maxval': '1000',
+            'lowerbound': '1',
+            'upperbound': '1000',
             'tunable': 'on'
         }
         response = self.client.post(form_addr, post_data, follow=True)

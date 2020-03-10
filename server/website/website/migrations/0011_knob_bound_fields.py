@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('website', '0009_change_executiontime_function_field'),
+        ('website', '0010_add_pipeline_data_field'),
     ]
 
     operations = [

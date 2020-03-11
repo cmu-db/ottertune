@@ -617,11 +617,13 @@ def handle_result_files(session, files, execution_times=None):
         # Load, process, and store the knobs in the DBMS's configuration
         knob_dict, knob_diffs = parser.parse_dbms_knobs(
             dbms.pk, JSONUtil.loads(files['knobs']))
-        tunable_knob_dict = parser.convert_dbms_knobs(
-            dbms.pk, knob_dict)
+        knob_to_convert = KnobCatalog.objects.filter(dbms=dbms).exclude(
+            vartype=VarType.STRING).exclude(vartype=VarType.TIMESTAMP)
+        converted_knob_dict = parser.convert_dbms_knobs(
+            dbms.pk, knob_dict, knob_to_convert)
         knob_data = KnobData.objects.create_knob_data(
             session, JSONUtil.dumps(knob_dict, pprint=True, sort=True),
-            JSONUtil.dumps(tunable_knob_dict, pprint=True, sort=True), dbms)
+            JSONUtil.dumps(converted_knob_dict, pprint=True, sort=True), dbms)
 
         # Load, process, and store the runtime metrics exposed by the DBMS
         initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(

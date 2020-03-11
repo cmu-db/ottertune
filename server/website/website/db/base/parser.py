@@ -60,6 +60,9 @@ class BaseParser:
         return res
 
     def convert_integer(self, int_value, metadata):
+        if len(str(int_value)) == 0:
+            # The value collected from the database is empty
+            return 0
         try:
             try:
                 converted = int(int_value)
@@ -74,8 +77,12 @@ class BaseParser:
                 converted = ConversionUtil.get_raw_size(
                     int_value, system=self.time_system)
             else:
-                raise Exception(
-                    'Unknown unit type: {}'.format(metadata.unit))
+                # If vartype is OTHER, try to decode it with bytes and time systems
+                converted = ConversionUtil.get_raw_size(
+                    int_value, system=self.bytes_system)
+                if converted is None:
+                    converted = ConversionUtil.get_raw_size(
+                        int_value, system=self.time_system)
         if converted is None:
             raise Exception('Invalid integer format for {}: {}'.format(
                 metadata.name, int_value))
@@ -99,10 +106,11 @@ class BaseParser:
             str_false += str(bval) + ' '
         return str_true + '; ' + str_false
 
-    def convert_dbms_knobs(self, knobs):
+    def convert_dbms_knobs(self, knobs, knob_catalog=None):
         knob_data = {}
-        tunable_knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
-        for metadata in tunable_knob_catalog:
+        if knob_catalog is None:
+            knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
+        for metadata in knob_catalog:
             name = metadata.name
             if name not in knobs:
                 if name.startswith('global.'):
@@ -159,6 +167,8 @@ class BaseParser:
         return knob_data
 
     def _check_knob_num_in_range(self, value, mdata, fix_knob_range=True):
+        if mdata.minval is None or mdata.maxval is None:
+            return True
         minval = float(mdata.minval)
         maxval = float(mdata.maxval)
         if fix_knob_range:

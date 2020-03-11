@@ -48,8 +48,8 @@ def parse_version_string(dbms_type, version_string):
     return parsed_version
 
 
-def convert_dbms_knobs(dbms_id, knobs):
-    return _get(dbms_id).convert_dbms_knobs(knobs)
+def convert_dbms_knobs(dbms_id, knobs, knob_catalog=None):
+    return _get(dbms_id).convert_dbms_knobs(knobs, knob_catalog)
 
 
 def convert_dbms_metrics(dbms_id, numeric_metrics, observation_time, target_objective):

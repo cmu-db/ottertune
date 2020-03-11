@@ -90,7 +90,7 @@ class ConfigurationRecommendation(BaseTask):  # pylint: disable=abstract-method
 
 
 def clean_knob_data(knob_matrix, knob_labels, session):
-    # Makes sure that all knobs in the dbms are included in the knob_matrix and knob_labels
+    # Filter and amend knob_matrix and knob_labels according to the tunable knobs in the session
     knob_matrix = np.array(knob_matrix)
     session_knobs = SessionKnob.objects.get_knobs_for_session(session)
     knob_cat = [k['name'] for k in session_knobs]

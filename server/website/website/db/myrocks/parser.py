@@ -180,12 +180,13 @@ class MyRocksParser(BaseParser):
 
         return metric_data
 
-    def convert_dbms_knobs(self, knobs):
+    def convert_dbms_knobs(self, knobs, knob_catalog=None):
         knob_data = {}
-        tunable_knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
+        if knob_catalog is None:
+            knob_catalog = KnobCatalog.objects.filter(dbms__id=self.dbms_id, tunable=True)
         for name, value in list(knobs.items()):
             prt_name = self.partial_name(name)
-            metadata = tunable_knob_catalog.filter(name=prt_name).first()
+            metadata = knob_catalog.filter(name=prt_name).first()
             if metadata:
                 conv_value = None
                 if metadata.vartype == VarType.BOOL:

@@ -139,7 +139,7 @@
             "xmloption": "content", 
             "syslog_split_messages": "on", 
             "wal_sender_timeout": "1min", 
-            "password_encryption": "md5", 
+            "password_encryption": "on", 
             "ssl_cert_file": "server.crt", 
             "block_size": "8192", 
             "vacuum_cost_delay": "0", 

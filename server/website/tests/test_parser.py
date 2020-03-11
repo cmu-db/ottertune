@@ -175,8 +175,8 @@ class BaseParserTests(object, metaclass=ABCMeta):
         mock_other_knob = mock.Mock(spec=KnobCatalog)
         mock_other_knob.unit = KnobUnitType.OTHER
 
-        test_int = [42, -1, 0, 0.5, 1, 42.0, 42.5, 42.7]
-        test_int_ans = [42, -1, 0, 1, 1, 42, 43, 43]
+        test_int = [42, -1, 0, 0.5, '1', 42.0, '42.5', 42.7, '']
+        test_int_ans = [42, -1, 0, 1, 1, 42, 43, 43, 0]
 
         for test_int, actual_test_int in zip(test_int, test_int_ans):
             self.assertEqual(
@@ -376,9 +376,6 @@ class PostgresParserTests(BaseParserTests, TestCase):
         self.assertEqual(self.test_dbms.convert_integer('5000ms', knob_unit_time), 5000)
 
         test_exceptions = [('A', knob_unit_other),
-                           ('', knob_unit_other),
-                           ('', knob_unit_bytes),
-                           ('', knob_unit_time),
                            ('1S', knob_unit_time),
                            ('1mb', knob_unit_bytes)]
 

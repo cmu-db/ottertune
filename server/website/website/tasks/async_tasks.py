@@ -179,19 +179,18 @@ def save_execution_time(start_ts, fn, result):
 
 
 def choose_value_in_range(num1, num2):
-    # It is important to add 1 to avoid log(0)
-    log_num1 = np.log(num1 + 1)
-    log_num2 = np.log(num2 + 1)
-    return np.exp((log_num1 + log_num2) / 2)
+    if num1 > 10 * num2 or num2 > 10 * num1:
+        # It is important to add 1 to avoid log(0)
+        log_num1 = np.log(num1 + 1)
+        log_num2 = np.log(num2 + 1)
+        mean = np.exp((log_num1 + log_num2) / 2)
+    else:
+        mean = (num1 + num2) / 2
+    return mean
 
 
 def calc_next_knob_range(algorithm, knob_info, newest_result, good_val, bad_val, mode):
     session = newest_result.session
-    # The metric should not be used for learning because the driver runs nothing
-    # We tag the metric as invalid, so later they will be set to the worst result
-    metric_file = newest_result.metric_data
-    metric_file.name = metric_file.name + '*'
-    metric_file.save()
     knob = KnobCatalog.objects.get(name=knob_info['name'], dbms=session.dbms)
     knob_file = newest_result.knob_data
     knob_values = JSONUtil.loads(knob_file.data)
@@ -214,7 +213,7 @@ def calc_next_knob_range(algorithm, knob_info, newest_result, good_val, bad_val,
     fomatted_expect_value = db.parser.format_dbms_knobs(
         session.dbms.pk, {knob.name: expected_value})[knob.name]
 
-    # The last result was testing the max_range of this knob
+    # The last result was testing the of this knob
     if last_conf_value == fomatted_expect_value:
         # Fixme: '*' is a special symbol indicating that the knob setting is invalid
         # In the future we can add a field to indicate if the knob setting is invalid
@@ -244,8 +243,7 @@ def calc_next_knob_range(algorithm, knob_info, newest_result, good_val, bad_val,
     if mode == 'lowerbound':
         next_config = {knob.name: next_value}
     else:
-        knobs = SessionKnob.objects.get_knobs_for_session(session)
-        next_config = gen_test_maxval_data(knobs, knob.name, next_value)
+        next_config = {knob.name: next_value}
 
     target_data = {}
     target_data['newest_result_id'] = newest_result.pk
@@ -363,31 +361,6 @@ def aggregate_target_results(aggregate_target_results_input):
               AlgorithmType.name(algorithm))
     save_execution_time(start_ts, "aggregate_target_results", Result.objects.get(pk=result_id))
     return agg_data, algorithm
-
-
-def gen_test_maxval_data(knobs, test_knob, next_value):
-    next_config = {}
-    for knob in knobs:
-        name = knob["name"]
-        if name == test_knob:
-            next_config[name] = next_value
-        elif knob["vartype"] == VarType.BOOL:
-            next_config[name] = False
-        elif knob["vartype"] == VarType.ENUM:
-            next_config[name] = 0
-        elif knob["vartype"] == VarType.INTEGER:
-            next_config[name] = int(knob["minval"])
-        elif knob["vartype"] == VarType.REAL:
-            next_config[name] = float(knob["minval"])
-        elif knob["vartype"] == VarType.STRING:
-            next_config[name] = "None"
-        elif knob["vartype"] == VarType.TIMESTAMP:
-            next_config[name] = "None"
-        else:
-            raise Exception(
-                'Unknown variable type: {}'.format(knob["vartype"]))
-
-    return next_config
 
 
 def gen_random_data(knobs):

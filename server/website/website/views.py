@@ -488,7 +488,7 @@ def handle_result_files(session, files, execution_times=None):
     past_metrics = MetricData.objects.filter(session=session)
     metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
     if len(past_metrics) > 0:
-        worst_metric = past_metrics.first()
+        worst_metric = past_metrics.order_by('-id').first()
         worst_target_value = JSONUtil.loads(worst_metric.data)[session.target_objective]
         for past_metric in past_metrics:
             if '*' in past_metric.name:
@@ -572,6 +572,7 @@ def handle_result_files(session, files, execution_times=None):
         result.creation_time = now()
         result.observation_start_time = now()
         result.observation_end_time = now()
+        result.next_configuration = {}
         result.save()
         result = Result.objects.filter(session=session).order_by("-id").first()
 
@@ -641,6 +642,11 @@ def handle_result_files(session, files, execution_times=None):
         metric_data = MetricData.objects.create_metric_data(
             session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
             JSONUtil.dumps(numeric_metric_dict, pprint=True, sort=True), dbms)
+        if 'status' in summary and summary['status'] == "range_test":
+            # The metric should not be used for learning because the driver did not run workload
+            # We tag the metric as invalid, so later they will be set to the worst result
+            metric_data.name = metric_data.name + '*'
+            metric_data.save()
 
         # Create a new workload if this one does not already exist
         workload = Workload.objects.create_workload(
@@ -1233,7 +1239,7 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
 
     elif group_res.ready():
         assert group_res.successful()
-        next_config = JSONUtil.loads(next_config)
+        next_config = JSONUtil.loads(latest_result.next_configuration)
         response.update(
             next_config, celery_status='SUCCESS',
             message='Celery successfully recommended the next configuration')

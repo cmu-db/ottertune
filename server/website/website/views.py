@@ -645,7 +645,7 @@ def handle_result_files(session, files, execution_times=None):
         if 'status' in summary and summary['status'] == "range_test":
             # The metric should not be used for learning because the driver did not run workload
             # We tag the metric as invalid, so later they will be set to the worst result
-            metric_data.name = metric_data.name + '*'
+            metric_data.name = 'range_test_' + metric_data.name + '*'
             metric_data.save()
 
         # Create a new workload if this one does not already exist

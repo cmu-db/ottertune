@@ -448,6 +448,9 @@ def train_ddpg(train_ddpg_input):
     params = JSONUtil.loads(session.hyperparameters)
     session_results = Result.objects.filter(session=session,
                                             creation_time__lt=result.creation_time)
+    for i, result in enumerate(session_results):
+        if 'range_test' in result.metric_data.name:
+            session_results.pop(i)
     target_data = {}
     target_data['newest_result_id'] = result_id
 

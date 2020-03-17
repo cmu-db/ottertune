@@ -153,6 +153,8 @@ class DataUtil(object):
         rowlabels = np.empty(len(results), dtype=int)
 
         for i, result in enumerate(results):
+            if 'range_test' in result.metric_data.name:
+                continue
             param_data = JSONUtil.loads(result.knob_data.data)
             if len(param_data) != len(knob_labels):
                 raise Exception(

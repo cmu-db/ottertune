@@ -84,9 +84,9 @@ class TargetObjectives:
         self._default_target_objective = THROUGHPUT
 
     def register(self):
-        from ..myrocks.target_objective import target_objective_list as _myrocks_list
-        from ..oracle.target_objective import target_objective_list as _oracle_list
-        from ..postgres.target_objective import target_objective_list as _postgres_list
+        from ..myrocks.target_objective import target_objective_list as _myrocks_list  # pylint: disable=import-outside-toplevel
+        from ..oracle.target_objective import target_objective_list as _oracle_list  # pylint: disable=import-outside-toplevel
+        from ..postgres.target_objective import target_objective_list as _postgres_list  # pylint: disable=import-outside-toplevel
 
         if not self.registered():
             LOG.info('Registering target objectives...')

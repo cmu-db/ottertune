@@ -220,10 +220,14 @@ class BaseParser:
                     'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
         target_list = target_objectives.get_all(self.dbms_id)
+        if target_objective not in target_list:
+            raise ValueError(
+                "Invalid target objective '{}'. Expected one of: {}.".format(
+                    target_objective, ', '.join(target_list.keys())))
+
         for target_name, target_instance in target_list.items():
             metric_data[target_name] = target_instance.compute(
                 base_metric_data, observation_time)
-            LOG.info("Added target '%s=%s' to metric data", target_name, metric_data[target_name])
 
         return metric_data
 

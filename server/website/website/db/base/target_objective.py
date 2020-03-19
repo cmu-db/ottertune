@@ -59,10 +59,18 @@ class BaseThroughput(BaseTargetObjective):
         super().__init__(name=THROUGHPUT, pprint='Throughput',
                          unit='transactions / second', short_unit='txn/sec',
                          improvement=MORE_IS_BETTER)
+        if not isinstance(transactions_counter, (str, tuple)):
+            raise TypeError(
+                "Argument 'transactions_counter' must be str or tuple type, not {}.".format(
+                    type(transactions_counter)))
         self.transactions_counter = transactions_counter
 
     def compute(self, metrics, observation_time):
-        return float(metrics[self.transactions_counter]) / observation_time
+        if isinstance(self.transactions_counter, tuple):
+            num_txns = sum(metrics[ctr] for ctr in self.transactions_counter)
+        else:
+            num_txns = metrics[self.transactions_counter]
+        return float(num_txns) / observation_time
 
 
 class TargetObjectives:
@@ -107,9 +115,13 @@ class TargetObjectives:
         if not self.registered():
             self.register()
         dbms_id = int(dbms_id)
-        metadata = list(self._metric_metadatas[dbms_id])
-        target_objective_instance = self._registry[dbms_id][target_objective]
-        metadata.insert(0, (target_objective, target_objective_instance))
+        targets_list = []
+        for target_name, target_instance in self._registry[dbms_id].items():
+            if target_name == target_objective:
+                targets_list.insert(0, (target_name, target_instance))
+            else:
+                targets_list.append((target_name, target_instance))
+        metadata = targets_list + list(self._metric_metadatas[dbms_id])
         return OrderedDict(metadata)
 
     def default(self):

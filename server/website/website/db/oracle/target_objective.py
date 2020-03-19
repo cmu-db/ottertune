@@ -19,6 +19,7 @@ class DBTime(BaseTargetObjective):
 
 
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name
-    BaseThroughput(transactions_counter='global.sysstat.user commits'),
+    BaseThroughput(transactions_counter=('global.sysstat.user commits',
+                                         'global.sysstat.user rollbacks')),
     DBTime(),
 ])

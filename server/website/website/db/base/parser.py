@@ -219,10 +219,11 @@ class BaseParser:
                 raise ValueError(
                     'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
 
-        target_objective_instance = target_objectives.get_instance(
-            self.dbms_id, target_objective)
-        metric_data[target_objective] = target_objective_instance.compute(
-            base_metric_data, observation_time)
+        target_list = target_objectives.get_all(self.dbms_id)
+        for target_name, target_instance in target_list.items():
+            metric_data[target_name] = target_instance.compute(
+                base_metric_data, observation_time)
+            LOG.info("Added target '%s=%s' to metric data", target_name, metric_data[target_name])
 
         return metric_data
 

@@ -112,7 +112,7 @@ class TaskType(BaseType):
     TYPE_NAMES = OrderedDict([
         (PREPROCESS, "Preprocess"),
         (RUN_WM, "Workload Mapping"),
-        (RUN_GPR, "GPR"),
+        (RUN_GPR, "Recommendation"),
     ])
 
 

@@ -979,7 +979,7 @@ def pipeline_data_view(request, pipeline_id):
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
     task_tuple = JSONUtil.loads(res.task_ids)
-    task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)
+    task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)[-3:]
     tasks = TaskUtil.get_tasks(task_ids)
 
     overall_status, num_completed = TaskUtil.get_task_status(tasks, len(task_ids))

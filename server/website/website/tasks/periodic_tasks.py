@@ -80,8 +80,8 @@ def run_background_tasks():
         LOG.debug("Aggregating data for workload %d", workload.id)
         # Aggregate the knob & metric data for this workload
         knob_data, metric_data = aggregate_data(wkld_results)
-        LOG.debug("knob_data: %s", str(knob_data))
-        LOG.debug("metric_data: %s", str(metric_data))
+        # LOG.debug("knob_data: %s", str(knob_data))
+        # LOG.debug("metric_data: %s", str(metric_data))
 
         # Knob_data and metric_data are 2D numpy arrays. Convert them into a
         # JSON-friendly (nested) lists and then save them as new PipelineData
@@ -184,7 +184,7 @@ def aggregate_data(wkld_results):
     #   - 'y_columnlabels': a list of the metric names corresponding to the
     #         columns in the metric_data matrix
     start_ts = time.time()
-    aggregated_data = DataUtil.aggregate_data(wkld_results)
+    aggregated_data = DataUtil.aggregate_data(wkld_results, ignore=['range_test', 'default', '*'])
 
     # Separate knob & workload data into two "standard" dictionaries of the
     # same form

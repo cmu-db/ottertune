@@ -179,7 +179,9 @@ def save_execution_time(start_ts, fn, result):
 
 
 def choose_value_in_range(num1, num2):
-    if num1 > 10 * num2 or num2 > 10 * num1:
+    if num2 < 10 and num1 < 10:
+        mean = min(num1, num2)
+    elif num1 > 10 * num2 or num2 > 10 * num1:
         # It is important to add 1 to avoid log(0)
         log_num1 = np.log(num1 + 1)
         log_num2 = np.log(num2 + 1)
@@ -294,9 +296,16 @@ def preprocessing(result_id, algorithm):
     # this data in order to make a configuration recommendation (until we
     # implement a sampling technique to generate new training data).
     has_pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).exists()
-    if not has_pipeline_data or session.tuning_session == 'lhs':
+    session_results = Result.objects.filter(session=session)
+    useful_results_cnt = len(session_results)
+    for result in session_results:
+        if 'range_test' in result.metric_data.name or 'default' in result.metric_data.name:
+            useful_results_cnt -= 1
+    if not has_pipeline_data or useful_results_cnt == 0 or session.tuning_session == 'lhs':
         if not has_pipeline_data and session.tuning_session == 'tuning_session':
             LOG.debug("Background tasks haven't ran for this workload yet, picking data with lhs.")
+        if useful_results_cnt == 0 and session.tuning_session == 'tuning_session':
+            LOG.debug("Not enough data in this session, picking data with lhs.")
 
         all_samples = JSONUtil.loads(session.lhs_samples)
         if len(all_samples) == 0:
@@ -448,20 +457,25 @@ def train_ddpg(train_ddpg_input):
     params = JSONUtil.loads(session.hyperparameters)
     session_results = Result.objects.filter(session=session,
                                             creation_time__lt=result.creation_time)
+    useful_results_cnt = len(session_results)
+    first_valid_result = -1
     for i, result in enumerate(session_results):
-        if 'range_test' in result.metric_data.name:
-            session_results.pop(i)
+        if 'range_test' in result.metric_data.name or 'default' in result.metric_data.name:
+            useful_results_cnt -= 1
+        else:
+            last_valid_result = i
+            first_valid_result = i if first_valid_result == -1 else first_valid_result
     target_data = {}
     target_data['newest_result_id'] = result_id
 
     # Extract data from result and previous results
     result = Result.objects.filter(pk=result_id)
-    if len(session_results) == 0:
+    if useful_results_cnt == 0:
         base_result_id = result_id
         prev_result_id = result_id
     else:
-        base_result_id = session_results[0].pk
-        prev_result_id = session_results[len(session_results) - 1].pk
+        base_result_id = session_results[first_valid_result].pk
+        prev_result_id = session_results[last_valid_result].pk
     base_result = Result.objects.filter(pk=base_result_id)
     prev_result = Result.objects.filter(pk=prev_result_id)
 

@@ -145,15 +145,17 @@ class DataUtil(object):
         return np.array(minvals), np.array(maxvals)
 
     @staticmethod
-    def aggregate_data(results):
+    def aggregate_data(results, ignore=None):
+        if ignore is None:
+            ignore = ['range_test', 'default']
         knob_labels = list(JSONUtil.loads(results[0].knob_data.data).keys())
         metric_labels = list(JSONUtil.loads(results[0].metric_data.data).keys())
-        X_matrix = np.empty((len(results), len(knob_labels)), dtype=float)
-        y_matrix = np.empty((len(results), len(metric_labels)), dtype=float)
-        rowlabels = np.empty(len(results), dtype=int)
+        X_matrix = []
+        y_matrix = []
+        rowlabels = []
 
-        for i, result in enumerate(results):
-            if 'range_test' in result.metric_data.name:
+        for result in results:
+            if any(symbol in result.metric_data.name for symbol in ignore):
                 continue
             param_data = JSONUtil.loads(result.knob_data.data)
             if len(param_data) != len(knob_labels):
@@ -167,13 +169,13 @@ class DataUtil(object):
                     ("Incorrect number of metrics "
                      "(expected={}, actual={})").format(len(metric_labels),
                                                         len(metric_data)))
-            X_matrix[i, :] = [param_data[l] for l in knob_labels]
-            y_matrix[i, :] = [metric_data[l] for l in metric_labels]
-            rowlabels[i] = result.pk
+            X_matrix.append([param_data[l] for l in knob_labels])
+            y_matrix.append([metric_data[l] for l in metric_labels])
+            rowlabels.append(result.pk)
         return {
-            'X_matrix': X_matrix,
-            'y_matrix': y_matrix,
-            'rowlabels': rowlabels.tolist(),
+            'X_matrix': np.array(X_matrix, dtype=np.float64),
+            'y_matrix': np.array(y_matrix, dtype=np.float64),
+            'rowlabels': rowlabels,
             'X_columnlabels': knob_labels,
             'y_columnlabels': metric_labels,
         }

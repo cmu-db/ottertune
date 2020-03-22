@@ -495,19 +495,23 @@ def handle_result_files(session, files, execution_times=None):
                 continue
             target_value = JSONUtil.loads(past_metric.data)[session.target_objective]
             if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-                if worst_target_value is None or target_value < worst_target_value:
+                if '*' in worst_metric.name or target_value < worst_target_value:
                     worst_target_value = target_value
                     worst_metric = past_metric
             else:
-                if worst_target_value is None or target_value > worst_target_value:
+                if '*' in worst_metric.name or target_value > worst_target_value:
                     worst_target_value = target_value
                     worst_metric = past_metric
-        LOG.debug("Worst target value so far is: %d", worst_target_value)
-        penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
-        if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
-            penalty_target_value = worst_target_value / penalty_factor
+        if '*' in worst_metric.name:
+            LOG.debug("All previous results are invalid")
+            penalty_target_value = worst_target_value
         else:
-            penalty_target_value = worst_target_value * penalty_factor
+            LOG.debug("Worst target value so far is: %d", worst_target_value)
+            penalty_factor = JSONUtil.loads(session.hyperparameters).get('PENALTY_FACTOR', 2)
+            if metric_meta.improvement == target_objectives.MORE_IS_BETTER:
+                penalty_target_value = worst_target_value / penalty_factor
+            else:
+                penalty_target_value = worst_target_value * penalty_factor
 
     # Update the past invalid results
     for past_metric in past_metrics:
@@ -646,6 +650,11 @@ def handle_result_files(session, files, execution_times=None):
             # The metric should not be used for learning because the driver did not run workload
             # We tag the metric as invalid, so later they will be set to the worst result
             metric_data.name = 'range_test_' + metric_data.name + '*'
+            metric_data.save()
+        if 'status' in summary and summary['status'] == "default":
+            # The metric should not be used for learning because the driver did not run workload
+            # We tag the metric as invalid, so later they will be set to the worst result
+            metric_data.name = 'default_' + metric_data.name
             metric_data.save()
 
         # Create a new workload if this one does not already exist
@@ -1239,6 +1248,7 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
 
     elif group_res.ready():
         assert group_res.successful()
+        latest_result = Result.objects.filter(session=session).latest('creation_time')
         next_config = JSONUtil.loads(latest_result.next_configuration)
         response.update(
             next_config, celery_status='SUCCESS',

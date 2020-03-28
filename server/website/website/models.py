@@ -252,7 +252,9 @@ class SessionKnobManager(models.Manager):
 
     @staticmethod
     def get_knob_min_max_tunability(session, tunable_only=False):
-        # Returns a dict of the knob
+        # This method returns only min, max, and tunability of session knobs
+        # It is only used in the manage command 'dumpknob'
+        # It is deprecated. We should use function get_knobs_for_session(session)
         filter_args = dict(session=session)
         if tunable_only:
             filter_args['tunable'] = True
@@ -274,9 +276,12 @@ class SessionKnobManager(models.Manager):
         for lower_name, session_knob in session_knobs.items():
             if lower_name in knob_dicts:
                 settings = knob_dicts[lower_name]
-                session_knob.minval = settings["minval"]
-                session_knob.maxval = settings["maxval"]
-                session_knob.tunable = settings["tunable"]
+                if "minval" in settings:
+                    session_knob.minval = settings["minval"]
+                if "maxval" in settings:
+                    session_knob.maxval = settings["maxval"]
+                if "tunable" in settings:
+                    session_knob.tunable = settings["tunable"]
                 if "upperbound" in settings:
                     session_knob.upperbound = settings["upperbound"]
                 if "lowerbound" in settings:

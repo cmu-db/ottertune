@@ -1591,7 +1591,8 @@ def alt_create_or_edit_session(request):
     sk = SessionKnob.objects.get_knobs_for_session(session)
     sess_knobs = {}
     for knob in sk:
-        sess_knobs[knob['name']] = {x: knob[x] for x in ('minval', 'maxval', 'tunable')}
+        sess_knobs[knob['name']] = {x: knob[x] for x in ('minval', 'maxval', 'tunable',
+                                                         'upperbound', 'lowerbound')}
     res['session_knobs'] = sess_knobs
 
     if warnings:

@@ -411,7 +411,8 @@ def result_view(request, project_id, session_id, result_id):
         next_conf_available = False
     else:
         task_tuple = JSONUtil.loads(target.task_ids)
-        task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)
+        # For now we ignore the first subtask (i.e., preprocessing) status in GPR/DNN.
+        task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)[-3:]
         tasks = TaskUtil.get_tasks(task_ids)
         status, _ = TaskUtil.get_task_status(tasks, len(task_ids))
 

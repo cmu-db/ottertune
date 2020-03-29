@@ -221,6 +221,9 @@ CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 # The celerybeat scheduler class
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
+# Celery task meta will not be deleted
+CELERY_TASK_RESULT_EXPIRES = None
+
 # Defines the periodic task schedule for celerybeat
 CELERYBEAT_SCHEDULE = {
     'run-every-5m': {

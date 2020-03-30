@@ -808,22 +808,27 @@ def integration_tests():
 
     LOG.info("\n\nIntegration Tests: PASSED!!\n")
 
+    # Test task status UI
+    task_status_ui_test()
 
 @task
 def task_status_ui_test():
     # Test GPR
     upload_code = 'ottertuneTestTuningGPR'
     response = requests.get(dconf.WEBSITE_URL + '/test/task_status/' + upload_code)
+    LOG.info(get_content(response))
     assert 'Success:' in get_content(response)
 
     # Test DNN:
     upload_code = 'ottertuneTestTuningDNN'
     response = requests.get(dconf.WEBSITE_URL + '/test/task_status/' + upload_code)
+    LOG.info(get_content(response))
     assert 'Success:' in get_content(response)
 
     # Test DDPG:
     upload_code = 'ottertuneTestTuningDDPG'
     response = requests.get(dconf.WEBSITE_URL + '/test/task_status/' + upload_code)
+    LOG.info(get_content(response))
     assert 'Success:' in get_content(response)
 
     LOG.info("\n\nTask Status UI Tests: PASSED!!\n")

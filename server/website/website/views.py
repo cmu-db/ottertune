@@ -1681,7 +1681,7 @@ def tuner_status_test(request, upload_code):  # pylint: disable=unused-argument,
     context = _tuner_statue_helper(session.project.id, session.id, result.id)
     overall_status = context['overall_status']
     num_completed, num_total = context['num_completed'].replace(' ', '').split('/')
-    task_info = context['task_info']
+    task_info = context['tasks']
     num_tasks = len(task_info)
     if overall_status.lower() != 'success':
         return HttpResponse("Failure: overall status {} should be success".format(

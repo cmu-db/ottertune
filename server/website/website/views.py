@@ -985,8 +985,7 @@ def pipeline_data_view(request, pipeline_id):
     return render(request, "pipeline_data.html", context)
 
 
-@login_required(login_url=reverse_lazy('login'))
-def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
+def _tuner_statue_helper(project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
     task_tuple = JSONUtil.loads(res.task_ids)
     task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)[-3:]
@@ -1010,7 +1009,12 @@ def tuner_status_view(request, project_id, session_id, result_id):  # pylint: di
                "completion_time": completion_time,
                "total_runtime": total_runtime,
                "tasks": task_info}
+    return context
 
+
+@login_required(login_url=reverse_lazy('login'))
+def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
+    context = _tuner_statue_helper(project_id, session_id, result_id)
     return render(request, "task_status.html", context)
 
 
@@ -1662,3 +1666,58 @@ def create_test_website(request):  # pylint: disable=unused-argument
     set_default_knobs(s4)
     response = HttpResponse("Success: create test website successfully")
     return response
+
+
+# For tuner status UI test
+@csrf_exempt
+def tuner_status_test(request, upload_code):  # pylint: disable=unused-argument,too-many-return-statements
+    try:
+        session = Session.objects.get(upload_code=upload_code)
+    except Session.DoesNotExist:
+        LOG.warning("Invalid upload code: %s", upload_code)
+        return HttpResponse("Invalid upload code: " + upload_code, status=400)
+
+    result = Result.objects.filter(session=session).earliest('creation_time')
+    context = _tuner_statue_helper(session.project.id, session.id, result.id)
+    overall_status = context['overall_status']
+    num_completed, num_total = context['num_completed'].replace(' ', '').split('/')
+    task_info = context['task_info']
+    num_tasks = len(task_info)
+    if overall_status.lower() != 'success':
+        return HttpResponse("Failure: overall status {} should be success".format(
+            overall_status.lower()))
+    if num_completed != num_total:
+        return HttpResponse("Failure: #completed tasks {} != #total tasks {}".format(
+            num_completed, num_total))
+    if num_tasks < 3:
+        return HttpResponse("Failure: number of tasks {} should >= 3".format(num_tasks))
+    for i in range(num_tasks):
+        name, task = task_info[i]
+        result = task.result
+        if i == 0:
+            expected_name = TaskType.TYPE_NAMES[TaskType.PREPROCESS]
+            if name != expected_name:
+                return HttpResponse("Failure: the first task {} should be {}".format(
+                    name, expected_name))
+        elif i == 1:
+            expected_name = TaskType.TYPE_NAMES[TaskType.WORKLOAD_MAPPING]
+            if name != expected_name:
+                return HttpResponse("Failure: the second task {} should be {}".format(
+                    name, expected_name))
+            if session.tuning_session == "tuning_session":
+                if session.algorithm == AlgorithmType.GPR or session.algorithm == AlgorithmType.DNN:
+                    if isinstance(result, dict) is False:
+                        return HttpResponse("Failure: wrong result for task {}".format(name))
+                    if 'mapped_workload_id' not in result:
+                        return HttpResponse("Failure: wrong result for task {}".format(name))
+        elif i == 2:
+            expected_name = TaskType.TYPE_NAMES[TaskType.RECOMMENDATION]
+            if name != expected_name:
+                return HttpResponse("Failure: the third task {} should be {}".format(
+                    name, expected_name))
+            if isinstance(result, dict) is False:
+                return HttpResponse("Failure: wrong result for task {}".format(name))
+            if 'recommendation' not in result:
+                return HttpResponse("Failure: wrong result for task {}".format(name))
+
+    return HttpResponse("Success: task status view test passes")

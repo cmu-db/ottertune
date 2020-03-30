@@ -186,13 +186,13 @@ function render(data) {
             }},
             { "sTitle": data.columnnames[1], "sClass": "center"},
             { "sTitle": data.columnnames[2], "sClass": "center", "mRender": function (data, type, full) {
-                return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/knobs/' + full[7] + '">' + data + '</a>';
+                return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/knobs/' + full[full.length - 3] + '">' + data + '</a>';
             }},
             { "sTitle": data.columnnames[3], "sClass": "center", "mRender": function (data, type, full) {
-            	return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/metrics/' + full[8] + '">' + data + '</a>';
+            	return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/metrics/' + full[full.length - 2] + '">' + data + '</a>';
             }},
             { "sTitle": data.columnnames[4], "sClass": "center", "mRender": function (data, type, full) {
-                return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/workloads/' + full[9] + '">' + data + '</a>';
+                return '<a href="/projects/' + defaults.project + '/sessions/' + defaults.session + '/workloads/' + full[full.length - 1] + '">' + data + '</a>';
             }},
             { "sTitle": data.columnnames[5], "sClass": "center", "mRender": function (data, type, full) {
             	return data.toFixed(2);

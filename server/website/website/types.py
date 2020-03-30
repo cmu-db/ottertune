@@ -105,14 +105,14 @@ class WorkloadStatusType(BaseType):
 
 class TaskType(BaseType):
     PREPROCESS = 1
-    RUN_WM = 2
-    RUN_GPR = 3
+    WORKLOAD_MAPPING = 2
+    RECOMMENDATION = 3
 
     # Should be in order of execution!!
     TYPE_NAMES = OrderedDict([
         (PREPROCESS, "Preprocess"),
-        (RUN_WM, "Workload Mapping"),
-        (RUN_GPR, "Recommendation"),
+        (WORKLOAD_MAPPING, "Workload Mapping"),
+        (RECOMMENDATION, "Recommendation"),
     ])
 
 

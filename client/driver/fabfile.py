@@ -811,6 +811,7 @@ def integration_tests():
     # Test task status UI
     task_status_ui_test()
 
+
 @task
 def task_status_ui_test():
     # Test GPR

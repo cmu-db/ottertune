@@ -394,8 +394,6 @@ class WorkloadManager(models.Manager):
 
 class Workload(BaseModel):
 
-    # __DEFAULT_FMT = '{db}_{hw}_UNASSIGNED'.format
-
     objects = WorkloadManager()
 
     dbms = models.ForeignKey(DBMSCatalog)
@@ -403,8 +401,7 @@ class Workload(BaseModel):
     name = models.CharField(max_length=128, verbose_name='workload name')
     project = models.ForeignKey(Project)
     status = models.IntegerField(choices=WorkloadStatusType.choices(),
-                                 default=WorkloadStatusType.MODIFIED,
-                                 editable=False)
+                                 default=WorkloadStatusType.MODIFIED)
 
     def delete(self, using=DEFAULT_DB_ALIAS, keep_parents=False):
         # The results should not have corresponding workloads.
@@ -420,20 +417,6 @@ class Workload(BaseModel):
 
     class Meta:  # pylint: disable=no-init
         unique_together = ("dbms", "hardware", "name", "project")
-
-    # @property
-    # def isdefault(self):
-    #     return self.cluster_name == self.default
-    #
-    # @property
-    # def default(self):
-    #     return self.__DEFAULT_FMT(db=self.dbms.pk,
-    #                               hw=self.hardware.pk)
-    #
-    # @staticmethod
-    # def get_default(dbms_id, hw_id):
-    #     return Workload.__DEFAULT_FMT(db=dbms_id,
-    #                                   hw=hw_id)
 
 
 class PipelineRunManager(models.Manager):

@@ -9,12 +9,20 @@
     <caption><h4 style="text-align: center;">{{ labels.title }}</h4></caption>
     <tbody>
     <tr>
-        <td style="width: 50%"><div class="text-right">{{ labels.dbms }}</div></td>
-        <td style="width: 50%">{{ workload.dbms }}</td>
+        <td style="width: 50%"><div class="text-right">{{ labels.name }}</div></td>
+        <td style="width: 50%">{{ workload.name }}</td>
     </tr>
     <tr>
-        <td><div class="text-right">{{ labels.name }}</div></td>
-        <td>{{ workload.name }}</td>
+        <td><div class="text-right">{{ labels.dbms }}</div></td>
+        <td>{{ workload.dbms }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.project }}</div></td>
+        <td>{{ workload.project }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.status }}</div></td>
+        <td>{{ workload.get_status_display }}</td>
     </tr>
     </tbody>
 </table>

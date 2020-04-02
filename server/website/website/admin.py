@@ -15,7 +15,7 @@ from .models import (BackupData, DBMSCatalog, ExecutionTime,
                      MetricData, PipelineData, PipelineRun,
                      Project, Result, Session, Workload, Hardware,
                      SessionKnob)
-from .types import VarType
+from .types import VarType, WorkloadStatusType
 
 
 class DBMSCatalogAdmin(admin.ModelAdmin):
@@ -122,9 +122,20 @@ class PipelineRunAdmin(admin.ModelAdmin):
 
 
 class WorkloadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dbms', 'hardware')
+    list_display = ('name', 'dbms', 'project', 'workload_status')
     list_filter = (('dbms', admin.RelatedOnlyFieldListFilter),
-                   ('hardware', admin.RelatedOnlyFieldListFilter))
+                   ('project', admin.RelatedOnlyFieldListFilter))
+
+    def workload_status(self, instance):  # pylint: disable=no-self-use
+        if instance.status == WorkloadStatusType.MODIFIED:
+            color = 'red'
+        elif instance.status == WorkloadStatusType.PROCESSING:
+            color = 'orange'
+        else:  # instance.status == WorkloadStatusType.PROCESSED
+            color = 'green'
+        return format_html('<span style="color: {};">{}</span>'.format(
+            color, WorkloadStatusType.name(instance.status)))
+    workload_status.short_description = 'Status'
 
 
 class TaskMetaAdmin(admin.ModelAdmin):

@@ -191,6 +191,16 @@ class AlgorithmType(BaseType):
         DNN: 'Deep Neural Network',
     }
 
+    SHORT_NAMES = {
+        GPR: 'GPR',
+        DDPG: 'DDPG',
+        DNN: 'DNN',
+    }
+
+    @classmethod
+    def short_name(cls, ctype):
+        return cls.SHORT_NAMES[ctype]
+
 
 class StorageType(BaseType):
     SSD = 5

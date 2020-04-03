@@ -82,9 +82,11 @@ class Command(BaseCommand):
         # Stealth option that assigns where to pipe initial output
         pipe = options.get('pipe', '')
         if not pipe:
-            handler_names = settings.LOGGING.get('loggers', {}).get('celery', {}).get('handlers', [])
+            handler_names = settings.LOGGING.get('loggers', {}).get('celery', {}).get(
+                'handlers', [])
             if 'console' not in handler_names and 'celery' in handler_names:
-                logfile = settings.LOGGING.get('handlers', {}).get('celery', {}).get('filename', None)
+                logfile = settings.LOGGING.get('handlers', {}).get('celery', {}).get(
+                    'filename', None)
                 if logfile:
                     pipe = '>> {} 2>&1'.format(logfile)
         pipe = pipe or ''

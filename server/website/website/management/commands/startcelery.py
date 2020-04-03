@@ -80,15 +80,14 @@ class Command(BaseCommand):
             self.stdout = open(os.devnull, 'w')
 
         # Stealth option that assigns where to pipe initial output
-        pipe = options.get('pipe', None)
-        if pipe is None:
-            pipe = '> /dev/null 2>&1'
-            try:
-                if 'celery' in settings.LOGGING['loggers']['celery']['handlers']:
-                    logfile = settings.LOGGING['handlers']['celery']['filename']
+        pipe = options.get('pipe', '')
+        if not pipe:
+            handler_names = settings.LOGGING.get('loggers', {}).get('celery', {}).get('handlers', [])
+            if 'console' not in handler_names and 'celery' in handler_names:
+                logfile = settings.LOGGING.get('handlers', {}).get('celery', {}).get('filename', None)
+                if logfile:
                     pipe = '>> {} 2>&1'.format(logfile)
-            except KeyError:
-                pass
+        pipe = pipe or ''
 
         loglevel = options['loglevel'] or ('DEBUG' if settings.DEBUG else 'INFO')
         celery_options = [
@@ -101,7 +100,7 @@ class Command(BaseCommand):
             '--pidfile={}'.format(options['celerybeat_pidfile']),
         ] + self._parse_suboptions(options['celerybeat_options'])
 
-        with lcd(settings.PROJECT_ROOT), hide('commands'):  # pylint: disable=not-context-manager
+        with lcd(settings.PROJECT_ROOT):  # pylint: disable=not-context-manager
             if not options['celerybeat_only']:
                 local(self.celery_cmd(
                     cmd='celery worker', opts=' '.join(celery_options), pipe=pipe))

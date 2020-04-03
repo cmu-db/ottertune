@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 check_pidfiles.append((name, pidfile))
             except Exception as e:  # pylint: disable=broad-except
                 self.stdout.write(self.style.NOTICE(
-                    "ERROR: an exception occurred while stopping '{}':\n{}\n".format(name, e)))
+                    "WARNING: an exception occurred while stopping '{}': {}\n".format(name, e)))
 
         if check_pidfiles:
             self.stdout.write("Waiting for processes to shutdown...\n")
@@ -49,9 +49,12 @@ class Command(BaseCommand):
                 time.sleep(1)
                 wait_sec += 1
             if os.path.exists(pidfile):
-                self.stdout.write(self.style.NOTICE(
-                    "WARNING: file '{}' still exists after stopping {}.".format(
+                self.stdout.write(self.style.NOTICE((
+                    "WARNING: file '{}' still exists after stopping {}. "
+                    "Removing it manually.").format(
                         pidfile, name)))
+                with quiet():
+                    local('rm -f {}'.format(pidfile))
             else:
                 self.stdout.write(self.style.SUCCESS(
                     "Successfully stopped '{}'.".format(name)))
@@ -59,4 +62,3 @@ class Command(BaseCommand):
         with quiet():
             local("ps auxww | grep '[c]elery worker' | awk '{print $2}' | xargs kill -9")
             local("ps auxww | grep '[c]elerybeat' | awk '{print $2}' | xargs kill -9")
-            local('rm -f {} {}'.format(options['celery_pidfile'], options['celerybeat_pidfile']))

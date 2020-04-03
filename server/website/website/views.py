@@ -985,7 +985,7 @@ def pipeline_data_view(request, pipeline_id):
     return render(request, "pipeline_data.html", context)
 
 
-def _tuner_statue_helper(project_id, session_id, result_id):  # pylint: disable=unused-argument
+def _tuner_status_helper(project_id, session_id, result_id):  # pylint: disable=unused-argument
     res = Result.objects.get(pk=result_id)
     task_tuple = JSONUtil.loads(res.task_ids)
     task_ids = TaskUtil.get_task_ids_from_tuple(task_tuple)[-3:]
@@ -1014,7 +1014,7 @@ def _tuner_statue_helper(project_id, session_id, result_id):  # pylint: disable=
 
 @login_required(login_url=reverse_lazy('login'))
 def tuner_status_view(request, project_id, session_id, result_id):  # pylint: disable=unused-argument
-    context = _tuner_statue_helper(project_id, session_id, result_id)
+    context = _tuner_status_helper(project_id, session_id, result_id)
     return render(request, "task_status.html", context)
 
 
@@ -1678,7 +1678,7 @@ def tuner_status_test(request, upload_code):  # pylint: disable=unused-argument,
         return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
     result = Result.objects.filter(session=session).earliest('creation_time')
-    context = _tuner_statue_helper(session.project.id, session.id, result.id)
+    context = _tuner_status_helper(session.project.id, session.id, result.id)
     overall_status = context['overall_status']
     num_completed, num_total = context['num_completed'].replace(' ', '').split('/')
     task_info = context['tasks']

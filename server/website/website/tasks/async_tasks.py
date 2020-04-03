@@ -624,7 +624,7 @@ def train_ddpg(train_ddpg_input):
     session.ddpg_actor_model, session.ddpg_critic_model = ddpg.get_model()
     session.ddpg_reply_memory = ddpg.replay_memory.get()
     session.save()
-    exec_time = save_execution_time(start_ts, "train_ddpg", result)
+    exec_time = save_execution_time(start_ts, "train_ddpg", result.first())
     LOG.debug("\n%s: Result = %s\n", task_name, _task_result_tostring(target_data))
     LOG.info('%s: Done training ddpg (%.1f seconds).', task_name, exec_time)
     return target_data, algorithm

@@ -326,13 +326,18 @@ LOGGING = {
             'propagate': False,
         },
         'celery': {
-            'handlers': ['celery', 'dblog'],
+            'handlers': ['celery', 'dblog', 'console'],
             'level': 'DEBUG',
             'propogate': True,
         },
         'celery.task': {
-            'handlers': ['celery', 'dblog'],
+            'handlers': ['celery', 'dblog', 'console'],
             'level': 'DEBUG',
+            'propogate': True,
+        },
+        'celery.beat': {
+            'handlers': ['celery', 'dblog', 'console'],
+            'level': 'INFO',
             'propogate': True,
         },
         # Uncomment to email admins after encountering an error (and debug=False)

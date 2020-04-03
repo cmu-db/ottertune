@@ -315,7 +315,7 @@ class ConversionUtil(object):
                         return value
 
                     min_suffix = system[i + 1][1]
-                    LOG.warning('The value is smaller than the min factor: %s < %s%s. '
+                    LOG.warning('The value is smaller than the min factor: %s < %s (1%s). '
                                 'Setting min_suffix=%s...', value, factor, suffix, min_suffix)
                 else:
                     min_factor = factor

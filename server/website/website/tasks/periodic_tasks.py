@@ -41,17 +41,21 @@ def save_execution_time(start_ts, fn):
 @shared_task(name="run_background_tasks")
 def run_background_tasks():
     start_ts = time.time()
-    LOG.debug("Starting background tasks")
+    LOG.info("Starting background tasks...")
     # Find modified and not modified workloads, we only have to calculate for the
     # modified workloads.
     modified_workloads = Workload.objects.filter(status=WorkloadStatusType.MODIFIED)
+    num_modified = modified_workloads.count()
     non_modified_workloads = Workload.objects.filter(status=WorkloadStatusType.PROCESSED)
     non_modified_workloads = list(non_modified_workloads.values_list('pk', flat=True))
     last_pipeline_run = PipelineRun.objects.get_latest()
+    LOG.debug("Workloads: # modified: %s, # processed: %s, # total: %s",
+              num_modified, len(non_modified_workloads),
+              Workload.objects.all().count())
 
-    if len(modified_workloads) == 0:
+    if num_modified == 0:
         # No previous workload data yet. Try again later.
-        LOG.debug("No workload data yet. Ending background tasks")
+        LOG.info("No modified workload data yet. Ending background tasks.")
         return
 
     # Create new entry in PipelineRun table to store the output of each of
@@ -59,29 +63,39 @@ def run_background_tasks():
     pipeline_run_obj = PipelineRun(start_time=now(), end_time=None)
     pipeline_run_obj.save()
 
-    for workload in modified_workloads:
-
+    for i, workload in enumerate(modified_workloads):
+        workload.status = WorkloadStatusType.PROCESSING
+        workload.save()
         wkld_results = Result.objects.filter(workload=workload)
-        if wkld_results.exists() is False:
+        num_wkld_results = wkld_results.count()
+        workload_name = '{}@{}.{}'.format(workload.dbms.key, workload.project.name, workload.name)
+
+        LOG.info("Starting workload %s (%s/%s, # results: %s)...", workload_name,
+                 i + 1, num_modified, num_wkld_results)
+
+        if num_wkld_results == 0:
             # delete the workload
-            LOG.debug("Deleting workload %d because it has no results.", workload.id)
+            LOG.info("Deleting workload %s because it has no results.", workload_name)
             workload.delete()
             continue
 
-        # Check that there are enough results in the workload
-        if wkld_results.count() < MIN_WORKLOAD_RESULTS_COUNT:
-            LOG.debug("Not enough results in workload %d (only %d results).", workload.id,
-                      wkld_results.count())
+        elif num_wkld_results < MIN_WORKLOAD_RESULTS_COUNT:
+            # Check that there are enough results in the workload
+            LOG.info("Not enough results in workload %s (# results: %s, # required: %s).",
+                     workload_name, num_wkld_results, MIN_WORKLOAD_RESULTS_COUNT)
             continue
 
-        workload.status = WorkloadStatusType.PROCESSING
-        workload.save()
 
-        LOG.debug("Aggregating data for workload %d", workload.id)
+        LOG.info("Aggregating data for workload %s...", workload_name)
         # Aggregate the knob & metric data for this workload
         knob_data, metric_data = aggregate_data(wkld_results)
-        # LOG.debug("knob_data: %s", str(knob_data))
-        # LOG.debug("metric_data: %s", str(metric_data))
+        LOG.debug("Aggregated knob data: rowlabels=%s, columnlabels=%s, data=%s.",
+                  len(knob_data['rowlabels']), len(knob_data['columnlabels']),
+                  knob_data['data'].shape)
+        LOG.debug("Aggregated metric data: rowlabels=%s, columnlabels=%s, data=%s.",
+                  len(metric_data['rowlabels']), len(metric_data['columnlabels']),
+                  metric_data['data'].shape)
+        LOG.info("Done aggregating data for workload %s.", workload_name)
 
         # Knob_data and metric_data are 2D numpy arrays. Convert them into a
         # JSON-friendly (nested) lists and then save them as new PipelineData
@@ -109,9 +123,11 @@ def run_background_tasks():
         # Execute the Workload Characterization task to compute the list of
         # pruned metrics for this workload and save them in a new PipelineData
         # object.
-        LOG.debug("Pruning metrics for workload %d.", workload.id)
+        LOG.info("Pruning metrics for workload %s...", workload_name)
         pruned_metrics = run_workload_characterization(metric_data=metric_data)
-        LOG.debug("pruned_metrics: %s", str(pruned_metrics))
+        LOG.info("Done pruning metrics for workload %s (# pruned metrics: %s).\n\n"
+                 "Pruned metrics: %s\n", workload_name, len(pruned_metrics),
+                 pruned_metrics)
         pruned_metrics_entry = PipelineData(pipeline_run=pipeline_run_obj,
                                             task_type=PipelineTaskType.PRUNED_METRICS,
                                             workload=workload,
@@ -131,11 +147,12 @@ def run_background_tasks():
         # Execute the Knob Identification task to compute an ordered list of knobs
         # ranked by their impact on the DBMS's performance. Save them in a new
         # PipelineData object.
-        LOG.debug("Ranking knobs for workload %d.", workload.id)
+        LOG.info("Ranking knobs for workload %s...", workload_name)
         ranked_knobs = run_knob_identification(knob_data=knob_data,
                                                metric_data=pruned_metric_data,
                                                dbms=workload.dbms)
-        LOG.debug("ranked_knobs: %s", str(ranked_knobs))
+        LOG.info("Done ranking knobs for workload %s (# ranked knobs: %s).\n\n"
+                 "Ranked knobs: %s\n", workload_name, len(ranked_knobs), ranked_knobs)
         ranked_knobs_entry = PipelineData(pipeline_run=pipeline_run_obj,
                                           task_type=PipelineTaskType.RANKED_KNOBS,
                                           workload=workload,
@@ -145,7 +162,10 @@ def run_background_tasks():
 
         workload.status = WorkloadStatusType.PROCESSED
         workload.save()
-    LOG.debug("Finished processing modified workloads")
+        LOG.info("Done processing workload %s (%s/%s).", workload_name, i + 1,
+                 num_modified)
+
+    LOG.info("Finished processing %s modified workloads.", num_modified)
 
     non_modified_workloads = Workload.objects.filter(pk__in=non_modified_workloads)
     # Update the latest pipeline data for the non modified workloads to have this pipeline run
@@ -157,8 +177,8 @@ def run_background_tasks():
     # the background tasks
     pipeline_run_obj.end_time = now()
     pipeline_run_obj.save()
-    LOG.debug("Finished background tasks")
     save_execution_time(start_ts, "run_background_tasks")
+    LOG.info("Finished background tasks (%.0f seconds).", time.time() - start_ts)
 
 
 def aggregate_data(wkld_results):

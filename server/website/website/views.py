@@ -1217,6 +1217,12 @@ def give_result(request, upload_code):  # pylint: disable=unused-argument
         LOG.warning("Invalid upload code: %s", upload_code)
         return HttpResponse("Invalid upload code: " + upload_code, status=400)
 
+    if session.tuning_session == 'no_tuning_session':
+        err_msg = "Session type '{}' does not generate configurations (upload only)".format(
+            session.get_tuning_session_display())
+        LOG.warning(err_msg)
+        return HttpResponse(err_msg, status=404)
+
     latest_result = Result.objects.filter(session=session).latest('creation_time')
     task_tuple = JSONUtil.loads(latest_result.task_ids)
     task_res = celery.result.result_from_tuple(task_tuple)
@@ -1295,7 +1301,7 @@ def train_ddpg_loops(request, session_id):  # pylint: disable=unused-argument
 def alt_get_info(request, name):  # pylint: disable=unused-argument
     # Backdoor method for getting basic info
     if name in ('website', 'logs'):
-        tmpdir = os.path.realpath('.info_{}'.format(int(time.time())))
+        tmpdir = os.path.realpath('.info/info_{}'.format(int(time.time())))
         os.makedirs(tmpdir, exist_ok=False)
 
         try:

@@ -14,3 +14,4 @@ celerybeat-schedule*
 debug_*.tar.gz
 session_knobs.json
 dump_website.json
+.info

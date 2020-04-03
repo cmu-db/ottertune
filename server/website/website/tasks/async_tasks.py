@@ -1168,7 +1168,7 @@ def map_workload(map_workload_input):
         target_data.update(mapped_workload=None, scores=None)
         LOG.debug('%s: Result = %s\n', task_name, _task_result_tostring(target_data))
         LOG.info('%s: Skipping workload mapping because no workload data is available.',
-                  task_name)
+                 task_name)
         return target_data, algorithm
 
     # Stack all X & y matrices for preprocessing

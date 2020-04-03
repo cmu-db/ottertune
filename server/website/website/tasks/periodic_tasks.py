@@ -79,12 +79,11 @@ def run_background_tasks():
             workload.delete()
             continue
 
-        elif num_wkld_results < MIN_WORKLOAD_RESULTS_COUNT:
+        if num_wkld_results < MIN_WORKLOAD_RESULTS_COUNT:
             # Check that there are enough results in the workload
             LOG.info("Not enough results in workload %s (# results: %s, # required: %s).",
                      workload_name, num_wkld_results, MIN_WORKLOAD_RESULTS_COUNT)
             continue
-
 
         LOG.info("Aggregating data for workload %s...", workload_name)
         # Aggregate the knob & metric data for this workload

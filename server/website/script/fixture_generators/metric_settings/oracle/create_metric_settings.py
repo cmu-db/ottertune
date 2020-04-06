@@ -58,7 +58,8 @@ def create_settings(metric_data, dbms):
         if vartype in (2, 3):  # Numeric (integer/real)
             if 'average' in name or name.endswith('current') or \
                     name.startswith('sysstat.session pga memory') or \
-                    name.startswith('sysstat.session uga memory'):
+                    name.startswith('sysstat.session uga memory') or \
+                    name.endswith('wait_class#'):
                 mettype = 3  # Statistic
             else:
                 mettype = 1  # Counter - most common type of numeric metric
@@ -73,6 +74,7 @@ def create_settings(metric_data, dbms):
             ('dbms', dbms),
             ('name', 'global.{}'.format(name)),
             ('vartype', vartype),
+            ('default', value),
             ('summary', summary),
             ('scope', 'global'),
             ('metric_type', mettype),

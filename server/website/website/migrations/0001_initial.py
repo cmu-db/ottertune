@@ -97,6 +97,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=128)),
                 ('vartype', models.IntegerField(choices=[(1, 'STRING'), (2, 'INTEGER'), (3, 'REAL'), (4, 'BOOL'), (5, 'ENUM'), (6, 'TIMESTAMP')])),
+                ('default', models.CharField(max_length=32, null=True)),
                 ('summary', models.TextField(null=True, verbose_name='description')),
                 ('scope', models.CharField(max_length=16)),
                 ('metric_type', models.IntegerField(choices=[(1, 'COUNTER'), (2, 'INFO'), (3, 'STATISTICS')])),

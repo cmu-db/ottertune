@@ -43,9 +43,9 @@ then
 
 elif [ "$service" = "web" ]
 then
-    apt_pkgs="python3-dev gcc mysql-client libmysqlclient-dev python-mysqldb postgresql-client"
+    apt_pkgs="python3-dev gcc g++ mysql-client libmysqlclient-dev python-mysqldb postgresql-client"
 
-    rm_pkgs="gcc"
+    rm_pkgs="gcc g++"
 
     pip_skip_pkgs="$pip_common_pkgs astroid autopep8 git-lint pycodestyle pylint"
     cp "$master_pip_reqs_file" "$pip_reqs_file"

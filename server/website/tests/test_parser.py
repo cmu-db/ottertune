@@ -272,10 +272,10 @@ class PostgresParserTests(BaseParserTests, TestCase):
         test_convert_metrics = self.test_dbms.convert_dbms_metrics(test_metrics, 0.1, target_obj)
         for key, metadata in self.numeric_metric_catalog.items():
             if key == txns_counter:
-                self.assertEqual(test_convert_metrics[key], 10 / 0.1)
+                self.assertEqual(test_convert_metrics[key], 10)
                 continue
             if metadata.metric_type == MetricType.COUNTER:
-                self.assertEqual(test_convert_metrics[key], 2 / 0.1)
+                self.assertEqual(test_convert_metrics[key], 2)
             else:  # MetricType.STATISTICS
                 self.assertEqual(test_convert_metrics[key], 2)
 

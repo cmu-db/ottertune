@@ -210,7 +210,7 @@ class BaseParser:
             if metadata.metric_type == MetricType.COUNTER:
                 assert isinstance(converted, float)
                 base_metric_data[name] = converted
-                metric_data[name] = converted / observation_time
+                metric_data[name] = converted
             elif metadata.metric_type == MetricType.STATISTICS:
                 assert isinstance(converted, float)
                 base_metric_data[name] = converted

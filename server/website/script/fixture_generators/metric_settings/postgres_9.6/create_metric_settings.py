@@ -75,6 +75,7 @@ def main():
             fields['name'] = '{}.{}'.format(view_name, metric_name)
             fields['vartype'] = mstats['vartype']
             vartypes.add(fields['vartype'])
+            fields['default'] = None
             fields['summary'] = mstats['summary']
             fields['scope'] = scope
             metric_type = mstats['metric_type']

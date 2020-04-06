@@ -92,6 +92,7 @@ class MetricCatalog(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
     name = models.CharField(max_length=128)
     vartype = models.IntegerField(choices=VarType.choices())
+    default = models.CharField(max_length=32, null=True)
     summary = models.TextField(null=True, verbose_name='description')
     scope = models.CharField(max_length=16)
     metric_type = models.IntegerField(choices=MetricType.choices())
@@ -291,9 +292,9 @@ class SessionKnobManager(models.Manager):
                     knob = KnobCatalog.objects.get(name=session_knob.name, dbms=session.dbms)
                     knob.tunable = session_knob.tunable
                     if knob.vartype in (VarType.INTEGER, VarType.REAL):
-                        if knob.minval is None or session_knob.minval < float(knob.minval):
+                        if knob.minval is None or float(session_knob.minval) < float(knob.minval):
                             knob.minval = session_knob.minval
-                        if knob.maxval is None or session_knob.maxval > float(knob.maxval):
+                        if knob.maxval is None or float(session_knob.maxval) > float(knob.maxval):
                             knob.maxval = session_knob.maxval
                     knob.save()
             elif disable_others:

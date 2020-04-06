@@ -657,6 +657,17 @@ def handle_result_files(session, files, execution_times=None):
             # We tag the metric as invalid, so later they will be set to the worst result
             metric_data.name = 'default_' + metric_data.name
             metric_data.save()
+        if 'transaction_counter' in numeric_metric_dict.keys():
+            # Normalize metrics by the amount of work
+            first_metric = MetricData.objects.filter(session=session).first()
+            first_metric_data = JSONUtil.loads(first_metric.data)
+            first_transaction_counter = first_metric_data['transaction_counter']
+            transaction_counter = numeric_metric_dict['transaction_counter']
+            ratio = transaction_counter / first_transaction_counter
+            for name in numeric_metric_dict.keys():
+                numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
+            metric_data.data = JSONUtil.dumps(numeric_metric_dict)
+            metric_data.save()
 
         # Create a new workload if this one does not already exist
         workload = Workload.objects.create_workload(

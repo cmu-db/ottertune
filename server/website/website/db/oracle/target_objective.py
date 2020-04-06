@@ -4,10 +4,14 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
+import logging
+
 from website.models import DBMSCatalog, MetricCatalog
 from website.types import DBMSType
 from ..base.target_objective import (BaseTargetObjective, BaseThroughput, LESS_IS_BETTER,
                                      MORE_IS_BETTER)
+
+LOG = logging.getLogger(__name__)
 
 
 class SummedUpDBTime(BaseTargetObjective):
@@ -39,8 +43,8 @@ class NormalizedDBTime(BaseTargetObjective):
                          short_unit='s', improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        extra_io_metrics = ("log file sync")
-        not_io_metrics = ("read by other session")
+        extra_io_metrics = ["log file sync"]
+        not_io_metrics = ["read by other session"]
         total_wait_time = 0.
         # This target objective is designed for Oracle v12.2.0.1.0
         dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
@@ -61,7 +65,9 @@ class NormalizedDBTime(BaseTargetObjective):
                 if value == 6:
                     wait_time = 0
                 elif value == 8 or value == 9 or any(n in name for n in extra_io_metrics):
-                    if not any(n in name for n in not_io_metrics):
+                    if any(n in name for n in not_io_metrics):
+                        wait_time = wait_time
+                    else:
                         wait_time = total_waits * average_wait
                 total_wait_time += wait_time
         return total_wait_time / 1000000.

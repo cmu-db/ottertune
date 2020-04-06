@@ -65,9 +65,7 @@ class NormalizedDBTime(BaseTargetObjective):
                 if value == 6:
                     wait_time = 0
                 elif value == 8 or value == 9 or any(n in name for n in extra_io_metrics):
-                    if any(n in name for n in not_io_metrics):
-                        wait_time = wait_time
-                    else:
+                    if not any(n in name for n in not_io_metrics):
                         wait_time = total_waits * average_wait
                 total_wait_time += wait_time
         return total_wait_time / 1000000.

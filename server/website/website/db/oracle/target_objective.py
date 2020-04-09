@@ -14,16 +14,18 @@ from ..base.target_objective import (BaseTargetObjective, BaseThroughput, LESS_I
 LOG = logging.getLogger(__name__)
 
 
-class SummedUpDBTime(BaseTargetObjective):
+class CustomDBTime(BaseTargetObjective):
 
     def __init__(self):
-        super().__init__(name='summed_up_db_time', pprint='Summed Up DB Time', unit='seconds',
+        super().__init__(name='custom_db_time', pprint='Custom DB Time', unit='seconds',
                          short_unit='s', improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
         total_wait_time = 0.
         for name, value in metrics.items():
-            if 'sys_time_model.db cpu' in name:
+            if 'dba_hist_' not in name:
+                continue
+            if 'db cpu' in name:
                 total_wait_time += float(value)
             elif 'time_waited_micro_fg' in name:
                 wait_time = float(value)
@@ -49,7 +51,9 @@ class NormalizedDBTime(BaseTargetObjective):
         # This target objective is designed for Oracle v12.2.0.1.0
         dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
         for name, value in metrics.items():
-            if 'sys_time_model.db cpu' in name:
+            if 'dba_hist_' not in name:
+                continue
+            if 'db cpu' in name:
                 total_wait_time += float(value)
             elif 'average_wait_fg' in name:
                 average_wait = MetricCatalog.objects.get(dbms=dbms, name=name).default
@@ -78,7 +82,7 @@ class RawDBTime(BaseTargetObjective):
                          unit='seconds', short_unit='s', improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        return metrics['global.sys_time_model.db time'] / 1000000.
+        return metrics['global.dba_hist_sys_time_model.db time'] / 1000000.
 
 
 class TransactionCounter(BaseTargetObjective):
@@ -88,8 +92,8 @@ class TransactionCounter(BaseTargetObjective):
                          unit='transactions', short_unit='txn', improvement=MORE_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        num_txns = sum(metrics[ctr] for ctr in ('global.sysstat.user commits',
-                                                'global.sysstat.user rollbacks'))
+        num_txns = sum(metrics[ctr] for ctr in ('global.dba_hist_sysstat.user commits',
+                                                'global.dba_hist_sysstat.user rollbacks'))
         return num_txns
 
 
@@ -104,8 +108,8 @@ class ElapsedTime(BaseTargetObjective):
 
 
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name
-    BaseThroughput(transactions_counter=('global.sysstat.user commits',
-                                         'global.sysstat.user rollbacks')),
+    BaseThroughput(transactions_counter=('global.dba_hist_sysstat.user commits',
+                                         'global.dba_hist_sysstat.user rollbacks')),
     SummedUpDBTime(),
     NormalizedDBTime(),
     RawDBTime(),

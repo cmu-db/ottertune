@@ -227,7 +227,7 @@ class BaseParser:
 
         for target_name, target_instance in target_list.items():
             metric_data[target_name] = target_instance.compute(
-                base_metric_data, observation_time)
+                metrics, observation_time)
 
         return metric_data
 

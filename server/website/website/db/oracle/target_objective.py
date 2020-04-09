@@ -29,10 +29,10 @@ class CustomDBTime(BaseTargetObjective):
                 total_wait_time += float(value)
             elif 'time_waited_micro_fg' in name:
                 wait_time = float(value)
-            elif name.endswith('wait_class#'):
+            elif name.endswith('wait_class'):
                 # 0: Other; 1: Application; 2: Configuration; 3: Administrative; 4: Concurrency;
                 # 5: Commit; 6: Idle; 7: Network; 8: User I/O; 9: System I/O
-                if int(value) == 6:
+                if value == 'Idle':
                     wait_time = 0
                 total_wait_time += wait_time
         return total_wait_time / 1000000.
@@ -55,21 +55,22 @@ class NormalizedDBTime(BaseTargetObjective):
                 continue
             if 'db cpu' in name:
                 total_wait_time += float(value)
-            elif 'average_wait_fg' in name:
-                average_wait = MetricCatalog.objects.get(dbms=dbms, name=name).default
-                average_wait = float(average_wait) * 10000  # unit = micro seconds
             elif 'time_waited_micro_fg' in name:
+                default_wait_time = float(MetricCatalog.objects.get(dbms=dbms, name=name).default)
                 wait_time = float(value)
             elif 'total_waits_fg' in name:
+                default_total_waits = int(MetricCatalog.objects.get(dbms=dbms, name=name).default)
                 total_waits = int(value)
-            elif name.endswith('wait_class#'):
-                value = int(value)
-                # 0: Other; 1: Application; 2: Configuration; 3: Administrative; 4: Concurrency;
-                # 5: Commit; 6: Idle; 7: Network; 8: User I/O; 9: System I/O
-                if value == 6:
+            elif name.endswith('wait_class'):
+                if value == 'Idle':
                     wait_time = 0
-                elif value == 8 or value == 9 or any(n in name for n in extra_io_metrics):
+                elif value in ('User I/O', 'System I/O') or \
+                        any(n in name for n in extra_io_metrics):
                     if not any(n in name for n in not_io_metrics):
+                        if default_total_waits == 0:
+                            average_wait = 0
+                        else:
+                            average_wait = default_wait_time / default_total_waits
                         wait_time = total_waits * average_wait
                 total_wait_time += wait_time
         return total_wait_time / 1000000.
@@ -110,7 +111,7 @@ class ElapsedTime(BaseTargetObjective):
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name
     BaseThroughput(transactions_counter=('global.dba_hist_sysstat.user commits',
                                          'global.dba_hist_sysstat.user rollbacks')),
-    SummedUpDBTime(),
+    CustomDBTime(),
     NormalizedDBTime(),
     RawDBTime(),
     TransactionCounter(),

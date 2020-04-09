@@ -59,7 +59,8 @@ def create_settings(metric_data, dbms):
             if 'average' in name or name.endswith('current') or \
                     name.startswith('sysstat.session pga memory') or \
                     name.startswith('sysstat.session uga memory') or \
-                    name.endswith('wait_class#'):
+                    name.endswith('wait_class#') or \
+                    name.endswith('wait_class_id'):
                 mettype = 3  # Statistic
             else:
                 mettype = 1  # Counter - most common type of numeric metric
@@ -70,11 +71,12 @@ def create_settings(metric_data, dbms):
         if name == 'sysstat.user commits':
             assert vartype == 2 and 1  # Check it's an int/counter
 
+        default = '' if len(str(value)) > 31 else value
         entry = OrderedDict([
             ('dbms', dbms),
             ('name', 'global.{}'.format(name)),
             ('vartype', vartype),
-            ('default', value),
+            ('default', default),
             ('summary', summary),
             ('scope', 'global'),
             ('metric_type', mettype),

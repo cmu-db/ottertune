@@ -22,14 +22,17 @@ class CustomDBTime(BaseTargetObjective):
 
     def compute(self, metrics, observation_time):
         total_wait_time = 0.
+        # dba_hist db_time will be 0 after cleaning if & only if it does not exist before cleaning
+        has_dba_hist = metrics['global.dba_hist_sys_time_model.db time'] > 0
         for name, value in metrics.items():
-            if 'dba_hist_' not in name:
+            if has_dba_hist and 'dba_hist_' not in name:
                 continue
             if 'db cpu' in name:
                 total_wait_time += float(value)
             elif 'time_waited_micro_fg' in name:
                 wait_time = float(value)
             elif name.endswith('wait_class'):
+                # wait_class#:
                 # 0: Other; 1: Application; 2: Configuration; 3: Administrative; 4: Concurrency;
                 # 5: Commit; 6: Idle; 7: Network; 8: User I/O; 9: System I/O
                 if value == 'Idle':
@@ -50,8 +53,9 @@ class NormalizedDBTime(BaseTargetObjective):
         total_wait_time = 0.
         # This target objective is designed for Oracle v12.2.0.1.0
         dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
+        has_dba_hist = metrics['global.dba_hist_sys_time_model.db time'] > 0
         for name, value in metrics.items():
-            if 'dba_hist_' not in name:
+            if has_dba_hist and 'dba_hist_' not in name:
                 continue
             if 'db cpu' in name:
                 total_wait_time += float(value)
@@ -79,11 +83,14 @@ class NormalizedDBTime(BaseTargetObjective):
 class RawDBTime(BaseTargetObjective):
 
     def __init__(self):
-        super().__init__(name='raw_db_time', pprint='DB Time (from sys_time_model)',
+        super().__init__(name='raw_db_time', pprint='Raw DB Time',
                          unit='seconds', short_unit='s', improvement=LESS_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        return metrics['global.dba_hist_sys_time_model.db time'] / 1000000.
+        has_dba_hist = metrics['global.dba_hist_sys_time_model.db time'] > 0
+        if has_dba_hist:
+            return metrics['global.dba_hist_sys_time_model.db time'] / 1000000.
+        return metrics['global.sys_time_model.db time'] / 1000000.
 
 
 class TransactionCounter(BaseTargetObjective):
@@ -93,8 +100,8 @@ class TransactionCounter(BaseTargetObjective):
                          unit='transactions', short_unit='txn', improvement=MORE_IS_BETTER)
 
     def compute(self, metrics, observation_time):
-        num_txns = sum(metrics[ctr] for ctr in ('global.dba_hist_sysstat.user commits',
-                                                'global.dba_hist_sysstat.user rollbacks'))
+        num_txns = sum(metrics[ctr] for ctr in ('global.sysstat.user commits',
+                                                'global.sysstat.user rollbacks'))
         return num_txns
 
 
@@ -109,8 +116,8 @@ class ElapsedTime(BaseTargetObjective):
 
 
 target_objective_list = tuple((DBMSType.ORACLE, target_obj) for target_obj in [  # pylint: disable=invalid-name
-    BaseThroughput(transactions_counter=('global.dba_hist_sysstat.user commits',
-                                         'global.dba_hist_sysstat.user rollbacks')),
+    BaseThroughput(transactions_counter=('global.sysstat.user commits',
+                                         'global.sysstat.user rollbacks')),
     CustomDBTime(),
     NormalizedDBTime(),
     RawDBTime(),

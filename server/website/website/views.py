@@ -665,7 +665,8 @@ def handle_result_files(session, files, execution_times=None):
             transaction_counter = numeric_metric_dict['transaction_counter']
             ratio = transaction_counter / first_transaction_counter
             for name in numeric_metric_dict.keys():
-                numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
+                if not any(n in name for n in ['transaction_counter', 'throughput_txn_per_sec']):
+                    numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
             metric_data.data = JSONUtil.dumps(numeric_metric_dict)
             metric_data.save()
 

@@ -653,10 +653,14 @@ def handle_result_files(session, files, execution_times=None):
             metric_data.name = 'range_test_' + metric_data.name + '*'
             metric_data.save()
         if 'status' in summary and summary['status'] == "default":
-            # The metric should not be used for learning because the driver did not run workload
-            # We tag the metric as invalid, so later they will be set to the worst result
+            # The metric should not be used for learning because the knob value is not real
             metric_data.name = 'default_' + metric_data.name
             metric_data.save()
+            for name in numeric_metric_dict.keys():
+                if 'time_waited_micro_fg' in name or 'total_waits_fg' in name:
+                    metric = MetricCatalog.objects.get(dbms=dbms, name=name)
+                    metric.default = numeric_metric_dict[name]
+                    metric.save()
         if 'transaction_counter' in numeric_metric_dict.keys():
             # Normalize metrics by the amount of work
             first_metric = MetricData.objects.filter(session=session).first()

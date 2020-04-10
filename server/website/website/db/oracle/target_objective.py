@@ -46,13 +46,16 @@ class NormalizedDBTime(BaseTargetObjective):
     def __init__(self):
         super().__init__(name='db_time', pprint='Normalized DB Time', unit='seconds',
                          short_unit='s', improvement=LESS_IS_BETTER)
+        # This target objective is designed for Oracle v12.2.0.1.0
+        dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
+        self.default_values = {}
+        for metric in MetricCatalog.objects.filter(dbms=dbms):
+            self.default_values[metric.name] = metric.default
 
     def compute(self, metrics, observation_time):
         extra_io_metrics = ["log file sync"]
         not_io_metrics = ["read by other session"]
         total_wait_time = 0.
-        # This target objective is designed for Oracle v12.2.0.1.0
-        dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
         has_dba_hist = metrics['global.dba_hist_sys_time_model.db time'] > 0
         for name, value in metrics.items():
             if has_dba_hist and 'dba_hist_' not in name:
@@ -60,11 +63,11 @@ class NormalizedDBTime(BaseTargetObjective):
             if 'db cpu' in name:
                 total_wait_time += float(value)
             elif 'time_waited_micro_fg' in name:
-                default_wait_time = float(MetricCatalog.objects.get(dbms=dbms, name=name).default)
+                default_wait_time = float(self.default_values[name])
                 wait_time = float(value)
             elif 'total_waits_fg' in name:
-                default_total_waits = int(MetricCatalog.objects.get(dbms=dbms, name=name).default)
-                total_waits = int(value)
+                default_total_waits = float(self.default_values[name])
+                total_waits = float(value)
             elif name.endswith('wait_class'):
                 if value == 'Idle':
                     wait_time = 0

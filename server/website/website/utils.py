@@ -147,7 +147,7 @@ class DataUtil(object):
     @staticmethod
     def aggregate_data(results, ignore=None):
         if ignore is None:
-            ignore = ['range_test', 'default']
+            ignore = ['range_test']
         knob_labels = list(JSONUtil.loads(results[0].knob_data.data).keys())
         metric_labels = list(JSONUtil.loads(results[0].metric_data.data).keys())
         X_matrix = []

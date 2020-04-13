@@ -529,7 +529,7 @@ def handle_result_files(session, files, execution_times=None):
 
         worst_result = Result.objects.filter(metric_data=worst_metric).first()
         last_result = Result.objects.filter(session=session).order_by("-id").first()
-        backup_data = BackupData.objects.filter(result=worst_result).first()
+        #backup_data = BackupData.objects.filter(result=worst_result).first()
         last_conf = JSONUtil.loads(last_result.next_configuration)
         last_conf = last_conf["recommendation"]
         last_conf = parser.convert_dbms_knobs(last_result.dbms.pk, last_conf)
@@ -581,10 +581,11 @@ def handle_result_files(session, files, execution_times=None):
         result.save()
         result = Result.objects.filter(session=session).order_by("-id").first()
 
-        backup_data.pk = None
-        backup_data.result = result
-        backup_data.creation_time = now()
-        backup_data.save()
+        knob_diffs, metric_diffs = {}, {}
+        #backup_data.pk = None
+        #backup_data.result = result
+        #backup_data.creation_time = now()
+        #backup_data.save()
 
     else:
         dbms_type = DBMSType.type(summary['database_type'])
@@ -688,15 +689,40 @@ def handle_result_files(session, files, execution_times=None):
         workload.status = WorkloadStatusType.MODIFIED
         workload.save()
 
-        # Save all original data
-        backup_data = BackupData.objects.create(
-            result=result, raw_knobs=files['knobs'],
-            raw_initial_metrics=files['metrics_before'],
-            raw_final_metrics=files['metrics_after'],
-            raw_summary=files['summary'],
-            knob_log=JSONUtil.dumps(knob_diffs, pprint=True),
-            metric_log=JSONUtil.dumps(metric_diffs, pprint=True))
-        backup_data.save()
+    other_data = {}
+    if execution_times:
+        other_data['execution_times.csv'] = execution_times
+        try:
+            batch = []
+            f = StringIO(execution_times)
+            reader = csv.reader(f, delimiter=',')
+
+            for module, fn, tag, start_ts, end_ts in reader:
+                start_ts = float(start_ts)
+                end_ts = float(end_ts)
+                exec_time = end_ts - start_ts
+                start_time = datetime.fromtimestamp(int(start_ts), timezone(TIME_ZONE))
+                batch.append(
+                    ExecutionTime(module=module, function=fn, tag=tag, start_time=start_time,
+                                  execution_time=exec_time, result=result))
+            ExecutionTime.objects.bulk_create(batch)
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning("Error parsing execution times:\n%s", execution_times, exc_info=True)
+
+    for filename, filedata in files.items():
+        if filename not in ('knobs', 'metrics_before', 'metrics_after', 'summary'):
+            other_data[filename] = filedata
+
+    # Save all original data
+    backup_data = BackupData.objects.create(
+        result=result, raw_knobs=files['knobs'],
+        raw_initial_metrics=files['metrics_before'],
+        raw_final_metrics=files['metrics_after'],
+        raw_summary=files['summary'],
+        knob_log=JSONUtil.dumps(knob_diffs, pprint=True),
+        metric_log=JSONUtil.dumps(metric_diffs, pprint=True),
+        other=JSONUtil.dumps(other_data))
+    backup_data.save()
 
     session.project.last_update = now()
     session.last_update = now()
@@ -741,24 +767,6 @@ def handle_result_files(session, files, execution_times=None):
     response = chain(*subtasks).apply_async()
     result.task_ids = JSONUtil.dumps(response.as_tuple())
     result.save()
-
-    if execution_times:
-        try:
-            batch = []
-            f = StringIO(execution_times)
-            reader = csv.reader(f, delimiter=',')
-
-            for module, fn, tag, start_ts, end_ts in reader:
-                start_ts = float(start_ts)
-                end_ts = float(end_ts)
-                exec_time = end_ts - start_ts
-                start_time = datetime.fromtimestamp(int(start_ts), timezone(TIME_ZONE))
-                batch.append(
-                    ExecutionTime(module=module, function=fn, tag=tag, start_time=start_time,
-                                  execution_time=exec_time, result=result))
-            ExecutionTime.objects.bulk_create(batch)
-        except Exception:  # pylint: disable=broad-except
-            LOG.warning("Error parsing execution times:\n%s", execution_times, exc_info=True)
 
     return HttpResponse("Result stored successfully! Running tuner...({}, status={}) Result ID:{}"
                         .format(celery_status, response.status, result_id))

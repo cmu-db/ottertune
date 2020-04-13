@@ -506,6 +506,7 @@ class BackupData(BaseModel):
     raw_summary = models.TextField()
     knob_log = models.TextField()
     metric_log = models.TextField()
+    other = models.TextField(default='{}')
 
 
 class ExecutionTime(models.Model):

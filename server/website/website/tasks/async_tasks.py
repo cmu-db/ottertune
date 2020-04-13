@@ -127,7 +127,7 @@ def clean_knob_data(knob_matrix, knob_labels, session):
             new_lab = knob_name
         else:
             index = knob_labels.index(knob_name)
-            new_col = knob_matrix[:, index]
+            new_col = knob_matrix[:, index].reshape(-1, 1)
             new_lab = knob_labels[index]
 
         new_labels.append(new_lab)

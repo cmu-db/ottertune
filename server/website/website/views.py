@@ -529,7 +529,6 @@ def handle_result_files(session, files, execution_times=None):
 
         worst_result = Result.objects.filter(metric_data=worst_metric).first()
         last_result = Result.objects.filter(session=session).order_by("-id").first()
-        #backup_data = BackupData.objects.filter(result=worst_result).first()
         last_conf = JSONUtil.loads(last_result.next_configuration)
         last_conf = last_conf["recommendation"]
         last_conf = parser.convert_dbms_knobs(last_result.dbms.pk, last_conf)
@@ -581,11 +580,8 @@ def handle_result_files(session, files, execution_times=None):
         result.save()
         result = Result.objects.filter(session=session).order_by("-id").first()
 
-        knob_diffs, metric_diffs = {}, {}
-        #backup_data.pk = None
-        #backup_data.result = result
-        #backup_data.creation_time = now()
-        #backup_data.save()
+        knob_diffs = {}
+        metric_diffs = {}
 
     else:
         dbms_type = DBMSType.type(summary['database_type'])

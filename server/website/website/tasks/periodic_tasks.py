@@ -247,30 +247,38 @@ def run_workload_characterization(metric_data):
 
     matrix = metric_data['data']
     columnlabels = metric_data['columnlabels']
+    LOG.debug("Workload characterization ~ initial data size: %s", matrix.shape)
+
+    # Bin each column (metric) in the matrix by its decile
+    binner = Bin(bin_start=1, axis=0)
+    binned_matrix = binner.fit_transform(matrix)
 
     # Remove any constant columns
     nonconst_matrix = []
     nonconst_columnlabels = []
-    for col, cl in zip(matrix.T, columnlabels):
+    for col, cl in zip(binned_matrix.T, columnlabels):
         if np.any(col != col[0]):
             nonconst_matrix.append(col.reshape(-1, 1))
             nonconst_columnlabels.append(cl)
     assert len(nonconst_matrix) > 0, "Need more data to train the model"
     nonconst_matrix = np.hstack(nonconst_matrix)
-    n_rows, n_cols = nonconst_matrix.shape
+    LOG.debug("Workload characterization ~ nonconst data size: %s", nonconst_matrix.shape)
 
-    # Bin each column (metric) in the matrix by its decile
-    binner = Bin(bin_start=1, axis=0)
-    binned_matrix = binner.fit_transform(nonconst_matrix)
+    # Remove any duplicate columns
+    unique_matrix, unique_idxs = np.unique(nonconst_matrix, axis=1, return_index=True)
+    unique_columnlabels = [nonconst_columnlabels[idx] for idx in unique_idxs]
+
+    LOG.debug("Workload characterization ~ final data size: %s", unique_matrix.shape)
+    n_rows, n_cols = unique_matrix.shape
 
     # Shuffle the matrix rows
     shuffle_indices = get_shuffle_indices(n_rows)
-    shuffled_matrix = binned_matrix[shuffle_indices, :]
+    shuffled_matrix = unique_matrix[shuffle_indices, :]
 
     # Fit factor analysis model
     fa_model = FactorAnalysis()
     # For now we use 5 latent variables
-    fa_model.fit(shuffled_matrix, nonconst_columnlabels, n_components=5)
+    fa_model.fit(unique_matrix, unique_columnlabels, n_components=5)
 
     # Components: metrics * factors
     components = fa_model.components_.T.copy()
@@ -280,7 +288,7 @@ def run_workload_characterization(metric_data):
     kmeans_models = KMeansClusters()
     kmeans_models.fit(components, min_cluster=1,
                       max_cluster=min(n_cols - 1, 20),
-                      sample_labels=nonconst_columnlabels,
+                      sample_labels=unique_columnlabels,
                       estimator_params={'n_init': 50})
 
     # Compute optimal # clusters, k, using gap statistics

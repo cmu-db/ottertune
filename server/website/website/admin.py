@@ -118,7 +118,7 @@ class PipelineDataAdmin(admin.ModelAdmin):
 
 class PipelineRunAdmin(admin.ModelAdmin):
     list_display = ('id', 'start_time', 'end_time')
-    ordering = ('id', 'start_time')
+    ordering = ('-id', '-start_time')
 
 
 class WorkloadAdmin(admin.ModelAdmin):
@@ -187,7 +187,9 @@ class CustomStatusLogAdmin(StatusLogAdmin):
 
 
 class ExecutionTimeAdmin(admin.ModelAdmin):
-    list_display = ('event', 'result', 'exec_time')
+    list_display = ('event', 'start_time', 'exec_time', 'result')
+    list_filter = ('module', 'function', 'tag')
+    ordering = ('-start_time',)
 
     def exec_time(self, instance):  # pylint: disable=no-self-use
         return '{:.0f} sec'.format(instance.execution_time)

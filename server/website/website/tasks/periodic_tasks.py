@@ -278,7 +278,7 @@ def run_workload_characterization(metric_data):
     # Fit factor analysis model
     fa_model = FactorAnalysis()
     # For now we use 5 latent variables
-    fa_model.fit(unique_matrix, unique_columnlabels, n_components=5)
+    fa_model.fit(shuffled_matrix, unique_columnlabels, n_components=5)
 
     # Components: metrics * factors
     components = fa_model.components_.T.copy()
@@ -302,6 +302,7 @@ def run_workload_characterization(metric_data):
 
     # Return pruned metrics
     save_execution_time(start_ts, "run_workload_characterization")
+    LOG.info("Workload characterization finished in %.0f seconds.", time.time() - start_ts)
     return pruned_metrics
 
 
@@ -384,4 +385,5 @@ def run_knob_identification(knob_data, metric_data, dbms):
     consolidated_knobs = consolidate_columnlabels(encoded_knobs)
 
     save_execution_time(start_ts, "run_knob_identification")
+    LOG.info("Knob identification finished in %.0f seconds.", time.time() - start_ts)
     return consolidated_knobs

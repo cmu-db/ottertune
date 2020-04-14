@@ -146,7 +146,7 @@ class TaskMetaAdmin(admin.ModelAdmin):
     fields = readonly_fields
     list_filter = ('status',)
     list_per_page = 10
-    ordering = ('date_done',)
+    ordering = ('-date_done',)
     max_field_length = 1000
 
     @staticmethod

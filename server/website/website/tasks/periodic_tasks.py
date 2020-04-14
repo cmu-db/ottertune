@@ -21,14 +21,13 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     DummyEncoder,
                                     consolidate_columnlabels)
 from website.models import PipelineData, PipelineRun, Result, Workload, ExecutionTime
-from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
+from website.settings import (ENABLE_DUMMY_ENCODER, KNOB_IDENT_USE_PRUNED_METRICS,
+                              MIN_WORKLOAD_RESULTS_COUNT, TIME_ZONE)
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
 # Log debug messages
 LOG = get_task_logger(__name__)
-# Only process workload containing this minimum amount of results
-MIN_WORKLOAD_RESULTS_COUNT = 5
 
 
 def save_execution_time(start_ts, fn):
@@ -134,21 +133,31 @@ def run_background_tasks():
                                             creation_time=now())
         pruned_metrics_entry.save()
 
-        # Use the pruned metrics to filter the metric_data
-        pruned_metric_idxs = [i for i, metric_name in enumerate(metric_data['columnlabels'])
-                              if metric_name in pruned_metrics]
-        pruned_metric_data = {
-            'data': metric_data['data'][:, pruned_metric_idxs],
+        # Workload target objective data
+        ranked_knob_metrics = sorted(wkld_results.distinct('session').values_list(
+            'session__target_objective', flat=True).distinct())
+        LOG.debug("Target objectives for workload %s: %s", workload_name,
+                  ', '.join(ranked_knob_metrics))
+
+        if KNOB_IDENT_USE_PRUNED_METRICS:
+            ranked_knob_metrics = sorted(set(ranked_knob_metrics) + set(pruned_metrics))
+
+        # Use the set of metrics to filter the metric_data
+        metric_idxs = [i for i, metric_name in enumerate(metric_data['columnlabels'])
+                       if metric_name in ranked_knob_metrics]
+        ranked_metric_data = {
+            'data': metric_data['data'][:, metric_idxs],
             'rowlabels': copy.deepcopy(metric_data['rowlabels']),
-            'columnlabels': [metric_data['columnlabels'][i] for i in pruned_metric_idxs]
+            'columnlabels': [metric_data['columnlabels'][i] for i in metric_idxs]
         }
 
         # Execute the Knob Identification task to compute an ordered list of knobs
         # ranked by their impact on the DBMS's performance. Save them in a new
         # PipelineData object.
-        LOG.info("Ranking knobs for workload %s...", workload_name)
+        LOG.info("Ranking knobs for workload %s (use pruned metric data: %s)...",
+                 workload_name, KNOB_IDENT_USE_PRUNED_METRICS)
         ranked_knobs = run_knob_identification(knob_data=knob_data,
-                                               metric_data=pruned_metric_data,
+                                               metric_data=ranked_metric_data,
                                                dbms=workload.dbms)
         LOG.info("Done ranking knobs for workload %s (# ranked knobs: %s).\n\n"
                  "Ranked knobs: %s\n", workload_name, len(ranked_knobs), ranked_knobs)

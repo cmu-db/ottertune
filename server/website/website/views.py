@@ -658,18 +658,22 @@ def handle_result_files(session, files, execution_times=None):
                     metric = MetricCatalog.objects.get(dbms=dbms, name=name)
                     metric.default = numeric_metric_dict[name]
                     metric.save()
-        if 'transaction_counter' in numeric_metric_dict.keys():
-            # Normalize metrics by the amount of work
-            first_metric = MetricData.objects.filter(session=session).first()
-            first_metric_data = JSONUtil.loads(first_metric.data)
-            first_transaction_counter = first_metric_data['transaction_counter']
-            transaction_counter = numeric_metric_dict['transaction_counter']
-            ratio = transaction_counter / first_transaction_counter
-            for name in numeric_metric_dict.keys():
-                if not any(n in name for n in ['transaction_counter', 'throughput_txn_per_sec']):
-                    numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
-            metric_data.data = JSONUtil.dumps(numeric_metric_dict)
-            metric_data.save()
+        # Normalize metrics by the amount of work
+        if '*' not in metric_data.name and 'transaction_counter' in numeric_metric_dict.keys():
+            # Find the first valid result as the base
+            for metric_data in MetricData.objects.filter(session=session):
+                if '*' in metric_data.name:
+                    continue
+                first_metric_data = JSONUtil.loads(metric_data.data)
+                first_transaction_counter = first_metric_data['transaction_counter']
+                transaction_counter = numeric_metric_dict['transaction_counter']
+                ratio = transaction_counter / first_transaction_counter
+                do_not_normalize = ['transaction_counter', 'throughput_txn_per_sec']
+                for name in numeric_metric_dict.keys():
+                    if not any(n in name for n in do_not_normalize):
+                        numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
+                metric_data.data = JSONUtil.dumps(numeric_metric_dict)
+                metric_data.save()
 
         # Create a new workload if this one does not already exist
         workload = Workload.objects.create_workload(

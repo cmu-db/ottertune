@@ -148,8 +148,8 @@ class DataUtil(object):
     def aggregate_data(results, ignore=None):
         if ignore is None:
             ignore = ['range_test']
-        knob_labels = list(JSONUtil.loads(results[0].knob_data.data).keys())
-        metric_labels = list(JSONUtil.loads(results[0].metric_data.data).keys())
+        knob_labels = sorted(JSONUtil.loads(results[0].knob_data.data).keys())
+        metric_labels = sorted(JSONUtil.loads(results[0].metric_data.data).keys())
         X_matrix = []
         y_matrix = []
         rowlabels = []
@@ -163,12 +163,14 @@ class DataUtil(object):
                     ("Incorrect number of knobs "
                      "(expected={}, actual={})").format(len(knob_labels),
                                                         len(param_data)))
+
             metric_data = JSONUtil.loads(result.metric_data.data)
             if len(metric_data) != len(metric_labels):
                 raise Exception(
                     ("Incorrect number of metrics "
                      "(expected={}, actual={})").format(len(metric_labels),
                                                         len(metric_data)))
+
             X_matrix.append([param_data[l] for l in knob_labels])
             y_matrix.append([metric_data[l] for l in metric_labels])
             rowlabels.append(result.pk)

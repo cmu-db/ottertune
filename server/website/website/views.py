@@ -661,10 +661,10 @@ def handle_result_files(session, files, execution_times=None):
         # Normalize metrics by the amount of work
         if '*' not in metric_data.name and 'transaction_counter' in numeric_metric_dict.keys():
             # Find the first valid result as the base
-            for metric_data in MetricData.objects.filter(session=session):
-                if '*' in metric_data.name:
+            for prev_metric in MetricData.objects.filter(session=session):
+                if '*' in prev_metric.name:
                     continue
-                first_metric_data = JSONUtil.loads(metric_data.data)
+                first_metric_data = JSONUtil.loads(prev_metric.data)
                 first_transaction_counter = first_metric_data['transaction_counter']
                 transaction_counter = numeric_metric_dict['transaction_counter']
                 ratio = transaction_counter / first_transaction_counter
@@ -674,6 +674,7 @@ def handle_result_files(session, files, execution_times=None):
                         numeric_metric_dict[name] = numeric_metric_dict[name] / ratio
                 metric_data.data = JSONUtil.dumps(numeric_metric_dict)
                 metric_data.save()
+                break
 
         # Create a new workload if this one does not already exist
         workload = Workload.objects.create_workload(

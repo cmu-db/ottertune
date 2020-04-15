@@ -783,7 +783,8 @@ def combine_workload(target_data):
                          'identical y columnlabels (sorted metric names)'),
                         y_columnlabels, target_data['y_columnlabels'])
 
-    if target_data['mapped_workload'] is not None:
+    enable_knob_ranking = int(params['IMPORTANT_KNOB_NUMBER']) < len(X_columnlabels)
+    if target_data['mapped_workload'] is not None and enable_knob_ranking:
         # Filter Xs by top 'IMPORTANT_KNOB_NUMBER' ranked knobs
         ranked_knobs = PipelineData.objects.get(
             pipeline_run=latest_pipeline_run,

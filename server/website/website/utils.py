@@ -224,7 +224,7 @@ class DataUtil(object):
                     session_knobs.append(knob)
             knob_cat = [k['name'] for k in session_knobs]
 
-        if knob_cat == knob_labels:
+        if len(knob_cat) == 0 or knob_cat == knob_labels:
             # Nothing to do!
             return knob_matrix, knob_labels
 

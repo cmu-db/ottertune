@@ -1731,10 +1731,8 @@ def tuner_status_test(request, upload_code):  # pylint: disable=unused-argument,
                     name, expected_name))
             if session.tuning_session == "tuning_session":
                 if session.algorithm == AlgorithmType.GPR or session.algorithm == AlgorithmType.DNN:
-                    if isinstance(result, dict) is False:
-                        return HttpResponse("Failure: wrong result for task {}".format(name))
-                    if 'mapped_workload_id' not in result:
-                        return HttpResponse("Failure: wrong result for task {}".format(name))
+                    if isinstance(result, dict) is True:
+                        return HttpResponse("Failure: map workload when there is only 1 workload")
         elif i == 2:
             expected_name = TaskType.TYPE_NAMES[TaskType.RECOMMENDATION]
             if name != expected_name:

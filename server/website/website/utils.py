@@ -212,6 +212,70 @@ class DataUtil(object):
         return X_unique, y_unique, rowlabels_unique
 
     @staticmethod
+    def clean_knob_data(knob_matrix, knob_labels, sessions):
+        # Filter and amend knob_matrix and knob_labels according to the tunable knobs in the session
+        knob_matrix = np.array(knob_matrix)
+        session_knobs = []
+        knob_cat = []
+        for session in sessions:
+            knobs_for_this_session = SessionKnob.objects.get_knobs_for_session(session)
+            for knob in knobs_for_this_session:
+                if knob['name'] not in knob_cat:
+                    session_knobs.append(knob)
+            knob_cat = [k['name'] for k in session_knobs]
+
+        if knob_cat == knob_labels:
+            # Nothing to do!
+            return knob_matrix, knob_labels
+
+        LOG.info("session_knobs: %s, knob_labels: %s, missing: %s, extra: %s", len(knob_cat),
+                 len(knob_labels), len(set(knob_cat) - set(knob_labels)),
+                 len(set(knob_labels) - set(knob_cat)))
+
+        nrows = knob_matrix.shape[0]  # pylint: disable=unsubscriptable-object
+        new_labels = []
+        new_columns = []
+
+        for knob in session_knobs:
+            knob_name = knob['name']
+            if knob_name not in knob_labels:
+                # Add missing column initialized to knob's default value
+                default_val = knob['default']
+                try:
+                    if knob['vartype'] == VarType.ENUM:
+                        default_val = knob['enumvals'].split(',').index(default_val)
+                    elif knob['vartype'] == VarType.BOOL:
+                        default_val = str(default_val).lower() in ("on", "true", "yes", "0")
+                    else:
+                        default_val = float(default_val)
+                except ValueError:
+                    LOG.warning("Error parsing knob '%s' default value: %s. Setting default to 0.",
+                                knob_name, default_val, exc_info=True)
+                    default_val = 0
+                new_col = np.ones((nrows, 1), dtype=float) * default_val
+                new_lab = knob_name
+            else:
+                index = knob_labels.index(knob_name)
+                new_col = knob_matrix[:, index].reshape(-1, 1)
+                new_lab = knob_labels[index]
+
+            new_labels.append(new_lab)
+            new_columns.append(new_col)
+
+        new_matrix = np.hstack(new_columns).reshape(nrows, -1)
+        LOG.debug("Cleaned matrix: %s, knobs (%s): %s", new_matrix.shape,
+                  len(new_labels), new_labels)
+
+        assert new_labels == knob_cat, \
+            "Expected knobs: {}\nActual knobs:  {}\n".format(
+                knob_cat, new_labels)
+        assert new_matrix.shape == (nrows, len(knob_cat)), \
+            "Expected shape: {}, Actual shape:  {}".format(
+                (nrows, len(knob_cat)), new_matrix.shape)
+
+        return new_matrix, new_labels
+
+    @staticmethod
     def dummy_encoder_helper(featured_knobs, dbms):
         n_values = []
         cat_knob_indices = []

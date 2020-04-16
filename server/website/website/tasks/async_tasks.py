@@ -1049,6 +1049,9 @@ def map_workload(map_workload_input):
     # Compute workload mapping data for each unique workload
     for unique_workload in unique_workloads:
 
+        # do not include the workload of the current session
+        if newest_result.workload.pk == unique_workload:
+            continue
         workload_obj = Workload.objects.get(pk=unique_workload)
         wkld_results = Result.objects.filter(workload=workload_obj)
         if wkld_results.exists() is False:
@@ -1091,11 +1094,11 @@ def map_workload(map_workload_input):
             'rowlabels': rowlabels,
         }
 
-    if len(workload_data) < 2:
+    if len(workload_data) == 0:
         # The background task that aggregates the data has not finished running yet
         target_data.update(mapped_workload=None, scores=None)
         LOG.debug('%s: Result = %s\n', task_name, _task_result_tostring(target_data))
-        LOG.info('%s: Skipping workload mapping because less than 2 workloads are available.',
+        LOG.info('%s: Skipping workload mapping because no different workload is available.',
                  task_name)
         return target_data, algorithm
 
@@ -1125,9 +1128,6 @@ def map_workload(map_workload_input):
 
     scores = {}
     for workload_id, workload_entry in list(workload_data.items()):
-        LOG.info('%s: %s', newest_result.workload.pk, workload_id)
-        if newest_result.workload.pk == workload_id:
-            continue
         predictions = np.empty_like(y_target)
         X_workload = workload_entry['X_matrix']
         X_scaled = X_scaler.transform(X_workload)

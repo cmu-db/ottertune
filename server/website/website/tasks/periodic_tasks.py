@@ -156,7 +156,14 @@ def run_background_tasks():
         # PipelineData object.
         LOG.info("Ranking knobs for workload %s (use pruned metric data: %s)...",
                  workload_name, KNOB_IDENT_USE_PRUNED_METRICS)
-        ranked_knobs = run_knob_identification(knob_data=knob_data,
+        sessions = []
+        for result in wkld_results:
+            if result.session not in sessions:
+                sessions.append(result.session)
+        rank_knob_data = copy.deepcopy(knob_data)
+        rank_knob_data['data'], rank_knob_data['columnlabels'] =\
+            DataUtil.clean_knob_data(knob_data['data'], knob_data['columnlabels'], sessions)
+        ranked_knobs = run_knob_identification(knob_data=rank_knob_data,
                                                metric_data=ranked_metric_data,
                                                dbms=workload.dbms)
         LOG.info("Done ranking knobs for workload %s (# ranked knobs: %s).\n\n"

@@ -247,6 +247,9 @@ CELERYD_MAX_TASKS_PER_CHILD = 20
 # the task has been executed, not just before
 CELERY_ACKS_LATE = False
 
+# Set the upload max size to a large value for uploading DDPG models
+DATA_UPLOAD_MAX_MEMORY_SIZE = 102410241024
+
 djcelery.setup_loader()
 
 # ==============================================

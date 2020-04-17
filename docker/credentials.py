@@ -1,6 +1,7 @@
 import json
 import random
 import string
+from datetime import timedelta
 from os import environ as env
 
 debug = env.get('DEBUG', 'true').lower() == 'true'
@@ -9,6 +10,7 @@ backend = env.get('BACKEND', 'postgresql')
 db_name = env.get('DB_NAME', 'ottertune')
 db_host = env.get('DB_HOST', 'localhost')
 db_pwd = env.get('DB_PASSWORD', '')
+bg_run_every = env.get('BG_TASKS_RUN_EVERY', None)  # minutes
 
 if backend == 'mysql':
     default_user = 'root'
@@ -43,3 +45,12 @@ ADMINS = ()
 MANAGERS = ADMINS
 ALLOWED_HOSTS = ['*']
 BROKER_URL = 'amqp://guest:guest@{}:5672//'.format(rabbitmq_host)
+
+if bg_run_every is not None:
+    # Defines the periodic task schedule for celerybeat
+    CELERYBEAT_SCHEDULE = {
+        'run-every-{}m'.format(bg_run_every): {
+            'task': 'run_background_tasks',
+            'schedule': timedelta(minutes=int(bg_run_every)),
+        }
+    }

@@ -82,6 +82,8 @@ def run_background_tasks():
             # Check that there are enough results in the workload
             LOG.info("Not enough results in workload %s (# results: %s, # required: %s).",
                      workload_name, num_wkld_results, MIN_WORKLOAD_RESULTS_COUNT)
+            workload.status = WorkloadStatusType.PROCESSED
+            workload.save()
             continue
 
         LOG.info("Aggregating data for workload %s...", workload_name)
@@ -90,10 +92,16 @@ def run_background_tasks():
         LOG.debug("Aggregated knob data: rowlabels=%s, columnlabels=%s, data=%s.",
                   len(knob_data['rowlabels']), len(knob_data['columnlabels']),
                   knob_data['data'].shape)
-        LOG.debug("Aggregated metric data: rowlabels=%s, columnlabels=%s, data=%s.",
-                  len(metric_data['rowlabels']), len(metric_data['columnlabels']),
-                  metric_data['data'].shape)
         LOG.info("Done aggregating data for workload %s.", workload_name)
+
+        num_valid_results = knob_data['data'].shape[0]
+        if num_valid_results < MIN_WORKLOAD_RESULTS_COUNT:
+            # Check that there are enough valid results in the workload
+            LOG.info("Not enough valid results in workload %s (# valid results: %s, # required: %s).",
+                     workload_name, num_valid_results, MIN_WORKLOAD_RESULTS_COUNT)
+            workload.status = WorkloadStatusType.PROCESSED
+            workload.save()
+            continue
 
         # Knob_data and metric_data are 2D numpy arrays. Convert them into a
         # JSON-friendly (nested) lists and then save them as new PipelineData

@@ -94,11 +94,12 @@ def run_background_tasks():
                   knob_data['data'].shape)
         LOG.info("Done aggregating data for workload %s.", workload_name)
 
-        num_valid_results = knob_data['data'].shape[0]
+        num_valid_results = knob_data['data'].shape[0]  # pylint: disable=unsubscriptable-object
         if num_valid_results < MIN_WORKLOAD_RESULTS_COUNT:
             # Check that there are enough valid results in the workload
-            LOG.info("Not enough valid results in workload %s (# valid results: %s, # required: %s).",
-                     workload_name, num_valid_results, MIN_WORKLOAD_RESULTS_COUNT)
+            LOG.info("Not enough valid results in workload %s (# valid results: "
+                     "%s, # required: %s).", workload_name, num_valid_results,
+                     MIN_WORKLOAD_RESULTS_COUNT)
             workload.status = WorkloadStatusType.PROCESSED
             workload.save()
             continue

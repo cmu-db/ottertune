@@ -26,7 +26,7 @@ from django_db_logger.models import StatusLog
 from djcelery.models import TaskMeta
 
 from .models import DBMSCatalog, KnobCatalog, Result, Session, SessionKnob
-from .settings import constants
+from .settings import common
 from .types import LabelStyleType, VarType
 
 LOG = logging.getLogger(__name__)
@@ -568,12 +568,14 @@ def check_and_run_celery():
     if 'pong' in celery_status:
         return 'celery is running'
 
-    rabbitmq_status = os.popen('telnet localhost 5672').read()
+    rabbitmq_url = common.BROKER_URL.split('@')[-1]
+    hostname = rabbitmq_url.split(':')[0]
+    port = rabbitmq_url.split(':')[1].split('/')[0]
+    rabbitmq_status = os.popen('telnet {} {}'.format(hostname, port)).read()
     if 'Connected' in rabbitmq_status:
         LOG.info('Rabbitmq is running.')
     else:
         LOG.warning('Rabbitmq is not running.')
-        return 'Rabbitmq is not running.'
 
     retries = 0
     while retries < 5:

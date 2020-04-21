@@ -576,6 +576,7 @@ def check_and_run_celery():
         LOG.info('Rabbitmq is running.')
     else:
         LOG.warning('Rabbitmq is not running.')
+        return 'Rabbitmq is not running.'
 
     retries = 0
     while retries < 5:

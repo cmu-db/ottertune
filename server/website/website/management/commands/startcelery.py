@@ -38,6 +38,12 @@ class Command(BaseCommand):
             help='Pool implementation: prefork (default), eventlet, gevent, solo or threads.'
                  'Default: threads.')
         parser.add_argument(
+            '--concurrency',
+            metavar='POOL_CLS',
+            default='4',
+            help='Number of celery tasks that can run in concurrency'
+                 'Default: 4')
+        parser.add_argument(
             '--celery-pidfile',
             metavar='PIDFILE',
             default='celery.pid',
@@ -95,6 +101,7 @@ class Command(BaseCommand):
         celery_options = [
             '--loglevel={}'.format(loglevel),
             '--pool={}'.format(options['pool']),
+            '--concurrency={}'.format(options['concurrency']),
             '--pidfile={}'.format(options['celery_pidfile']),
         ] + self._parse_suboptions(options['celery_options'])
         celerybeat_options = [

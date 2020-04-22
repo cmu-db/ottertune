@@ -4,6 +4,8 @@
 # Copyright (c) 2017-18, Carnegie Mellon University Database Group
 #
 
+from website.types import DBMSType
+
 # These parameters are not specified for any session, so they can only be set here
 
 # If this flag is set, we check if celery is running, and restart celery if it is not.
@@ -26,4 +28,7 @@ KNOB_IDENT_USE_PRUNED_METRICS = False
 MIN_WORKLOAD_RESULTS_COUNT = 5
 
 # The views used for metrics pruning
-VIEWS_FOR_PRUNING = ['dba_hist_osstat', 'dba_hist_sysstat', 'dba_hist_system_event']
+VIEWS_FOR_PRUNING = {
+    DBMSType.ORACLE: ['dba_hist_osstat', 'dba_hist_sysstat', 'dba_hist_system_event',
+                      'dba_workload_replays', 'dba_hist_sys_time_model'],
+}

@@ -89,30 +89,6 @@ class ConfigurationRecommendation(BaseTask):  # pylint: disable=abstract-method
         task_meta.save()
 
 
-def clean_metric_data(metric_matrix, metric_labels, session):
-    # Makes sure that all knobs in the dbms are included in the knob_matrix and knob_labels
-    metric_objs = MetricCatalog.objects.filter(dbms=session.dbms)
-    metric_cat = [session.target_objective]
-    for metric_obj in metric_objs:
-        metric_cat.append(metric_obj.name)
-    missing_columns = sorted(set(metric_cat) - set(metric_labels))
-    unused_columns = set(metric_labels) - set(metric_cat)
-    LOG.debug("clean_metric_data: added %d metrics and removed %d metric.", len(missing_columns),
-              len(unused_columns))
-    default_val = 0
-    metric_cat_size = len(metric_cat)
-    matrix = np.ones((len(metric_matrix), metric_cat_size)) * default_val
-    metric_labels_dict = {n: i for i, n in enumerate(metric_labels)}
-    # column labels in matrix has the same order as ones in metric catalog
-    # missing values are filled with default_val
-    for i, metric_name in enumerate(metric_cat):
-        if metric_name in metric_labels_dict:
-            index = metric_labels_dict[metric_name]
-            matrix[:, i] = metric_matrix[:, index]
-    LOG.debug("clean_metric_data: final ~ matrix: %s, labels: %s", matrix.shape, len(metric_cat))
-    return matrix, metric_cat
-
-
 def save_execution_time(start_ts, fn, result):
     end_ts = time.time()
     exec_time = end_ts - start_ts
@@ -513,13 +489,13 @@ def train_ddpg(train_ddpg_input):
     prev_objective = prev_metric_data[target_obj_idx]
 
     # Clean metric data
-    metric_data, metric_labels = clean_metric_data(agg_data['y_matrix'],
-                                                   agg_data['y_columnlabels'], session)
+    metric_data, _ = DataUtil.clean_metric_data(agg_data['y_matrix'],
+                                                agg_data['y_columnlabels'], session)
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
-    prev_metric_data, _ = clean_metric_data(prev_agg_data['y_matrix'],
-                                            prev_agg_data['y_columnlabels'], session)
+    prev_metric_data, _ = DataUtil.clean_metric_data(prev_agg_data['y_matrix'],
+                                                     prev_agg_data['y_columnlabels'], session)
     prev_metric_data = prev_metric_data.flatten()
     prev_metric_scalar = MinMaxScaler().fit(prev_metric_data.reshape(1, -1))
     prev_normalized_metric_data = prev_metric_scalar.transform(prev_metric_data.reshape(1, -1))[0]
@@ -642,7 +618,8 @@ def configuration_recommendation_ddpg(recommendation_ddpg_input):  # pylint: dis
 
     params = JSONUtil.loads(session.hyperparameters)
     agg_data = DataUtil.aggregate_data(result_list)
-    metric_data, _ = clean_metric_data(agg_data['y_matrix'], agg_data['y_columnlabels'], session)
+    metric_data, _ = DataUtil.clean_metric_data(agg_data['y_matrix'],
+                                                agg_data['y_columnlabels'], session)
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]

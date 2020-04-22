@@ -645,6 +645,7 @@ def handle_result_files(session, files, execution_times=None):
         metric_data = MetricData.objects.create_metric_data(
             session, JSONUtil.dumps(metric_dict, pprint=True, sort=True),
             JSONUtil.dumps(numeric_metric_dict, pprint=True, sort=True), dbms)
+
         if 'status' in summary and summary['status'] == "range_test":
             # The metric should not be used for learning because the driver did not run workload
             # We tag the metric as invalid, so later they will be set to the worst result
@@ -659,6 +660,10 @@ def handle_result_files(session, files, execution_times=None):
                     metric = MetricCatalog.objects.get(dbms=dbms, name=name)
                     metric.default = numeric_metric_dict[name]
                     metric.save()
+            numeric_metric_dict = parser.convert_dbms_metrics(
+                dbms.pk, metric_dict, observation_time, session.target_objective)
+            metric_data.data = JSONUtil.dumps(numeric_metric_dict)
+            metric_data.save()
         # Normalize metrics by the amount of work
         if '*' not in metric_data.name and 'transaction_counter' in numeric_metric_dict.keys():
             # Find the first valid result as the base

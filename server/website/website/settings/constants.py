@@ -24,3 +24,6 @@ KNOB_IDENT_USE_PRUNED_METRICS = False
 
 # The background tasks only process workloads containing this minimum amount of results
 MIN_WORKLOAD_RESULTS_COUNT = 5
+
+# The views used for metrics pruning
+VIEWS_FOR_PRUNING = ['dba_hist_osstat', 'dba_hist_sysstat', 'dba_hist_system_event']

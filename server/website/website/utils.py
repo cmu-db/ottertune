@@ -25,7 +25,7 @@ from django.utils.text import capfirst
 from django_db_logger.models import StatusLog
 from djcelery.models import TaskMeta
 
-from .models import DBMSCatalog, KnobCatalog, Result, Session, SessionKnob
+from .models import DBMSCatalog, MetricCatalog, KnobCatalog, Result, Session, SessionKnob
 from .settings import common
 from .types import LabelStyleType, VarType
 
@@ -210,6 +210,35 @@ class DataUtil(object):
                 y_unique[i, :] = np.median(y_matrix[dup_idxs, :], axis=0)
                 rowlabels_unique[i] = tuple(rowlabels[dup_idxs])
         return X_unique, y_unique, rowlabels_unique
+
+    @staticmethod
+    def clean_metric_data(metric_matrix, metric_labels, session, useful_labels=None):
+        # Make metric_labels identical to useful_labels (if given)
+        # If useful_labels is not given, let it to be all metrics in the catalog.
+        if useful_labels is None:
+            metric_objs = MetricCatalog.objects.filter(dbms=session.dbms)
+            metric_cat = [session.target_objective]
+            for metric_obj in metric_objs:
+                metric_cat.append(metric_obj.name)
+        else:
+            metric_cat = useful_labels
+        missing_columns = sorted(set(metric_cat) - set(metric_labels))
+        unused_columns = set(metric_labels) - set(metric_cat)
+        LOG.debug("clean_metric_data: added %d metrics and removed %d metric.",
+                  len(missing_columns), len(unused_columns))
+        default_val = 0
+        metric_cat_size = len(metric_cat)
+        matrix = np.ones((len(metric_matrix), metric_cat_size)) * default_val
+        metric_labels_dict = {n: i for i, n in enumerate(metric_labels)}
+        # column labels in matrix has the same order as ones in metric catalog
+        # missing values are filled with default_val
+        for i, metric_name in enumerate(metric_cat):
+            if metric_name in metric_labels_dict:
+                index = metric_labels_dict[metric_name]
+                matrix[:, i] = metric_matrix[:, index]
+        LOG.debug("clean_metric_data: final ~ matrix: %s, labels: %s", matrix.shape,
+                  len(metric_cat))
+        return matrix, metric_cat
 
     @staticmethod
     def clean_knob_data(knob_matrix, knob_labels, sessions):

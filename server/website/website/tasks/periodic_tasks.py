@@ -22,7 +22,7 @@ from analysis.preprocessing import (Bin, get_shuffle_indices,
                                     consolidate_columnlabels)
 from website.models import PipelineData, PipelineRun, Result, Workload, ExecutionTime
 from website.settings import (ENABLE_DUMMY_ENCODER, KNOB_IDENT_USE_PRUNED_METRICS,
-                              MIN_WORKLOAD_RESULTS_COUNT, TIME_ZONE)
+                              MIN_WORKLOAD_RESULTS_COUNT, TIME_ZONE, VIEWS_FOR_PRUNING)
 from website.types import PipelineTaskType, WorkloadStatusType
 from website.utils import DataUtil, JSONUtil
 
@@ -82,8 +82,6 @@ def run_background_tasks():
             # Check that there are enough results in the workload
             LOG.info("Not enough results in workload %s (# results: %s, # required: %s).",
                      workload_name, num_wkld_results, MIN_WORKLOAD_RESULTS_COUNT)
-            workload.status = WorkloadStatusType.PROCESSED
-            workload.save()
             continue
 
         LOG.info("Aggregating data for workload %s...", workload_name)
@@ -92,17 +90,10 @@ def run_background_tasks():
         LOG.debug("Aggregated knob data: rowlabels=%s, columnlabels=%s, data=%s.",
                   len(knob_data['rowlabels']), len(knob_data['columnlabels']),
                   knob_data['data'].shape)
+        LOG.debug("Aggregated metric data: rowlabels=%s, columnlabels=%s, data=%s.",
+                  len(metric_data['rowlabels']), len(metric_data['columnlabels']),
+                  metric_data['data'].shape)
         LOG.info("Done aggregating data for workload %s.", workload_name)
-
-        num_valid_results = knob_data['data'].shape[0]  # pylint: disable=unsubscriptable-object
-        if num_valid_results < MIN_WORKLOAD_RESULTS_COUNT:
-            # Check that there are enough valid results in the workload
-            LOG.info("Not enough valid results in workload %s (# valid results: "
-                     "%s, # required: %s).", workload_name, num_valid_results,
-                     MIN_WORKLOAD_RESULTS_COUNT)
-            workload.status = WorkloadStatusType.PROCESSED
-            workload.save()
-            continue
 
         # Knob_data and metric_data are 2D numpy arrays. Convert them into a
         # JSON-friendly (nested) lists and then save them as new PipelineData
@@ -264,6 +255,14 @@ def run_workload_characterization(metric_data):
     matrix = metric_data['data']
     columnlabels = metric_data['columnlabels']
     LOG.debug("Workload characterization ~ initial data size: %s", matrix.shape)
+    useful_labels = []
+    for label in columnlabels:
+        for view in VIEWS_FOR_PRUNING:
+            if view in label:
+                useful_labels.append(label)
+                break
+    matrix, columnlabels = DataUtil.clean_metric_data(matrix, columnlabels, None, useful_labels)
+    LOG.debug("Workload characterization ~ cleaned data size: %s", matrix.shape)
 
     # Bin each column (metric) in the matrix by its decile
     binner = Bin(bin_start=1, axis=0)
@@ -298,6 +297,7 @@ def run_workload_characterization(metric_data):
 
     # Components: metrics * factors
     components = fa_model.components_.T.copy()
+    LOG.info("Workload characterization first part costs %.0f seconds.", time.time() - start_ts)
 
     # Run Kmeans for # clusters k in range(1, num_nonduplicate_metrics - 1)
     # K should be much smaller than n_cols in detK, For now max_cluster <= 20

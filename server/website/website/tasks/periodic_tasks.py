@@ -252,7 +252,7 @@ def aggregate_data(wkld_results):
     return knob_data, metric_data
 
 
-def run_workload_characterization(metric_data, dbms):
+def run_workload_characterization(metric_data, dbms=None):
     # Performs workload characterization on the metric_data and returns
     # a set of pruned metrics.
     #
@@ -268,7 +268,7 @@ def run_workload_characterization(metric_data, dbms):
     columnlabels = metric_data['columnlabels']
     LOG.debug("Workload characterization ~ initial data size: %s", matrix.shape)
 
-    views = VIEWS_FOR_PRUNING.get(dbms.type, None)
+    views = None if dbms is None else VIEWS_FOR_PRUNING.get(dbms.type, None)
     if views is not None:
         useful_labels = []
         for label in columnlabels:

@@ -82,6 +82,8 @@ def run_background_tasks():
             # Check that there are enough results in the workload
             LOG.info("Not enough results in workload %s (# results: %s, # required: %s).",
                      workload_name, num_wkld_results, MIN_WORKLOAD_RESULTS_COUNT)
+            workload.status = WorkloadStatusType.PROCESSED
+            workload.save()
             continue
 
         LOG.info("Aggregating data for workload %s...", workload_name)
@@ -94,6 +96,16 @@ def run_background_tasks():
                   len(metric_data['rowlabels']), len(metric_data['columnlabels']),
                   metric_data['data'].shape)
         LOG.info("Done aggregating data for workload %s.", workload_name)
+
+        num_valid_results = knob_data['data'].shape[0]  # pylint: disable=unsubscriptable-object
+        if num_valid_results < MIN_WORKLOAD_RESULTS_COUNT:
+            # Check that there are enough valid results in the workload
+            LOG.info("Not enough valid results in workload %s (# valid results: "
+                     "%s, # required: %s).", workload_name, num_valid_results,
+                     MIN_WORKLOAD_RESULTS_COUNT)
+            workload.status = WorkloadStatusType.PROCESSED
+            workload.save()
+            continue
 
         # Knob_data and metric_data are 2D numpy arrays. Convert them into a
         # JSON-friendly (nested) lists and then save them as new PipelineData
@@ -122,7 +134,7 @@ def run_background_tasks():
         # pruned metrics for this workload and save them in a new PipelineData
         # object.
         LOG.info("Pruning metrics for workload %s...", workload_name)
-        pruned_metrics = run_workload_characterization(metric_data=metric_data)
+        pruned_metrics = run_workload_characterization(metric_data=metric_data, dbms=workload.dbms)
         LOG.info("Done pruning metrics for workload %s (# pruned metrics: %s).\n\n"
                  "Pruned metrics: %s\n", workload_name, len(pruned_metrics),
                  pruned_metrics)
@@ -240,7 +252,7 @@ def aggregate_data(wkld_results):
     return knob_data, metric_data
 
 
-def run_workload_characterization(metric_data):
+def run_workload_characterization(metric_data, dbms):
     # Performs workload characterization on the metric_data and returns
     # a set of pruned metrics.
     #
@@ -255,14 +267,18 @@ def run_workload_characterization(metric_data):
     matrix = metric_data['data']
     columnlabels = metric_data['columnlabels']
     LOG.debug("Workload characterization ~ initial data size: %s", matrix.shape)
-    useful_labels = []
-    for label in columnlabels:
-        for view in VIEWS_FOR_PRUNING:
-            if view in label:
-                useful_labels.append(label)
-                break
-    matrix, columnlabels = DataUtil.clean_metric_data(matrix, columnlabels, None, useful_labels)
-    LOG.debug("Workload characterization ~ cleaned data size: %s", matrix.shape)
+
+    views = VIEWS_FOR_PRUNING.get(dbms.type, None)
+    if views is not None:
+        useful_labels = []
+        for label in columnlabels:
+            for view in views:
+                if view in label:
+                    useful_labels.append(label)
+                    break
+        matrix, columnlabels = DataUtil.clean_metric_data(matrix, columnlabels, None,
+                                                          useful_labels)
+        LOG.debug("Workload characterization ~ cleaned data size: %s", matrix.shape)
 
     # Bin each column (metric) in the matrix by its decile
     binner = Bin(bin_start=1, axis=0)

@@ -23,7 +23,7 @@ def load_driver_conf():
         if dconf.HOST_CONN == 'local':
             login_str = 'localhost'
 
-        elif dconf.HOST_CONN == 'remote':
+        elif dconf.HOST_CONN in ['remote', 'remote_docker']:
             if not dconf.LOGIN_HOST:
                 raise ValueError("LOGIN_HOST must be set if HOST_CONN=remote")
 
@@ -65,7 +65,7 @@ def get_content(response):
 
 
 @task
-def run(cmd, capture=True, **kwargs):
+def run(cmd, capture=True, remote_only=False, **kwargs):
     capture = parse_bool(capture)
 
     try:
@@ -73,14 +73,23 @@ def run(cmd, capture=True, **kwargs):
             res = _run(cmd, **kwargs)
         elif dconf.HOST_CONN == 'local':
             res = local(cmd, capture=capture, **kwargs)
-        else:  # docker
+        else:  # docker or remote_docker
             opts = ''
             cmdd = cmd
             if cmd.endswith('&'):
                 cmdd = cmd[:-1].strip()
                 opts = '-d '
-            res = local('docker exec {} -ti {} /bin/bash -c "{}"'.format(
-                opts, dconf.CONTAINER_NAME, cmdd), capture=capture, **kwargs)
+            if remote_only:
+                docker_cmd = cmdd
+            else:
+                docker_cmd = 'docker exec {} -ti {} /bin/bash -c "{}"'.format(
+                    opts, dconf.CONTAINER_NAME, cmdd)
+            if dconf.HOST_CONN == 'docker':
+                res = local(docker_cmd, capture=capture, **kwargs)
+            elif dconf.HOST_CONN == 'remote_docker':
+                res = _run(docker_cmd, **kwargs)
+            else:
+                raise Exception('wrong HOST_CONN type {}'.format(dconf.HOST_CONN))
     except TypeError as e:
         err = str(e).strip()
         if 'unexpected keyword argument' in err:
@@ -93,7 +102,7 @@ def run(cmd, capture=True, **kwargs):
 
 
 @task
-def sudo(cmd, user=None, capture=True, **kwargs):
+def sudo(cmd, user=None, capture=True, remote_only=False, **kwargs):
     capture = parse_bool(capture)
 
     if dconf.HOST_CONN == 'remote':
@@ -105,14 +114,22 @@ def sudo(cmd, user=None, capture=True, **kwargs):
             pre_cmd += '-u {} '.format(user)
         res = local(pre_cmd + cmd, capture=capture, **kwargs)
 
-    else:  # docker
+    else:  # docker or remote_docker
         user = user or 'root'
         opts = '-ti -u {}'.format(user or 'root')
         if user == 'root':
             opts += ' -w /'
-        res = local('docker exec {} {} /bin/bash -c "{}"'.format(
-            opts, dconf.CONTAINER_NAME, cmd), capture=capture)
-
+        if remote_only:
+            docker_cmd = cmd
+        else:
+            docker_cmd = 'docker exec {} {} /bin/bash -c "{}"'.format(
+                opts, dconf.CONTAINER_NAME, cmd)
+        if dconf.HOST_CONN == 'docker':
+            res = local(docker_cmd, capture=capture, **kwargs)
+        elif dconf.HOST_CONN == 'remote_docker':
+            res = _sudo(docker_cmd, **kwargs)
+        else:
+            raise Exception('wrong HOST_CONN type {}'.format(dconf.HOST_CONN))
     return res
 
 
@@ -126,8 +143,15 @@ def get(remote_path, local_path, use_sudo=False):
         pre_cmd = 'sudo ' if use_sudo else ''
         opts = '-r' if os.path.isdir(remote_path) else ''
         res = local('{}cp {} {} {}'.format(pre_cmd, opts, remote_path, local_path))
-    else:  # docker
-        res = local('docker cp {}:{} {}'.format(dconf.CONTAINER_NAME, remote_path, local_path))
+    else:  # docker or remote_docker
+        docker_cmd = 'docker cp -L {}:{} {}'.format(dconf.CONTAINER_NAME, remote_path, local_path)
+        if dconf.HOST_CONN == 'docker':
+            res = local(docker_cmd)
+        elif dconf.HOST_CONN == 'remote_docker':
+            res = sudo(docker_cmd, remote_only=True)
+            res = _get(local_path, local_path, use_sudo)
+        else:
+            raise Exception('wrong HOST_CONN type {}'.format(dconf.HOST_CONN))
     return res
 
 
@@ -141,8 +165,15 @@ def put(local_path, remote_path, use_sudo=False):
         pre_cmd = 'sudo ' if use_sudo else ''
         opts = '-r' if os.path.isdir(local_path) else ''
         res = local('{}cp {} {} {}'.format(pre_cmd, opts, local_path, remote_path))
-    else:  # docker
-        res = local('docker cp {} {}:{}'.format(local_path, dconf.CONTAINER_NAME, remote_path))
+    else:  # docker or remote_docker
+        docker_cmd = 'docker cp -L {} {}:{}'.format(local_path, dconf.CONTAINER_NAME, remote_path)
+        if dconf.HOST_CONN == 'docker':
+            res = local(docker_cmd)
+        elif dconf.HOST_CONN == 'remote_docker':
+            res = _put(local_path, local_path, use_sudo=True)
+            res = sudo(docker_cmd, remote_only=True)
+        else:
+            raise Exception('wrong HOST_CONN type {}'.format(dconf.HOST_CONN))
     return res
 
 

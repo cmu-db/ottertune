@@ -89,8 +89,11 @@ class BaseParser:
         return converted
 
     def convert_real(self, real_value, metadata):
-        return float(real_value)
-
+        try:
+            return float(real_value)
+        except ValueError:
+            raise Exception('Cannot convert knob {} from {} to float'.format(
+                metadata.name, real_value))
     def convert_string(self, string_value, metadata):
         return string_value
 
@@ -124,10 +127,10 @@ class BaseParser:
 
             if metadata.vartype == VarType.BOOL:
                 if not self._check_knob_bool_val(value):
-                    raise Exception('Knob boolean value not valid! '
+                    raise Exception('Knob {} boolean value not valid! '
                                     'Boolean values should be one of: {}, '
                                     'but the actual value is: {}'
-                                    .format(self.valid_boolean_val_to_string(),
+                                    .format(name, self.valid_boolean_val_to_string(),
                                             str(value)))
                 conv_value = self.convert_bool(value, metadata)
 
@@ -137,17 +140,17 @@ class BaseParser:
             elif metadata.vartype == VarType.INTEGER:
                 conv_value = self.convert_integer(value, metadata)
                 if not self._check_knob_num_in_range(conv_value, metadata):
-                    raise Exception('Knob integer num value not in range! '
+                    raise Exception('Knob {} integer num value not in range! '
                                     'min: {}, max: {}, actual: {}'
-                                    .format(metadata.minval,
+                                    .format(name, metadata.minval,
                                             metadata.maxval, str(conv_value)))
 
             elif metadata.vartype == VarType.REAL:
                 conv_value = self.convert_real(value, metadata)
                 if not self._check_knob_num_in_range(conv_value, metadata):
-                    raise Exception('Knob real num value not in range! '
+                    raise Exception('Knob {} real num value not in range! '
                                     'min: {}, max: {}, actual: {}'
-                                    .format(metadata.minval,
+                                    .format(name, metadata.minval,
                                             metadata.maxval, str(conv_value)))
 
             elif metadata.vartype == VarType.STRING:
@@ -328,7 +331,8 @@ class BaseParser:
                     'Invalid metric type: {}'.format(metric.metric_type))
         return valid_metrics, diffs
 
-    def calculate_change_in_metrics(self, metrics_start, metrics_end, fix_metric_type=True):
+    def calculate_change_in_metrics(self, metrics_start, metrics_end,
+                                    fix_metric_type=True, allow_negative=True):
         metric_catalog = {m.name: m for m in MetricCatalog.objects.filter(dbms__id=self.dbms_id)}
         adjusted_metrics = {}
 
@@ -350,13 +354,18 @@ class BaseParser:
                 if fix_metric_type:
                     if adj_val < 0:
                         adj_val = end_val
-                        LOG.debug("Changing metric %s from COUNTER to STATISTICS", met_name)
+                        LOG.warning("Changing metric %s from COUNTER to STATISTICS", met_name)
                         met_info.metric_type = MetricType.STATISTICS
                         met_info.save()
-                assert adj_val >= 0, \
-                    '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
-                        met_name, MetricType.name(met_info.metric_type), start_val,
-                        end_val, end_val - start_val)
+                if allow_negative:
+                    LOG.warning('%s metric type %s value is negative (start=%s, end=%s, diff=%s)',
+                                met_name, MetricType.name(met_info.metric_type), start_val, end_val,
+                                end_val - start_val)
+                else:
+                    assert adj_val >= 0, \
+                        '{} wrong metric type: {} (start={}, end={}, diff={})'.format(
+                            met_name, MetricType.name(met_info.metric_type), start_val,
+                            end_val, end_val - start_val)
 
                 adjusted_metrics[met_name] = adj_val
             else:

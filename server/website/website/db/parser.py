@@ -10,6 +10,7 @@ from website.types import DBMSType
 from .myrocks.parser import MyRocksParser
 from .postgres.parser import PostgresParser
 from .oracle.parser import OracleParser
+from .mysql.parser import MysqlParser
 
 _DBMS_PARSERS = {}
 
@@ -25,6 +26,8 @@ def _get(dbms_id):
             clz = MyRocksParser
         elif obj.type == DBMSType.ORACLE:
             clz = OracleParser
+        elif obj.type == DBMSType.MYSQL:
+            clz = MysqlParser
         else:
             raise NotImplementedError('Implement me! {}'.format(obj))
 

@@ -611,8 +611,19 @@ def handle_result_files(session, files, execution_times=None):
             dbms = DBMSCatalog.objects.get(
                 type=dbms_type, version=dbms_version)
         except ObjectDoesNotExist:
-            return HttpResponse('{} v{} is not yet supported.'.format(
-                dbms_type, dbms_version))
+            try:
+                dbms_version = parser.parse_version_string(dbms_type, dbms_version)
+            except Exception:  # pylint: disable=broad-except
+                LOG.warning('Cannot parse dbms version %s', dbms_version)
+                return HttpResponse('{} v{} is not yet supported.'.format(
+                    dbms_type, dbms_version))
+            try:
+                # Check that we support this DBMS and version
+                dbms = DBMSCatalog.objects.get(
+                    type=dbms_type, version=dbms_version)
+            except ObjectDoesNotExist:
+                return HttpResponse('{} v{} is not yet supported.'.format(
+                    dbms_type, dbms_version))
 
         if dbms != session.dbms:
             return HttpResponse('The DBMS must match the type and version '

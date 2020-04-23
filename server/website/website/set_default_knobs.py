@@ -35,6 +35,17 @@ DEFAULT_TUNABLE_KNOBS = {
         "global.shared_pool_size",
         "global.sort_area_size",
     },
+    DBMSType.MYSQL: {
+        "global.innodb_buffer_pool_size",
+        "global.innodb_thread_sleep_delay",
+        "global.innodb_flush_method",
+        "global.innodb_log_file_size",
+        "global.innodb_max_dirty_pages_pct_lwm",
+        "global.innodb_read_ahead_threshold",
+        "global.innodb_adaptive_max_sleep_delay",
+        "global.innodb_buffer_pool_instances",
+        "global.thread_cache_size",
+    },
 }
 
 # Bytes in a GB

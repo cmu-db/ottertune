@@ -5,7 +5,7 @@ import os
 #==========================================================
 
 # Location of the database host relative to this driver
-# Valid values: local, remote, or docker
+# Valid values: local, remote, docker or remote_docker
 HOST_CONN = 'local'
 
 # The name of the Docker container for the target database
@@ -15,6 +15,7 @@ CONTAINER_NAME = None  # e.g., 'postgres_container'
 # Host SSH login credentials (only required if HOST_CONN=remote)
 LOGIN_NAME = None
 LOGIN_HOST = None
+LOGIN_PASSWORD = None
 LOGIN_PORT = None  # Set when using a port other than the SSH default
 
 
@@ -22,7 +23,7 @@ LOGIN_PORT = None  # Set when using a port other than the SSH default
 #  DATABASE OPTIONS
 #==========================================================
 
-# Either Postgres or Oracle
+# Postgres, Oracle or Mysql
 DB_TYPE = 'postgres'
 
 # Name of the database
@@ -50,12 +51,19 @@ DB_CONF = '/etc/postgresql/9.6/main/postgresql.conf'
 DB_DUMP_DIR = '/var/lib/postgresql/9.6/main/dumpfiles'
 
 # Base config settings to always include when installing new configurations
-BASE_DB_CONF = {
-    'track_counts': 'on',
-    'track_functions': 'all',
-    'track_io_timing': 'on',
-    'autovacuum': 'off',
-}
+if DB_TYPE == 'mysql':
+    BASE_DB_CONF = {
+        'innodb_monitor_enable': 'all',
+    }
+elif DB_TYPE == 'postgres':
+    BASE_DB_CONF = {
+        'track_counts': 'on',
+        'track_functions': 'all',
+        'track_io_timing': 'on',
+        'autovacuum': 'off',
+    }
+else:
+    BASE_DB_CONF = None
 
 # Name of the device on the database server to monitor the disk usage, or None to disable
 DATABASE_DISK = None
@@ -88,7 +96,11 @@ RESULT_DIR = os.path.join(DRIVER_HOME, 'results')
 TEMP_DIR = '/tmp/driver'
 
 # Path to the directory for storing database dump files
-DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
+if DB_DUMP_DIR is None:
+    DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
+    if not os.path.exists(DB_DUMP_DIR):
+        os.mkdir(DB_DUMP_DIR)
+
 
 # Reload the database after running this many iterations
 RELOAD_INTERVAL = 10
@@ -102,7 +114,7 @@ MAX_DISK_USAGE = 90
 WARMUP_ITERATIONS = 0
 
 # Let the database initialize for this many seconds after it restarts
-RESTART_SLEEP_SEC = 300
+RESTART_SLEEP_SEC = 30
 
 #==========================================================
 #  OLTPBENCHMARK OPTIONS
@@ -123,7 +135,7 @@ OLTPBENCH_BENCH = 'tpcc'
 #==========================================================
 
 # Path to the controller directory
-CONTROLLER_HOME = os.path.expanduser('~/ottertune/client/controller')
+CONTROLLER_HOME = DRIVER_HOME + '/../controller'
 
 # Path to the controller configuration file
 CONTROLLER_CONFIG = os.path.join(CONTROLLER_HOME, 'config/postgres_config.json')

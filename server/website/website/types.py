@@ -130,11 +130,15 @@ class KnobUnitType(BaseType):
     BYTES = 1
     MILLISECONDS = 2
     OTHER = 3
+    MICROSECONDS = 4
+    SECONDS = 5
 
     TYPE_NAMES = {
         BYTES: 'bytes',
         MILLISECONDS: 'milliseconds',
         OTHER: 'other',
+        MICROSECONDS: 'microseconds',
+        SECONDS: 'seconds',
     }
 
 

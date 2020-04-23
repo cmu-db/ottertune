@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
+import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 /** */
@@ -27,6 +28,10 @@ public class MySQLCollector extends DBCollector {
   private static final String PARAMETERS_SQL = "SHOW VARIABLES;";
 
   private static final String METRICS_SQL = "SHOW STATUS";
+  
+  private static final String METRICS_SQL2 =
+      "SELECT name, count FROM INFORMATION_SCHEMA.INNODB_METRICS where subsystem = 'transaction';";
+  private HashMap<String, String> innodbMetrics = new HashMap<>(); 
 
   public MySQLCollector(String oriDBUrl, String username, String password) {
     try {
@@ -50,6 +55,12 @@ public class MySQLCollector extends DBCollector {
       while (out.next()) {
         dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
       }
+
+      out = s.executeQuery(METRICS_SQL2);
+      while (out.next()) {
+        innodbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+      }
+
       conn.close();
     } catch (SQLException e) {
       LOG.error("Error while collecting DB parameters: " + e.getMessage());
@@ -93,6 +104,13 @@ public class MySQLCollector extends DBCollector {
       }
       // "global" is a a placeholder
       jobGlobal.put("global", job);
+
+      JSONObject job2 = new JSONObject();
+      for (Map.Entry<String, String> entry : innodbMetrics.entrySet()) {
+        job2.put(entry.getKey(), entry.getValue());
+      }
+      jobGlobal.put("innodb_metrics", job2);
+      
       stringer.value(jobGlobal);
       stringer.key(JSON_LOCAL_KEY);
       stringer.value(null);

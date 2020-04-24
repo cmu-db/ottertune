@@ -131,9 +131,7 @@ def _task_result_tostring(task_result):
 
 
 def choose_value_in_range(num1, num2):
-    if num2 < 10 and num1 < 10:
-        mean = min(num1, num2)
-    elif num1 > 10 * num2 or num2 > 10 * num1:
+    if num1 > 10 * num2 or num2 > 10 * num1:
         # It is important to add 1 to avoid log(0)
         log_num1 = np.log(num1 + 1)
         log_num2 = np.log(num2 + 1)
@@ -180,13 +178,6 @@ def calc_next_knob_range(algorithm, knob_info, newest_result, good_val, bad_val,
         else:
             if mode == 'lowerbound':
                 session_knob.minval = str(int(expected_value))
-                # Terminate the search if the observed value is very different from the set one
-                if expected_value < last_value / 10:
-                    session_knob.minval = str(int(last_value))
-                    session_knob.lowerbound = str(int(last_value))
-                    session_knob.save()
-                    # The return value means we will not generate next config to test this knob
-                    return False, None
             else:
                 session_knob.maxval = str(int(expected_value))
             next_value = choose_value_in_range(expected_value, bad_val)
@@ -225,7 +216,7 @@ def preprocessing(result_id, algorithm):
         if knob_info.get('lowerbound', None) is not None:
             lowerbound = float(knob_info['lowerbound'])
             minval = float(knob_info['minval'])
-            if lowerbound < minval * 0.7:
+            if lowerbound < minval * 0.7 and minval > 10:
                 # We need to do binary search to determine the minval of this knob
                 successful, target_data = calc_next_knob_range(
                     algorithm, knob_info, newest_result, minval, lowerbound, 'lowerbound')

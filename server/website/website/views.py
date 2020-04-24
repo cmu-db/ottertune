@@ -660,6 +660,10 @@ def handle_result_files(session, files, execution_times=None):
                     metric = MetricCatalog.objects.get(dbms=dbms, name=name)
                     metric.default = numeric_metric_dict[name]
                     metric.save()
+            all_target_objectives = target_objectives.get_all(session.dbms.pk)
+            normalized_db_time = all_target_objectives.get('db_time', None)
+            if normalized_db_time is not None:
+                normalized_db_time.reload_default_metrics()
             numeric_metric_dict = parser.convert_dbms_metrics(
                 dbms.pk, metric_dict, observation_time, session.target_objective)
             metric_data.data = JSONUtil.dumps(numeric_metric_dict)

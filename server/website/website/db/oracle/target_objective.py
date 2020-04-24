@@ -52,6 +52,12 @@ class NormalizedDBTime(BaseTargetObjective):
         for metric in MetricCatalog.objects.filter(dbms=dbms):
             self.default_values[metric.name] = metric.default
 
+    def reload_default_metrics(self):
+        dbms = DBMSCatalog.objects.get(type=DBMSType.ORACLE, version='12.2.0.1.0')
+        self.default_values = {}
+        for metric in MetricCatalog.objects.filter(dbms=dbms):
+            self.default_values[metric.name] = metric.default
+
     def compute(self, metrics, observation_time):
         extra_io_metrics = ["log file sync"]
         not_io_metrics = ["read by other session"]

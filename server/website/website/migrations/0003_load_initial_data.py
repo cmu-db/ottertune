@@ -27,6 +27,10 @@ def load_initial_data(apps, schema_editor):
         "oracle-19_metrics.json",
         "mysql-56_knobs.json",
         "mysql-56_metrics.json",
+        "mysql-57_knobs.json",
+        "mysql-57_metrics.json",
+        "mysql-80_knobs.json",
+        "mysql-80_metrics.json",
     ]
     for fixture in initial_data_fixtures:
         call_command("loaddata", fixture, app_label="website")

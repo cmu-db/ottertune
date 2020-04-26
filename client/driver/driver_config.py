@@ -48,7 +48,7 @@ DB_PORT = '5432'
 DB_CONF = '/etc/postgresql/9.6/main/postgresql.conf'
 
 # Path to the directory for storing database dump files
-DB_DUMP_DIR = '/var/lib/postgresql/9.6/main/dumpfiles'
+DB_DUMP_DIR = None
 
 # Base config settings to always include when installing new configurations
 if DB_TYPE == 'mysql':
@@ -97,7 +97,10 @@ TEMP_DIR = '/tmp/driver'
 
 # Path to the directory for storing database dump files
 if DB_DUMP_DIR is None:
-    DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
+    if HOST_CONN == 'local':
+        DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
+    else:
+        DB_DUMP_DIR = os.path.expanduser('~/dumpfiles')
     if not os.path.exists(DB_DUMP_DIR):
         os.mkdir(DB_DUMP_DIR)
 
@@ -138,7 +141,7 @@ OLTPBENCH_BENCH = 'tpcc'
 CONTROLLER_HOME = DRIVER_HOME + '/../controller'
 
 # Path to the controller configuration file
-CONTROLLER_CONFIG = os.path.join(CONTROLLER_HOME, 'config/postgres_config.json')
+CONTROLLER_CONFIG = os.path.join(CONTROLLER_HOME, 'config/{}_config.json'.format(DB_TYPE))
 
 
 #==========================================================

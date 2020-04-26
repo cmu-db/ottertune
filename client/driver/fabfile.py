@@ -84,7 +84,7 @@ def create_controller_config():
     elif dconf.DB_TYPE == 'oracle':
         dburl_fmt = 'jdbc:oracle:thin:@{host}:{port}:{db}'.format
     elif dconf.DB_TYPE == 'mysql':
-        dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?useSSL=false'.format
+        dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}'.format
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 

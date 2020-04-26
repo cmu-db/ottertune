@@ -99,11 +99,10 @@ TEMP_DIR = '/tmp/driver'
 if DB_DUMP_DIR is None:
     if HOST_CONN == 'local':
         DB_DUMP_DIR = os.path.join(DRIVER_HOME, 'dumpfiles')
+        if not os.path.exists(DB_DUMP_DIR):
+            os.mkdir(DB_DUMP_DIR)
     else:
-        DB_DUMP_DIR = os.path.expanduser('~/dumpfiles')
-    if not os.path.exists(DB_DUMP_DIR):
-        os.mkdir(DB_DUMP_DIR)
-
+        DB_DUMP_DIR = os.path.expanduser('~/')
 
 # Reload the database after running this many iterations
 RELOAD_INTERVAL = 10

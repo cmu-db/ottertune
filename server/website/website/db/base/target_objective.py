@@ -131,7 +131,7 @@ class TargetObjectives:
         if not self.registered():
             self.register()
         dbms_id = int(dbms_id)
-        instance = self._registry[dbms_id][target_objective]
+        instance = self._registry[dbms_id].get(target_objective, 'None')
         return instance
 
     def get_all(self, dbms_id=None):

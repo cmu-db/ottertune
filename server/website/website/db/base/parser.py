@@ -189,6 +189,7 @@ class BaseParser:
     def convert_dbms_metrics(self, metrics, observation_time, target_objective):
         metric_data = {}
         # Same as metric_data except COUNTER metrics are not divided by the time
+        # Note: metric_data is also not divided by the time now so base_metric_data is redundant
         base_metric_data = {}
         numeric_metric_catalog = MetricCatalog.objects.filter(
             dbms__id=self.dbms_id, metric_type__in=MetricType.numeric())
@@ -227,7 +228,7 @@ class BaseParser:
 
         for target_name, target_instance in target_list.items():
             metric_data[target_name] = target_instance.compute(
-                metrics, observation_time)
+                base_metric_data, observation_time)
 
         return metric_data
 

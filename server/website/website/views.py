@@ -655,13 +655,14 @@ def handle_result_files(session, files, execution_times=None):
             # The metric should not be used for learning because the knob value is not real
             metric_data.name = 'default_' + metric_data.name
             metric_data.save()
+            # Load the values in the default result into the metric_catalog
             for name in numeric_metric_dict.keys():
                 if 'time_waited_micro_fg' in name or 'total_waits_fg' in name:
                     metric = MetricCatalog.objects.get(dbms=dbms, name=name)
                     metric.default = numeric_metric_dict[name]
                     metric.save()
-            all_target_objectives = target_objectives.get_all(session.dbms.pk)
-            normalized_db_time = all_target_objectives.get('db_time', None)
+            # Replace the default values in 'db_time' with the new values in the metric_catalog
+            normalized_db_time = target_objectives.get_instance(session.dbms.pk, 'db_time')
             if normalized_db_time is not None:
                 normalized_db_time.reload_default_metrics()
             numeric_metric_dict = parser.convert_dbms_metrics(

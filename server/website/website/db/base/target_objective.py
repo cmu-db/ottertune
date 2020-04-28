@@ -95,7 +95,7 @@ class UserDefinedTargetObjective(BaseTargetObjective):
         self.pprint = pprint
 
     def compute(self, metrics, observation_time):
-        return metrics[self.name]
+        return metrics.get(self.name, 0)
 
 class TargetObjectives:
     LESS_IS_BETTER = LESS_IS_BETTER

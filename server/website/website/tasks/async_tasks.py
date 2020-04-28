@@ -34,7 +34,7 @@ from website.models import (PipelineData, PipelineRun, Result, Workload, Session
 from website import db
 from website.types import PipelineTaskType, AlgorithmType, VarType
 from website.utils import DataUtil, JSONUtil
-from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE
+from website.settings import ENABLE_DUMMY_ENCODER, TIME_ZONE, VIEWS_FOR_DDPG
 
 
 LOG = get_task_logger(__name__)
@@ -420,6 +420,7 @@ def train_ddpg(train_ddpg_input):
     result_id, algorithm, target_data = train_ddpg_input
     result = Result.objects.get(pk=result_id)
     session = result.session
+    dbms = session.dbms
     task_name = _get_task_name(session, result_id)
 
     # If the preprocessing method has already generated a config, bypass this method.
@@ -480,13 +481,14 @@ def train_ddpg(train_ddpg_input):
     prev_objective = prev_metric_data[target_obj_idx]
 
     # Clean metric data
+    views = VIEWS_FOR_DDPG.get(dbms.type, None)
     metric_data, _ = DataUtil.clean_metric_data(agg_data['y_matrix'],
-                                                agg_data['y_columnlabels'], session)
+                                                agg_data['y_columnlabels'], views)
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]
     prev_metric_data, _ = DataUtil.clean_metric_data(prev_agg_data['y_matrix'],
-                                                     prev_agg_data['y_columnlabels'], session)
+                                                     prev_agg_data['y_columnlabels'], views)
     prev_metric_data = prev_metric_data.flatten()
     prev_metric_scalar = MinMaxScaler().fit(prev_metric_data.reshape(1, -1))
     prev_normalized_metric_data = prev_metric_scalar.transform(prev_metric_data.reshape(1, -1))[0]
@@ -597,6 +599,7 @@ def configuration_recommendation_ddpg(recommendation_ddpg_input):  # pylint: dis
     result_list = Result.objects.filter(pk=result_id)
     result = result_list.first()
     session = result.session
+    dbms = session.dbms
     task_name = _get_task_name(session, result_id)
 
     early_return, target_data_res = check_early_return(target_data, algorithm)
@@ -609,8 +612,9 @@ def configuration_recommendation_ddpg(recommendation_ddpg_input):  # pylint: dis
 
     params = JSONUtil.loads(session.hyperparameters)
     agg_data = DataUtil.aggregate_data(result_list)
+    views = VIEWS_FOR_DDPG.get(dbms.type, None)
     metric_data, _ = DataUtil.clean_metric_data(agg_data['y_matrix'],
-                                                agg_data['y_columnlabels'], session)
+                                                agg_data['y_columnlabels'], views)
     metric_data = metric_data.flatten()
     metric_scalar = MinMaxScaler().fit(metric_data.reshape(1, -1))
     normalized_metric_data = metric_scalar.transform(metric_data.reshape(1, -1))[0]

@@ -269,16 +269,8 @@ def run_workload_characterization(metric_data, dbms=None):
     LOG.debug("Workload characterization ~ initial data size: %s", matrix.shape)
 
     views = None if dbms is None else VIEWS_FOR_PRUNING.get(dbms.type, None)
-    if views is not None:
-        useful_labels = []
-        for label in columnlabels:
-            for view in views:
-                if view in label:
-                    useful_labels.append(label)
-                    break
-        matrix, columnlabels = DataUtil.clean_metric_data(matrix, columnlabels, None,
-                                                          useful_labels)
-        LOG.debug("Workload characterization ~ cleaned data size: %s", matrix.shape)
+    matrix, columnlabels = DataUtil.clean_metric_data(matrix, columnlabels, views)
+    LOG.debug("Workload characterization ~ cleaned data size: %s", matrix.shape)
 
     # Bin each column (metric) in the matrix by its decile
     binner = Bin(bin_start=1, axis=0)

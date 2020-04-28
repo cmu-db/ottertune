@@ -32,3 +32,9 @@ VIEWS_FOR_PRUNING = {
     DBMSType.ORACLE: ['dba_hist_osstat', 'dba_hist_sysstat', 'dba_hist_system_event',
                       'dba_workload_replays', 'dba_hist_sys_time_model'],
 }
+
+# The views used for DDPG
+# WARNING: modifying this parameter will cause all existing DDPG sessions broken
+VIEWS_FOR_DDPG = {
+    DBMSType.ORACLE: ['dba_hist_sys_time_model'],
+}

@@ -318,6 +318,8 @@ def signal_controller():
 def save_dbms_result():
     t = int(time.time())
     files = ['knobs.json', 'metrics_after.json', 'metrics_before.json', 'summary.json']
+    if dconf.ENABLE_UDM:
+        files.append('user_defined_metrics.json')
     for f_ in files:
         srcfile = os.path.join(dconf.CONTROLLER_HOME, 'output', f_)
         dstfile = os.path.join(dconf.RESULT_DIR, '{}__{}'.format(t, f_))
@@ -349,7 +351,10 @@ def upload_result(result_dir=None, prefix=None, upload_code=None):
     prefix = prefix or ''
     upload_code = upload_code or dconf.UPLOAD_CODE
     files = {}
-    for base in ('summary', 'knobs', 'metrics_before', 'metrics_after'):
+    bases = ['summary', 'knobs', 'metrics_before', 'metrics_after']
+    if dconf.ENABLE_UDM:
+        bases.append('user_defined_metrics')
+    for base in bases:
         fpath = os.path.join(result_dir, prefix + base + '.json')
 
         # Replaces the true db version with the specified version to allow for
@@ -466,8 +471,10 @@ def download_debug_info(pprint=False):
 
 
 @task
-def add_udf():
-    local('python3 ./LatencyUDF.py ../controller/output/')
+def add_udm(result_dir=None):
+    result_dir = result_dir or os.path.join(dconf.CONTROLLER_HOME, 'output')
+    with lcd(dconf.UDM_DIR):  # pylint: disable=not-context-manager
+        local('python3 user_defined_metrics.py {}'.format(result_dir))
 
 
 @task
@@ -632,8 +639,9 @@ def loop(i):
 
     p.join()
 
-    # add user defined target objective
-    # add_udf()
+    # add user defined metrics
+    if dconf.ENABLE_UDM is True:
+        add_udm()
 
     # save result
     result_timestamp = save_dbms_result()
@@ -667,6 +675,8 @@ def run_loops(max_iter=10):
                      'knobs': b'{}',
                      'metrics_before': b'{}',
                      'metrics_after': b'{}'}
+            if dconf.ENABLE_UDM:
+                files['user_defined_metrics'] = b'{}'
             response = requests.post(dconf.WEBSITE_URL + '/new_result/', files=files,
                                      data={'upload_code': dconf.UPLOAD_CODE})
             response = get_result()
@@ -678,7 +688,7 @@ def run_loops(max_iter=10):
         # reload database periodically
         if dconf.RELOAD_INTERVAL > 0:
             # wait 5 secs after restarting databases
-            time.sleep(5)
+            time.sleep(15)
             if i % dconf.RELOAD_INTERVAL == 0:
                 if i == 0 and dump is False:
                     restore_database()
@@ -701,7 +711,10 @@ def rename_batch(result_dir=None):
         prefix_len = os.path.basename(result).find('_') + 2
         prefix = prefix[:prefix_len]
         new_prefix = str(i) + '__'
-        for base in ('summary', 'knobs', 'metrics_before', 'metrics_after'):
+        bases = ['summary', 'knobs', 'metrics_before', 'metrics_after']
+        if dconf.ENABLE_UDM:
+            bases.append('user_defined_metrics')
+        for base in bases:
             fpath = os.path.join(result_dir, prefix + base + '.json')
             rename_path = os.path.join(result_dir, new_prefix + base + '.json')
             os.rename(fpath, rename_path)

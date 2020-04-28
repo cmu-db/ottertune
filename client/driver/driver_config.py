@@ -92,6 +92,12 @@ DRIVER_HOME = os.path.dirname(os.path.realpath(__file__))
 # Path to the directory for storing results
 RESULT_DIR = os.path.join(DRIVER_HOME, 'results')
 
+# Set this to add user defined metrics
+ENABLE_UDM = True
+
+# Path to the User Defined Metrics (UDM), only required when ENABLE_UDM is True
+UDM_DIR = os.path.join(DRIVER_HOME, 'userDefinedMetrics')
+
 # Path to temp directory
 TEMP_DIR = '/tmp/driver'
 

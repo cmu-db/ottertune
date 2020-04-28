@@ -93,7 +93,7 @@ DRIVER_HOME = os.path.dirname(os.path.realpath(__file__))
 RESULT_DIR = os.path.join(DRIVER_HOME, 'results')
 
 # Set this to add user defined metrics
-ENABLE_UDM = True
+ENABLE_UDM = False
 
 # Path to the User Defined Metrics (UDM), only required when ENABLE_UDM is True
 UDM_DIR = os.path.join(DRIVER_HOME, 'userDefinedMetrics')

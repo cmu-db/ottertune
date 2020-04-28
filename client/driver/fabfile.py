@@ -600,6 +600,12 @@ def clean_logs():
 
 
 @task
+def clean_oltpbench_results():
+    # remove oltpbench result files
+    local('rm -f {}/results/*'.format(dconf.OLTPBENCH_HOME))
+
+
+@task
 def loop(i):
     i = int(i)
 
@@ -642,6 +648,7 @@ def loop(i):
     # add user defined metrics
     if dconf.ENABLE_UDM is True:
         add_udm()
+        clean_oltpbench_results()
 
     # save result
     result_timestamp = save_dbms_result()
@@ -687,7 +694,6 @@ def run_loops(max_iter=10):
 
         # reload database periodically
         if dconf.RELOAD_INTERVAL > 0:
-            # wait 5 secs after restarting databases
             time.sleep(15)
             if i % dconf.RELOAD_INTERVAL == 0:
                 if i == 0 and dump is False:

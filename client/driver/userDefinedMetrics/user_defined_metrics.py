@@ -4,8 +4,9 @@ import copy
 import argparse
 import os
 sys.path.append("../../../")
+sys.path.append("../")
 from server.website.website.types import VarType   # pylint: disable=import-error,wrong-import-position,line-too-long  # noqa: E402
-
+from driver_config import OLTPBENCH_HOME  # pylint: disable=import-error,wrong-import-position  # noqa: E402
 
 parser = argparse.ArgumentParser()  # pylint: disable=invalid-name
 parser.add_argument("result_dir")
@@ -37,7 +38,8 @@ USER_DEINFED_METRICS = {
 
 
 def get_udm():
-    with open('../oltpbench.summary', 'r') as f:
+    summary_path = OLTPBENCH_HOME + '/results/outputfile.summary'
+    with open(summary_path, 'r') as f:
         info = json.load(f)
     metrics = copy.deepcopy(USER_DEINFED_METRICS)
     if HAS_TARGET_OBJECTIVE is False:

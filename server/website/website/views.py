@@ -12,6 +12,7 @@ import re
 import shutil
 import socket
 import time
+import copy
 from collections import OrderedDict
 from io import StringIO
 
@@ -51,6 +52,7 @@ from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
 from .settings import LOG_DIR, TIME_ZONE, CHECK_CELERY
 
 from .set_default_knobs import set_default_knobs
+from .db.base.target_objective import USER_DEFINED_TARGET
 
 LOG = logging.getLogger(__name__)
 
@@ -486,6 +488,54 @@ def handle_result_files(session, files, execution_times=None):
     # Load the contents of the controller's summary file
     summary = JSONUtil.loads(files['summary'])
 
+    dbms_id = session.dbms.pk
+    udm_before = {}
+    udm_after = {}
+    if ('user_defined_metrics' not in files) and (USER_DEFINED_TARGET == session.target_objective):
+        return HttpResponse('ERROR: user defined target objective is not uploaded!')
+    # User defined metrics
+    udm = {}
+    if 'user_defined_metrics' in files:
+        udm = JSONUtil.loads(files['user_defined_metrics'])
+    if len(udm) > 0:
+        udm_target = udm['target_objective']
+        udm_not_target = udm['metrics']
+        udm_all = copy.deepcopy(udm_not_target)
+        if (udm_target is None) and (USER_DEFINED_TARGET == session.target_objective):
+            return HttpResponse('ERROR: user defined target objective is not uploaded!')
+        if udm_target is not None:
+            udm_all.update(udm_target)
+        if not target_objectives.udm_registered(dbms_id):
+            target_objectives.register_udm(dbms_id, udm_all)
+        for name, info in udm_all.items():
+            udm_name = 'udm.' + name
+            udm_before[name] = 0
+            udm_after[name] = info['value']
+            if MetricCatalog.objects.filter(dbms=session.dbms, name=udm_name).exists():
+                continue
+            udm_catalog = MetricCatalog.objects.create(dbms=session.dbms,
+                                                       name=udm_name,
+                                                       vartype=info['type'],
+                                                       scope='global',
+                                                       metric_type=MetricType.STATISTICS)
+            udm_catalog.summary = 'user defined metric, not target objective'
+            udm_catalog.save()
+        if udm_target is not None:
+            target_name = 'udm.' + list(udm_target.keys())[0]
+            pprint_name = 'udf.' + list(udm_target.keys())[0]
+            info = list(udm_target.values())[0]
+            if USER_DEFINED_TARGET != session.target_objective:
+                LOG.warning('the target objective is not user defined metric (UDM),\
+                            please disable UDM target objective in driver')
+            else:
+                udm_instance = target_objectives.get_instance(dbms_id, USER_DEFINED_TARGET)
+                if not udm_instance.is_registered():
+                    udm_instance.register_target(name=target_name,
+                                                 more_is_better=info['more_is_better'],
+                                                 unit=info['unit'],
+                                                 short_unit=info['short_unit'],
+                                                 pprint=pprint_name)
+
     # Find worst throughput
     past_metrics = MetricData.objects.filter(session=session)
     metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)
@@ -643,10 +693,16 @@ def handle_result_files(session, files, execution_times=None):
             JSONUtil.dumps(converted_knob_dict, pprint=True, sort=True), dbms)
 
         # Load, process, and store the runtime metrics exposed by the DBMS
+        metrics_before = JSONUtil.loads(files['metrics_before'])
+        metrics_after = JSONUtil.loads(files['metrics_after'])
+        # Add user defined metrics
+        if len(udm_before) > 0:
+            metrics_before['global']['udm'] = udm_before
+            metrics_after['global']['udm'] = udm_after
         initial_metric_dict, initial_metric_diffs = parser.parse_dbms_metrics(
-            dbms.pk, JSONUtil.loads(files['metrics_before']))
+            dbms.pk, metrics_before)
         final_metric_dict, final_metric_diffs = parser.parse_dbms_metrics(
-            dbms.pk, JSONUtil.loads(files['metrics_after']))
+            dbms.pk, metrics_after)
         metric_dict = parser.calculate_change_in_metrics(
             dbms.pk, initial_metric_dict, final_metric_dict)
         metric_diffs = OrderedDict([

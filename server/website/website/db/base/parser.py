@@ -357,7 +357,7 @@ class BaseParser:
                         LOG.warning("Changing metric %s from COUNTER to STATISTICS", met_name)
                         met_info.metric_type = MetricType.STATISTICS
                         met_info.save()
-                if allow_negative:
+                if allow_negative and adj_val < 0:
                     LOG.warning('%s metric type %s value is negative (start=%s, end=%s, diff=%s)',
                                 met_name, MetricType.name(met_info.metric_type), start_val, end_val,
                                 end_val - start_val)

@@ -1009,6 +1009,31 @@ def download_debug_info(request, project_id, session_id):  # pylint: disable=unu
 
 
 @login_required(login_url=reverse_lazy('login'))
+def download_objectives(request, project_id, session_id):  # pylint: disable=unused-argument
+    session = Session.objects.get(pk=session_id)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}_objectives.csv'.format(session.name)
+    writer = csv.writer(response)
+
+    objectives = target_objectives.get_all(session.dbms.pk)
+    labels = ['id']
+    for objective_name in objectives.keys():
+        labels.append(objective_name)
+    writer.writerow(labels)
+    metric_files = MetricData.objects.filter(session=session)
+    row_cnt = 0
+    for metric_file in metric_files:
+        if 'range_test' not in metric_file.name:
+            metric_data = JSONUtil.loads(metric_file.data)
+            row_data = [str(row_cnt)]
+            for objective_name in objectives.keys():
+                row_data.append(metric_data.get(objective_name, -1))
+            writer.writerow(row_data)
+            row_cnt += 1
+    return response
+
+
+@login_required(login_url=reverse_lazy('login'))
 def pipeline_data_view(request, pipeline_id):
     pipeline_data = PipelineData.objects.get(pk=pipeline_id)
     task_name = PipelineTaskType.TYPE_NAMES[pipeline_data.task_type]

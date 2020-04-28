@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/editKnobs/$', website_views.edit_knobs, name='edit_knobs'),
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/delete/$', website_views.delete_session, name='delete_session'),
     url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/dump/$', website_views.download_debug_info, name='dump_debug_data'),
+    url(r'^projects/(?P<project_id>[0-9]+)/sessions/(?P<session_id>[0-9]+)/dump_objectives/$', website_views.download_objectives, name='dump_objectives'),
 
     # URLs for result views
     url(r'^new_result/', website_views.new_result, name='new_result'),

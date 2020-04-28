@@ -187,10 +187,7 @@ class BaseParser:
         return value in self.valid_true_val or value in self.valid_false_val
 
     def convert_dbms_metrics(self, metrics, observation_time, target_objective):
-        metric_data = {}
-        # Same as metric_data except COUNTER metrics are not divided by the time
-        # Note: metric_data is also not divided by the time now so base_metric_data is redundant
-        base_metric_data = {}
+        numeric_metric_data = {}
         numeric_metric_catalog = MetricCatalog.objects.filter(
             dbms__id=self.dbms_id, metric_type__in=MetricType.numeric())
 
@@ -210,12 +207,10 @@ class BaseParser:
 
             if metadata.metric_type == MetricType.COUNTER:
                 assert isinstance(converted, float)
-                base_metric_data[name] = converted
-                metric_data[name] = converted
+                numeric_metric_data[name] = converted
             elif metadata.metric_type == MetricType.STATISTICS:
                 assert isinstance(converted, float)
-                base_metric_data[name] = converted
-                metric_data[name] = converted
+                numeric_metric_data[name] = converted
             else:
                 raise ValueError(
                     'Unknown metric type for {}: {}'.format(name, metadata.metric_type))
@@ -227,10 +222,11 @@ class BaseParser:
                     target_objective, ', '.join(target_list.keys())))
 
         for target_name, target_instance in target_list.items():
-            metric_data[target_name] = target_instance.compute(
-                base_metric_data, observation_time)
+            # wait_class is needed to calculate target_objectives, but it is not numeric
+            numeric_metric_data[target_name] = target_instance.compute(
+                metrics, observation_time)
 
-        return metric_data
+        return numeric_metric_data
 
     def extract_valid_variables(self, variables, catalog, default_value=None):
         valid_variables = {}

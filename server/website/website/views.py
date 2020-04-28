@@ -530,27 +530,29 @@ def handle_result_files(session, files, execution_times=None):
 
         worst_result = Result.objects.filter(metric_data=worst_metric).first()
         last_result = Result.objects.filter(session=session).order_by("-id").first()
-        last_conf = JSONUtil.loads(last_result.next_configuration)
-        last_conf = last_conf["recommendation"]
-        last_conf = parser.convert_dbms_knobs(last_result.dbms.pk, last_conf)
 
         # Copy worst data and modify
         knob_data = worst_result.knob_data
         knob_data.pk = None
-        all_knobs = JSONUtil.loads(knob_data.knobs)
-        for knob in all_knobs.keys():
-            for tunable_knob in last_conf.keys():
-                if tunable_knob in knob:
-                    all_knobs[knob] = last_conf[tunable_knob]
-        knob_data.knobs = JSONUtil.dumps(all_knobs)
+        if last_result.next_configuration is not None:
+            last_conf = JSONUtil.loads(last_result.next_configuration)
+            if last_conf.get("recommendation", None) is not None:
+                last_conf = last_conf["recommendation"]
+                last_conf = parser.convert_dbms_knobs(last_result.dbms.pk, last_conf)
+                all_knobs = JSONUtil.loads(knob_data.knobs)
+                for knob in all_knobs.keys():
+                    for tunable_knob in last_conf.keys():
+                        if tunable_knob in knob:
+                            all_knobs[knob] = last_conf[tunable_knob]
+                knob_data.knobs = JSONUtil.dumps(all_knobs)
 
-        data_knobs = JSONUtil.loads(knob_data.data)
-        for knob in data_knobs.keys():
-            for tunable_knob in last_conf.keys():
-                if tunable_knob in knob:
-                    data_knobs[knob] = last_conf[tunable_knob]
+                data_knobs = JSONUtil.loads(knob_data.data)
+                for knob in data_knobs.keys():
+                    for tunable_knob in last_conf.keys():
+                        if tunable_knob in knob:
+                            data_knobs[knob] = last_conf[tunable_knob]
+                knob_data.data = JSONUtil.dumps(data_knobs)
 
-        knob_data.data = JSONUtil.dumps(data_knobs)
         knob_name_parts = last_result.knob_data.name.split('*')[0].split('#')
         knob_name_parts[-1] = str(int(knob_name_parts[-1]) + 1) + '*'
         knob_data.name = '#'.join(knob_name_parts)

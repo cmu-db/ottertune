@@ -340,9 +340,11 @@ def save_next_config(next_config, t=None):
 def free_cache():
     if dconf.HOST_CONN not in ['docker', 'remote_docker']:
         with show('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
-            res = sudo("sh -c \"echo 3 > /proc/sys/vm/drop_caches\"", remote_only=True)
+            res = sudo("sh -c \"echo 3 > /proc/sys/vm/drop_caches\"")
             if res.failed:
                 LOG.error('%s (return code %s)', res.stderr.strip(), res.return_code)
+    else:
+        res = sudo("sh -c \"echo 3 > /proc/sys/vm/drop_caches\"", remote_only=True)
 
 
 @task

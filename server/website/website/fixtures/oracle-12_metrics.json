@@ -2,10 +2,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.awr_begin_snap",
+            "name": "global.dba_workload_replays.awr_begin_snap",
             "vartype": 2,
             "default": 3,
-            "summary": "awr_begin_snap: 3",
+            "summary": "dba_workload_replays.awr_begin_snap: 3",
             "scope": "global",
             "metric_type": 1
         },
@@ -14,10 +14,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.awr_dbid",
+            "name": "global.dba_workload_replays.awr_dbid",
             "vartype": 2,
             "default": 2808298714,
-            "summary": "awr_dbid: 2808298714",
+            "summary": "dba_workload_replays.awr_dbid: 2808298714",
             "scope": "global",
             "metric_type": 1
         },
@@ -26,10 +26,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.awr_end_snap",
+            "name": "global.dba_workload_replays.awr_end_snap",
             "vartype": 2,
             "default": 4,
-            "summary": "awr_end_snap: 4",
+            "summary": "dba_workload_replays.awr_end_snap: 4",
             "scope": "global",
             "metric_type": 1
         },
@@ -38,10 +38,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.awr_exported",
+            "name": "global.dba_workload_replays.awr_exported",
             "vartype": 1,
             "default": "NO",
-            "summary": "awr_exported: NO",
+            "summary": "dba_workload_replays.awr_exported: NO",
             "scope": "global",
             "metric_type": 2
         },
@@ -50,10 +50,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.capture_id",
+            "name": "global.dba_workload_replays.capture_id",
             "vartype": 2,
             "default": 1,
-            "summary": "capture_id: 1",
+            "summary": "dba_workload_replays.capture_id: 1",
             "scope": "global",
             "metric_type": 1
         },
@@ -62,10 +62,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.connect_time_auto_correct",
+            "name": "global.dba_workload_replays.connect_time_auto_correct",
             "vartype": 1,
             "default": "YES",
-            "summary": "connect_time_auto_correct: YES",
+            "summary": "dba_workload_replays.connect_time_auto_correct: YES",
             "scope": "global",
             "metric_type": 2
         },
@@ -74,10 +74,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.connect_time_scale",
+            "name": "global.dba_workload_replays.connect_time_scale",
             "vartype": 2,
             "default": 100,
-            "summary": "connect_time_scale: 100",
+            "summary": "dba_workload_replays.connect_time_scale: 100",
             "scope": "global",
             "metric_type": 1
         },
@@ -46574,10 +46574,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.dbid",
+            "name": "global.dba_workload_replays.dbid",
             "vartype": 2,
             "default": 2808298714,
-            "summary": "dbid: 2808298714",
+            "summary": "dba_workload_replays.dbid: 2808298714",
             "scope": "global",
             "metric_type": 1
         },
@@ -46586,10 +46586,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.dbname",
+            "name": "global.dba_workload_replays.dbname",
             "vartype": 1,
             "default": "ORCLCDB",
-            "summary": "dbname: ORCLCDB",
+            "summary": "dba_workload_replays.dbname: ORCLCDB",
             "scope": "global",
             "metric_type": 2
         },
@@ -46598,10 +46598,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.dbtime",
+            "name": "global.dba_workload_replays.dbtime",
             "vartype": 2,
             "default": 89772946,
-            "summary": "dbtime: 89772946",
+            "summary": "dba_workload_replays.dbtime: 89772946",
             "scope": "global",
             "metric_type": 1
         },
@@ -46610,10 +46610,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.dbversion",
+            "name": "global.dba_workload_replays.dbversion",
             "vartype": 1,
             "default": "12.2.0.1.0",
-            "summary": "dbversion: 12.2.0.1.0",
+            "summary": "dba_workload_replays.dbversion: 12.2.0.1.0",
             "scope": "global",
             "metric_type": 2
         },
@@ -46622,10 +46622,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.default_action",
+            "name": "global.dba_workload_replays.default_action",
             "vartype": 1,
             "default": "INCLUDE",
-            "summary": "default_action: INCLUDE",
+            "summary": "dba_workload_replays.default_action: INCLUDE",
             "scope": "global",
             "metric_type": 2
         },
@@ -46634,10 +46634,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.dir_path",
+            "name": "global.dba_workload_replays.dir_path",
             "vartype": 1,
             "default": "",
-            "summary": "dir_path: /opt/oracle/product/12.2.0.1/dbhome_1/data/capture_short",
+            "summary": "dba_workload_replays.dir_path: /opt/oracle/product/12.2.0.1/dbhome_1/data/capture_short",
             "scope": "global",
             "metric_type": 2
         },
@@ -46646,10 +46646,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.directory",
+            "name": "global.dba_workload_replays.directory",
             "vartype": 1,
             "default": "CAPTURE_SHORT_DIR",
-            "summary": "directory: CAPTURE_SHORT_DIR",
+            "summary": "dba_workload_replays.directory: CAPTURE_SHORT_DIR",
             "scope": "global",
             "metric_type": 2
         },
@@ -46658,10 +46658,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.divergence_load_status",
+            "name": "global.dba_workload_replays.divergence_load_status",
             "vartype": 1,
             "default": "TRUE",
-            "summary": "divergence_load_status: TRUE",
+            "summary": "dba_workload_replays.divergence_load_status: TRUE",
             "scope": "global",
             "metric_type": 2
         },
@@ -46670,10 +46670,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.duration_secs",
+            "name": "global.dba_workload_replays.duration_secs",
             "vartype": 2,
             "default": 42,
-            "summary": "duration_secs: 42",
+            "summary": "dba_workload_replays.duration_secs: 42",
             "scope": "global",
             "metric_type": 1
         },
@@ -46682,10 +46682,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.elapsed_time_diff",
+            "name": "global.dba_workload_replays.elapsed_time_diff",
             "vartype": 2,
             "default": 107011533,
-            "summary": "elapsed_time_diff: 107011533",
+            "summary": "dba_workload_replays.elapsed_time_diff: 107011533",
             "scope": "global",
             "metric_type": 1
         },
@@ -46694,10 +46694,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.end_time",
+            "name": "global.dba_workload_replays.end_time",
             "vartype": 1,
             "default": "2020-04-09 02:29:39",
-            "summary": "end_time: 2020-04-09 02:29:39",
+            "summary": "dba_workload_replays.end_time: 2020-04-09 02:29:39",
             "scope": "global",
             "metric_type": 2
         },
@@ -46706,10 +46706,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.error_code",
+            "name": "global.dba_workload_replays.error_code",
             "vartype": 2,
             "default": 0,
-            "summary": "error_code: 0",
+            "summary": "dba_workload_replays.error_code: 0",
             "scope": "global",
             "metric_type": 1
         },
@@ -46718,10 +46718,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.error_message",
+            "name": "global.dba_workload_replays.error_message",
             "vartype": 1,
             "default": "",
-            "summary": "error_message: ",
+            "summary": "dba_workload_replays.error_message: ",
             "scope": "global",
             "metric_type": 2
         },
@@ -46730,10 +46730,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.filter_set_name",
+            "name": "global.dba_workload_replays.filter_set_name",
             "vartype": 1,
             "default": "",
-            "summary": "filter_set_name: ",
+            "summary": "dba_workload_replays.filter_set_name: ",
             "scope": "global",
             "metric_type": 2
         },
@@ -46742,10 +46742,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.id",
+            "name": "global.dba_workload_replays.id",
             "vartype": 2,
             "default": 2,
-            "summary": "id: 2",
+            "summary": "dba_workload_replays.id: 2",
             "scope": "global",
             "metric_type": 1
         },
@@ -46754,10 +46754,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.instance_number",
+            "name": "global.dba_workload_replays.instance_number",
             "vartype": 2,
             "default": 1,
-            "summary": "instance_number: 1",
+            "summary": "dba_workload_replays.instance_number: 1",
             "scope": "global",
             "metric_type": 1
         },
@@ -46766,10 +46766,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.name",
+            "name": "global.dba_workload_replays.name",
             "vartype": 1,
             "default": "ottertune1",
-            "summary": "name: ottertune1",
+            "summary": "dba_workload_replays.name: ottertune1",
             "scope": "global",
             "metric_type": 2
         },
@@ -46778,10 +46778,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.network_time",
+            "name": "global.dba_workload_replays.network_time",
             "vartype": 2,
             "default": 73754459,
-            "summary": "network_time: 73754459",
+            "summary": "dba_workload_replays.network_time: 73754459",
             "scope": "global",
             "metric_type": 1
         },
@@ -46790,10 +46790,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.num_clients",
+            "name": "global.dba_workload_replays.num_clients",
             "vartype": 2,
             "default": 1,
-            "summary": "num_clients: 1",
+            "summary": "dba_workload_replays.num_clients: 1",
             "scope": "global",
             "metric_type": 1
         },
@@ -46802,10 +46802,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.num_clients_done",
+            "name": "global.dba_workload_replays.num_clients_done",
             "vartype": 2,
             "default": 1,
-            "summary": "num_clients_done: 1",
+            "summary": "dba_workload_replays.num_clients_done: 1",
             "scope": "global",
             "metric_type": 1
         },
@@ -47090,10 +47090,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.parallel",
+            "name": "global.dba_workload_replays.parallel",
             "vartype": 1,
             "default": "NO",
-            "summary": "parallel: NO",
+            "summary": "dba_workload_replays.parallel: NO",
             "scope": "global",
             "metric_type": 2
         },
@@ -47102,10 +47102,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.pause_time",
+            "name": "global.dba_workload_replays.pause_time",
             "vartype": 2,
             "default": 0,
-            "summary": "pause_time: 0",
+            "summary": "dba_workload_replays.pause_time: 0",
             "scope": "global",
             "metric_type": 1
         },
@@ -47114,10 +47114,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.plsql_calls",
+            "name": "global.dba_workload_replays.plsql_calls",
             "vartype": 2,
             "default": 0,
-            "summary": "plsql_calls: 0",
+            "summary": "dba_workload_replays.plsql_calls: 0",
             "scope": "global",
             "metric_type": 1
         },
@@ -47126,10 +47126,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.plsql_dbtime",
+            "name": "global.dba_workload_replays.plsql_dbtime",
             "vartype": 2,
             "default": 0,
-            "summary": "plsql_dbtime: 0",
+            "summary": "dba_workload_replays.plsql_dbtime: 0",
             "scope": "global",
             "metric_type": 1
         },
@@ -47138,10 +47138,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.plsql_mode",
+            "name": "global.dba_workload_replays.plsql_mode",
             "vartype": 1,
             "default": "TOP_LEVEL",
-            "summary": "plsql_mode: TOP_LEVEL",
+            "summary": "dba_workload_replays.plsql_mode: TOP_LEVEL",
             "scope": "global",
             "metric_type": 2
         },
@@ -47150,10 +47150,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.plsql_subcalls",
+            "name": "global.dba_workload_replays.plsql_subcalls",
             "vartype": 2,
             "default": 0,
-            "summary": "plsql_subcalls: 0",
+            "summary": "dba_workload_replays.plsql_subcalls: 0",
             "scope": "global",
             "metric_type": 1
         },
@@ -47162,10 +47162,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.prepare_time",
+            "name": "global.dba_workload_replays.prepare_time",
             "vartype": 1,
             "default": "2020-04-09 02:28:49",
-            "summary": "prepare_time: 2020-04-09 02:28:49",
+            "summary": "dba_workload_replays.prepare_time: 2020-04-09 02:28:49",
             "scope": "global",
             "metric_type": 2
         },
@@ -47174,10 +47174,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.query_only",
+            "name": "global.dba_workload_replays.query_only",
             "vartype": 1,
             "default": "N",
-            "summary": "query_only: N",
+            "summary": "dba_workload_replays.query_only: N",
             "scope": "global",
             "metric_type": 2
         },
@@ -47186,10 +47186,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.rac_mode",
+            "name": "global.dba_workload_replays.rac_mode",
             "vartype": 1,
             "default": "GLOBAL_SYNC",
-            "summary": "rac_mode: GLOBAL_SYNC",
+            "summary": "dba_workload_replays.rac_mode: GLOBAL_SYNC",
             "scope": "global",
             "metric_type": 2
         },
@@ -47198,10 +47198,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.replay_dir_number",
+            "name": "global.dba_workload_replays.replay_dir_number",
             "vartype": 2,
             "default": 111508817,
-            "summary": "replay_dir_number: 111508817",
+            "summary": "dba_workload_replays.replay_dir_number: 111508817",
             "scope": "global",
             "metric_type": 1
         },
@@ -47210,10 +47210,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.scale_up_multiplier",
+            "name": "global.dba_workload_replays.scale_up_multiplier",
             "vartype": 2,
             "default": 1,
-            "summary": "scale_up_multiplier: 1",
+            "summary": "dba_workload_replays.scale_up_multiplier: 1",
             "scope": "global",
             "metric_type": 1
         },
@@ -47222,10 +47222,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.schedule_name",
+            "name": "global.dba_workload_replays.schedule_name",
             "vartype": 1,
             "default": "",
-            "summary": "schedule_name: ",
+            "summary": "dba_workload_replays.schedule_name: ",
             "scope": "global",
             "metric_type": 2
         },
@@ -47234,10 +47234,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.sqlset_name",
+            "name": "global.dba_workload_replays.sqlset_name",
             "vartype": 1,
             "default": "",
-            "summary": "sqlset_name: ",
+            "summary": "dba_workload_replays.sqlset_name: ",
             "scope": "global",
             "metric_type": 2
         },
@@ -47246,10 +47246,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.sqlset_owner",
+            "name": "global.dba_workload_replays.sqlset_owner",
             "vartype": 1,
             "default": "",
-            "summary": "sqlset_owner: ",
+            "summary": "dba_workload_replays.sqlset_owner: ",
             "scope": "global",
             "metric_type": 2
         },
@@ -47258,10 +47258,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.start_time",
+            "name": "global.dba_workload_replays.start_time",
             "vartype": 1,
             "default": "2020-04-09 02:28:57",
-            "summary": "start_time: 2020-04-09 02:28:57",
+            "summary": "dba_workload_replays.start_time: 2020-04-09 02:28:57",
             "scope": "global",
             "metric_type": 2
         },
@@ -47270,10 +47270,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.status",
+            "name": "global.dba_workload_replays.status",
             "vartype": 1,
             "default": "COMPLETED",
-            "summary": "status: COMPLETED",
+            "summary": "dba_workload_replays.status: COMPLETED",
             "scope": "global",
             "metric_type": 2
         },
@@ -47282,10 +47282,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.synchronization",
+            "name": "global.dba_workload_replays.synchronization",
             "vartype": 1,
             "default": "SCN",
-            "summary": "synchronization: SCN",
+            "summary": "dba_workload_replays.synchronization: SCN",
             "scope": "global",
             "metric_type": 2
         },
@@ -95954,10 +95954,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.think_time",
+            "name": "global.dba_workload_replays.think_time",
             "vartype": 2,
             "default": 8441749,
-            "summary": "think_time: 8441749",
+            "summary": "dba_workload_replays.think_time: 8441749",
             "scope": "global",
             "metric_type": 1
         },
@@ -95966,10 +95966,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.think_time_auto_correct",
+            "name": "global.dba_workload_replays.think_time_auto_correct",
             "vartype": 1,
             "default": "TRUE",
-            "summary": "think_time_auto_correct: TRUE",
+            "summary": "dba_workload_replays.think_time_auto_correct: TRUE",
             "scope": "global",
             "metric_type": 2
         },
@@ -95978,10 +95978,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.think_time_scale",
+            "name": "global.dba_workload_replays.think_time_scale",
             "vartype": 2,
             "default": 100,
-            "summary": "think_time_scale: 100",
+            "summary": "dba_workload_replays.think_time_scale: 100",
             "scope": "global",
             "metric_type": 1
         },
@@ -95990,10 +95990,10 @@
     {
         "fields": {
             "dbms": 12,
-            "name": "global.user_calls",
+            "name": "global.dba_workload_replays.user_calls",
             "vartype": 2,
             "default": 608621,
-            "summary": "user_calls: 608621",
+            "summary": "dba_workload_replays.user_calls: 608621",
             "scope": "global",
             "metric_type": 1
         },

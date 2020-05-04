@@ -47,7 +47,12 @@ DB_HOST = 'localhost'
 # Database port
 DB_PORT = '5432'
 
+# If set to True, DB_CONF file is mounted to database container file
+# Only available when HOST_CONN is docker or remote_docker
+DB_CONF_MOUNT = True
+
 # Path to the configuration file on the database server
+# If DB_CONF_MOUNT is True, the path is on the host server, not docker
 DB_CONF = '/etc/postgresql/9.6/main/postgresql.conf'
 
 # Path to the directory for storing database dump files

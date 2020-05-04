@@ -259,7 +259,7 @@ def change_conf(next_conf=None):
     with open(tmp_conf_out, 'w') as f:
         f.write(''.join(lines))
 
-    sudo('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF))
+    sudo('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF), remote_only=True)
     put(tmp_conf_out, dconf.DB_CONF, use_sudo=False)
     local('rm -f {} {}'.format(tmp_conf_in, tmp_conf_out))
 

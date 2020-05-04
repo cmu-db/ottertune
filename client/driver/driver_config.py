@@ -49,7 +49,7 @@ DB_PORT = '5432'
 
 # If set to True, DB_CONF file is mounted to database container file
 # Only available when HOST_CONN is docker or remote_docker
-DB_CONF_MOUNT = True
+DB_CONF_MOUNT = False
 
 # Path to the configuration file on the database server
 # If DB_CONF_MOUNT is True, the path is on the host server, not docker

@@ -20,7 +20,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import requests
-from fabric.api import env, lcd, local, settings, show, task
+from fabric.api import env, lcd, local, settings, show, task, hide
 from fabric.state import output as fabric_output
 
 from utils import (file_exists, get, get_content, load_driver_conf, parse_bool,
@@ -84,7 +84,13 @@ def create_controller_config():
     elif dconf.DB_TYPE == 'oracle':
         dburl_fmt = 'jdbc:oracle:thin:@{host}:{port}:{db}'.format
     elif dconf.DB_TYPE == 'mysql':
-        dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}'.format
+        if dconf.DB_VERSION in ['5.6', '5.7']:
+            dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?useSSL=false'.format
+        elif dconf.DB_VERSION == '8.0':
+            dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?\
+                         allowPublicKeyRetrieval=true&useSSL=false'.format
+        else:
+            raise Exception("MySQL Database Version {} Not Implemented !".format(dconf.DB_VERSION))
     else:
         raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
 
@@ -568,6 +574,26 @@ def restore_database():
     LOG.info('Finish restoring database')
 
 
+@task
+def is_ready_db(interval_sec=10):
+    if dconf.DB_TYPE == 'mysql':
+        cmd_fmt = "mysql --user={} --password={} -e 'exit'".format
+    else:
+        LOG.info('database %s connecting function is not implemented, sleep %s seconds and return',
+                 dconf.DB_TYPE, dconf.RESTART_SLEEP_SEC)
+        return
+
+    with hide('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
+        while True:
+            res = run(cmd_fmt(dconf.DB_USER, dconf.DB_PASSWORD))
+            if res.failed:
+                LOG.info('Database %s is not ready, wait for %s seconds',
+                         dconf.DB_TYPE, interval_sec)
+                time.sleep(interval_sec)
+            else:
+                LOG.info('Database %s is ready.', dconf.DB_TYPE)
+                return
+
 def _ready_to_start_oltpbench():
     ready = False
     if os.path.exists(dconf.CONTROLLER_LOG):
@@ -703,7 +729,7 @@ def run_loops(max_iter=10):
                 elif i > 0:
                     restore_database()
         LOG.info('Wait %s seconds after restarting database', dconf.RESTART_SLEEP_SEC)
-        time.sleep(dconf.RESTART_SLEEP_SEC)
+        is_ready_db(interval_sec=10)
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
         loop(i % dconf.RELOAD_INTERVAL if dconf.RELOAD_INTERVAL > 0 else i)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)

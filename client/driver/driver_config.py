@@ -26,6 +26,9 @@ LOGIN_PORT = None  # Set when using a port other than the SSH default
 # Postgres, Oracle or Mysql
 DB_TYPE = 'postgres'
 
+# Database version
+DB_VERSION = '9.6'
+
 # Name of the database
 DB_NAME = 'tpcc'
 

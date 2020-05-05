@@ -52,7 +52,6 @@ from .utils import (JSONUtil, LabelUtil, MediaUtil, TaskUtil)
 from .settings import LOG_DIR, TIME_ZONE, CHECK_CELERY
 
 from .set_default_knobs import set_default_knobs
-from .db.base.target_objective import USER_DEFINED_TARGET
 
 LOG = logging.getLogger(__name__)
 
@@ -491,20 +490,20 @@ def handle_result_files(session, files, execution_times=None):
     dbms_id = session.dbms.pk
     udm_before = {}
     udm_after = {}
-    if ('user_defined_metrics' not in files) and (USER_DEFINED_TARGET == session.target_objective):
-        return HttpResponse('ERROR: user defined target objective is not uploaded!')
-    # User defined metrics
-    udm = {}
+    udm_all = {}
     if 'user_defined_metrics' in files:
-        udm = JSONUtil.loads(files['user_defined_metrics'])
-    if len(udm) > 0:
-        udm_target = udm['target_objective']
-        udm_not_target = udm['metrics']
-        udm_all = copy.deepcopy(udm_not_target)
-        if (udm_target is None) and (USER_DEFINED_TARGET == session.target_objective):
-            return HttpResponse('ERROR: user defined target objective is not uploaded!')
-        if udm_target is not None:
-            udm_all.update(udm_target)
+        udm_all = JSONUtil.loads(files['user_defined_metrics'])
+    target_name = session.target_objective
+    target_instance = target_objectives.get_instance(dbms_id, target_name)
+    if target_instance.is_udf() and len(udm_all) == 0:
+        return HttpResponse('ERROR: user defined target objective {} is not uploaded!'.format(
+            target_name))
+    if len(udm_all) > 0:
+        # Note: Here we assume that for sessions with same dbms, user defined metrics are same.
+        # Otherwise there may exist inconsistency, it becomes worse after restarting web server.
+        if target_instance.is_udf() and (target_name not in udm_all.keys()):
+            return HttpResponse('ERROR: user defined target objective {} is not uploaded!'.format(
+                target_name))
         if not target_objectives.udm_registered(dbms_id):
             target_objectives.register_udm(dbms_id, udm_all)
         for name, info in udm_all.items():
@@ -520,22 +519,6 @@ def handle_result_files(session, files, execution_times=None):
                                                        metric_type=MetricType.STATISTICS)
             udm_catalog.summary = 'user defined metric, not target objective'
             udm_catalog.save()
-        if udm_target is not None:
-            target_name = 'udm.' + list(udm_target.keys())[0]
-            pprint_name = 'udf.' + list(udm_target.keys())[0]
-            info = list(udm_target.values())[0]
-            if USER_DEFINED_TARGET != session.target_objective:
-                LOG.warning('the target objective is not user defined metric (UDM),\
-                            please disable UDM target objective in driver')
-            else:
-                udm_instance = target_objectives.get_instance(dbms_id, USER_DEFINED_TARGET)
-                if not udm_instance.is_registered():
-                    udm_instance.register_target(name=target_name,
-                                                 more_is_better=info['more_is_better'],
-                                                 unit=info['unit'],
-                                                 short_unit=info['short_unit'],
-                                                 pprint=pprint_name)
-
     # Find worst throughput
     past_metrics = MetricData.objects.filter(session=session)
     metric_meta = target_objectives.get_instance(session.dbms.pk, session.target_objective)

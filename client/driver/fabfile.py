@@ -643,6 +643,9 @@ def loop(i):
     # remove oltpbench log and controller log
     clean_logs()
 
+    if dconf.ENABLE_UDM is True:
+        clean_oltpbench_results()
+
     # check disk usage
     if check_disk_usage() > dconf.MAX_DISK_USAGE:
         LOG.warning('Exceeds max disk usage %s', dconf.MAX_DISK_USAGE)
@@ -676,7 +679,6 @@ def loop(i):
     # add user defined metrics
     if dconf.ENABLE_UDM is True:
         add_udm()
-        clean_oltpbench_results()
 
     # save result
     result_timestamp = save_dbms_result()
@@ -722,8 +724,8 @@ def run_loops(max_iter=10):
 
         # reload database periodically
         if dconf.RELOAD_INTERVAL > 0:
-            time.sleep(15)
             if i % dconf.RELOAD_INTERVAL == 0:
+                is_ready_db(interval_sec=10)
                 if i == 0 and dump is False:
                     restore_database()
                 elif i > 0:

@@ -603,11 +603,7 @@ def check_and_run_celery():
     hostname = rabbitmq_url.split(':')[0]
     port = rabbitmq_url.split(':')[1].split('/')[0]
     rabbitmq_status = os.popen('telnet {} {}'.format(hostname, port)).read()
-    if 'Connected' in rabbitmq_status:
-        LOG.info('Rabbitmq is running.')
-    else:
-        LOG.warning('Rabbitmq is not running.')
-        return 'Rabbitmq is not running.'
+    LOG.info(rabbitmq_status)
 
     retries = 0
     while retries < 5:

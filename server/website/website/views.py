@@ -12,7 +12,6 @@ import re
 import shutil
 import socket
 import time
-import copy
 from collections import OrderedDict
 from io import StringIO
 

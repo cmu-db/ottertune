@@ -158,6 +158,8 @@ class TargetObjectives:
         for target_name, target_instance in self._registry[dbms_id].items():
             if target_name == target_objective:
                 targets_list.insert(0, (target_name, target_instance))
+            elif not target_instance.is_udf():
+                targets_list.append((target_name, target_instance))
         if dbms_id in self._udm_metadatas:
             metadata = targets_list + list(self._udm_metadatas[dbms_id]) +\
                        list(self._metric_metadatas[dbms_id])

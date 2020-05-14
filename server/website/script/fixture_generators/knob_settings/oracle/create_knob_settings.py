@@ -387,9 +387,9 @@ def set_field(fields):
     if fields['name'].lower() == 'approx_for_percentile':
         fields['minval'] = None
         fields['maxval'] = None
-        fields['default'] = False
+        fields['default'] = 'NONE'
         fields['vartype'] = 5
-        fields['enumvals'] = 'none,NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC'
+        fields['enumvals'] = 'NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC'
     if fields['name'].lower() == 'session_cached_cursors':
         fields['minval'] = 0
         fields['maxval'] = 100
@@ -397,8 +397,9 @@ def set_field(fields):
     if fields['name'].lower() == 'use_large_pages':
         fields['minval'] = None
         fields['maxval'] = None
-        fields['default'] = True
-        fields['vartype'] = 4
+        fields['default'] = 'TRUE'
+        fields['vartype'] = 5
+        fields['enumvals'] = 'TRUE,FALSE,ONLY'
     if fields['name'].lower() == 'hs_autoregister':
         fields['minval'] = None
         fields['maxval'] = None

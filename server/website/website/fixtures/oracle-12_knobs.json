@@ -237,7 +237,7 @@
             "scope": "global",
             "dbms": 12,
             "category": "",
-            "enumvals": "none,NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC",
+            "enumvals": "NONE,PERCENTILE_CONT,PERCENTILE_CONT DETERMINISTIC,PERCENTILE_DISC,PERCENTILE_DISC DETERMINISTIC,ALL,ALL DETERMINISTIC",
             "context": "",
             "unit": 3,
             "tunable": false,
@@ -245,7 +245,7 @@
             "minval": null,
             "maxval": null,
             "vartype": 5,
-            "default": false,
+            "default": "NONE",
             "summary": "Replace percentile_* with approx_percentile"
         }
     },
@@ -8027,15 +8027,15 @@
             "scope": "global",
             "dbms": 12,
             "category": "",
-            "enumvals": null,
+            "enumvals": "TRUE,FALSE,ONLY",
             "context": "",
             "unit": 3,
             "tunable": false,
             "description": "",
             "minval": null,
             "maxval": null,
-            "vartype": 4,
-            "default": true,
+            "vartype": 5,
+            "default": "TRUE",
             "summary": "Use large pages if available (TRUE/FALSE/ONLY)"
         }
     },

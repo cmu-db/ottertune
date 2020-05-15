@@ -44,9 +44,9 @@ matrix:
     - docker-compose -f $dcfile_postgres run --workdir="/app" --no-deps --rm web bash -c "pip3 freeze"
     - docker-compose -f $dcfile_postgres run --workdir="/app/controller" --no-deps --rm driver gradle build
     - docker-compose -f $dcfile_postgres run --workdir="/app" --no-deps --rm web bash -c "python3 -m unittest discover -s analysis/tests -v"
-    - docker-compose -f $dcfile_postgres run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
+    - docker-compose -f $dcfile_postgres run --rm web bash -c "sed -i 's/CHECK_CELERY = True/CHECK_CELERY = False/' website/settings/constants.py && ./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
     - docker-compose -f $dcfile_postgres rm -f -s -v
-    - docker-compose -f $dcfile_mysql run --rm web bash -c "./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
+    - docker-compose -f $dcfile_mysql run --rm web bash -c "sed -i 's/CHECK_CELERY = True/CHECK_CELERY = False/' website/settings/constants.py && ./wait-for-it.sh && python3 manage.py makemigrations website && python3 manage.py test --noinput -v 2"
     - docker-compose -f $dcfile_mysql rm -f -s -v
     after_success: true
     before_deploy:

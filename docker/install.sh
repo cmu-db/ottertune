@@ -43,7 +43,7 @@ then
 
 elif [ "$service" = "web" ]
 then
-    apt_pkgs="python3-dev gcc g++ mysql-client libmysqlclient-dev python-mysqldb postgresql-client"
+    apt_pkgs="python3-dev gcc g++ mysql-client libmysqlclient-dev python-mysqldb postgresql-client telnet"
 
     rm_pkgs="gcc g++"
 

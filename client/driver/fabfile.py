@@ -234,7 +234,10 @@ def change_conf(next_conf=None):
         assert isinstance(dconf.BASE_DB_CONF, dict), \
             (type(dconf.BASE_DB_CONF), dconf.BASE_DB_CONF)
         for name, value in sorted(dconf.BASE_DB_CONF.items()):
-            lines.append('{} = {}\n'.format(name, value))
+            if value is None:
+                lines.append('{}\n'.format(name))
+            else:
+                lines.append('{} = {}\n'.format(name, value))
 
     if isinstance(next_conf, str):
         with open(next_conf, 'r') as f:
@@ -260,7 +263,7 @@ def change_conf(next_conf=None):
         f.write(''.join(lines))
 
     sudo('cp {0} {0}.ottertune.bak'.format(dconf.DB_CONF), remote_only=True)
-    put(tmp_conf_out, dconf.DB_CONF, use_sudo=False)
+    put(tmp_conf_out, dconf.DB_CONF, use_sudo=True)
     local('rm -f {} {}'.format(tmp_conf_in, tmp_conf_out))
 
 

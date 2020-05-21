@@ -62,6 +62,9 @@ DB_DUMP_DIR = None
 if DB_TYPE == 'mysql':
     BASE_DB_CONF = {
         'innodb_monitor_enable': 'all',
+        # Do not generate binlog, otherwise the disk space will grow continuely during the tuning
+        # Be careful about it when tuning a production database, it changes your binlog behavior.
+        'skip-log-bin': None,
     }
 elif DB_TYPE == 'postgres':
     BASE_DB_CONF = {

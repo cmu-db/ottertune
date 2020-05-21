@@ -186,7 +186,7 @@ def put(local_path, remote_path, use_sudo=False):
             if dconf.DB_CONF_MOUNT is True:
                 res = _put(local_path, remote_path, use_sudo=use_sudo)
             else:
-                res = _put(local_path, local_path, use_sudo=True)
+                res = _put(local_path, local_path, use_sudo=use_sudo)
                 res = sudo(docker_cmd, remote_only=True)
         else:
             raise Exception('wrong HOST_CONN type {}'.format(dconf.HOST_CONN))

@@ -87,8 +87,8 @@ def create_controller_config():
         if dconf.DB_VERSION in ['5.6', '5.7']:
             dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?useSSL=false'.format
         elif dconf.DB_VERSION == '8.0':
-            dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?\
-                         allowPublicKeyRetrieval=true&useSSL=false'.format
+            dburl_fmt = ('jdbc:mysql://{host}:{port}/{db}?'
+                         'allowPublicKeyRetrieval=true&useSSL=false').format
         else:
             raise Exception("MySQL Database Version {} Not Implemented !".format(dconf.DB_VERSION))
     else:
@@ -636,6 +636,74 @@ def clean_oltpbench_results():
     local('rm -f {}/results/*'.format(dconf.OLTPBENCH_HOME))
 
 
+def _set_oltpbench_property(name, line):
+    if name == 'username':
+        ss = line.split('username')
+        new_line = ss[0] + 'username>{}</username'.format(dconf.DB_USER) + ss[-1]
+    elif name == 'password':
+        ss = line.split('password')
+        new_line = ss[0] + 'password>{}</password'.format(dconf.DB_PASSWORD) + ss[-1]
+    elif name == 'DBUrl':
+        ss = line.split('DBUrl')
+        if dconf.DB_TYPE == 'postgres':
+            dburl_fmt = 'jdbc:postgresql://{host}:{port}/{db}'.format
+        elif dconf.DB_TYPE == 'oracle':
+            dburl_fmt = 'jdbc:oracle:thin:@{host}:{port}:{db}'.format
+        elif dconf.DB_TYPE == 'mysql':
+            if dconf.DB_VERSION in ['5.6', '5.7']:
+                dburl_fmt = 'jdbc:mysql://{host}:{port}/{db}?useSSL=false'.format
+            elif dconf.DB_VERSION == '8.0':
+                dburl_fmt = ('jdbc:mysql://{host}:{port}/{db}?'
+                             'allowPublicKeyRetrieval=true&amp;useSSL=false').format
+            else:
+                raise Exception("MySQL Database Version {} "
+                                "Not Implemented !".format(dconf.DB_VERSION))
+        else:
+            raise Exception("Database Type {} Not Implemented !".format(dconf.DB_TYPE))
+        database_url = dburl_fmt(host=dconf.DB_HOST, port=dconf.DB_PORT, db=dconf.DB_NAME)
+        new_line = ss[0] + 'DBUrl>{}</DBUrl'.format(database_url) + ss[-1]
+    else:
+        raise Exception("OLTPBench Config Property {} Not Implemented !".format(name))
+    return new_line
+
+
+@task
+def set_oltpbench_config():
+    # set database user, password, and connection url in oltpbench config
+    lines = None
+    text = None
+    with open(dconf.OLTPBENCH_CONFIG, 'r') as f:
+        lines = f.readlines()
+        text = ''.join(lines)
+    lid = 10
+    for i, line in enumerate(lines):
+        if 'dbtype' in line:
+            dbtype = line.split('dbtype')[1][1:-2].strip()
+            if dbtype != dconf.DB_TYPE:
+                raise Exception("dbtype {} in OLTPBench config != DB_TYPE {}"
+                                "in driver config !".format(dbtype, dconf.DB_TYPE))
+        if 'username' in line:
+            lines[i] = _set_oltpbench_property('username', line)
+        elif 'password' in line:
+            lines[i] = _set_oltpbench_property('password', line)
+            lid = i + 1
+        elif 'DBUrl' in line:
+            lines[i] = _set_oltpbench_property('DBUrl', line)
+    if dconf.ENABLE_UDM:
+        # add the empty uploadCode and uploadUrl so that OLTPBench will output the summary file,
+        # which contains throughput, 99latency, 95latency, etc.
+        if 'uploadUrl' not in text:
+            line = '    <uploadUrl></uploadUrl>\n'
+            lines.insert(lid, line)
+        if 'uploadCode' not in text:
+            line = '    <uploadCode></uploadCode>\n'
+            lines.insert(lid, line)
+    text = ''.join(lines)
+    with open(dconf.OLTPBENCH_CONFIG, 'w') as f:
+        f.write(text)
+    LOG.info('oltpbench config is set: %s', dconf.OLTPBENCH_CONFIG)
+
+
 @task
 def loop(i):
     i = int(i)
@@ -657,6 +725,9 @@ def loop(i):
     p = Process(target=run_controller, args=())
     p.start()
     LOG.info('Run the controller')
+
+    # set oltpbench config, including db username, password, url
+    set_oltpbench_config()
 
     # run oltpbench as a background job
     while not _ready_to_start_oltpbench():

@@ -273,6 +273,7 @@ def load_oltpbench():
         msg = 'oltpbench config {} does not exist, '.format(dconf.OLTPBENCH_CONFIG)
         msg += 'please double check the option in driver_config.py'
         raise Exception(msg)
+    set_oltpbench_config()
     cmd = "./oltpbenchmark -b {} -c {} --create=true --load=true".\
           format(dconf.OLTPBENCH_BENCH, dconf.OLTPBENCH_CONFIG)
     with lcd(dconf.OLTPBENCH_HOME):  # pylint: disable=not-context-manager
@@ -285,6 +286,7 @@ def run_oltpbench():
         msg = 'oltpbench config {} does not exist, '.format(dconf.OLTPBENCH_CONFIG)
         msg += 'please double check the option in driver_config.py'
         raise Exception(msg)
+    set_oltpbench_config()
     cmd = "./oltpbenchmark -b {} -c {} --execute=true -s 5 -o outputfile".\
           format(dconf.OLTPBENCH_BENCH, dconf.OLTPBENCH_CONFIG)
     with lcd(dconf.OLTPBENCH_HOME):  # pylint: disable=not-context-manager
@@ -297,6 +299,8 @@ def run_oltpbench_bg():
         msg = 'oltpbench config {} does not exist, '.format(dconf.OLTPBENCH_CONFIG)
         msg += 'please double check the option in driver_config.py'
         raise Exception(msg)
+    # set oltpbench config, including db username, password, url
+    set_oltpbench_config()
     cmd = "./oltpbenchmark -b {} -c {} --execute=true -s 5 -o outputfile > {} 2>&1 &".\
           format(dconf.OLTPBENCH_BENCH, dconf.OLTPBENCH_CONFIG, dconf.OLTPBENCH_LOG)
     with lcd(dconf.OLTPBENCH_HOME):  # pylint: disable=not-context-manager
@@ -730,9 +734,6 @@ def loop(i):
     p = Process(target=run_controller, args=())
     p.start()
     LOG.info('Run the controller')
-
-    # set oltpbench config, including db username, password, url
-    set_oltpbench_config()
 
     # run oltpbench as a background job
     while not _ready_to_start_oltpbench():

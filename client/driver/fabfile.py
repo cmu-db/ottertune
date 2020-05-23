@@ -621,8 +621,13 @@ def _ready_to_shut_down_controller():
     if os.path.exists(pidfile) and os.path.exists(dconf.OLTPBENCH_LOG):
         with open(dconf.OLTPBENCH_LOG, 'r') as f:
             content = f.read()
+        if 'Failed' in content:
+            m = re.search('\n.*Failed.*\n', content)
+            error_msg = m.group(0)
+            LOG.info('OLTPBench Failed!')
+            return True, error_msg
         ready = 'Output throughput samples into file' in content
-    return ready
+    return ready, None
 
 
 def clean_logs():
@@ -742,14 +747,18 @@ def loop(i):
     LOG.info('Start the first collection')
 
     # stop the experiment
-    while not _ready_to_shut_down_controller():
+    ready_to_shut_down = False
+    error_msg = None
+    while not ready_to_shut_down:
+        ready_to_shut_down, error_msg = _ready_to_shut_down_controller()
         time.sleep(1)
 
     signal_controller()
     LOG.info('Start the second collection, shut down the controller')
 
     p.join()
-
+    if error_msg:
+        raise Exception('OLTPBench Failed: ' + error_msg)
     # add user defined metrics
     if dconf.ENABLE_UDM is True:
         add_udm()
@@ -769,7 +778,6 @@ def loop(i):
 
         # change config
         change_conf(response['recommendation'])
-
 
 @task
 def run_loops(max_iter=10):

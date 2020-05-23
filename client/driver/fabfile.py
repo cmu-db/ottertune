@@ -624,7 +624,7 @@ def _ready_to_shut_down_controller():
         if 'Failed' in content:
             m = re.search('\n.*Failed.*\n', content)
             error_msg = m.group(0)
-            LOG.info('OLTPBench Failed!')
+            LOG.error('OLTPBench Failed!')
             return True, error_msg
         ready = 'Output throughput samples into file' in content
     return ready, None
@@ -951,6 +951,13 @@ def integration_tests():
     # Upload training data
     LOG.info('Upload training data to no tuning session')
     upload_batch(result_dir='./integrationTests/data/', upload_code='ottertuneTestNoTuning')
+
+    # periodic tasks haven't ran, lhs result returns.
+    LOG.info('Test no pipeline data, LHS returned')
+    upload_result(result_dir='./integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningGPR')
+    response = get_result(upload_code='ottertuneTestTuningGPR')
+    assert response['status'] == 'lhs'
 
     # wait celery periodic task finishes
     assert wait_pipeline_data_ready(), "Pipeline data failed"

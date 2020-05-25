@@ -1076,10 +1076,10 @@ def integration_tests():
     # wait celery periodic task finishes
     assert wait_pipeline_data_ready(), "Pipeline data failed"
 
-    total_n = 30
-    first_n = 5
+    total_n = 20
     last_n = 10
-    average = 0
+
+    max_gain = 0
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
         LOG.info('Test GPR (gaussian process regression)')
@@ -1088,12 +1088,12 @@ def integration_tests():
         response = get_result(upload_code='ottertuneTestTuningGPR')
         assert response['status'] == 'good'
         gain = simulate_db_run(i, response['recommendation'])
-        if i < first_n + 2:
-            average += gain / first_n
+        if max_gain < gain:
+            max_gain = gain
         elif i > total_n - last_n + 2:
-            assert gain > average
+            assert gain > max_gain / 2.0
 
-    average = 0
+    max_gain = 0
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
         LOG.info('Test DNN (deep neural network)')
@@ -1102,12 +1102,12 @@ def integration_tests():
         response = get_result(upload_code='ottertuneTestTuningDNN')
         assert response['status'] == 'good'
         gain = simulate_db_run(i, response['recommendation'])
-        if i < first_n + 2:
-            average += gain / first_n
+        if max_gain < gain:
+            max_gain = gain
         elif i > total_n - last_n + 2:
-            assert gain > average
+            assert gain > max_gain / 2.0
 
-    average = 0
+    max_gain = 0
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
         upload_result(result_dir='./integrationTests/data/', prefix='x__',
@@ -1115,10 +1115,10 @@ def integration_tests():
         response = get_result(upload_code='ottertuneTestTuningDDPG')
         assert response['status'] == 'good'
         gain = simulate_db_run(i, response['recommendation'])
-        if i < first_n + 2:
-            average += gain / first_n
+        if max_gain < gain:
+            max_gain = gain
         elif i > total_n - last_n + 2:
-            assert gain > average
+            assert gain > max_gain / 2.0
 
     LOG.info("\n\nIntegration Tests: PASSED!!\n")
 

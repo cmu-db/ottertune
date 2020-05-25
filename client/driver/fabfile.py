@@ -1119,6 +1119,29 @@ def integration_tests():
             max_gain = gain
         elif i > total_n - last_n + 2:
             assert gain > max_gain / 2.0
+    
+    # ------------------- concurrency test ----------------------
+    upload_result(result_dir='./integrationTests/data/', prefix='2__',
+                  upload_code='ottertuneTestTuningDNN')
+    upload_result(result_dir='./integrationTests/data/', prefix='3__',
+                  upload_code='ottertuneTestTuningDNN')
+
+    upload_result(result_dir='./integrationTests/data/', prefix='2__',
+                  upload_code='ottertuneTestTuningGPR')
+    upload_result(result_dir='./integrationTests/data/', prefix='3__',
+                  upload_code='ottertuneTestTuningGPR')
+
+    upload_result(result_dir='./integrationTests/data/', prefix='2__',
+                  upload_code='ottertuneTestTuningDDPG')
+    upload_result(result_dir='./integrationTests/data/', prefix='3__',
+                  upload_code='ottertuneTestTuningDDPG')
+
+    response = get_result(upload_code='ottertuneTestTuningDNN')
+    assert response['status'] == 'good'
+    response = get_result(upload_code='ottertuneTestTuningGPR')
+    assert response['status'] == 'good'
+    response = get_result(upload_code='ottertuneTestTuningDDPG')
+    assert response['status'] == 'good'
 
     LOG.info("\n\nIntegration Tests: PASSED!!\n")
 

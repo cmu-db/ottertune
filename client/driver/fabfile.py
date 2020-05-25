@@ -1068,7 +1068,7 @@ def integration_tests():
 
     # periodic tasks haven't ran, lhs result returns.
     LOG.info('Test no pipeline data, LHS returned')
-    upload_result(result_dir='./integrationTests/data/', prefix='0__',
+    upload_result(result_dir='./integrationTests/data/', prefix='1__',
                   upload_code='ottertuneTestTuningGPR')
     response = get_result(upload_code='ottertuneTestTuningGPR')
     assert response['status'] == 'lhs'
@@ -1119,3 +1119,8 @@ def integration_tests():
             average += gain / first_n
         elif i > total_n - last_n + 2:
             assert gain > average
+
+    LOG.info("\n\nIntegration Tests: PASSED!!\n")
+
+    # Test task status UI
+    task_status_ui_test()

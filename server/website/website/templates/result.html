@@ -17,6 +17,18 @@
         <td>{{ result.creation_time }}</td>
     </tr>
     <tr>
+        <td><div class="text-right">{{ labels.observation_start_time }}</div></td>
+        <td>{{ result.observation_start_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.observation_end_time }}</div></td>
+        <td>{{ result.observation_end_time }}</td>
+    </tr>
+    <tr>
+        <td><div class="text-right">{{ labels.observation_time }} seconds</div></td>
+        <td>{{ obs_fmt }}</td>
+    </tr>
+    <tr>
         <td><div class="text-right">{{ labels.session }}</div></td>
         <td><a href="{% url 'session' project_id session_id %}">{{ result.session.name }}</a></td>
     </tr>

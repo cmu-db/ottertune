@@ -197,7 +197,7 @@ def delete_project(request):
 
 @login_required(login_url=reverse_lazy('login'))
 def project_sessions_view(request, project_id):
-    sessions = Session.objects.filter(project=project_id)
+    sessions = Session.objects.filter(project=project_id).order_by('-name')
     project = Project.objects.get(pk=project_id)
     form_labels = Session.get_labels()
     form_labels.update(LabelUtil.style_labels({
@@ -205,9 +205,12 @@ def project_sessions_view(request, project_id):
         'button_create': 'create a new session',
     }))
     form_labels['title'] = "Your Sessions"
+    form_labels['description'] = "description"
+    form_labels['result_count'] = "# result"
     for session in sessions:
         session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
         session.algorithm_name = AlgorithmType.name(session.algorithm)
+        session.result_count = len(Result.objects.filter(session=session))
 
     context = {
         "sessions": sessions,
@@ -276,7 +279,7 @@ def session_view(request, project_id, session_id):
         'workloads': workloads,
         'results_per_page': [10, 50, 100, 500, 1000],
         'default_dbms': session.dbms.key,
-        'default_results_per_page': 10,
+        'default_results_per_page': 1000,
         'default_equidistant': "on",
         'default_workload': default_workload,
         'defaultspe': default_confs,
@@ -439,6 +442,12 @@ def result_view(request, project_id, session_id, result_id):
             LOG.exception("Failed to format the next config (type=%s): %s.\n\n%s\n",
                           type(cfg), cfg, e)
 
+    obs_fmt = target.observation_time
+    if obs_fmt > 60:
+        obs_fmt = '{} minutes'.format(round(obs_fmt / 60., 1))
+    else:
+        obs_fmt = '{} seconds'.format(int(obs_fmt))
+
     form_labels = Result.get_labels()
     form_labels.update(LabelUtil.style_labels({
         'status': 'status',
@@ -453,7 +462,8 @@ def result_view(request, project_id, session_id, result_id):
         'next_conf': next_conf,
         'labels': form_labels,
         'project_id': project_id,
-        'session_id': session_id
+        'session_id': session_id,
+        'obs_fmt': obs_fmt,
     }
     return render(request, 'result.html', context)
 
@@ -1059,7 +1069,6 @@ def download_debug_info(request, project_id, session_id):  # pylint: disable=unu
     return response
 
 
-@login_required(login_url=reverse_lazy('login'))
 def download_objectives(request, project_id, session_id):  # pylint: disable=unused-argument
     session = Session.objects.get(pk=session_id)
     response = HttpResponse(content_type='text/csv')
@@ -1067,9 +1076,13 @@ def download_objectives(request, project_id, session_id):  # pylint: disable=unu
     writer = csv.writer(response)
 
     objectives = target_objectives.get_all(session.dbms.pk)
+    requested_metrics = ['global.dba_hist_osstat.iowait_time', 'global.dba_hist_osstat.busy_time',
+                         'global.dba_hist_sys_time_model.db cpu']
     labels = ['id']
     for objective_name in objectives.keys():
         labels.append(objective_name)
+    for metric_name in requested_metrics:
+        labels.append(metric_name)
     writer.writerow(labels)
     metric_files = MetricData.objects.filter(session=session)
     row_cnt = 0
@@ -1079,6 +1092,8 @@ def download_objectives(request, project_id, session_id):  # pylint: disable=unu
             row_data = [str(row_cnt)]
             for objective_name in objectives.keys():
                 row_data.append(metric_data.get(objective_name, -1))
+            for metric_name in requested_metrics:
+                row_data.append(metric_data.get(metric_name, -1))
             writer.writerow(row_data)
             row_cnt += 1
     return response
@@ -1457,6 +1472,22 @@ def alt_get_info(request, name):  # pylint: disable=unused-argument
             info['hostname'] = socket.gethostname()
             info['git_commit_hash'] = utils.git_hash()
             msg = "Successfully retrieved info for '{}'.".format(name)
+        elif name == 'sessions':
+            sessions = Session.objects.filter()
+            for session in sessions:
+                if 'notuning' in session.name:
+                    continue
+                results = Result.objects.filter(session=session)
+                if len(results) < 30:
+                    continue
+                session_info = {}
+                session_info['name'] = session.name
+                session_info['project'] = session.project.pk
+                session_info['algorithm'] = session.name.split('_')[-2]
+                session_info['target_objective'] = session.target_objective
+                session_info['knob_count'] = int(session.name.split('_')[-1])
+                session_info['vm'] = session.name.split('_')[-3]
+                info[session.pk] = session_info
         elif name in app_models.__dict__ and hasattr(app_models.__dict__[name], 'objects'):
             data = {k: v[0] for k, v in request.POST.lists()}
             require_exists = data.pop('require_exists', False)
@@ -1639,6 +1670,7 @@ def alt_create_or_edit_session(request):
     session_knobs = data.pop('session_knobs', None)
     disable_others = data.pop('disable_others', False)
     hyperparams = data.pop('hyperparameters', None)
+    description = data.pop('description', None)
     return_ddpg_model = data.pop('return_ddpg_model', False)
     ts = now()
 
@@ -1697,6 +1729,9 @@ def alt_create_or_edit_session(request):
             session_knobs = JSONUtil.loads(session_knobs)
             SessionKnob.objects.set_knob_min_max_tunability(
                 session, session_knobs, disable_others=disable_others)
+        if description is not None:
+            session.description = description
+            session.save()
 
         if hyperparams:
             hyperparams = JSONUtil.loads(hyperparams)

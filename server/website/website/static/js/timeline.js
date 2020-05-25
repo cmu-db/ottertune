@@ -58,6 +58,10 @@ function renderPlot(data, div_id) {
         },
         cursor: {show: true, zoom:true, showTooltip:false, clickReset:true}
     };
+    if (data.print_metric.endsWith("DB Time")) {
+        plotoptions.axes.yaxis.max = 20000;
+    }
+
     //Render plot
     $.jqplot(div_id + '_plot',  plotdata, plotoptions);
 }

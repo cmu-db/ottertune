@@ -1078,7 +1078,7 @@ def integration_tests():
 
     total_n = 30
     first_n = 5
-    last_n = 5
+    last_n = 10
     average = 0
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):

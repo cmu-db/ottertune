@@ -485,8 +485,8 @@ def train_ddpg(train_ddpg_input):
     objective = metric_data[target_obj_idx]
     base_objective = base_metric_data[target_obj_idx]
     prev_objective = prev_metric_data[target_obj_idx]
-    LOG.info('Target objective value:   current: %s, base: %s, previous: %s'.\
-        format(objective, base_objective, prev_objective))
+    LOG.info('Target objective value:  current: %s, base: %s, previous: %s',
+             objective, base_objective, prev_objective)
 
     # Clean metric data
     views = VIEWS_FOR_DDPG.get(dbms.type, None)

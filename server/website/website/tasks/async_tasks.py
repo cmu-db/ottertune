@@ -440,7 +440,7 @@ def train_ddpg(train_ddpg_input):
 
     params = JSONUtil.loads(session.hyperparameters)
     session_results = Result.objects.filter(session=session,
-                                            creation_time__lt=result.creation_time)
+                                            creation_time__lt=result.creation_time).order_by('pk')
 
     results_cnt = len(session_results)
     first_valid_result = -1
@@ -485,6 +485,8 @@ def train_ddpg(train_ddpg_input):
     objective = metric_data[target_obj_idx]
     base_objective = base_metric_data[target_obj_idx]
     prev_objective = prev_metric_data[target_obj_idx]
+    LOG.info('Target objective value:   current: %s, base: %s, previous: %s'.\
+        format(objective, base_objective, prev_objective))
 
     # Clean metric data
     views = VIEWS_FOR_DDPG.get(dbms.type, None)

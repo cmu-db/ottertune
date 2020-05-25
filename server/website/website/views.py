@@ -1784,10 +1784,12 @@ def alt_create_or_edit_session(request):
 @csrf_exempt
 def pipeline_data_ready(request):  # pylint: disable=unused-argument
     LOG.debug("Latest pipeline run: %s", PipelineRun.objects.get_latest())
-    if PipelineRun.objects.get_latest() is None:
-        response = "Pipeline data ready: False"
-    else:
+    newest_result = Result.objects.filter().order_by('-pk')[0]
+    pipeline_data = PipelineData.objects.filter(workload=newest_result.workload).order_by('-pk')
+    if pipeline_data.exists() and pipeline_data[0].pipeline_run.end_time is not None:
         response = "Pipeline data ready: True"
+    else:
+        response = "Pipeline data ready: False"
     return HttpResponse(response)
 
 

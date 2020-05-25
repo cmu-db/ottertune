@@ -943,7 +943,7 @@ def wait_pipeline_data_ready(max_time_sec=800, interval_sec=10):
 
 
 @task
-def integration_tests():
+def integration_tests_simple():
 
     # Create test website
     response = requests.get(dconf.WEBSITE_URL + '/test/create/')
@@ -1029,3 +1029,93 @@ def task_status_ui_test():
     assert 'Success:' in get_content(response)
 
     LOG.info("\n\nTask Status UI Tests: PASSED!!\n")
+
+
+def simulate_db_run(i, next_conf):
+    # Using 1 knob to decide performance; simple but effective
+    gain = int(next_conf['effective_cache_size'].replace('kB', ''))
+
+    with open('./integrationTests/data/x__metrics_after.json', 'r') as fin:
+        metrics_after = json.load(fin)
+        metrics_after['local']['database']['pg_stat_database']['tpcc']['xact_commit'] = gain
+    with open('./integrationTests/data/x__metrics_after.json', 'w') as fout:
+        json.dump(metrics_after, fout)
+    with open('./integrationTests/data/x__knobs.json', 'r') as fin:
+        knobs = json.load(fin)
+        for knob in next_conf:
+            knobs['global']['global'][knob] = next_conf[knob]
+    with open('./integrationTests/data/x__knobs.json', 'w') as fout:
+        json.dump(knobs, fout)
+    with open('./integrationTests/data/x__summary.json', 'r') as fin:
+        summary = json.load(fin)
+        summary['start_time'] = i * 20000000
+        summary['observation_time'] = 100
+        summary['end_time'] = (i + 1) * 20000000
+    with open('./integrationTests/data/x__summary.json', 'w') as fout:
+        json.dump(summary, fout)
+    return gain
+
+
+@task
+def integration_tests():
+    # Create test website
+    response = requests.get(dconf.WEBSITE_URL + '/test/create/')
+    LOG.info(get_content(response))
+
+    # Upload training data
+    LOG.info('Upload training data to no tuning session')
+    upload_batch(result_dir='./integrationTests/data/', upload_code='ottertuneTestNoTuning')
+
+    # periodic tasks haven't ran, lhs result returns.
+    LOG.info('Test no pipeline data, LHS returned')
+    upload_result(result_dir='./integrationTests/data/', prefix='0__',
+                  upload_code='ottertuneTestTuningGPR')
+    response = get_result(upload_code='ottertuneTestTuningGPR')
+    assert response['status'] == 'lhs'
+
+    # wait celery periodic task finishes
+    assert wait_pipeline_data_ready(), "Pipeline data failed"
+
+    total_n = 30
+    first_n = 5
+    last_n = 5
+    average = 0
+    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    for i in range(2, total_n + 2):
+        LOG.info('Test GPR (gaussian process regression)')
+        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+                      upload_code='ottertuneTestTuningGPR')
+        response = get_result(upload_code='ottertuneTestTuningGPR')
+        assert response['status'] == 'good'
+        gain = simulate_db_run(i, response['recommendation'])
+        if i < first_n + 2:
+            average += gain / first_n
+        elif i > total_n - last_n + 2:
+            assert gain > average
+
+    average = 0
+    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    for i in range(2, total_n + 2):
+        LOG.info('Test DNN (deep neural network)')
+        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+                      upload_code='ottertuneTestTuningDNN')
+        response = get_result(upload_code='ottertuneTestTuningDNN')
+        assert response['status'] == 'good'
+        gain = simulate_db_run(i, response['recommendation'])
+        if i < first_n + 2:
+            average += gain / first_n
+        elif i > total_n - last_n + 2:
+            assert gain > average
+
+    average = 0
+    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    for i in range(2, total_n + 2):
+        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+                      upload_code='ottertuneTestTuningDDPG')
+        response = get_result(upload_code='ottertuneTestTuningDDPG')
+        assert response['status'] == 'good'
+        gain = simulate_db_run(i, response['recommendation'])
+        if i < first_n + 2:
+            average += gain / first_n
+        elif i > total_n - last_n + 2:
+            assert gain > average

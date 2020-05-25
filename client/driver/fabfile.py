@@ -1119,7 +1119,7 @@ def integration_tests():
             max_gain = gain
         elif i > total_n - last_n + 2:
             assert gain > max_gain / 2.0
-    
+
     # ------------------- concurrency test ----------------------
     upload_result(result_dir='./integrationTests/data/', prefix='2__',
                   upload_code='ottertuneTestTuningDNN')

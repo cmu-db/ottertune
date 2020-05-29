@@ -87,6 +87,10 @@ class KnobCatalog(BaseModel):
     tunable = models.BooleanField(verbose_name="tunable")
     resource = models.IntegerField(choices=KnobResourceType.choices(), default=4)
 
+    @property
+    def clean_name(self):
+        return self.name.split('.')[-1]
+
 
 class MetricCatalog(BaseModel):
     dbms = models.ForeignKey(DBMSCatalog)
@@ -96,6 +100,10 @@ class MetricCatalog(BaseModel):
     summary = models.TextField(null=True, verbose_name='description')
     scope = models.CharField(max_length=16)
     metric_type = models.IntegerField(choices=MetricType.choices())
+
+    @property
+    def clean_name(self):
+        return self.name.split('.')[-1]
 
 
 class Project(BaseModel):

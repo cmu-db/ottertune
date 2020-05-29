@@ -565,12 +565,15 @@ def create_and_save_recommendation(recommended_knobs, result, status, **kwargs):
     dbms_id = result.dbms.pk
     formatted_knobs = db.parser.format_dbms_knobs(dbms_id, recommended_knobs)
     config = db.parser.create_knob_configuration(dbms_id, formatted_knobs)
-
+    knob_names = recommended_knobs.keys()
+    knobs = KnobCatalog.objects.filter(name__in=knob_names)
+    knob_contexts = {knob.clean_name: knob.context for knob in knobs}
     retval = dict(**kwargs)
     retval.update(
         status=status,
         result_id=result.pk,
         recommendation=config,
+        context=knob_contexts
     )
     result.next_configuration = JSONUtil.dumps(retval)
     result.save()

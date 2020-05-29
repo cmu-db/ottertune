@@ -56,6 +56,7 @@ public class Main {
   private static boolean keepRunning = true;
   private static boolean firstCollecting = false;
 
+  @SuppressWarnings("restriction")
   public static void main(String[] args) {
 
     // Initialize log4j
@@ -137,13 +138,13 @@ public class Main {
     }
 
     DBCollector collector = getCollector(config);
+    File f = new File("pid.txt");
     try {
-      // add a signal handler
-      Signal.handle(new Signal("INT"), signal -> firstCollecting = true);
-      File f = new File("pid.txt");
-
       // get pid of this process and write the pid to a file before recording the start time
       if (time < 0) {
+        // add a signal handler
+        Signal.handle(new Signal("INT"), signal -> firstCollecting = true);
+        
         String vmName = ManagementFactory.getRuntimeMXBean().getName();
         int p = vmName.indexOf("@");
         int pid = Integer.valueOf(vmName.substring(0, p));
@@ -156,6 +157,9 @@ public class Main {
         } catch (IOException ioe) {
           ioe.printStackTrace();
         }
+      }
+      else {
+        firstCollecting = true;
       }
       LOG.info("Output the process pid to pid.txt");
 
@@ -185,9 +189,6 @@ public class Main {
       knobsWriter.println(knobs);
       knobsWriter.close();
 
-      // add a signal handler
-      Signal.handle(new Signal("INT"), signal -> keepRunning = false);
-
       // record start time
       long startTime = System.currentTimeMillis();
       LOG.info("Starting the experiment ...");
@@ -196,6 +197,8 @@ public class Main {
       if (time >= 0) {
         Thread.sleep(time * TO_MILLISECONDS);
       } else {
+        // add a signal handler
+        Signal.handle(new Signal("INT"), signal -> keepRunning = false);
         while (keepRunning) {
           Thread.sleep(1);
         }

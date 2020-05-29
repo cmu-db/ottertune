@@ -308,11 +308,11 @@ def run_oltpbench_bg():
 
 
 @task
-def run_controller():
+def run_controller(interval_sec=-1):
     LOG.info('Controller config path: %s', dconf.CONTROLLER_CONFIG)
     create_controller_config()
-    cmd = 'gradle run -PappArgs="-c {} -d output/" --no-daemon > {}'.\
-          format(dconf.CONTROLLER_CONFIG, dconf.CONTROLLER_LOG)
+    cmd = 'gradle run -PappArgs="-c {} -t {} -d output/" --no-daemon > {}'.\
+          format(dconf.CONTROLLER_CONFIG, interval_sec, dconf.CONTROLLER_LOG)
     with lcd(dconf.CONTROLLER_HOME):  # pylint: disable=not-context-manager
         local(cmd)
 
@@ -642,7 +642,13 @@ def clean_logs():
 @task
 def clean_oltpbench_results():
     # remove oltpbench result files
-    local('rm -f {}/results/*'.format(dconf.OLTPBENCH_HOME))
+    local('rm -f {}/results/outputfile*'.format(dconf.OLTPBENCH_HOME))
+
+
+@task
+def clean_controller_results():
+    # remove oltpbench result files
+    local('rm -f {}/output/*.json'.format(dconf.CONTROLLER_HOME))
 
 
 def _set_oltpbench_property(name, line):
@@ -818,6 +824,16 @@ def run_loops(max_iter=10):
         LOG.info('The %s-th Loop Starts / Total Loops %s', i + 1, max_iter)
         loop(i % dconf.RELOAD_INTERVAL if dconf.RELOAD_INTERVAL > 0 else i)
         LOG.info('The %s-th Loop Ends / Total Loops %s', i + 1, max_iter)
+
+
+@task
+def monitor(max_iter=1):
+    for i in range(int(max_iter)):
+        LOG.info('The %s-th Monitor Loop Starts / Total Loops %s', i + 1, max_iter)
+        clean_controller_results()
+        run_controller(interval_sec=dconf.CONTROLLER_OBSERVE_SEC)
+        upload_result()
+        LOG.info('The %s-th Monitor Loop Ends / Total Loops %s', i + 1, max_iter)
 
 
 @task

@@ -153,6 +153,10 @@ OLTPBENCH_BENCH = 'tpcc'
 #  CONTROLLER OPTIONS
 #==========================================================
 
+# Controller observation time, OLTPBench will be disabled for
+# monitoring if the time is specified
+CONTROLLER_OBSERVE_SEC = 100
+
 # Path to the controller directory
 CONTROLLER_HOME = DRIVER_HOME + '/../controller'
 

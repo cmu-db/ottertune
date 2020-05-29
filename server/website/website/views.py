@@ -205,8 +205,8 @@ def project_sessions_view(request, project_id):
         'button_create': 'create a new session',
     }))
     form_labels['title'] = "Your Sessions"
-    form_labels['description'] = "description"
-    form_labels['result_count'] = "# result"
+    form_labels['description'] = "Description"
+    form_labels['result_count'] = "# Result"
     for session in sessions:
         session.session_type_name = Session.TUNING_OPTIONS[session.tuning_session]
         session.algorithm_name = AlgorithmType.name(session.algorithm)
@@ -506,13 +506,13 @@ def handle_result_files(session, files, execution_times=None):
     target_instance = target_objectives.get_instance(dbms_id, target_name)
     if target_instance.is_udf() and len(udm_all) == 0:
         return HttpResponse('ERROR: user defined target objective {} is not uploaded!'.format(
-            target_name))
+            target_name), status=400)
     if len(udm_all) > 0:
         # Note: Here we assume that for sessions with same dbms, user defined metrics are same.
         # Otherwise there may exist inconsistency, it becomes worse after restarting web server.
         if target_instance.is_udf() and (target_name not in udm_all.keys()):
             return HttpResponse('ERROR: user defined target objective {} is not uploaded!'.format(
-                target_name))
+                target_name), status=400)
         if not target_objectives.udm_registered(dbms_id):
             target_objectives.register_udm(dbms_id, udm_all)
         for name, info in udm_all.items():
@@ -646,7 +646,7 @@ def handle_result_files(session, files, execution_times=None):
         if not re.match('^[a-zA-Z0-9_-]+$', workload_name):
             return HttpResponse('Your workload name ' + workload_name + ' contains '
                                 'invalid characters! It should only contain '
-                                'alpha-numeric, underscore(_) and hyphen(-)')
+                                'alpha-numeric, underscore(_) and hyphen(-)', status=400)
 
         try:
             # Check that we support this DBMS and version
@@ -658,20 +658,20 @@ def handle_result_files(session, files, execution_times=None):
             except Exception:  # pylint: disable=broad-except
                 LOG.warning('Cannot parse dbms version %s', dbms_version)
                 return HttpResponse('{} v{} is not yet supported.'.format(
-                    dbms_type, dbms_version))
+                    dbms_type, dbms_version), status=400)
             try:
                 # Check that we support this DBMS and version
                 dbms = DBMSCatalog.objects.get(
                     type=dbms_type, version=dbms_version)
             except ObjectDoesNotExist:
                 return HttpResponse('{} v{} is not yet supported.'.format(
-                    dbms_type, dbms_version))
+                    dbms_type, dbms_version), status=400)
 
         if dbms != session.dbms:
             return HttpResponse('The DBMS must match the type and version '
                                 'specified when creating the session. '
                                 '(expected=' + session.dbms.full_name + ') '
-                                '(actual=' + dbms.full_name + ')')
+                                '(actual=' + dbms.full_name + ')', status=400)
 
         # Load, process, and store the knobs in the DBMS's configuration
         knob_dict, knob_diffs = parser.parse_dbms_knobs(

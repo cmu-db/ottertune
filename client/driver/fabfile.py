@@ -787,6 +787,38 @@ def loop(i):
         change_conf(response['recommendation'])
 
 @task
+def set_dynamic_knobs(recommendation, context):
+    DYNAMIC = 'dynamic'  # pylint: disable=invalid-name
+    RESTART = 'restart'  # pylint: disable=invalid-name
+    UNKNOWN = 'unknown'  # pylint: disable=invalid-name
+    if dconf.DB_TYPE == 'mysql':
+        cmd_fmt = "mysql --user={} --password={} -e 'SET GLOBAL {}={}'".format
+    else:
+        raise Exception('database {} set dynamic knob function is not implemented.'.format(
+                        dconf.DB_TYPE))
+
+    LOG.info('Start setting knobs dynamically.')
+    with hide('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
+        for knob, value in recommendation.items():
+            mode = context.get(knob, UNKNOWN)
+            if mode == DYNAMIC:
+                res = run(cmd_fmt(dconf.DB_USER, dconf.DB_PASSWORD, knob, value))
+            elif mode == RESTART:
+                LOG.error('Knob %s cannot be set dynamically, restarting database is required, '
+                          'ignore this knob.', knob)
+                continue
+            elif mode == UNKNOWN:
+                LOG.warning('It is unclear whether knob %s can be set dynamically or not, '
+                            'set it anyway', knob)
+                res = run(cmd_fmt(dconf.DB_USER, dconf.DB_PASSWORD, knob, value))
+
+            if res.failed:
+                LOG.error('Failed to set knob %s to value %s', knob, value)
+                LOG.error(res)
+    LOG.info('Finish setting knobs dynamically.')
+
+
+@task
 def run_loops(max_iter=10):
     # dump database if it's not done before.
     dump = dump_database()
@@ -828,12 +860,26 @@ def run_loops(max_iter=10):
 
 @task
 def monitor(max_iter=1):
+    # Monitor the database, without tuning. OLTPBench is also disabled
     for i in range(int(max_iter)):
         LOG.info('The %s-th Monitor Loop Starts / Total Loops %s', i + 1, max_iter)
         clean_controller_results()
         run_controller(interval_sec=dconf.CONTROLLER_OBSERVE_SEC)
         upload_result()
         LOG.info('The %s-th Monitor Loop Ends / Total Loops %s', i + 1, max_iter)
+
+
+@task
+def monitor_tune(max_iter=1):
+    # Monitor the database, with tuning. OLTPBench is also disabled
+    for i in range(int(max_iter)):
+        LOG.info('The %s-th Monitor Loop (with Tuning) Starts / Total Loops %s', i + 1, max_iter)
+        clean_controller_results()
+        run_controller(interval_sec=dconf.CONTROLLER_OBSERVE_SEC)
+        upload_result()
+        response = get_result()
+        set_dynamic_knobs(response['recommendation'], response['context'])
+        LOG.info('The %s-th Monitor Loop (with Tuning) Ends / Total Loops %s', i + 1, max_iter)
 
 
 @task

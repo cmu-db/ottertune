@@ -786,6 +786,7 @@ def loop(i):
         # change config
         change_conf(response['recommendation'])
 
+
 @task
 def set_dynamic_knobs(recommendation, context):
     DYNAMIC = 'dynamic'  # pylint: disable=invalid-name

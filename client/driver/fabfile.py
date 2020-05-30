@@ -801,16 +801,19 @@ def set_dynamic_knobs(recommendation, context):
     LOG.info('Start setting knobs dynamically.')
     with hide('everything'), settings(warn_only=True):  # pylint: disable=not-context-manager
         for knob, value in recommendation.items():
+            if value is None:
+                LOG.warning('Cannot set knob %s dynamically, skip this.', knob)
+                continue
             mode = context.get(knob, UNKNOWN)
             if mode == DYNAMIC:
                 res = run(cmd_fmt(dconf.DB_USER, dconf.DB_PASSWORD, knob, value))
             elif mode == RESTART:
                 LOG.error('Knob %s cannot be set dynamically, restarting database is required, '
-                          'ignore this knob.', knob)
+                          'skip this knob.', knob)
                 continue
             elif mode == UNKNOWN:
                 LOG.warning('It is unclear whether knob %s can be set dynamically or not, '
-                            'set it anyway', knob)
+                            'still set it to value %s', knob, value)
                 res = run(cmd_fmt(dconf.DB_USER, dconf.DB_PASSWORD, knob, value))
 
             if res.failed:
@@ -873,6 +876,10 @@ def monitor(max_iter=1):
 @task
 def monitor_tune(max_iter=1):
     # Monitor the database, with tuning. OLTPBench is also disabled
+
+    # Set base config
+    set_dynamic_knobs(dconf.BASE_DB_CONF, {})
+
     for i in range(int(max_iter)):
         LOG.info('The %s-th Monitor Loop (with Tuning) Starts / Total Loops %s', i + 1, max_iter)
         clean_controller_results()

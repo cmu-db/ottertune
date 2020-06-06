@@ -287,6 +287,14 @@ LOGGING = {
             'backupCount': 15,
             'formatter': 'standard',
         },
+        'analysis': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(LOG_DIR, 'analysis.log'),
+            'maxBytes': 2097152,
+            'backupCount': 15,
+            'formatter': 'standard',
+        },
         'dblog': {
             'level': 'DEBUG',
             'class': 'django_db_logger.db_log_handler.DatabaseLogHandler',
@@ -324,6 +332,10 @@ LOGGING = {
         },
         'website': {
             'handlers': ['console', 'logfile', 'dblog'],
+            'level': 'DEBUG',
+        },
+        'analysis': {
+            'handlers': ['console', 'analysis', 'dblog'],
             'level': 'DEBUG',
         },
         'django.request': {

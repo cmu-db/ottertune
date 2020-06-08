@@ -80,7 +80,8 @@ class TestGPRGPFlow(unittest.TestCase):
         X_test = data[500:]
         y_train = boston['target'][0:500].reshape(500, 1)
 
-        model_kwargs = {'lengthscales': 1, 'variance': 1, 'noise_variance': 1}
+        model_kwargs = {'lengthscales': 1, 'variance': 1,
+                        'hyperparameters': {'GPRC/likelihood/variance': 1}}
         tf.reset_default_graph()
         graph = tf.get_default_graph()
         gpflow.reset_default_session(graph=graph)

@@ -1288,14 +1288,14 @@
             "minval": null,
             "maxval": null,
             "unit": 3,
-            "enumvals": "fsync,O_DSYNC,,littlesync,nosync,O_DIRECT,O_DIRECT_NO_FSYNC",
+            "enumvals": "fsync,O_DSYNC,,O_DIRECT",
             "context": "restart",
             "scope": "global",
             "dbms": 156,
             "name": "global.innodb_flush_method",
             "tunable": true,
             "summary": "Defines the method used to flush data to InnoDB data files and log files, which can affect I/O throughput.",
-            "description": "valid values are different for window and linux systems",
+            "description": "valid values are different for window and linux systems, some values like nosync are only for testing and invalid in production.",
             "resource": 4
         }
     },

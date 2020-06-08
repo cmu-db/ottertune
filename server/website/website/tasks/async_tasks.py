@@ -767,9 +767,27 @@ def process_training_data(target_data):
         binary_index_set = []
         total_dummies = 0
 
-    # Scale to N(0, 1)
+    X_min = np.empty(X_matrix.shape[1])
+    X_max = np.empty(X_matrix.shape[1])
+    session_knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
+
+    # Set min/max for knob values
+    for i in range(X_matrix.shape[1]):
+        col_min = X_matrix[:, i].min()
+        col_max = X_matrix[:, i].max()
+        for knob in session_knobs:
+            if X_columnlabels[i] == knob["name"]:
+                col_min = knob["minval"]
+                col_max = knob["maxval"]
+        X_min[i] = col_min
+        X_max[i] = col_max
+    X_matrix_more = np.vstack([X_matrix, X_min, X_max])
+
+    # Scale to N(0, 1), fit to the data and min, max
     X_scaler = StandardScaler()
-    X_scaled = X_scaler.fit_transform(X_matrix)
+    X_scaler.fit(X_matrix_more)
+    X_scaled = X_scaler.transform(X_matrix)
+
     if y_target.shape[0] < 5:  # FIXME
         # FIXME (dva): if there are fewer than 5 target results so far
         # then scale the y values (metrics) using the workload's
@@ -814,9 +832,6 @@ def process_training_data(target_data):
 
     X_min = np.empty(X_scaled.shape[1])
     X_max = np.empty(X_scaled.shape[1])
-    X_scaler_matrix = np.zeros([1, X_scaled.shape[1]])
-
-    session_knobs = SessionKnob.objects.get_knobs_for_session(newest_result.session)
 
     # Set min/max for knob values
     for i in range(X_scaled.shape[1]):
@@ -826,12 +841,6 @@ def process_training_data(target_data):
         else:
             col_min = X_scaled[:, i].min()
             col_max = X_scaled[:, i].max()
-            for knob in session_knobs:
-                if X_columnlabels[i] == knob["name"]:
-                    X_scaler_matrix[0][i] = knob["minval"]
-                    col_min = X_scaler.transform(X_scaler_matrix)[0][i]
-                    X_scaler_matrix[0][i] = knob["maxval"]
-                    col_max = X_scaler.transform(X_scaler_matrix)[0][i]
         X_min[i] = col_min
         X_max[i] = col_max
 

@@ -1103,7 +1103,7 @@ def task_status_ui_test():
 
 def simulate_db_run(i, next_conf):
     # Using 1 knob to decide performance; simple but effective
-    gain = int(next_conf['effective_cache_size'].replace('GB', '000').replace('MB', '000').replace('kB', ''))
+    gain = int(str(next_conf['effective_cache_size']).replace('GB', '000').replace('MB', '000').replace('kB', ''))
 
     with open('./integrationTests/data/x__metrics_after.json', 'r') as fin:
         metrics_after = json.load(fin)

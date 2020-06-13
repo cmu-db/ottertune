@@ -133,12 +133,12 @@ class TestGDGPFlow(unittest.TestCase):
 
     def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
-        expected_ypreds = [0.5272]
+        expected_ypreds = [0.5666]
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
-        expected_sigmas = [1.4153]
+        expected_sigmas = [1.459]
         self.assertEqual(sigmas_round, expected_sigmas)
 
 
@@ -160,16 +160,16 @@ class TestGDTF(unittest.TestCase):
         tf.set_random_seed(0)
 
         cls.model = GPRGD(length_scale=2.0, magnitude=1.0, max_iter=10, learning_rate=0.01,
-                          ridge=1.0, hyperparameter_trainable=True, sigma_multiplier=1.0)
+                          ridge=1.0, hyperparameter_trainable=False, sigma_multiplier=1.0)
         cls.model.fit(X_train, y_train, Xmin, Xmax)
         cls.gpr_result = cls.model.predict(X_test)
 
     def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
-        expected_ypreds = [0.5272]
+        expected_ypreds = [0.6782]
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
-        expected_sigmas = [1.4153]
+        expected_sigmas = [1.4139]
         self.assertEqual(sigmas_round, expected_sigmas)

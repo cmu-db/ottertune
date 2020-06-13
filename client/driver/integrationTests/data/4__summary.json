@@ -1,7 +1,7 @@
 {
  "start_time": 1569911053776,
- "end_time": 1569911357499,
- "observation_time": 303,
+ "end_time": 1569911153499,
+ "observation_time": 100,
  "database_type": "postgres",
  "database_version": "9.6",
  "workload_name": "tpcc"

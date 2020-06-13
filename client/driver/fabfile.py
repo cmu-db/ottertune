@@ -1103,26 +1103,28 @@ def task_status_ui_test():
 
 def simulate_db_run(i, next_conf):
     # Using 1 knob to decide performance; simple but effective
-    gain = int(str(next_conf['effective_cache_size']).replace('GB', '000').replace('MB', '000').replace('kB', ''))
+    gain = int(str(next_conf['effective_cache_size']).
+               replace('GB', '000000').replace('MB', '000').replace('kB', ''))
 
-    with open('./integrationTests/data/x__metrics_after.json', 'r') as fin:
+    with open('./integrationTests/simulate/x__metrics_after.json', 'r') as fin:
         metrics_after = json.load(fin)
         metrics_after['local']['database']['pg_stat_database']['tpcc']['xact_commit'] = gain
-    with open('./integrationTests/data/x__metrics_after.json', 'w') as fout:
-        json.dump(metrics_after, fout)
-    with open('./integrationTests/data/x__knobs.json', 'r') as fin:
+    with open('./integrationTests/simulate/x__metrics_after.json', 'w') as fout:
+        json.dump(metrics_after, fout, indent=4)
+    with open('./integrationTests/simulate/x__knobs.json', 'r') as fin:
         knobs = json.load(fin)
         for knob in next_conf:
             knobs['global']['global'][knob] = next_conf[knob]
-    with open('./integrationTests/data/x__knobs.json', 'w') as fout:
-        json.dump(knobs, fout)
-    with open('./integrationTests/data/x__summary.json', 'r') as fin:
+    with open('./integrationTests/simulate/x__knobs.json', 'w') as fout:
+        json.dump(knobs, fout, indent=4)
+    with open('./integrationTests/simulate/x__summary.json', 'r') as fin:
         summary = json.load(fin)
-        summary['start_time'] = i * 20000000
+        base_time = 1570000000000
+        summary['start_time'] = base_time + i * 100000
         summary['observation_time'] = 100
-        summary['end_time'] = (i + 1) * 20000000
-    with open('./integrationTests/data/x__summary.json', 'w') as fout:
-        json.dump(summary, fout)
+        summary['end_time'] = base_time + (i + 1) * 100000
+    with open('./integrationTests/simulate/x__summary.json', 'w') as fout:
+        json.dump(summary, fout, indent=4)
     return gain
 
 
@@ -1153,7 +1155,7 @@ def integration_tests():
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
         LOG.info('Test GPR (gaussian process regression)')
-        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+        upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
                       upload_code='ottertuneTestTuningGPR')
         response = get_result(upload_code='ottertuneTestTuningGPR')
         assert response['status'] == 'good'
@@ -1167,7 +1169,7 @@ def integration_tests():
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
         LOG.info('Test DNN (deep neural network)')
-        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+        upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
                       upload_code='ottertuneTestTuningDNN')
         response = get_result(upload_code='ottertuneTestTuningDNN')
         assert response['status'] == 'good'
@@ -1180,7 +1182,7 @@ def integration_tests():
     max_gain = 0
     simulate_db_run(1, {'effective_cache_size': '0kB'})
     for i in range(2, total_n + 2):
-        upload_result(result_dir='./integrationTests/data/', prefix='x__',
+        upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
                       upload_code='ottertuneTestTuningDDPG')
         response = get_result(upload_code='ottertuneTestTuningDDPG')
         assert response['status'] == 'good'

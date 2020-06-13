@@ -317,7 +317,7 @@
      "tup_inserted": "0",
      "tup_returned": "25057634",
      "tup_updated": "14",
-     "xact_commit": "66650",
+     "xact_commit": "0",
      "xact_rollback": "11"
     },
     "tpcc": {
@@ -338,7 +338,7 @@
      "tup_inserted": "147380505",
      "tup_returned": "3910897924",
      "tup_updated": "90283984",
-     "xact_commit": "8188627",
+     "xact_commit": "0",
      "xact_rollback": "37126"
     },
     "template1": {
@@ -359,7 +359,7 @@
      "tup_inserted": "0",
      "tup_returned": "21968868",
      "tup_updated": "0",
-     "xact_commit": "52360",
+     "xact_commit": "0",
      "xact_rollback": "0"
     },
     "template0": {
@@ -380,7 +380,7 @@
      "tup_inserted": "0",
      "tup_returned": "15700273",
      "tup_updated": "13",
-     "xact_commit": "31785",
+     "xact_commit": "0",
      "xact_rollback": "0"
     }
    },

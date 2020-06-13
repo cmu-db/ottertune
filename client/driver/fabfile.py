@@ -1152,7 +1152,7 @@ def integration_tests():
     last_n = 10
 
     max_gain = 0
-    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    simulate_db_run(1, {'effective_cache_size': '1MB'})
     for i in range(2, total_n + 2):
         LOG.info('Test GPR (gaussian process regression)')
         upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
@@ -1166,7 +1166,7 @@ def integration_tests():
             assert gain > max_gain / 2.0
 
     max_gain = 0
-    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    simulate_db_run(1, {'effective_cache_size': '1MB'})
     for i in range(2, total_n + 2):
         LOG.info('Test DNN (deep neural network)')
         upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
@@ -1180,7 +1180,7 @@ def integration_tests():
             assert gain > max_gain / 2.0
 
     max_gain = 0
-    simulate_db_run(1, {'effective_cache_size': '0kB'})
+    simulate_db_run(1, {'effective_cache_size': '1MB'})
     for i in range(2, total_n + 2):
         upload_result(result_dir='./integrationTests/simulate/', prefix='x__',
                       upload_code='ottertuneTestTuningDDPG')

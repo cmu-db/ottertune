@@ -49,6 +49,7 @@ class BaseModel(object):
             m = GPRC(X, y, kern=k)
             if hyperparameters is not None and self._LIKELIHOOD_HP_KEY in hyperparameters:
                 m.likelihood.variance = hyperparameters[self._LIKELIHOOD_HP_KEY]
+            m.likelihood.variance.trainable = False
         m.compile()
 
         # If enabled, optimize the hyperparameters
@@ -121,6 +122,8 @@ class BasicGP(BaseModel):
         if kwargs.pop('optimize_hyperparameters'):
             k.lengthscales.transform = gpflow.transforms.Logistic(
                 *self._LENGTHSCALE_BOUNDS)
+        k.lengthscales.trainable = False
+        k.variance.trainable = False
         return k
 
 
@@ -154,6 +157,10 @@ class ExpWhiteGP(BaseModel):
         if kwargs.pop('optimize_hyperparameters'):
             k0.lengthscales.transform = gpflow.transforms.Logistic(
                 *self._LENGTHSCALE_BOUNDS)
+        k0.lengthscales.trainable = False
+        k1.variance.trainable = False
+        k0.lengthscales.trainable = False
+        k1.variance.trainable = False
         k = k0 + k1
         return k
 

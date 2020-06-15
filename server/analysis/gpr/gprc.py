@@ -20,6 +20,7 @@ class GPRC(GPR):
         self.cholesky = None
         self.alpha = None
 
+    @autoflow()
     def _compute_cache(self):
         K = self.kern.K(self.X) + tf.eye(tf.shape(self.X)[0], dtype=settings.float_type) * self.likelihood.variance
         L = tf.cholesky(K, name='gp_cholesky')

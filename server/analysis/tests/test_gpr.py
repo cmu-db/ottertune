@@ -133,12 +133,12 @@ class TestGDGPFlow(unittest.TestCase):
 
     def test_ypreds(self):
         ypreds_round = [round(x[0], 4) for x in self.gpr_result.ypreds]
-        expected_ypreds = [0.5666]
+        expected_ypreds = [0.6782]
         self.assertEqual(ypreds_round, expected_ypreds)
 
     def test_sigmas(self):
         sigmas_round = [round(x[0], 4) for x in self.gpr_result.sigmas]
-        expected_sigmas = [1.459]
+        expected_sigmas = [1.4139]
         self.assertEqual(sigmas_round, expected_sigmas)
 
 

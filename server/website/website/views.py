@@ -1743,6 +1743,7 @@ def alt_create_or_edit_session(request):
                     sess_hyperparams[k] = v
                 else:
                     invalid.append('{}={}'.format(k, v))
+            session.hyperparameters = JSONUtil.dumps(sess_hyperparams)
             session.save()
             if invalid:
                 warn_msg = "Ignored invalid hyperparameters: {}".format(', '.join(invalid))

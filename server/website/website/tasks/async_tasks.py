@@ -323,8 +323,7 @@ def aggregate_target_results(aggregate_target_results_input):
 
     # Aggregate all knob config results tried by the target so far in this
     # tuning session and this tuning workload.
-    target_results = Result.objects.filter(session=session,
-                                           dbms=newest_result.dbms,
+    target_results = Result.objects.filter(dbms=newest_result.dbms,
                                            workload=newest_result.workload)
     LOG.debug("%s: # results: %s", task_name, len(target_results))
     if len(target_results) == 0:

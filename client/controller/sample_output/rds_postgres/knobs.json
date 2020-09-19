@@ -1,5 +1,6 @@
 {
- "global": {"global": {
+ "global": {
+   "global": {
   "DateStyle": "ISO, MDY",
   "IntervalStyle": "postgres",
   "TimeZone": "Etc/UTC",
@@ -290,21 +291,23 @@
   "xmloption": "content",
   "zero_damaged_pages": "off"
  },
- "module":{
-  "pg_stat_statements.max": "5000",
-  "pg_stat_statements.save": "on",
-  "pg_stat_statements.track": "top",
-  "pg_stat_statements.track_utility": "on",
-  "rds.extensions": "address_standardizer, address_standardizer_data_us, amcheck, aws_commons, aws_s3, bloom, btree_gin, btree_gist, citext, cube, dblink, dict_int, dict_xsyn, earthdistance, fuzzystrmatch, hll, hstore, hstore_plperl, intagg, intarray, ip4r, isn, jsonb_plperl, log_fdw, ltree, orafce, pageinspect, pgaudit, pgcrypto, pglogical, pgrouting, pgrowlocks, pgstattuple, pgtap, pg_buffercache, pg_freespacemap, pg_hint_plan, pg_prewarm, pg_repack, pg_similarity, pg_stat_statements, pg_transport, pg_trgm, pg_visibility, plcoffee, plls, plperl, plpgsql, plprofiler, pltcl, plv8, postgis, postgis_tiger_geocoder, postgis_topology, postgres_fdw, prefix, sslinfo, tablefunc, test_parser, tsm_system_rows, tsm_system_time, unaccent, uuid-ossp",
-  "rds.force_admin_logging_level": "disabled",
-  "rds.force_autovacuum_logging_level": "info",
-  "rds.internal_databases": "rdsadmin,template0",
-  "rds.logical_replication": "off",
-  "rds.rds_superuser_reserved_connections": "2",
-  "rds.restrict_logical_slot_creation": "off",
-  "rds.restrict_password_commands": "off",
-  "rds.superuser_variables": "session_replication_role"
-  }
+ "pg_stat_statements":{
+  "max": "5000",
+  "save": "on",
+  "track": "top",
+  "track_utility": "on"
  },
+"rds": {
+  "extensions": "address_standardizer, address_standardizer_data_us, amcheck, aws_commons, aws_s3, bloom, btree_gin, btree_gist, citext, cube, dblink, dict_int, dict_xsyn, earthdistance, fuzzystrmatch, hll, hstore, hstore_plperl, intagg, intarray, ip4r, isn, jsonb_plperl, log_fdw, ltree, orafce, pageinspect, pgaudit, pgcrypto, pglogical, pgrouting, pgrowlocks, pgstattuple, pgtap, pg_buffercache, pg_freespacemap, pg_hint_plan, pg_prewarm, pg_repack, pg_similarity, pg_stat_statements, pg_transport, pg_trgm, pg_visibility, plcoffee, plls, plperl, plpgsql, plprofiler, pltcl, plv8, postgis, postgis_tiger_geocoder, postgis_topology, postgres_fdw, prefix, sslinfo, tablefunc, test_parser, tsm_system_rows, tsm_system_time, unaccent, uuid-ossp",
+  "force_admin_logging_level": "disabled",
+  "force_autovacuum_logging_level": "info",
+  "internal_databases": "rdsadmin,template0",
+  "logical_replication": "off",
+  "rds_superuser_reserved_connections": "2",
+  "restrict_logical_slot_creation": "off",
+  "restrict_password_commands": "off",
+  "superuser_variables": "session_replication_role"
+ }
+},
  "local": null
 }

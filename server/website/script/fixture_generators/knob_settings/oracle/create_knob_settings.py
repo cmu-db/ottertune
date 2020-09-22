@@ -36,6 +36,9 @@ from operator import itemgetter
 # cursor_sharing
 
 
+TUNABLE_KNOB_NUM = 50
+TUNABLE_KNOB_FILE = "selected_knobs.csv"
+
 EXTRA_KNOBS = {
     '_pga_max_size': {
         'default': 200000000,
@@ -428,10 +431,35 @@ def set_field(fields):
         fields['enumvals'] = 'TRUE,FALSE,FORCE'
 
 
+def update_field(fields, tunable_knob_file):
+    with open(tunable_knob_file, 'r') as f:
+        # csv file columns: knob,min,max,vartype,safe,note,
+        # for Enum type knobs, the note field is the enum_val
+        # discard the label row
+        lines = f.readlines()[1:-1]
+        for line in lines:
+            field_list = line.split(',')
+            if ('global.' + field_list[0]).upper() == fields['name'].upper():
+                fields['tunable'] = True
+                if len(field_list[1]) > 0 and len(field_list[2]) > 0:
+                    fields['minval'] = field_list[1]
+                    fields['maxval'] = field_list[2]
+                    fields['default'] = field_list[1]
+                if field_list[3] == 'Enum':
+                    fields['vartype'] = 5
+                    enums = ",".join(field_list[5:-1]).replace("\"", "")
+                    fields['enumvals'] = enums
+                    fields['default'] = enums.split(',')[0]
+                elif field_list[3] == 'Bool':
+                    fields['vartype'] = 4
+                    fields['default'] = True
+
+
 COLNAMES = ("NAME", "TYPE", "DEFAULT_VALUE", "DESCRIPTION")
 
 
 def process_version(version, delim=','):
+    tunable_knob_num = 0
     fields_list = []
     add_fields(fields_list, version)
     with open('oracle{}.csv'.format(version), 'r', newline='') as f:
@@ -478,10 +506,25 @@ def process_version(version, delim=','):
 
             set_field(fields)
             fields['name'] = ('global.' + fields['name']).lower()
+            if fields['tunable']:
+                tunable_knob_num += 1
             fields_list.append(fields)
             ri += 1
 
     fields_list = sorted(fields_list, key=itemgetter('name'))
+
+    # if TUNABLE_KNOB_NUM > tunable_knob_num, we will attempt to make more knobs tunable
+    add_tunable_knob_num = 0
+    for fields in fields_list:
+        if fields['tunable']:
+            continue
+        if add_tunable_knob_num < TUNABLE_KNOB_NUM - tunable_knob_num:
+            update_field(fields, TUNABLE_KNOB_FILE)
+            if fields['tunable']:
+                add_tunable_knob_num += 1
+        else:
+            break
+
     final_metrics = [dict(model='website.KnobCatalog', fields=fs) for fs in fields_list]
     filename = 'oracle-{}_knobs.json'.format(version)
     with open(filename, 'w') as f:
